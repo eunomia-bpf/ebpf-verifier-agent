@@ -6,7 +6,7 @@
 > - 每个任务做完 → 立即更新本文档（任务条目状态 + 关键数据 + 文档路径）。
 > - 每次 context 压缩后 → 完整读取本文档恢复全局状态。
 > - 用 codex background 跑任务，不阻塞主对话。
-> 上次更新：2026-03-11
+> 上次更新：2026-03-11 (taxonomy coverage ✅, plan rewrite ✅)
 
 ---
 
@@ -94,11 +94,11 @@
 
 | Class | 含义 | 典型信号 | 占比（待填） |
 |-------|------|----------|:---:|
-| `source_bug` | 源码真缺 bounds/null/refcount check | "invalid access to packet", "invalid mem access" | 🔄 |
-| `lowering_artifact` | LLVM 生成 verifier-unfriendly bytecode | "unbounded min value" after spill/reload | 🔄 |
-| `verifier_limit` | 程序安全但超了分析能力 | "too many states", "loop not bounded" | 🔄 |
-| `env_mismatch` | helper/kfunc/BTF/attach target 不匹配 | "unknown func", "helper not allowed" | 🔄 |
-| `verifier_bug` | verifier 自己的 bug | regression across versions | 🔄 |
+| `source_bug` | 源码真缺 bounds/null/refcount check | "invalid access to packet", "invalid mem access" | **88.1%** (266/302 heuristic) |
+| `lowering_artifact` | LLVM 生成 verifier-unfriendly bytecode | "unbounded min value" after spill/reload | **4.0%** (12/302) |
+| `verifier_limit` | 程序安全但超了分析能力 | "too many states", "loop not bounded" | **1.3%** (4/302) |
+| `env_mismatch` | helper/kfunc/BTF/attach target 不匹配 | "unknown func", "helper not allowed" | **6.3%** (19/302) |
+| `verifier_bug` | verifier 自己的 bug | regression across versions | **0.3%** (1/302) |
 
 **决策顺序**（消歧义时）：verifier_bug → env_mismatch → lowering_artifact → verifier_limit → source_bug
 
@@ -239,7 +239,7 @@
 | 9 | Kernel selftests collection | ✅ | **200 cases**（可扩到 1026）。66 memory/bounds, 53 dynptr, 34 control-flow, 25 ref, 12 null, 10 other。`docs/tmp/selftests-collection-report.md` |
 | 10 | Stack Overflow collection | ✅ | **76 cases**。66 有 log, 59 有 source, 66 有 fix。`docs/tmp/stackoverflow-collection-report.md` |
 | 11 | GitHub issues collection | ✅ | **26 cases**。Cilium 7, Aya 18, Katran 1。含 `cilium#44216` verifier regression。`docs/tmp/github-collection-report.md` |
-| 12 | **Taxonomy 覆盖分析** | 🔄 | Codex 运行中。目标：现有 10 IDs 覆盖率 + 未覆盖 top-20 messages + 建议新 IDs。`docs/tmp/taxonomy-coverage-report.md`，`eval/results/taxonomy_coverage.json` |
+| 12 | **Taxonomy 覆盖分析** | ✅ | **14.6% 覆盖**（44/302）。E001 最高 18 次。Top unmatched: scalar deref 38, dynptr 31, IRQ/lock 20, iterator 11。建议扩展现有 IDs +32 cases，新增 E011-E018 +124 cases → 预计 ~60%。`docs/tmp/taxonomy-coverage-report.md`，`eval/results/taxonomy_coverage.json`，`eval/taxonomy_coverage.py` |
 | 13 | 人工标注 30 个高质量 case | ❌ | 验证 taxonomy 在真实 case 上的 inter-rater agreement |
 | 14 | Error catalog 扩展到 ~30 IDs | ❌ | 依赖 #12 的 gap analysis |
 | 15 | Rex 72 commits 手动收集 20-30 个 | ❌ | Safe-but-rejected cases，最能体现 OBLIGE 价值 |
