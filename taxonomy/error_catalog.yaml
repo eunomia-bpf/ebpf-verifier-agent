@@ -1,0 +1,127 @@
+# Stable error identifier catalog.
+# IDs are intentionally opaque and monotonic so they can remain stable even if
+# human-readable names evolve as the taxonomy is refined.
+version: 0.1.0
+error_types:
+  - error_id: OBLIGE-E001
+    short_name: packet_bounds_missing
+    taxonomy_class: source_bug
+    title: Packet access without a dominating bounds proof
+    verifier_messages:
+      - "invalid access to packet"
+      - "R[0-9]+ offset is outside of packet"
+    likely_obligation: OBLIGE-O001
+    example_fix_actions:
+      - ADD_BOUNDS_GUARD
+      - RELOAD_PACKET_POINTER_AFTER_CHECK
+
+  - error_id: OBLIGE-E002
+    short_name: nullable_map_value_dereference
+    taxonomy_class: source_bug
+    title: Dereference of `map_value_or_null` without a null check
+    verifier_messages:
+      - "invalid mem access 'map_value_or_null'"
+      - "R[0-9]+ type=map_value_or_null expected=map_value"
+    likely_obligation: OBLIGE-O002
+    example_fix_actions:
+      - ADD_NULL_CHECK
+      - SPLIT_CONTROL_FLOW
+
+  - error_id: OBLIGE-E003
+    short_name: uninitialized_stack_read
+    taxonomy_class: source_bug
+    title: Stack read before initialization proof
+    verifier_messages:
+      - "invalid indirect read from stack"
+      - "stack depth .* before init"
+    likely_obligation: OBLIGE-O003
+    example_fix_actions:
+      - INITIALIZE_STACK_SLOT
+      - REDUCE_HELPER_ARGUMENT_WIDTH
+
+  - error_id: OBLIGE-E004
+    short_name: reference_lifetime_violation
+    taxonomy_class: source_bug
+    title: Referenced object escapes or is released on the wrong path
+    verifier_messages:
+      - "Unreleased reference id="
+      - "reference type=ptr_ expected release"
+    likely_obligation: OBLIGE-O004
+    example_fix_actions:
+      - BALANCE_ACQUIRE_RELEASE
+      - MOVE_RELEASE_TO_ALL_PATHS
+
+  - error_id: OBLIGE-E005
+    short_name: scalar_range_too_wide_after_lowering
+    taxonomy_class: lowering_artifact
+    title: Scalar range widened by lowering and no longer proves safety
+    verifier_messages:
+      - "unbounded min value"
+      - "min value is negative, either use unsigned or 'var &= const'"
+    likely_obligation: OBLIGE-O005
+    example_fix_actions:
+      - INSERT_RANGE_CLAMP
+      - FORCE_UNSIGNED_CAST
+
+  - error_id: OBLIGE-E006
+    short_name: provenance_lost_across_spill
+    taxonomy_class: lowering_artifact
+    title: Pointer provenance lost across spill, reload, or helper boundary
+    verifier_messages:
+      - "pointer arithmetic on pkt_end"
+      - "expected pointer type, got scalar"
+    likely_obligation: OBLIGE-O006
+    example_fix_actions:
+      - AVOID_SPILL_RELOAD
+      - RESTRUCTURE_HELPER_CALL
+
+  - error_id: OBLIGE-E007
+    short_name: verifier_state_explosion
+    taxonomy_class: verifier_limit
+    title: Program rejected because verifier state exploration becomes too large
+    verifier_messages:
+      - "too many states"
+      - "The sequence of .* jumps is too complex"
+    likely_obligation: OBLIGE-O007
+    example_fix_actions:
+      - REDUCE_CONTROL_FLOW_BRANCHING
+      - HOIST_COMMON_CHECKS
+
+  - error_id: OBLIGE-E008
+    short_name: bounded_loop_not_proved
+    taxonomy_class: verifier_limit
+    title: Loop appears safe but verifier cannot prove a bound or invariant
+    verifier_messages:
+      - "loop is not bounded"
+      - "back-edge"
+    likely_obligation: OBLIGE-O008
+    example_fix_actions:
+      - STRENGTHEN_LOOP_BOUND
+      - ADD_MONOTONIC_COUNTER_GUARD
+
+  - error_id: OBLIGE-E009
+    short_name: helper_or_kfunc_unavailable
+    taxonomy_class: env_mismatch
+    title: Helper, kfunc, or attach target unavailable in the active environment
+    verifier_messages:
+      - "unknown func"
+      - "helper call is not allowed"
+      - "attach_btf_id is not a function"
+    likely_obligation: OBLIGE-O009
+    example_fix_actions:
+      - SWITCH_HELPER
+      - GATE_ON_KERNEL_FEATURE
+
+  - error_id: OBLIGE-E010
+    short_name: verifier_regression_or_internal_bug
+    taxonomy_class: verifier_bug
+    title: Internal verifier defect or version-dependent regression
+    verifier_messages:
+      - "kernel BUG at kernel/bpf/verifier.c"
+      - "WARNING:.*verifier"
+      - "invalid state transition"
+    likely_obligation: OBLIGE-O010
+    example_fix_actions:
+      - MINIMIZE_REPRODUCER
+      - BISECT_KERNEL
+

@@ -1,0 +1,138 @@
+# Proof-obligation templates extracted from verifier failures.
+version: 0.1.0
+templates:
+  - obligation_id: OBLIGE-O001
+    taxonomy_class: source_bug
+    title: Packet access must be dominated by an in-bounds proof
+    expected_state: For every packet dereference, the verifier can prove `ptr + size <= data_end`.
+    observed_state: Pointer arithmetic or control-flow ordering leaves the packet access outside a proven region.
+    verifier_cues:
+      - "invalid access to packet"
+      - "outside of packet"
+    repair_hints:
+      - Insert a guard using `data_end`.
+      - Reload packet pointers after helper calls or branch joins if precision was lost.
+    related_error_ids:
+      - OBLIGE-E001
+
+  - obligation_id: OBLIGE-O002
+    taxonomy_class: source_bug
+    title: Nullable pointers must be refined to non-null before dereference
+    expected_state: Control flow proves a `map_value_or_null` or kptr is non-null on the dereference path.
+    observed_state: The verifier still tracks the register as nullable at use time.
+    verifier_cues:
+      - "map_value_or_null"
+    repair_hints:
+      - Add a null check in the same control-flow region.
+      - Avoid storing the refined pointer in a way that loses the non-null fact.
+    related_error_ids:
+      - OBLIGE-E002
+
+  - obligation_id: OBLIGE-O003
+    taxonomy_class: source_bug
+    title: Stack slots passed to helpers or read locally must be initialized
+    expected_state: Every byte read from the stack has a dominating write or zero-initialization.
+    observed_state: Helper arguments or local reads reach uninitialized stack regions.
+    verifier_cues:
+      - "invalid indirect read from stack"
+    repair_hints:
+      - Zero the full struct or stack region before use.
+      - Narrow helper argument size to the initialized prefix.
+    related_error_ids:
+      - OBLIGE-E003
+
+  - obligation_id: OBLIGE-O004
+    taxonomy_class: source_bug
+    title: Reference-typed objects require balanced lifetime management
+    expected_state: Every acquired reference is released exactly once on all exiting paths.
+    observed_state: At least one path leaks, double-releases, or escapes the reference.
+    verifier_cues:
+      - "Unreleased reference"
+    repair_hints:
+      - Restructure exits so release occurs on all paths.
+      - Duplicate cleanup before early returns when necessary.
+    related_error_ids:
+      - OBLIGE-E004
+
+  - obligation_id: OBLIGE-O005
+    taxonomy_class: lowering_artifact
+    title: Scalar ranges must remain tight enough after lowering to prove safety
+    expected_state: The verifier tracks a bounded, non-negative scalar range through the failing access.
+    observed_state: LLVM lowering widens the range or introduces a sign ambiguity.
+    verifier_cues:
+      - "unbounded min value"
+      - "use unsigned"
+    repair_hints:
+      - Add masking or explicit casts.
+      - Refactor expressions to keep range-tight values in distinct temporaries.
+    related_error_ids:
+      - OBLIGE-E005
+
+  - obligation_id: OBLIGE-O006
+    taxonomy_class: lowering_artifact
+    title: Pointer provenance must survive spills, reloads, and helper boundaries
+    expected_state: Registers used as pointers preserve their verifier type and provenance.
+    observed_state: A spill/reload or helper interaction degrades the register to a scalar or imprecise pointer.
+    verifier_cues:
+      - "expected pointer type, got scalar"
+    repair_hints:
+      - Avoid passing the pointer through generic temporaries.
+      - Reconstruct the pointer from a fresh verified base.
+    related_error_ids:
+      - OBLIGE-E006
+
+  - obligation_id: OBLIGE-O007
+    taxonomy_class: verifier_limit
+    title: Control flow must stay within verifier state-exploration limits
+    expected_state: The verifier explores a tractable number of distinct abstract states.
+    observed_state: Path explosion or repeated joins exceed implementation limits.
+    verifier_cues:
+      - "too many states"
+      - "too complex"
+    repair_hints:
+      - Hoist shared checks and reduce branching fan-out.
+      - Split the program into smaller helpers or tail calls.
+    related_error_ids:
+      - OBLIGE-E007
+
+  - obligation_id: OBLIGE-O008
+    taxonomy_class: verifier_limit
+    title: Loop iterations require a visible bound and monotonic progress
+    expected_state: The verifier proves an induction variable or explicit trip count decreases toward termination.
+    observed_state: The loop body obscures the exit condition or progress metric.
+    verifier_cues:
+      - "loop is not bounded"
+    repair_hints:
+      - Add an explicit max-iteration counter.
+      - Simplify loop-carried state and exit conditions.
+    related_error_ids:
+      - OBLIGE-E008
+
+  - obligation_id: OBLIGE-O009
+    taxonomy_class: env_mismatch
+    title: Helper, kfunc, and attach assumptions must match the running kernel environment
+    expected_state: The target kernel exports the required helper, kfunc, BTF info, and attach target.
+    observed_state: Verification fails because the environment lacks one of those capabilities.
+    verifier_cues:
+      - "unknown func"
+      - "attach_btf_id"
+    repair_hints:
+      - Gate features by kernel version or probe capability at runtime.
+      - Swap to a helper available for the selected program type.
+    related_error_ids:
+      - OBLIGE-E009
+
+  - obligation_id: OBLIGE-O010
+    taxonomy_class: verifier_bug
+    title: Equivalent programs should produce stable verifier behavior across kernel versions
+    expected_state: The verifier rejects or accepts consistently and without internal warnings.
+    observed_state: A regression or bug causes inconsistent diagnostics or internal faults.
+    verifier_cues:
+      - "kernel BUG"
+      - "WARNING"
+    repair_hints:
+      - Minimize the reproducer.
+      - Capture kernel version, config, and commit range for a bug report.
+    related_error_ids:
+      - OBLIGE-E010
+

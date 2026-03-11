@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+
+# Local outputs and artifacts
+out/
+eval/results/
+benchmark/cases/
+*.log
+*.jsonl
+
+# Editor and OS noise
+.DS_Store
+.idea/
+.vscode/

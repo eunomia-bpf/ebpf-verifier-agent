@@ -1,0 +1,3 @@
+PyYAML>=6.0
+jsonschema>=4.22
+pytest>=8.0

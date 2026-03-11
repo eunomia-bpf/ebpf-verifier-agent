@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oblige.dev/schema/diagnostic.json",
+  "title": "OBLIGE Structured Diagnostic",
+  "description": "Machine-consumable representation of a verifier failure with source mapping, abstract-state evidence, and candidate repair hints.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "diagnostic_version",
+    "error_id",
+    "failure_class",
+    "message",
+    "source_span",
+    "missing_obligation"
+  ],
+  "properties": {
+    "diagnostic_version": {
+      "type": "string",
+      "description": "Version of the diagnostic schema emitted by the extractor.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "error_id": {
+      "type": "string",
+      "description": "Stable diagnostic identifier intended to remain more durable than raw verifier text.",
+      "pattern": "^[a-z0-9_.:-]+$"
+    },
+    "case_id": {
+      "type": "string",
+      "description": "Optional link back to a benchmark case."
+    },
+    "kernel_release": {
+      "type": "string",
+      "description": "Kernel release or build tag under which the diagnostic was produced."
+    },
+    "failure_class": {
+      "type": "string",
+      "enum": [
+        "source_bug",
+        "lowering_artifact",
+        "verifier_limit",
+        "env_mismatch",
+        "verifier_bug"
+      ]
+    },
+    "message": {
+      "type": "string",
+      "description": "Short human-readable summary of the failure."
+    },
+    "source_span": {
+      "$ref": "#/$defs/source_span"
+    },
+    "verifier_site": {
+      "$ref": "#/$defs/verifier_site"
+    },
+    "expected_state": {
+      "$ref": "#/$defs/abstract_state"
+    },
+    "observed_state": {
+      "$ref": "#/$defs/abstract_state"
+    },
+    "missing_obligation": {
+      "type": "string",
+      "description": "Canonical description of the proof obligation that was not discharged."
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence_item"
+      },
+      "default": []
+    },
+    "candidate_repairs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/repair_action"
+      },
+      "default": []
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Extractor confidence in the primary diagnosis."
+    },
+    "raw_log_excerpt": {
+      "type": "string",
+      "description": "Optional short excerpt from the verifier log for traceability."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Extensible metadata bag for non-core fields.",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "source_span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "line_start",
+        "line_end"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Repository-relative or absolute source path."
+        },
+        "function": {
+          "type": "string",
+          "description": "Optional function name containing the failure site."
+        },
+        "line_start": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "line_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column_start": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "snippet": {
+          "type": "string",
+          "description": "Optional short code excerpt."
+        }
+      }
+    },
+    "verifier_site": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "check_name": {
+          "type": "string",
+          "description": "Human-oriented name of the verifier check site."
+        },
+        "kernel_function": {
+          "type": "string",
+          "description": "Kernel verifier function associated with the rejection."
+        },
+        "instruction_index": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "abstract_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "registers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Compact per-register facts such as pointer type or scalar range."
+        },
+        "stack": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional stack-slot summaries."
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "evidence_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "detail"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "verifier_log",
+            "source_map",
+            "abstract_state",
+            "kernel_capability",
+            "heuristic"
+          ]
+        },
+        "detail": {
+          "type": "string"
+        },
+        "instruction_index": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "repair_action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "rationale"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "ADD_BOUNDS_GUARD",
+            "ADD_NULL_CHECK",
+            "TIGHTEN_RANGE",
+            "SIMPLIFY_CFG",
+            "REWRITE_POINTER_ARITH",
+            "GATE_BY_KERNEL_CAPABILITY",
+            "INVESTIGATE_VERIFIER_BUG",
+            "UNKNOWN"
+          ]
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "patch_hint": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
