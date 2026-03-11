@@ -115,17 +115,26 @@ def parse_args() -> argparse.Namespace:
         help="Minimum delay between GitHub API requests.",
     )
     parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Increase progress output. Accepted for CLI parity; logging is verbose by default.",
+    )
+    parser.add_argument(
         "--quiet",
         action="store_true",
         help="Reduce progress output.",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.verbose:
+        args.quiet = False
+    return args
 
 
 class GitHubIssuesCollector:
     def __init__(self, args: argparse.Namespace) -> None:
         self.args = args
         self.logger = ProgressLogger(quiet=args.quiet)
+        self.comments_disabled_reason = ""
         headers: dict[str, str] = {"Accept": "application/vnd.github+json"}
         if args.github_token:
             headers["Authorization"] = f"Bearer {args.github_token}"
@@ -219,6 +228,7 @@ class GitHubIssuesCollector:
                                 "number": int(item["number"]),
                                 "title": item.get("title", ""),
                                 "html_url": item.get("html_url", ""),
+                                "search_issue": item,
                             },
                         )
                     if len(deduped) >= candidate_budget or len(items) < min(self.args.pagesize, 100):
@@ -227,23 +237,38 @@ class GitHubIssuesCollector:
                     break
             if len(deduped) >= candidate_budget:
                 break
-        return sorted(deduped.values(), key=lambda item: (item["repository"], item["number"]))
+        return sorted(
+            deduped.values(),
+            key=lambda item: (
+                item.get("search_issue", {}).get("updated_at", ""),
+                item.get("repository", ""),
+                item.get("number", 0),
+            ),
+            reverse=True,
+        )
 
     def _build_case(self, candidate: dict[str, Any]) -> dict[str, Any] | None:
-        issue = self._fetch_issue(candidate["repository"], candidate["number"])
-        comments = self._fetch_comments(candidate["repository"], candidate["number"])
+        issue = dict(candidate.get("search_issue") or self._fetch_issue(candidate["repository"], candidate["number"]))
 
-        bodies = [issue.get("body", "") or ""]
-        bodies.extend(comment.get("body", "") or "" for comment in comments)
-        code_blocks: list[str] = []
-        for body in bodies:
-            code_blocks.extend(extract_markdown_code_blocks(body))
-        verifier_logs, source_snippets = partition_code_blocks(code_blocks)
-
-        combined_text = "\n".join([issue.get("title", ""), *(strip_markdown(body) for body in bodies)])
-        if not (contains_verifier_signal(combined_text) or verifier_logs):
+        issue_body = issue.get("body", "") or ""
+        issue_code_blocks = extract_markdown_code_blocks(issue_body)
+        verifier_logs, source_snippets = partition_code_blocks(issue_code_blocks)
+        issue_text = "\n".join([issue.get("title", ""), strip_markdown(issue_body)])
+        if not (contains_verifier_signal(issue_text) or verifier_logs):
             return None
 
+        comments = self._fetch_comments(candidate["repository"], candidate["number"], issue)
+        bodies = [issue_body]
+        bodies.extend(comment.get("body", "") or "" for comment in comments)
+        if comments:
+            comment_code_blocks: list[str] = []
+            for body in bodies[1:]:
+                comment_code_blocks.extend(extract_markdown_code_blocks(body))
+            comment_verifier_logs, comment_source_snippets = partition_code_blocks(comment_code_blocks)
+            verifier_logs = dedupe_preserve_order(verifier_logs + comment_verifier_logs)
+            source_snippets = dedupe_preserve_order(source_snippets + comment_source_snippets)
+
+        combined_text = "\n".join([issue.get("title", ""), *(strip_markdown(body) for body in bodies)])
         fix_payload = self._select_fix_payload(issue, comments)
         owner, repo = candidate["repository"].split("/", 1)
         return {
@@ -275,16 +300,30 @@ class GitHubIssuesCollector:
         payload, _response = self.client.get_json(f"{GITHUB_API}/repos/{repository}/issues/{issue_number}")
         return payload
 
-    def _fetch_comments(self, repository: str, issue_number: int) -> list[dict[str, Any]]:
+    def _fetch_comments(self, repository: str, issue_number: int, issue: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+        if self.comments_disabled_reason:
+            return []
+        if issue and int(issue.get("comments", 0) or 0) <= 0:
+            return []
         comments: list[dict[str, Any]] = []
         remaining = self.args.max_comments
         page = 1
         while remaining > 0:
             page_size = min(remaining, 100)
-            payload, _response = self.client.get_json(
-                f"{GITHUB_API}/repos/{repository}/issues/{issue_number}/comments",
-                params={"per_page": page_size, "page": page, "sort": "created", "direction": "asc"},
-            )
+            try:
+                payload, _response = self.client.get_json(
+                    f"{GITHUB_API}/repos/{repository}/issues/{issue_number}/comments",
+                    params={"per_page": page_size, "page": page, "sort": "created", "direction": "asc"},
+                )
+            except RuntimeError as exc:
+                if "Rate limit exhausted" in str(exc):
+                    self.comments_disabled_reason = str(exc)
+                    self.logger.warn(
+                        "Disabling GitHub comment fetches for the rest of the run: "
+                        f"{self.comments_disabled_reason}"
+                    )
+                    return comments
+                raise
             if not payload:
                 break
             comments.extend(payload)

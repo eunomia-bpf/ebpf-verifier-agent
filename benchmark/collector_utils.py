@@ -67,6 +67,11 @@ VERIFIER_SIGNAL_PATTERNS = [
     r"math between .* pointer and register",
 ]
 VERIFIER_SIGNAL_REGEXES = [re.compile(pattern, re.IGNORECASE) for pattern in VERIFIER_SIGNAL_PATTERNS]
+FAILURE_LANGUAGE_RE = re.compile(
+    r"(?:\berror\b|\bfail(?:ed|s|ing|ure)?\b|\breject(?:ed|s|ing)?\b|permission denied|too large|too complex|"
+    r"outside of|unbounded|back-edge|truncated|invalid access|expected=|not allowed|exceeds)",
+    re.IGNORECASE,
+)
 E_BPF_CONTEXT_RE = re.compile(r"\b(?:ebpf|eBPF|bpf|xdp|tc|libbpf)\b")
 STACKTRACE_RE = re.compile(r"^\d+:\s+\([0-9a-f]{2}\)", re.IGNORECASE)
 FENCED_BLOCK_RE = re.compile(r"```[^\n`]*\n(.*?)```", re.DOTALL)
@@ -360,6 +365,10 @@ def contains_ebpf_context(text: str, tags: list[str] | None = None) -> bool:
     if tags and any(tag.lower() in {"ebpf", "bpf", "xdp", "libbpf"} for tag in tags):
         return True
     return bool(E_BPF_CONTEXT_RE.search(text or ""))
+
+
+def contains_failure_language(text: str) -> bool:
+    return bool(FAILURE_LANGUAGE_RE.search(text or ""))
 
 
 def score_verifier_log(block: str) -> int:

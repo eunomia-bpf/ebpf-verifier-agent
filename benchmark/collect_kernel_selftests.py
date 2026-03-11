@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import re
 import shutil
 import subprocess
@@ -30,11 +31,12 @@ DESCRIPTION_RE = re.compile(r'__description\("((?:[^"\\]|\\.)*)"\)')
 MSG_RE = re.compile(r'__msg\("((?:[^"\\]|\\.)*)"\)')
 MSG_UNPRIV_RE = re.compile(r'__msg_unpriv\("((?:[^"\\]|\\.)*)"\)')
 LOG_LEVEL_RE = re.compile(r"__log_level\((\d+)\)")
-BPF_PROG_RE = re.compile(r"\bBPF_PROG\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)")
+BPF_PROG_RE = re.compile(r"\bBPF_PROG\(\s*([A-Za-z_][A-Za-z0-9_]*)\b")
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Collect negative eBPF verifier selftests from the Linux kernel tree.")
+    parser.set_defaults(quiet=False)
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -79,10 +81,18 @@ def parse_args() -> argparse.Namespace:
         default=250,
         help="Maximum number of cases to write.",
     )
-    parser.add_argument(
+    verbosity = parser.add_mutually_exclusive_group()
+    verbosity.add_argument(
         "--quiet",
+        dest="quiet",
         action="store_true",
         help="Reduce progress output.",
+    )
+    verbosity.add_argument(
+        "--verbose",
+        dest="quiet",
+        action="store_false",
+        help="Enable progress output.",
     )
     return parser.parse_args()
 
@@ -121,10 +131,7 @@ class KernelSelftestsCollector:
             for case in cases:
                 if written >= self.args.max_cases:
                     break
-                relative_path = Path(case["selftest"]["file"])
-                file_slug = slugify(relative_path.stem, fallback="selftest")
-                function_slug = slugify(case["selftest"]["function"] or case["selftest"]["description"], fallback="prog")
-                case_path = self.args.output_dir / f"kernel-selftest-{file_slug}-{function_slug}.yaml"
+                case_path = self.args.output_dir / f"{case['case_id']}.yaml"
                 if case_path in seen_case_paths:
                     self.logger.warn(f"Skipping duplicate case path {case_path}")
                     continue
@@ -281,10 +288,14 @@ class KernelSelftestsCollector:
 
             description = descriptions[0] if descriptions else function_name or file_path.stem
             relative_file = file_path.relative_to(kernel_root)
-            case_id = f"kernel-selftest-{relative_file.stem}-{function_name or slugify(description)}"
+            chunk_hash = hashlib.sha1(chunk.encode("utf-8")).hexdigest()[:8]
+            file_slug = slugify(relative_file.stem, fallback="selftest", max_length=24)
+            function_slug = slugify(function_name or description, fallback="prog", max_length=44)
+            section_slug = slugify(section, fallback="section", max_length=24)
+            case_id = f"kernel-selftest-{file_slug}-{function_slug}-{section_slug}-{chunk_hash}"
             cases.append(
                 {
-                    "case_id": slugify(case_id, fallback="kernel-selftest", max_length=120),
+                    "case_id": case_id,
                     "source": "kernel_selftests",
                     "collected_at": utc_now(),
                     "selftest": {

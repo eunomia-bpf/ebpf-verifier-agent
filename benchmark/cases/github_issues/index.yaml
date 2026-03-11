@@ -1,0 +1,310 @@
+source: github_issues
+generated_at: '2026-03-11T16:02:14+00:00'
+generator: benchmark/collect_github_issues.py
+case_count: 26
+output_dir: benchmark/cases/github_issues
+source_details:
+  repositories:
+  - cilium/cilium
+  - aya-rs/aya
+  - facebookincubator/katran
+  queries:
+  - verifier
+cases:
+- case_id: github-cilium-cilium-44216
+  path: benchmark/cases/github_issues/github-cilium-cilium-44216.yaml
+  repository: cilium/cilium
+  issue_number: 44216
+  title: Cilium breaks the cluster on 6.18.5-talos because of regressin in kernel/bpf/verifier.c
+  url: https://github.com/cilium/cilium/issues/44216
+  labels:
+  - kind/bug
+  - area/kernel
+  - area/datapath
+  - kind/community-report
+  has_fix_summary: true
+  verifier_log_blocks: 2
+  source_snippet_count: 0
+- case_id: github-cilium-cilium-41412
+  path: benchmark/cases/github_issues/github-cilium-cilium-41412.yaml
+  repository: cilium/cilium
+  issue_number: 41412
+  title: The new bpf/tests/builtins doesn't run with /proc/sys/net/core/bpf_jit_harden = 2
+  url: https://github.com/cilium/cilium/issues/41412
+  labels:
+  - kind/bug
+  - area/datapath
+  - needs/triage
+  - kind/community-report
+  - stale
+  has_fix_summary: true
+  verifier_log_blocks: 3
+  source_snippet_count: 0
+- case_id: github-aya-rs-aya-1490
+  path: benchmark/cases/github_issues/github-aya-rs-aya-1490.yaml
+  repository: aya-rs/aya
+  issue_number: 1490
+  title: BPF_BTF_LOAD MaybeUninit Invalid name
+  url: https://github.com/aya-rs/aya/issues/1490
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 1
+  source_snippet_count: 0
+- case_id: github-cilium-cilium-41996
+  path: benchmark/cases/github_issues/github-cilium-cilium-41996.yaml
+  repository: cilium/cilium
+  issue_number: 41996
+  title: Cilium 1.18.0 networking failure - Using BPF Masquerading and nodeport causes endpoints to lose connectivity
+  url: https://github.com/cilium/cilium/issues/41996
+  labels:
+  - kind/bug
+  - need-more-info
+  - area/datapath
+  - needs/triage
+  - kind/community-report
+  - kind/complexity-issue
+  has_fix_summary: true
+  verifier_log_blocks: 2
+  source_snippet_count: 0
+- case_id: github-aya-rs-aya-1324
+  path: benchmark/cases/github_issues/github-aya-rs-aya-1324.yaml
+  repository: aya-rs/aya
+  issue_number: 1324
+  title: Bad file descriptor only when EbpfLogger::init is called
+  url: https://github.com/aya-rs/aya/issues/1324
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 2
+  source_snippet_count: 6
+- case_id: github-cilium-cilium-41522
+  path: benchmark/cases/github_issues/github-cilium-cilium-41522.yaml
+  repository: cilium/cilium
+  issue_number: 41522
+  title: 'Verifier error: program cil_from_netdev: load program: permission denied: invalid access to packet'
+  url: https://github.com/cilium/cilium/issues/41522
+  labels:
+  - kind/bug
+  - area/datapath
+  - kind/community-report
+  - feature/ipv6
+  - feature/l2-announcement
+  - info-completed
+  has_fix_summary: true
+  verifier_log_blocks: 3
+  source_snippet_count: 1
+- case_id: github-cilium-cilium-37478
+  path: benchmark/cases/github_issues/github-cilium-cilium-37478.yaml
+  repository: cilium/cilium
+  issue_number: 37478
+  title: 'Verifier error: program tail_handle_snat_fwd_ipv4: load program: permission denied: 2908: (69) r5 = *(u16 *)(r1 +36): R1 invalid mem access ''map_value_or_null'' (4703 line(s) omitted)'
+  url: https://github.com/cilium/cilium/issues/37478
+  labels:
+  - kind/bug
+  - need-more-info
+  - area/datapath
+  - needs/triage
+  - kind/community-report
+  - kind/regression
+  - stale
+  - affects/v1.16
+  has_fix_summary: true
+  verifier_log_blocks: 5
+  source_snippet_count: 3
+- case_id: github-aya-rs-aya-1267
+  path: benchmark/cases/github_issues/github-aya-rs-aya-1267.yaml
+  repository: aya-rs/aya
+  issue_number: 1267
+  title: Receiving Permission denied (os error 13)
+  url: https://github.com/aya-rs/aya/issues/1267
+  labels: []
+  has_fix_summary: false
+  verifier_log_blocks: 1
+  source_snippet_count: 1
+- case_id: github-aya-rs-aya-1207
+  path: benchmark/cases/github_issues/github-aya-rs-aya-1207.yaml
+  repository: aya-rs/aya
+  issue_number: 1207
+  title: Fix or examples required for socket filter byte loading
+  url: https://github.com/aya-rs/aya/issues/1207
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 1
+  source_snippet_count: 0
+- case_id: github-aya-rs-aya-1233
+  path: benchmark/cases/github_issues/github-aya-rs-aya-1233.yaml
+  repository: aya-rs/aya
+  issue_number: 1233
+  title: '`cgroup_skb` program cannot use `bpf_probe_read` helper'
+  url: https://github.com/aya-rs/aya/issues/1233
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 2
+  source_snippet_count: 1
+- case_id: github-cilium-cilium-36936
+  path: benchmark/cases/github_issues/github-cilium-cilium-36936.yaml
+  repository: cilium/cilium
+  issue_number: 36936
+  title: 'BPF verifier reject in tail_handle_ipv4_from_host (was: Installing cilium on AKS with delegated plugin in tunnel mode results in permissions error)'
+  url: https://github.com/cilium/cilium/issues/36936
+  labels:
+  - kind/bug
+  - area/datapath
+  - needs/triage
+  - kind/community-report
+  - info-completed
+  has_fix_summary: true
+  verifier_log_blocks: 4
+  source_snippet_count: 0
+- case_id: github-cilium-cilium-35182
+  path: benchmark/cases/github_issues/github-cilium-cilium-35182.yaml
+  repository: cilium/cilium
+  issue_number: 35182
+  title: 'TestBPF/tc_nodeport_lb4_nat_lb.o: bpf_test.go:174: verifier error: load program: invalid argument: Validating mock_fib_lookup() func#1 arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
+  url: https://github.com/cilium/cilium/issues/35182
+  labels:
+  - kind/question
+  - area/datapath
+  - kind/community-report
+  has_fix_summary: true
+  verifier_log_blocks: 2
+  source_snippet_count: 0
+- case_id: github-aya-rs-aya-1104
+  path: benchmark/cases/github_issues/github-aya-rs-aya-1104.yaml
+  repository: aya-rs/aya
+  issue_number: 1104
+  title: xdp_hello example fails verifier in docker rust container
+  url: https://github.com/aya-rs/aya/issues/1104
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 1
+  source_snippet_count: 1
+- case_id: github-aya-rs-aya-1056
+  path: benchmark/cases/github_issues/github-aya-rs-aya-1056.yaml
+  repository: aya-rs/aya
+  issue_number: 1056
+  title: 'aya-template uprobe Error: the BPF_PROG_LOAD syscall failed. Verifier output: last insn is not an exit or jmp'
+  url: https://github.com/aya-rs/aya/issues/1056
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 2
+  source_snippet_count: 1
+- case_id: github-aya-rs-aya-521
+  path: benchmark/cases/github_issues/github-aya-rs-aya-521.yaml
+  repository: aya-rs/aya
+  issue_number: 521
+  title: missing btf func_info whilst using bpf_loop()
+  url: https://github.com/aya-rs/aya/issues/521
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 1
+  source_snippet_count: 10
+- case_id: github-aya-rs-aya-1002
+  path: benchmark/cases/github_issues/github-aya-rs-aya-1002.yaml
+  repository: aya-rs/aya
+  issue_number: 1002
+  title: 'Error: the BPF_PROG_LOAD syscall failed.'
+  url: https://github.com/aya-rs/aya/issues/1002
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 1
+  source_snippet_count: 2
+- case_id: github-aya-rs-aya-1062
+  path: benchmark/cases/github_issues/github-aya-rs-aya-1062.yaml
+  repository: aya-rs/aya
+  issue_number: 1062
+  title: uretprobe latest aya version cannot pass anymore ctx.ret().unwrap to bpf_probe_read
+  url: https://github.com/aya-rs/aya/issues/1062
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 3
+  source_snippet_count: 8
+- case_id: github-aya-rs-aya-808
+  path: benchmark/cases/github_issues/github-aya-rs-aya-808.yaml
+  repository: aya-rs/aya
+  issue_number: 808
+  title: 'Bug in Aya log '
+  url: https://github.com/aya-rs/aya/issues/808
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 1
+  source_snippet_count: 0
+- case_id: github-aya-rs-aya-864
+  path: benchmark/cases/github_issues/github-aya-rs-aya-864.yaml
+  repository: aya-rs/aya
+  issue_number: 864
+  title: unknown func bpf_get_current_pid_tgid - but it actually exists
+  url: https://github.com/aya-rs/aya/issues/864
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 1
+  source_snippet_count: 2
+- case_id: github-aya-rs-aya-863
+  path: benchmark/cases/github_issues/github-aya-rs-aya-863.yaml
+  repository: aya-rs/aya
+  issue_number: 863
+  title: BPF verify failed with "Permission denied (os error 13)"
+  url: https://github.com/aya-rs/aya/issues/863
+  labels: []
+  has_fix_summary: false
+  verifier_log_blocks: 1
+  source_snippet_count: 5
+- case_id: github-aya-rs-aya-857
+  path: benchmark/cases/github_issues/github-aya-rs-aya-857.yaml
+  repository: aya-rs/aya
+  issue_number: 857
+  title: 'Question: Is it possible to use bpf_spin_lock with aya'
+  url: https://github.com/aya-rs/aya/issues/857
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 1
+  source_snippet_count: 0
+- case_id: github-aya-rs-aya-546
+  path: benchmark/cases/github_issues/github-aya-rs-aya-546.yaml
+  repository: aya-rs/aya
+  issue_number: 546
+  title: BPF Verifier errors when using aya logger with strings, c_chars, and [u8]
+  url: https://github.com/aya-rs/aya/issues/546
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 1
+  source_snippet_count: 6
+- case_id: github-aya-rs-aya-458
+  path: benchmark/cases/github_issues/github-aya-rs-aya-458.yaml
+  repository: aya-rs/aya
+  issue_number: 458
+  title: How to write into a PerCpuArray element from eBPF?
+  url: https://github.com/aya-rs/aya/issues/458
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 1
+  source_snippet_count: 0
+- case_id: github-aya-rs-aya-440
+  path: benchmark/cases/github_issues/github-aya-rs-aya-440.yaml
+  repository: aya-rs/aya
+  issue_number: 440
+  title: dump packet data as &[u8] from XdpContext, return helper access to the packet is not allowed
+  url: https://github.com/aya-rs/aya/issues/440
+  labels: []
+  has_fix_summary: false
+  verifier_log_blocks: 1
+  source_snippet_count: 9
+- case_id: github-aya-rs-aya-407
+  path: benchmark/cases/github_issues/github-aya-rs-aya-407.yaml
+  repository: aya-rs/aya
+  issue_number: 407
+  title: PerfEventArray only supports 32 bit datatypes
+  url: https://github.com/aya-rs/aya/issues/407
+  labels: []
+  has_fix_summary: true
+  verifier_log_blocks: 1
+  source_snippet_count: 2
+- case_id: github-facebookincubator-katran-149
+  path: benchmark/cases/github_issues/github-facebookincubator-katran-149.yaml
+  repository: facebookincubator/katran
+  issue_number: 149
+  title: "Load balancer_kern.o error\uFF1AProg section 'xdp-balancer' rejected: Permission denied (13)!"
+  url: https://github.com/facebookincubator/katran/issues/149
+  labels: []
+  has_fix_summary: false
+  verifier_log_blocks: 1
+  source_snippet_count: 0

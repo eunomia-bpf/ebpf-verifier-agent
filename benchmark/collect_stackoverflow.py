@@ -12,6 +12,7 @@ from collector_utils import (
     ProgressLogger,
     compact_case_index,
     contains_ebpf_context,
+    contains_failure_language,
     contains_verifier_signal,
     dedupe_preserve_order,
     ensure_directory,
@@ -92,6 +93,11 @@ def parse_args() -> argparse.Namespace:
         "--quiet",
         action="store_true",
         help="Reduce progress output.",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Accepted for CLI compatibility; verbose progress output is already the default.",
     )
     return parser.parse_args()
 
@@ -214,6 +220,11 @@ class StackOverflowCollector:
             verifier_logs = dedupe_preserve_order(verifier_logs + answer_logs)
             if not source_snippets:
                 source_snippets = answer_sources
+
+        # Skip explanatory discussion threads that mention verifier concepts but do not
+        # present a concrete failure report or include a verifier log snippet.
+        if not verifier_logs and not contains_failure_language("\n".join([question.get("title", ""), question_text])):
+            return None
 
         case_id = f"stackoverflow-{question['question_id']}"
         combined_log = "\n\n".join(verifier_logs)
