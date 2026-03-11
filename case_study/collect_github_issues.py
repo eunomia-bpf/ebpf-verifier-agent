@@ -64,7 +64,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("benchmark/cases/github_issues"),
+        default=Path("case_study/cases/github_issues"),
         help="Directory where YAML case files and index.yaml are written.",
     )
     parser.add_argument(
@@ -192,7 +192,7 @@ class GitHubIssuesCollector:
 
         index_payload = compact_case_index(
             source_name="github_issues",
-            script_name="benchmark/collect_github_issues.py",
+            script_name="case_study/collect_github_issues.py",
             output_dir=self.args.output_dir,
             cases=case_summaries,
             source_details={"repositories": repositories, "queries": query_expressions},

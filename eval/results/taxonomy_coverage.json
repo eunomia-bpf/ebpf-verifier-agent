@@ -15,7 +15,7 @@
       "parser_error_id": "OBLIGE-E018",
       "parser_error_line": "combined stack size of 2 calls is",
       "parser_taxonomy_class": "verifier_limit",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -33,7 +33,7 @@
       "parser_error_id": "OBLIGE-E018",
       "parser_error_line": "combined stack size of 2 calls is",
       "parser_taxonomy_class": "verifier_limit",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-async-stack-depth-pseudo-call-check-tc-320d654d.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-async-stack-depth-pseudo-call-check-tc-320d654d.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -50,22 +50,24 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "kernel func bpf_iter_css_new requires RCU critical section protection",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgroup-read-xattr-use-css-iter-sleepable-missing-rcu-lock-lsm-s-socket-connect-7dc81f79.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgroup-read-xattr-use-css-iter-sleepable-missing-rcu-lock-lsm-s-socket-connect-7dc81f79.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-fp-tp-btf-cgroup-mkdir-7d3a90fe",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "arg#0 pointer type STRUCT cgroup must point"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "arg#0 pointer type STRUCT cgroup must point",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-fp-tp-btf-cgroup-mkdir-7d3a90fe.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-fp-tp-btf-cgroup-mkdir-7d3a90fe.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -84,7 +86,7 @@
       "parser_error_id": "OBLIGE-E015",
       "parser_error_line": "Possibly NULL pointer passed to trusted arg0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-no-null-check-tp-btf-cgroup-mkdir-6484ab95.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-no-null-check-tp-btf-cgroup-mkdir-6484ab95.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -103,7 +105,7 @@
       "parser_error_id": "OBLIGE-E015",
       "parser_error_line": "Possibly NULL pointer passed to trusted arg0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-null-tp-btf-cgroup-mkdir-2a562fb3.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-null-tp-btf-cgroup-mkdir-2a562fb3.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -118,7 +120,7 @@
       "parser_error_id": null,
       "parser_error_line": "cgrp_kfunc_acquire_trusted_walked",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-trusted-walked-tp-btf-cgroup-mkdir-6deeac84.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-trusted-walked-tp-btf-cgroup-mkdir-6deeac84.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -136,7 +138,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-unreleased-tp-btf-cgroup-mkdir-0f46d712.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-unreleased-tp-btf-cgroup-mkdir-0f46d712.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -153,7 +155,7 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "calling kernel function bpf_cgroup_acquire is not allowed",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-unsafe-kretprobe-kretprobe-cgroup-destroy-a01df7e0.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-unsafe-kretprobe-kretprobe-cgroup-destroy-a01df7e0.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -172,39 +174,42 @@
       "parser_error_id": "OBLIGE-E015",
       "parser_error_line": "Possibly NULL pointer passed to trusted arg0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-untrusted-tp-btf-cgroup-mkdir-2bcab89b.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-untrusted-tp-btf-cgroup-mkdir-2bcab89b.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-rcu-get-release-tp-btf-cgroup-mkdir-29aa212b",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "missing trusted/reference proof"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "must be referenced or trusted"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "must be referenced or trusted",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-rcu-get-release-tp-btf-cgroup-mkdir-29aa212b.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-rcu-get-release-tp-btf-cgroup-mkdir-29aa212b.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "arg#0 pointer type STRUCT cgroup must point"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "arg#0 pointer type STRUCT cgroup must point",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -223,22 +228,24 @@
       "parser_error_id": "OBLIGE-E015",
       "parser_error_line": "Possibly NULL pointer passed to trusted arg0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-null-tp-btf-cgroup-mkdir-790c61df.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-null-tp-btf-cgroup-mkdir-790c61df.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-unacquired-tp-btf-cgroup-mkdir-39ffb658",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "release kernel function bpf_cgroup_release expects"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "release kernel function bpf_cgroup_release expects",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-unacquired-tp-btf-cgroup-mkdir-39ffb658.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-unacquired-tp-btf-cgroup-mkdir-39ffb658.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -257,7 +264,7 @@
       "parser_error_id": "OBLIGE-E015",
       "parser_error_line": "Possibly NULL pointer passed to trusted arg0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-untrusted-tp-btf-cgroup-mkdir-9eb3123d.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-untrusted-tp-btf-cgroup-mkdir-9eb3123d.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -275,22 +282,24 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-xchg-unreleased-tp-btf-cgroup-mkdir-241e8fc0.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-xchg-unreleased-tp-btf-cgroup-mkdir-241e8fc0.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-cpumask-failure-test-acquire-wrong-cpumask-tp-btf-task-newtask-9d7d619b",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "must be referenced"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "must be referenced",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-acquire-wrong-cpumask-tp-btf-task-newtask-9d7d619b.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-acquire-wrong-cpumask-tp-btf-task-newtask-9d7d619b.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -308,7 +317,7 @@
       "parser_error_id": "OBLIGE-E015",
       "parser_error_line": "NULL pointer passed to trusted arg0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-alloc-double-release-tp-btf-task-newtask-1acc8a60.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-alloc-double-release-tp-btf-task-newtask-1acc8a60.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -326,7 +335,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-alloc-no-release-tp-btf-task-newtask-7525df6a.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-alloc-no-release-tp-btf-task-newtask-7525df6a.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -344,7 +353,7 @@
       "parser_error_id": "OBLIGE-E015",
       "parser_error_line": "NULL pointer passed to trusted arg0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-cpumask-null-tp-btf-task-newtask-40fa612f.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-cpumask-null-tp-btf-task-newtask-40fa612f.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -362,40 +371,43 @@
       "parser_error_id": "OBLIGE-E015",
       "parser_error_line": "NULL pointer passed to trusted arg1",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-global-mask-no-null-check-tp-btf-task-newtask-655f6c03.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-global-mask-no-null-check-tp-btf-task-newtask-655f6c03.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-cpumask-failure-test-global-mask-out-of-rcu-tp-btf-task-newtask-55a16b69",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R2 must be a rcu pointer"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "R2 must be a rcu pointer",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-global-mask-out-of-rcu-tp-btf-task-newtask-55a16b69.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-global-mask-out-of-rcu-tp-btf-task-newtask-55a16b69.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E015",
         "nullable pointer",
         "nullable pointer"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "Possibly NULL pointer passed to helper arg2"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E015",
       "parser_error_line": "Possibly NULL pointer passed to helper arg2",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -413,37 +425,41 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-insert-remove-no-release-tp-btf-task-newtask-24314756.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-insert-remove-no-release-tp-btf-task-newtask-24314756.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-cpumask-failure-test-invalid-nested-array-tp-btf-task-newtask-bd05d03f",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "has no valid kptr"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "has no valid kptr",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-invalid-nested-array-tp-btf-task-newtask-bd05d03f.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-invalid-nested-array-tp-btf-task-newtask-bd05d03f.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-cpumask-failure-test-mutate-cpumask-tp-btf-task-newtask-d7b7c258",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "bpf_cpumask_set_cpu args#1 expected pointer to STRUCT bpf_cpumask"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "bpf_cpumask_set_cpu args#1 expected pointer to STRUCT bpf_cpumask",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-mutate-cpumask-tp-btf-task-newtask-d7b7c258.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-mutate-cpumask-tp-btf-task-newtask-d7b7c258.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -460,7 +476,7 @@
       "parser_error_id": null,
       "parser_error_line": "type=scalar expected=fp",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-populate-invalid-destination-tp-btf-task-newtask-2aa0585a.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-populate-invalid-destination-tp-btf-task-newtask-2aa0585a.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -475,7 +491,7 @@
       "parser_error_id": null,
       "parser_error_line": "leads to invalid memory access",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-populate-invalid-source-tp-btf-task-newtask-149c6ecc.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-cpumask-failure-test-populate-invalid-source-tp-btf-task-newtask-149c6ecc.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -493,24 +509,25 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-crypto-basic-crypto-acquire-syscall-b8afbe98.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-crypto-basic-crypto-acquire-syscall-b8afbe98.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dummy-st-ops-fail-test-unsupported-field-sleepable-struct-ops-s-test-2-e009f86b",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E016",
         "unsupported feature"
       ],
       "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "attach to unsupported member test_2 of struct bpf_dummy_ops"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "attach to unsupported member test_2 of struct bpf_dummy_ops",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dummy-st-ops-fail-test-unsupported-field-sleepable-struct-ops-s-test-2-e009f86b.yaml",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dummy-st-ops-fail-test-unsupported-field-sleepable-struct-ops-s-test-2-e009f86b.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -528,7 +545,7 @@
       "parser_error_id": "OBLIGE-E003",
       "parser_error_line": "invalid read from stack",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-add-dynptr-to-map1-raw-tp-2b5ac898.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-add-dynptr-to-map1-raw-tp-2b5ac898.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -546,7 +563,7 @@
       "parser_error_id": "OBLIGE-E003",
       "parser_error_line": "invalid read from stack",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-add-dynptr-to-map2-raw-tp-7a037daf.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-add-dynptr-to-map2-raw-tp-7a037daf.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -564,7 +581,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected an initialized dynptr as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalid1-raw-tp-b7206632.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalid1-raw-tp-b7206632.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -582,7 +599,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "cannot overwrite referenced dynptr",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalid2-xdp-08448ef8.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalid2-xdp-08448ef8.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -600,7 +617,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected an initialized dynptr as arg #2",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate1-raw-tp-6696ea02.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate1-raw-tp-6696ea02.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -618,7 +635,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected an initialized dynptr as arg #2",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate2-raw-tp-87d63d59.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate2-raw-tp-87d63d59.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -636,7 +653,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected an initialized dynptr as arg #2",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate3-raw-tp-819c4745.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate3-raw-tp-819c4745.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -655,7 +672,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate4-raw-tp-0dfbe587.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate4-raw-tp-0dfbe587.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -674,7 +691,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate5-raw-tp-1e91d4af.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate5-raw-tp-1e91d4af.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -693,7 +710,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate6-raw-tp-57de0291.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-invalidate6-raw-tp-57de0291.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -712,7 +729,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-skb-packet-data-tc-109b5b9e.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-skb-packet-data-tc-109b5b9e.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -731,7 +748,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-skb-packet-meta-tc-c2ab5a7b.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-skb-packet-meta-tc-c2ab5a7b.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -750,7 +767,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-xdp-packet-data-xdp-d0a5e472.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-clone-xdp-packet-data-xdp-d0a5e472.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -769,7 +786,7 @@
       "parser_error_id": "OBLIGE-E002",
       "parser_error_line": "invalid mem access 'mem_or_null'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-missing-null-check1-raw-tp-af2be9c9.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-missing-null-check1-raw-tp-af2be9c9.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -788,7 +805,7 @@
       "parser_error_id": "OBLIGE-E002",
       "parser_error_line": "invalid mem access 'mem_or_null'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-missing-null-check2-raw-tp-8e533162.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-missing-null-check2-raw-tp-8e533162.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -805,7 +822,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "value is outside of the allowed memory range",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -822,7 +839,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "value is outside of the allowed memory range",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-ringbuf-raw-tp-83139460.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-ringbuf-raw-tp-83139460.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -839,7 +856,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "value is outside of the allowed memory range",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-meta-tc-420f28c1.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-meta-tc-420f28c1.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -856,7 +873,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "value is outside of the allowed memory range",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-tc-b903ac49.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-tc-b903ac49.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -875,7 +892,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-use-after-release1-raw-tp-7afcedaa.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-use-after-release1-raw-tp-7afcedaa.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -894,7 +911,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-use-after-release2-raw-tp-b18cfdb0.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-use-after-release2-raw-tp-b18cfdb0.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -912,7 +929,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected an initialized dynptr as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-adjust-invalid-raw-tp-6e40976e.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-adjust-invalid-raw-tp-6e40976e.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -931,71 +948,76 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "R{{[0-9]+}} invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-fail-raw-tp-87cc3229.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-fail-raw-tp-87cc3229.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-dynptr-fail-raw-tp-a7053f28",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "type mismatch"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R{{[0-9]+}} type=scalar expected=percpu_ptr_"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "R{{[0-9]+}} type=scalar expected=percpu_ptr_",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-fail-raw-tp-a7053f28.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-fail-raw-tp-a7053f28.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-dynptr-fail-tc-db029308",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E019"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R{{[0-9]+}} cannot write into rdonly_mem"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "R{{[0-9]+}} cannot write into rdonly_mem",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-fail-tc-db029308.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-fail-tc-db029308.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-dynptr-fail-tc-de3e751b",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E019"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R{{[0-9]+}} cannot write into rdonly_mem"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "R{{[0-9]+}} cannot write into rdonly_mem",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-fail-tc-de3e751b.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-fail-tc-de3e751b.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-dynptr-from-mem-invalid-api-raw-tp-1040be69",
       "heuristic_reasons": [
-        "unsupported feature"
+        "catalog match OBLIGE-E019"
       ],
-      "heuristic_taxonomy_class": "env_mismatch",
+      "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "Unsupported reg type fp for bpf_dynptr_from_mem data"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "Unsupported reg type fp for bpf_dynptr_from_mem data",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-from-mem-invalid-api-raw-tp-1040be69.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-from-mem-invalid-api-raw-tp-1040be69.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1014,7 +1036,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-invalidate-slice-reinit-raw-tp-f5b71f50.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-invalidate-slice-reinit-raw-tp-f5b71f50.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1032,7 +1054,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected an initialized dynptr as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-is-null-invalid-raw-tp-34c27f64.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-is-null-invalid-raw-tp-34c27f64.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1050,7 +1072,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected an initialized dynptr as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-is-rdonly-invalid-raw-tp-c722328f.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-is-rdonly-invalid-raw-tp-c722328f.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1068,7 +1090,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "cannot overwrite referenced dynptr",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-overwrite-ref-raw-tp-3fed55ba.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-overwrite-ref-raw-tp-3fed55ba.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1086,7 +1108,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "cannot overwrite referenced dynptr",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-partial-slot-invalidate-tc-8f5ee7c7.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-partial-slot-invalidate-tc-8f5ee7c7.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1104,7 +1126,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "cannot overwrite referenced dynptr",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-pruning-overwrite-tc-6e6ed521.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-pruning-overwrite-tc-6e6ed521.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1122,22 +1144,24 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "cannot overwrite referenced dynptr",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-pruning-type-confusion-tc-28056c9b.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-pruning-type-confusion-tc-28056c9b.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E019"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "potential write to dynptr at off=-16"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "potential write to dynptr at off=-16",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1155,7 +1179,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected an initialized dynptr as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-size-invalid-raw-tp-e08afed2.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-size-invalid-raw-tp-e08afed2.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1172,37 +1196,41 @@
       "parser_error_id": null,
       "parser_error_line": "unbounded memory access",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-slice-var-len1-tc-76a0b3fb.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-slice-var-len1-tc-76a0b3fb.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-dynptr-slice-var-len2-tc-673ab9e7",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E019"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "must be a known constant"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "must be a known constant",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-slice-var-len2-tc-673ab9e7.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-slice-var-len2-tc-673ab9e7.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-dynptr-var-off-overwrite-tc-ab0a2e71",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E019"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "dynptr has to be at a constant offset"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "dynptr has to be at a constant offset",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-var-off-overwrite-tc-ab0a2e71.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-var-off-overwrite-tc-ab0a2e71.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1219,7 +1247,7 @@
       "parser_error_id": null,
       "parser_error_line": "type=map_value expected=fp",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-global-raw-tp-e92dc79e.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-global-raw-tp-e92dc79e.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1238,7 +1266,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-data-slices-raw-tp-6798c725.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-data-slices-raw-tp-6798c725.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1256,7 +1284,7 @@
       "parser_error_id": "OBLIGE-E003",
       "parser_error_line": "invalid read from stack",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-helper1-raw-tp-e765040b.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-helper1-raw-tp-e765040b.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1273,7 +1301,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "cannot pass in dynptr at an offset=-8",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-helper2-raw-tp-34ba04aa.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-helper2-raw-tp-34ba04aa.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1290,7 +1318,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "cannot pass in dynptr at an offset=0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-offset-raw-tp-549f8135.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-offset-raw-tp-549f8135.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1308,22 +1336,24 @@
       "parser_error_id": "OBLIGE-E003",
       "parser_error_line": "invalid read from stack",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-read1-raw-tp-f61c0428.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-read1-raw-tp-f61c0428.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E019"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "cannot pass in dynptr at an offset"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "cannot pass in dynptr at an offset",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1341,7 +1371,7 @@
       "parser_error_id": "OBLIGE-E003",
       "parser_error_line": "invalid read from stack",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-read3-raw-tp-99c4b958.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-read3-raw-tp-99c4b958.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1359,7 +1389,7 @@
       "parser_error_id": "OBLIGE-E003",
       "parser_error_line": "invalid read from stack",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-read4-raw-tp-8a9b0872.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-read4-raw-tp-8a9b0872.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1374,7 +1404,7 @@
       "parser_error_id": null,
       "parser_error_line": "the prog does not allow writes to packet data",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly-cgroup-skb-ingress-61688196.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly-cgroup-skb-ingress-61688196.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1392,7 +1422,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected an initialized dynptr as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-write1-raw-tp-ba5ba8ca.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-write1-raw-tp-ba5ba8ca.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1410,7 +1440,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "cannot overwrite referenced dynptr",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-write2-raw-tp-1608f166.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-write2-raw-tp-1608f166.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1428,7 +1458,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "cannot overwrite referenced dynptr",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-write3-raw-tp-b27da31a.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-write3-raw-tp-b27da31a.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1446,58 +1476,61 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "cannot overwrite referenced dynptr",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-write4-raw-tp-70c30072.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-invalid-write4-raw-tp-70c30072.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-release-twice-callback-raw-tp-bd7b2a60",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E019",
         "unacquired reference"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "arg 1 is an unacquired reference"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "arg 1 is an unacquired reference",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-release-twice-callback-raw-tp-bd7b2a60.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-release-twice-callback-raw-tp-bd7b2a60.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E019",
         "unacquired reference"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "arg 1 is an unacquired reference"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "arg 1 is an unacquired reference",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-ringbuf-invalid-api-raw-tp-87a443d6",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E019",
         "type mismatch"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "type=mem expected=ringbuf_mem"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "type=mem expected=ringbuf_mem",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-ringbuf-invalid-api-raw-tp-87a443d6.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-ringbuf-invalid-api-raw-tp-87a443d6.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1515,7 +1548,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference id",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-ringbuf-missing-release-callback-raw-tp-aac78735.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-ringbuf-missing-release-callback-raw-tp-aac78735.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1533,7 +1566,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference id=2",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-ringbuf-missing-release1-raw-tp-2f9bfa02.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-ringbuf-missing-release1-raw-tp-2f9bfa02.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1551,24 +1584,25 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference id=4",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-ringbuf-missing-release2-raw-tp-5f6d7628.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-ringbuf-missing-release2-raw-tp-5f6d7628.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-ringbuf-release-uninit-dynptr-raw-tp-a799622b",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E019",
         "unacquired reference"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "arg 1 is an unacquired reference"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "arg 1 is an unacquired reference",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-ringbuf-release-uninit-dynptr-raw-tp-a799622b.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-ringbuf-release-uninit-dynptr-raw-tp-a799622b.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1587,7 +1621,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-ro-skb-meta-slice-invalid-after-metadata-wri-tc-19b572ef.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-ro-skb-meta-slice-invalid-after-metadata-wri-tc-19b572ef.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1606,7 +1640,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-ro-skb-meta-slice-invalid-after-payload-help-tc-edbb3fa5.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-ro-skb-meta-slice-invalid-after-payload-help-tc-edbb3fa5.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1625,7 +1659,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-ro-skb-meta-slice-invalid-after-payload-writ-tc-8d1d4645.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-ro-skb-meta-slice-invalid-after-payload-writ-tc-8d1d4645.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1644,7 +1678,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-ro-skb-slice-invalid-after-metadata-write-tc-31715e6e.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-ro-skb-slice-invalid-after-metadata-write-tc-31715e6e.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1663,7 +1697,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-rw-skb-meta-slice-invalid-after-metadata-wri-tc-d83aefa6.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-rw-skb-meta-slice-invalid-after-metadata-wri-tc-d83aefa6.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1682,7 +1716,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-rw-skb-meta-slice-invalid-after-payload-help-tc-c387faff.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-rw-skb-meta-slice-invalid-after-payload-help-tc-c387faff.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1701,7 +1735,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-rw-skb-meta-slice-invalid-after-payload-writ-tc-651908f9.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-rw-skb-meta-slice-invalid-after-payload-writ-tc-651908f9.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1720,41 +1754,43 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-rw-skb-slice-invalid-after-metadata-write-tc-093888c6.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-rw-skb-slice-invalid-after-metadata-write-tc-093888c6.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "missing trusted/reference proof"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "must be referenced or trusted"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "must be referenced or trusted",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-skb-invalid-ctx-fexit-fexit-skb-tx-error-ef42c043",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "missing trusted/reference proof"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "must be referenced or trusted"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "must be referenced or trusted",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-ctx-fexit-fexit-skb-tx-error-ef42c043.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-ctx-fexit-fexit-skb-tx-error-ef42c043.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1771,7 +1807,7 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "calling kernel function bpf_dynptr_from_skb is not allowed",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-ctx-xdp-1a32a21f.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-ctx-xdp-1a32a21f.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1790,7 +1826,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-data-slice1-tc-0b35a757.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-data-slice1-tc-0b35a757.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1809,7 +1845,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-data-slice2-tc-1a5d0419.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-data-slice2-tc-1a5d0419.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1828,7 +1864,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-data-slice3-tc-a15c4322.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-data-slice3-tc-a15c4322.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1847,7 +1883,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-data-slice4-tc-b0cefc8c.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-data-slice4-tc-b0cefc8c.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1864,22 +1900,24 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "calling kernel function bpf_dynptr_from_skb_meta is not allowed",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-meta-invalid-ctx-raw-tp-0ccc9e53.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-meta-invalid-ctx-raw-tp-0ccc9e53.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E019"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "arg#0 expected pointer to stack or const struct bpf_dynptr"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "arg#0 expected pointer to stack or const struct bpf_dynptr",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1894,22 +1932,24 @@
       "parser_error_id": null,
       "parser_error_line": "memory, len pair leads to invalid memory access",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-test-dynptr-skb-small-buff-cgroup-skb-egress-4f498dbd.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-test-dynptr-skb-small-buff-cgroup-skb-egress-4f498dbd.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E019"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "potential write to dynptr at off=-16"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E019",
       "parser_error_line": "potential write to dynptr at off=-16",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1927,7 +1967,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected an initialized dynptr as arg #2",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-use-after-invalid-raw-tp-d3324c3e.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-use-after-invalid-raw-tp-d3324c3e.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1944,7 +1984,7 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "calling kernel function bpf_dynptr_from_xdp is not allowed",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-xdp-invalid-ctx-raw-tp-e886d43f.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-xdp-invalid-ctx-raw-tp-e886d43f.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1963,7 +2003,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1982,7 +2022,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-dynptr-fail-xdp-invalid-data-slice2-xdp-06af7b69.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-xdp-invalid-data-slice2-xdp-06af7b69.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -1995,7 +2035,7 @@
       "parser_error_id": null,
       "parser_error_line": ": R1=pkt(off=64,r=64) R2=pkt_end() R6=pkt(r=64) R10=fp0",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-generic-tc-22b5248c.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-generic-tc-22b5248c.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2008,7 +2048,7 @@
       "parser_error_id": null,
       "parser_error_line": ": R0=0 R1=ctx() R2=scalar(smin=0xffffffff80000002,smax=smax32=0x7ffffffd,smin32=0x80000002) R10=fp0",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-range-s64-tc-a32d66c6.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-range-s64-tc-a32d66c6.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2025,7 +2065,7 @@
       "parser_error_id": null,
       "parser_error_line": ": R1=ctx() R2=scalar(smin=umin=smin32=umin32=4096,smax=umax=smax32=umax32=8192,var_off=(0x0; 0x3fff))",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-range-u64-tc-832996f2.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-range-u64-tc-832996f2.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2038,7 +2078,7 @@
       "parser_error_id": null,
       "parser_error_line": ": R0=0 R1=ctx() R2=4096 R10=fp0",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-single-range-s64-tc-7addab51.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-single-range-s64-tc-7addab51.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2051,7 +2091,7 @@
       "parser_error_id": null,
       "parser_error_line": ": R1=ctx() R2=4096 R10=fp0",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-single-range-u64-tc-fcaf2928.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-single-range-u64-tc-fcaf2928.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2066,7 +2106,7 @@
       "parser_error_id": null,
       "parser_error_line": "At program exit the register R1 has smin=64 smax=64",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-with-return-fentry-bpf-check-ba50c498.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-assert-check-assert-with-return-fentry-bpf-check-ba50c498.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2084,86 +2124,94 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "cannot be called from callback subprog",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-async-callback-throw-tc-a86cf7b1.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-async-callback-throw-tc-a86cf7b1.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E016",
         "callback attachment restriction"
       ],
       "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "cannot call exception cb directly"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "cannot call exception cb directly",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8.yaml",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-exception-cb-call-static-func-tc-f3ceb9b7",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E016",
         "callback attachment restriction"
       ],
       "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "cannot call exception cb directly"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "cannot call exception cb directly",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-cb-call-static-func-tc-f3ceb9b7.yaml",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-cb-call-static-func-tc-f3ceb9b7.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-exception-cb-type-1-tc-911dfa02",
-      "heuristic_reasons": [],
-      "heuristic_taxonomy_class": "source_bug",
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E016"
+      ],
+      "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "Global function exception_cb_bad_ret_type() doesn't return scalar."
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "Global function exception_cb_bad_ret_type() doesn't return scalar.",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-cb-type-1-tc-911dfa02.yaml",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-cb-type-1-tc-911dfa02.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-exception-cb-type-2-tc-45ccb6dc",
-      "heuristic_reasons": [],
-      "heuristic_taxonomy_class": "source_bug",
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E016"
+      ],
+      "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "exception cb only supports single integer argument"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "exception cb only supports single integer argument",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-cb-type-2-tc-45ccb6dc.yaml",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-cb-type-2-tc-45ccb6dc.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-exception-cb-type-3-tc-62f713bd",
-      "heuristic_reasons": [],
-      "heuristic_taxonomy_class": "source_bug",
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E016"
+      ],
+      "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "exception cb only supports single integer argument"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "exception cb only supports single integer argument",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-cb-type-3-tc-62f713bd.yaml",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-cb-type-3-tc-62f713bd.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2181,7 +2229,7 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "cannot be called from callback",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-throw-cb-diff-tc-d4026f8f.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-throw-cb-diff-tc-d4026f8f.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2199,54 +2247,59 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "cannot be called from callback",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-throw-cb-tc-ed9b506d.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-throw-cb-tc-ed9b506d.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-multiple-exception-cb-tc-fb35b800",
-      "heuristic_reasons": [],
-      "heuristic_taxonomy_class": "source_bug",
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E016"
+      ],
+      "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "multiple exception callback tags for main subprog"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "multiple exception callback tags for main subprog",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-multiple-exception-cb-tc-fb35b800.yaml",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-multiple-exception-cb-tc-fb35b800.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "unknown return value"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "At program exit the register R0 has unknown scalar value should"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "At program exit the register R0 has unknown scalar value should",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret2-fentry-bpf-check-4108896f",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "At program exit the register R1 has smin=64 smax=64 should"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "At program exit the register R1 has smin=64 smax=64 should",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret2-fentry-bpf-check-4108896f.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret2-fentry-bpf-check-4108896f.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2264,7 +2317,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "function calls are not allowed while holding a lock",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-subprog-with-lock-tc-f038a1b8.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-subprog-with-lock-tc-f038a1b8.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2282,7 +2335,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "BPF_EXIT instruction in main prog cannot be used inside bpf_rcu_read_lock-ed region",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-subprog-with-rcu-read-lock-tc-76be7ac1.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-subprog-with-rcu-read-lock-tc-76be7ac1.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2300,7 +2353,7 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "cannot be called from callback subprog",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-throwing-exception-cb-tc-caa72574.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-throwing-exception-cb-tc-caa72574.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2318,7 +2371,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-cb-reference-tc-c99ec1a7.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-cb-reference-tc-c99ec1a7.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2336,7 +2389,7 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "cannot be called from callback",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-cb-tc-eaccdce9.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-cb-tc-eaccdce9.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2354,7 +2407,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "function calls are not allowed while holding a lock",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-lock-tc-66db0d44.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-lock-tc-66db0d44.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2372,7 +2425,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "function calls are not allowed while holding a lock",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-rbtree-add-throw-tc-e943cfe2.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-rbtree-add-throw-tc-e943cfe2.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2390,7 +2443,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "BPF_EXIT instruction in main prog cannot be used inside bpf_rcu_read_lock-ed region",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-rcu-read-lock-tc-10876c08.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-rcu-read-lock-tc-10876c08.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2408,7 +2461,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-reference-tc-3f2a7534.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-reference-tc-3f2a7534.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2426,7 +2479,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-subprog-reference-tc-430f766c.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-exceptions-fail-reject-with-subprog-reference-tc-430f766c.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2444,7 +2497,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference id=",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-file-reader-fail-on-nanosleep-unreleased-ref-lsm-file-open-f3f82687.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-file-reader-fail-on-nanosleep-unreleased-ref-lsm-file-open-f3f82687.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2462,7 +2515,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected an initialized dynptr as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-file-reader-fail-xdp-no-dynptr-type-xdp-80447925.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-file-reader-fail-xdp-no-dynptr-type-xdp-80447925.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2480,7 +2533,7 @@
       "parser_error_id": "OBLIGE-E012",
       "parser_error_line": "Expected a dynptr of type file as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-file-reader-fail-xdp-wrong-dynptr-type-xdp-6556d1b7.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-file-reader-fail-xdp-wrong-dynptr-type-xdp-6556d1b7.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2498,37 +2551,41 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "kernel func bpf_copy_from_user_str is sleepable within IRQ-disabled region",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-balance-subprog-tc-31e7b2f2.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-balance-subprog-tc-31e7b2f2.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-irq-irq-flag-overwrite-partial-tc-51152af8",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E020"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "expected an initialized"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E020",
       "parser_error_line": "expected an initialized",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-flag-overwrite-partial-tc-51152af8.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-flag-overwrite-partial-tc-51152af8.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-irq-irq-flag-overwrite-tc-4c974993",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E020"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "expected an initialized"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E020",
       "parser_error_line": "expected an initialized",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-flag-overwrite-tc-4c974993.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-flag-overwrite-tc-4c974993.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2546,7 +2603,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "cannot restore irq state out of order",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-ooo-lock-cond-inv-tc-950f35d5.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-ooo-lock-cond-inv-tc-950f35d5.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2564,7 +2621,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "cannot restore irq state out of order",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-ooo-refs-array-tc-193001a6.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-ooo-refs-array-tc-193001a6.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2582,54 +2639,59 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "cannot restore irq state out of order",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-4-subprog-tc-f3feb6a1.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-4-subprog-tc-f3feb6a1.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-irq-irq-restore-bad-arg-tc-28a1cb48",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E020",
         "invalid irq flag pointer"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "arg#0 doesn't point to an irq flag on stack"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E020",
       "parser_error_line": "arg#0 doesn't point to an irq flag on stack",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-bad-arg-tc-28a1cb48.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-bad-arg-tc-28a1cb48.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-irq-irq-restore-invalid-tc-e1f743bf",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E020"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "expected an initialized"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E020",
       "parser_error_line": "expected an initialized",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-invalid-tc-e1f743bf.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-invalid-tc-e1f743bf.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-irq-irq-restore-iter-tc-501bf2c6",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E020"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "expected an initialized"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E020",
       "parser_error_line": "expected an initialized",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-iter-tc-501bf2c6.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-iter-tc-501bf2c6.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2647,7 +2709,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-1-subprog-tc-d3ae4b66.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-1-subprog-tc-d3ae4b66.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2665,7 +2727,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-2-subprog-tc-82732cca.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-2-subprog-tc-82732cca.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2683,7 +2745,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-2-tc-dbccea22.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-2-tc-dbccea22.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2701,7 +2763,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-3-minus-2-subprog-tc-5c202e26.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-3-minus-2-subprog-tc-5c202e26.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2719,7 +2781,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-3-minus-2-tc-4087d3bc.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-3-minus-2-tc-4087d3bc.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2737,7 +2799,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-3-subprog-tc-8592c5d7.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-3-subprog-tc-8592c5d7.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2755,7 +2817,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-3-tc-4022925c.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-missing-3-tc-4022925c.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2773,7 +2835,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "cannot restore irq state out of order",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-ooo-3-subprog-tc-b32ae1a0.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-ooo-3-subprog-tc-b32ae1a0.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2791,7 +2853,7 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "cannot restore irq state out of order",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-ooo-3-tc-e0b5e5ee.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-ooo-3-tc-e0b5e5ee.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2809,39 +2871,42 @@
       "parser_error_id": "OBLIGE-E013",
       "parser_error_line": "cannot restore irq state out of order",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-restore-ooo-tc-84ede29d.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-restore-ooo-tc-84ede29d.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-irq-irq-save-bad-arg-tc-2e0fba3a",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E020",
         "invalid irq flag pointer"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "arg#0 doesn't point to an irq flag on stack"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E020",
       "parser_error_line": "arg#0 doesn't point to an irq flag on stack",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-save-bad-arg-tc-2e0fba3a.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-save-bad-arg-tc-2e0fba3a.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-irq-irq-save-invalid-tc-86a07a3f",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E020"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "expected uninitialized"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E020",
       "parser_error_line": "expected uninitialized",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-save-invalid-tc-86a07a3f.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-save-invalid-tc-86a07a3f.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2859,7 +2924,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference id=1",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-save-iter-tc-d5b867a7.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-save-iter-tc-d5b867a7.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2878,7 +2943,7 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "global functions that may sleep are not allowed in non-sleepable context",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-sleepable-global-subprog-indirect-syscall-c96d09ca.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-sleepable-global-subprog-indirect-syscall-c96d09ca.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2897,37 +2962,41 @@
       "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "global functions that may sleep are not allowed in non-sleepable context",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-sleepable-helper-global-subprog-syscall-7d470f89.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-sleepable-helper-global-subprog-syscall-7d470f89.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-irq-irq-wrong-kfunc-class-1-tc-05e98572",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E020"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "function calls are not allowed"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E020",
       "parser_error_line": "function calls are not allowed",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-wrong-kfunc-class-1-tc-05e98572.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-wrong-kfunc-class-1-tc-05e98572.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E020"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "function calls are not allowed"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E020",
       "parser_error_line": "function calls are not allowed",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2945,7 +3014,7 @@
       "parser_error_id": "OBLIGE-E014",
       "parser_error_line": "arg#0 expected pointer to an iterator on stack",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iter-destroy-bad-arg-raw-tp-0045e2f2.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iter-destroy-bad-arg-raw-tp-0045e2f2.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2964,7 +3033,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iter-err-too-permissive1-raw-tp-25649784.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iter-err-too-permissive1-raw-tp-25649784.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -2983,7 +3052,7 @@
       "parser_error_id": "OBLIGE-E002",
       "parser_error_line": "invalid mem access 'map_value_or_null'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iter-err-too-permissive2-raw-tp-177534f5.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iter-err-too-permissive2-raw-tp-177534f5.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3002,7 +3071,7 @@
       "parser_error_id": "OBLIGE-E002",
       "parser_error_line": "invalid mem access 'map_value_or_null'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iter-err-too-permissive3-raw-tp-969d109d.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iter-err-too-permissive3-raw-tp-969d109d.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3019,7 +3088,7 @@
       "parser_error_id": null,
       "parser_error_line": "unbounded memory access",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iter-err-unsafe-asm-loop-raw-tp-9ee4d943.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iter-err-unsafe-asm-loop-raw-tp-9ee4d943.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3038,7 +3107,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "math between map_value pointer and register with unbounded min value is not allowed",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iter-err-unsafe-c-loop-raw-tp-4b9ee52e.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iter-err-unsafe-c-loop-raw-tp-4b9ee52e.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3056,7 +3125,7 @@
       "parser_error_id": "OBLIGE-E014",
       "parser_error_line": "arg#0 expected pointer to an iterator on stack",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iter-new-bad-arg-raw-tp-e25f0e76.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iter-new-bad-arg-raw-tp-e25f0e76.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3074,24 +3143,25 @@
       "parser_error_id": "OBLIGE-E014",
       "parser_error_line": "arg#0 expected pointer to an iterator on stack",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iter-next-bad-arg-raw-tp-30e866e3.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iter-next-bad-arg-raw-tp-30e866e3.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-iters-iters-raw-tp-063123db",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "misaligned stack access"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "misaligned stack access off 0+-31+0 size 8"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "misaligned stack access off 0+-31+0 size 8",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-063123db.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-063123db.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3109,7 +3179,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "math between fp pointer and register with unbounded",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-579dfae3.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-579dfae3.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3127,41 +3197,43 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "math between fp pointer and register with unbounded",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-80811bc0.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-80811bc0.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-iters-iters-raw-tp-9292b545",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "misaligned stack access"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "misaligned stack access off 0+-31+0 size 8"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "misaligned stack access off 0+-31+0 size 8",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-9292b545.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-9292b545.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-iters-iters-raw-tp-bd99cf85",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "misaligned stack access"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "misaligned stack access off 0+-31+0 size 8"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "misaligned stack access off 0+-31+0 size 8",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-bd99cf85.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-bd99cf85.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3179,7 +3251,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "math between fp pointer and register with unbounded",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-d2273ce7.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-d2273ce7.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3198,7 +3270,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "math between fp pointer and register with unbounded min value is not allowed",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-e4f052ee.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-e4f052ee.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3216,24 +3288,25 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "math between fp pointer and register with unbounded",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-ea7ac3e5.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-ea7ac3e5.yaml",
       "source": "kernel_selftests"
     },
     {
       "case_id": "kernel-selftest-iters-iters-raw-tp-ea8b0945",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "type mismatch"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "expected_verifier_messages.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R1 type=scalar expected=fp"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "R1 type=scalar expected=fp",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-ea8b0945.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-iters-raw-tp-ea8b0945.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3252,7 +3325,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "R0 invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-looping-missing-null-check-fail-raw-tp-732d9857.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-looping-missing-null-check-fail-raw-tp-732d9857.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3270,7 +3343,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "invalid access to memory, mem_size=4 off=0 size=8",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-looping-wrong-sized-read-fail-raw-tp-b975c554.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-looping-wrong-sized-read-fail-raw-tp-b975c554.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3288,7 +3361,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference id=1",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-compromise-iter-w-direct-write-and-skip-dest-raw-tp-fe0d38f8.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-compromise-iter-w-direct-write-and-skip-dest-raw-tp-fe0d38f8.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3306,7 +3379,7 @@
       "parser_error_id": "OBLIGE-E014",
       "parser_error_line": "expected an initialized iter_num as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-compromise-iter-w-direct-write-fail-raw-tp-12239df3.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-compromise-iter-w-direct-write-fail-raw-tp-12239df3.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3324,7 +3397,7 @@
       "parser_error_id": "OBLIGE-E014",
       "parser_error_line": "expected an initialized iter_num as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-compromise-iter-w-helper-write-fail-raw-tp-50431478.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-compromise-iter-w-helper-write-fail-raw-tp-50431478.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3342,7 +3415,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference id=1",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-create-and-forget-to-destroy-fail-raw-tp-074de205.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-create-and-forget-to-destroy-fail-raw-tp-074de205.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3360,7 +3433,7 @@
       "parser_error_id": "OBLIGE-E014",
       "parser_error_line": "expected an initialized iter_num as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-destroy-without-creating-fail-raw-tp-a14b4d3a.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-destroy-without-creating-fail-raw-tp-a14b4d3a.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3377,7 +3450,7 @@
       "parser_error_id": "OBLIGE-E014",
       "parser_error_line": "expected uninitialized iter_num as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-double-create-fail-raw-tp-11a53add.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-double-create-fail-raw-tp-11a53add.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3395,7 +3468,7 @@
       "parser_error_id": "OBLIGE-E014",
       "parser_error_line": "expected an initialized iter_num as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-double-destroy-fail-raw-tp-224283ff.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-double-destroy-fail-raw-tp-224283ff.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3414,7 +3487,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference id=1",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-leak-iter-from-subprog-fail-raw-tp-65737a09.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-leak-iter-from-subprog-fail-raw-tp-65737a09.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3432,7 +3505,7 @@
       "parser_error_id": "OBLIGE-E014",
       "parser_error_line": "expected an initialized iter_num as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-next-after-destroy-fail-raw-tp-28effd8b.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-next-after-destroy-fail-raw-tp-28effd8b.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3450,7 +3523,7 @@
       "parser_error_id": "OBLIGE-E014",
       "parser_error_line": "expected an initialized iter_num as arg #0",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-next-without-new-fail-raw-tp-8645b906.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-next-without-new-fail-raw-tp-8645b906.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3468,7 +3541,7 @@
       "parser_error_id": "OBLIGE-E003",
       "parser_error_line": "invalid read from stack",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-read-from-iter-slot-fail-raw-tp-812dc246.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-read-from-iter-slot-fail-raw-tp-812dc246.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3486,7 +3559,7 @@
       "parser_error_id": "OBLIGE-E004",
       "parser_error_line": "Unreleased reference",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/kernel_selftests/kernel-selftest-iters-state-safety-stacksafe-should-not-conflate-stack-spill-an-raw-tp-21de3cc2.yaml",
+      "path": "case_study/cases/kernel_selftests/kernel-selftest-iters-state-safety-stacksafe-should-not-conflate-stack-spill-an-raw-tp-21de3cc2.yaml",
       "source": "kernel_selftests"
     },
     {
@@ -3503,7 +3576,7 @@
       "parser_error_id": null,
       "parser_error_line": "processed 2 insns, stack depth 0",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-47591176.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-47591176.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3522,7 +3595,7 @@
       "parser_error_id": "OBLIGE-E009",
       "parser_error_line": "EINVAL For BPF_PROG_LOAD, indicates an attempt to load an invalid program. eBPF programs can be deemed  invalid  due  to  unrecognized  instructions, the  use  of reserved  fields, jumps  out of range, infinite loops or calls of unknown functions.",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-48267671.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-48267671.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3541,7 +3614,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "R0 invalid mem access 'inv'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-53136145.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-53136145.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3557,9 +3630,9 @@
         "back-edge from insn 271 to 69"
       ],
       "parser_error_id": "OBLIGE-E008",
-      "parser_error_line": "libbpf: load bpf program failed: Invalid argument",
+      "parser_error_line": "back-edge from insn 271 to 69",
       "parser_taxonomy_class": "verifier_limit",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-56872436.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-56872436.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3572,7 +3645,7 @@
       "parser_error_id": null,
       "parser_error_line": "",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-56965789.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-56965789.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3590,7 +3663,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=34 size=64, R3(id=0,off=34,r=42)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-60053570.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-60053570.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3600,29 +3673,30 @@
       "log_field": "verifier_log.combined",
       "matched": false,
       "message_candidates": [
-        "Illegal \"action\""
+        "R2 pointer arithmetic on PTR_TO_PACKET_END prohibited"
       ],
       "parser_error_id": null,
-      "parser_error_line": "Illegal \"action\"",
+      "parser_error_line": "R2 pointer arithmetic on PTR_TO_PACKET_END prohibited",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-60506220.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-60506220.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-61945212",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "type mismatch"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R2 type=inv expected=fp"
       ],
-      "parser_error_id": null,
-      "parser_error_line": "libbpf: -- END LOG --",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-61945212.yaml",
+      "parser_error_id": "OBLIGE-E023",
+      "parser_error_line": "R2 type=inv expected=fp",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-61945212.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3637,22 +3711,24 @@
       "parser_error_id": null,
       "parser_error_line": "invalid bpf_context access off=92 size=4",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-67402772.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-67402772.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-67441023",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R6 !read_ok"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "R6 !read_ok",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-67441023.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-67441023.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3672,7 +3748,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "R8 invalid mem access 'inv'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-67679109.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-67679109.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3690,7 +3766,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=9 size=1, R1(id=1,off=0,r=0)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-68752893.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-68752893.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3703,9 +3779,9 @@
         "fp-304=??mmmmmm fp-312=mmmmmmmm fp-320=mmmmmmmm fp-328=?mmmmmmm fp-336=mmmmmmmm fp-344= (truncated...)"
       ],
       "parser_error_id": null,
-      "parser_error_line": "fp-304=??mmmmmm fp-312=mmmmmmmm fp-320=mmmmmmmm fp-328=?mmmmmmm fp-336=mmmmmmmm fp-344= (truncated...)",
+      "parser_error_line": "R0=inv(id=0,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R1_w=inv(id=0,umax_value=255,var_off=(0x0; 0xff)) R2_w=map_value(id=0,off=0,ks=260,vs=904,imm=0) R3=pkt(id=0,off=42,r=398,imm=0) R4_w=inv0 R6=invP0 R7=ctx(id=0,off=0,imm=0) R8=inv(id=0) R9=inv(id=9) R10=fp0 fp-32=????mmmm fp-40=mmmmmmmm",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-68815540.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-68815540.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3720,25 +3796,26 @@
       "parser_error_id": null,
       "parser_error_line": "libbpf: load bpf program failed: Invalid argument",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-69192685.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-69192685.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-69413427",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "type mismatch"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R1 type=ctx expected=fp",
         "R2 type=inv expected=fp, pkt, pkt_meta, map_key, map_value"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "R2 type=inv expected=fp, pkt, pkt_meta, map_key, map_value",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-69413427.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-69413427.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3756,39 +3833,42 @@
       "parser_error_id": "OBLIGE-E003",
       "parser_error_line": "invalid indirect read from stack R1 off -128+0 size 127",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-69767533.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-69767533.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-70091221",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "type mismatch"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R1 type=map_value expected=map_ptr"
       ],
-      "parser_error_id": null,
-      "parser_error_line": "verification time 272 usec",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-70091221.yaml",
+      "parser_error_id": "OBLIGE-E023",
+      "parser_error_line": "R1 type=map_value expected=map_ptr",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-70091221.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-70392721",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "[13] FUNC bpf_prog1 type_id=9 Invalid arg#1"
       ],
-      "parser_error_id": null,
-      "parser_error_line": "unknown opcode 8d",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-70392721.yaml",
+      "parser_error_id": "OBLIGE-E023",
+      "parser_error_line": "[13] FUNC bpf_prog1 type_id=9 Invalid arg#1",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-70392721.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3806,7 +3886,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=30 size=4, R1(id=0,off=30,r=14)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-70721661.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-70721661.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3824,7 +3904,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=26 size=1, R7(id=68,off=26,r=0)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-70729664.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-70729664.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3841,9 +3921,9 @@
         "math between pkt pointer and register with unbounded min value is not allowed"
       ],
       "parser_error_id": "OBLIGE-E005",
-      "parser_error_line": "math between pkt pointer and register with unbounded min value is not allowed",
+      "parser_error_line": "R0_rw=invP(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R1_r=inv(id=0) R2=pkt_end(id=0,off=0,imm=0) R3_rw=inv(id=0,smin_value=-2147483648,smax_value=2147483647) R4=inv17179869184 R5_r=pkt(id=0,off=6,r=6,imm=0) R6_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R7=inv(id=0) R10=fp0 fp-8=mmmm????",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-70750259.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-70750259.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3861,22 +3941,24 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=90 size=1, R0(id=22,off=90,r=0)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-70760516.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-70760516.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-70841631",
-      "heuristic_reasons": [],
-      "heuristic_taxonomy_class": "source_bug",
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E018"
+      ],
+      "heuristic_taxonomy_class": "verifier_limit",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "BPF program is too large. Processed 1000001 insn"
       ],
-      "parser_error_id": null,
-      "parser_error_line": "processed 1000001 insns (limit 1000000) max_states_per_insn 34 total_states 10376 peak_states 7503 mark_read 3",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-70841631.yaml",
+      "parser_error_id": "OBLIGE-E018",
+      "parser_error_line": "BPF program is too large. Processed 1000001 insn",
+      "parser_taxonomy_class": "verifier_limit",
+      "path": "case_study/cases/stackoverflow/stackoverflow-70841631.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3894,7 +3976,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=0 size=1, R1(id=2,off=0,r=0)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-70873332.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-70873332.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3909,9 +3991,9 @@
         "R0 unbounded memory access, make sure to bounds check any such access"
       ],
       "parser_error_id": null,
-      "parser_error_line": "        -- END PROG LOAD LOG --",
+      "parser_error_line": "R0 unbounded memory access, make sure to bounds check any such access",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-71253472.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-71253472.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3924,9 +4006,9 @@
         "R3 pointer comparison prohibited"
       ],
       "parser_error_id": null,
-      "parser_error_line": "processed 5 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0",
+      "parser_error_line": "R3 pointer comparison prohibited",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-71351495.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-71351495.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3944,7 +4026,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=14 size=60, R3(id=1,off=14,r=34)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-71522674.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-71522674.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3963,7 +4045,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "R1 invalid mem access 'inv'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-71946593.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-71946593.yaml",
       "source": "stackoverflow"
     },
     {
@@ -3981,7 +4063,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=23 size=1, R1(id=0,off=23,r=15)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-72005172.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-72005172.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4000,7 +4082,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "R2 invalid mem access 'inv'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-72074115.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-72074115.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4018,7 +4100,7 @@
       "parser_error_id": "OBLIGE-E017",
       "parser_error_line": "WARNING: libbpf: failed to load program 'trace_read_exit'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-72560675.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-72560675.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4036,24 +4118,25 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=14 size=1, R1(id=2,off=14,r=13)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-72575736.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-72575736.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-72606055",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "type mismatch"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R1 type=inv expected=map_ptr"
       ],
-      "parser_error_id": null,
-      "parser_error_line": "processed 6 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-72606055.yaml",
+      "parser_error_id": "OBLIGE-E023",
+      "parser_error_line": "R1 type=inv expected=map_ptr",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-72606055.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4071,7 +4154,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=120 size=1, R4(id=0,off=135,r=120)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-73088287.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-73088287.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4090,7 +4173,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "invalid access to map value, value_size=1024 off=1024 size=1",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-74178703.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-74178703.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4109,7 +4192,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "bpf: Failed to load program: Invalid argument",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-74531552.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-74531552.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4128,7 +4211,7 @@
       "parser_error_id": "OBLIGE-E002",
       "parser_error_line": "R1 invalid mem access 'mem_or_null'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-75058008.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-75058008.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4147,22 +4230,24 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "R2 invalid mem access 'inv'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-75294010.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-75294010.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-75300106",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R2 !read_ok"
       ],
-      "parser_error_id": null,
-      "parser_error_line": "processed 1 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-75300106.yaml",
+      "parser_error_id": "OBLIGE-E023",
+      "parser_error_line": "R2 !read_ok",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-75300106.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4175,7 +4260,7 @@
       "parser_error_id": null,
       "parser_error_line": "",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-75301643.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-75301643.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4194,7 +4279,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "invalid access to map value, value_size=8 off=8 size=8",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-75515263.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-75515263.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4212,22 +4297,24 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=14 size=1, R4(id=3,off=14,r=14)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-75643912.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-75643912.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-76035116",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "failed to load BPF object -13`"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "failed to load BPF object -13`",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-76035116.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-76035116.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4245,7 +4332,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "invalid access to memory, mem_size=1 off=1 size=1",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-76160985.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-76160985.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4263,7 +4350,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=26 size=4, R9(id=0,off=26,r=14)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-76277872.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-76277872.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4276,24 +4363,24 @@
       "parser_error_id": null,
       "parser_error_line": "",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-76371104.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-76371104.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-76441958",
       "heuristic_reasons": [
-        "unsupported feature"
+        "catalog match OBLIGE-E023"
       ],
-      "heuristic_taxonomy_class": "env_mismatch",
+      "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "reg type unsupported for arg#0 function sched_switch_btf#29"
       ],
-      "parser_error_id": null,
-      "parser_error_line": "-- END PROG LOAD LOG --",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-76441958.yaml",
+      "parser_error_id": "OBLIGE-E023",
+      "parser_error_line": "reg type unsupported for arg#0 function sched_switch_btf#29",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-76441958.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4311,7 +4398,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=0 size=1, R0(id=3,off=0,r=0)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-76637174.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-76637174.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4329,9 +4416,9 @@
         "2023/08/22 19:01:25 loading objects: field KprobeInetAccept: program kprobe__inet_accept: load program: permission denied: 13: (79) r6 = *(u64 *)(r6 +24): R6 invalid mem access 'inv' (22 line(s) omitted)"
       ],
       "parser_error_id": "OBLIGE-E011",
-      "parser_error_line": "2023/08/24 11:24:15 loading objects: field KprobeInetAccept: program kprobe__inet_accept: load program: permission denied: 20: (79) r3 = *(u64 *)(r6 +24): R6 invalid mem access 'inv' (41 line(s) omitted)",
+      "parser_error_line": "R6 invalid mem access 'inv'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-76960866.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-76960866.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4350,24 +4437,25 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "invalid access to map value, value_size=8 off=8 size=1",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-76994829.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-76994829.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-77205912",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "type mismatch"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-77205912.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-77205912.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4382,7 +4470,7 @@
       "parser_error_id": null,
       "parser_error_line": "processed 54 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 4",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-77462271.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-77462271.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4401,24 +4489,25 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "2023/11/29 10:47:53 loading objects: field RawTracepointSysEnter: program raw_tracepoint__sys_enter: load program: permission denied: 9: (79) r3 = *(u64 *)(r1 +96): R1 invalid mem access 'scalar' (16 line(s) omitted)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-77568308.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-77568308.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-77673256",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "type mismatch"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf, trusted_ptr_"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf, trusted_ptr_",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-77673256.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-77673256.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4437,7 +4526,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": ":invalid access to map value, value_size=70 off=0 size=16383",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-77713434.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-77713434.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4456,7 +4545,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "invalid access to map value, value_size=4108 off=4107 size=4095",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-77762365.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-77762365.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4469,22 +4558,24 @@
       "parser_error_id": null,
       "parser_error_line": "",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-77967675.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-77967675.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-78236201",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
-        "libbpf: failed to load object 'xdp_prog_kern.o'"
+        "R8 !read_ok"
       ],
-      "parser_error_id": null,
-      "parser_error_line": "libbpf: failed to load object 'xdp_prog_kern.o'",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-78236201.yaml",
+      "parser_error_id": "OBLIGE-E023",
+      "parser_error_line": "R8 !read_ok",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-78236201.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4502,7 +4593,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "invalid access to map value, value_size=20 off=76 size=4",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-78236856.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-78236856.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4515,7 +4606,7 @@
       "parser_error_id": null,
       "parser_error_line": "",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-78266602.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-78266602.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4532,9 +4623,9 @@
         "R3 invalid mem access 'scalar'"
       ],
       "parser_error_id": "OBLIGE-E011",
-      "parser_error_line": "    R3 invalid mem access 'scalar'",
+      "parser_error_line": "R3 invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-78471487.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-78471487.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4553,7 +4644,7 @@
       "parser_error_id": "OBLIGE-E011",
       "parser_error_line": "R2 invalid mem access 'scalar'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-78525670.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-78525670.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4571,9 +4662,9 @@
         "R2 unbounded memory access, make sure to bounds check any such access"
       ],
       "parser_error_id": "OBLIGE-E001",
-      "parser_error_line": "invalid access to packet, off=74 size=4, R2(id=6,off=74,r=0)",
+      "parser_error_line": "R2 unbounded memory access, make sure to bounds check any such access",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-78591601.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-78591601.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4586,7 +4677,7 @@
       "parser_error_id": null,
       "parser_error_line": "",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-78603028.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-78603028.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4601,7 +4692,7 @@
       "parser_error_id": null,
       "parser_error_line": "libbpf: failed to load object 'work/switch/switch.o'",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-78633443.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-78633443.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4614,7 +4705,7 @@
       "parser_error_id": null,
       "parser_error_line": "",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-78695342.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-78695342.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4632,7 +4723,7 @@
       "parser_error_id": "OBLIGE-E007",
       "parser_error_line": "processed 67395 insns (limit 1000000) max_states_per_insn 17 total_states 733 peak_states 723 mark_read 6",
       "parser_taxonomy_class": "verifier_limit",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-78753911.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-78753911.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4651,40 +4742,43 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=62 size=254, R2(id=0,off=62,r=63)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-78958420.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-78958420.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-79045875",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "arg#0 pointer type UNKNOWN must point to scalar, or struct with scalar"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-79045875.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-79045875.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "stackoverflow-79348306",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "type mismatch"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R1 type=fp expected=ptr_, trusted_ptr_, rcu_ptr_",
         "func 'bpf_lsm_file_open' arg0 has btf_id 601 type STRUCT 'file'"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "R1 type=fp expected=ptr_, trusted_ptr_, rcu_ptr_",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-79348306.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/stackoverflow/stackoverflow-79348306.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4702,7 +4796,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=0 size=2, R5(id=6,off=0,r=0)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-79485758.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-79485758.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4720,7 +4814,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-79530762.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-79530762.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4733,7 +4827,7 @@
       "parser_error_id": null,
       "parser_error_line": "",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-79616493.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-79616493.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4746,7 +4840,7 @@
       "parser_error_id": null,
       "parser_error_line": "",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-79752670.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-79752670.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4762,9 +4856,9 @@
         "R2 type=scalar expected=ptr_, trusted_ptr_, rcu_ptr_"
       ],
       "parser_error_id": "OBLIGE-E011",
-      "parser_error_line": "processed 6 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0",
+      "parser_error_line": "R2 type=scalar expected=ptr_, trusted_ptr_, rcu_ptr_",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/stackoverflow/stackoverflow-79812509.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-79812509.yaml",
       "source": "stackoverflow"
     },
     {
@@ -4777,24 +4871,25 @@
       "parser_error_id": null,
       "parser_error_line": "",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/stackoverflow/stackoverflow-79817058.yaml",
+      "path": "case_study/cases/stackoverflow/stackoverflow-79817058.yaml",
       "source": "stackoverflow"
     },
     {
       "case_id": "github-aya-rs-aya-1002",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E022",
         "unsupported mutable global access"
       ],
       "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "only read from bpf_array is supported"
       ],
-      "parser_error_id": null,
-      "parser_error_line": "processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-1002.yaml",
+      "parser_error_id": "OBLIGE-E022",
+      "parser_error_line": "only read from bpf_array is supported",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-1002.yaml",
       "source": "github_issues"
     },
     {
@@ -4813,7 +4908,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "Failed to run `sudo -E target/debug/ebpf-log`",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-1056.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-1056.yaml",
       "source": "github_issues"
     },
     {
@@ -4829,9 +4924,9 @@
         "R2 min value is negative, either use unsigned or 'var &= const'"
       ],
       "parser_error_id": "OBLIGE-E005",
-      "parser_error_line": "    Invalid argument (os error 22)",
+      "parser_error_line": "Invalid argument (os error 22)",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-1062.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-1062.yaml",
       "source": "github_issues"
     },
     {
@@ -4844,24 +4939,26 @@
         "Invalid argument (os error 22)"
       ],
       "parser_error_id": null,
-      "parser_error_line": "    Invalid argument (os error 22)",
+      "parser_error_line": "Invalid argument (os error 22)",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-1104.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-1104.yaml",
       "source": "github_issues"
     },
     {
       "case_id": "github-aya-rs-aya-1207",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R4 invalid zero-sized read: u64=[0,31]"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "R4 invalid zero-sized read: u64=[0,31]",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-1207.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-1207.yaml",
       "source": "github_issues"
     },
     {
@@ -4877,24 +4974,26 @@
         "program of this type cannot use helper bpf_probe_read#4"
       ],
       "parser_error_id": "OBLIGE-E009",
-      "parser_error_line": "    2: Invalid argument (os error 22)",
+      "parser_error_line": "2: Invalid argument (os error 22)",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-1233.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-1233.yaml",
       "source": "github_issues"
     },
     {
       "case_id": "github-aya-rs-aya-1267",
-      "heuristic_reasons": [],
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E023"
+      ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R4 invalid zero-sized read: u64=[0,31]"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "R4 invalid zero-sized read: u64=[0,31]",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-1267.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-1267.yaml",
       "source": "github_issues"
     },
     {
@@ -4909,7 +5008,7 @@
       "parser_error_id": null,
       "parser_error_line": "   processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-1324.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-1324.yaml",
       "source": "github_issues"
     },
     {
@@ -4924,7 +5023,7 @@
       "parser_error_id": null,
       "parser_error_line": "[30] UNION MaybeUninit<u8> size=1 vlen=2 Invalid name",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-1490.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-1490.yaml",
       "source": "github_issues"
     },
     {
@@ -4942,22 +5041,24 @@
       "parser_error_id": "OBLIGE-E003",
       "parser_error_line": "invalid indirect read from stack R4 off -16+14 size 16",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-407.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-407.yaml",
       "source": "github_issues"
     },
     {
       "case_id": "github-aya-rs-aya-440",
-      "heuristic_reasons": [],
-      "heuristic_taxonomy_class": "source_bug",
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E016"
+      ],
+      "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "helper access to the packet is not allowed"
       ],
-      "parser_error_id": null,
-      "parser_error_line": "processed 7 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-440.yaml",
+      "parser_error_id": "OBLIGE-E016",
+      "parser_error_line": "R1=ctx(id=0,off=0,imm=0) R4_w=pkt(id=0,off=0,r=0,imm=0) R5_w=pkt_end(id=0,off=0,imm=0) R10=fp0",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-440.yaml",
       "source": "github_issues"
     },
     {
@@ -4976,22 +5077,24 @@
       "parser_error_id": "OBLIGE-E002",
       "parser_error_line": "R0 invalid mem access 'map_value_or_null'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-458.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-458.yaml",
       "source": "github_issues"
     },
     {
       "case_id": "github-aya-rs-aya-521",
-      "heuristic_reasons": [],
-      "heuristic_taxonomy_class": "source_bug",
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E021"
+      ],
+      "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "missing btf func_info"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E021",
       "parser_error_line": "missing btf func_info",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-521.yaml",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-521.yaml",
       "source": "github_issues"
     },
     {
@@ -5004,24 +5107,26 @@
         "Invalid argument (os error 22)"
       ],
       "parser_error_id": null,
-      "parser_error_line": "    Invalid argument (os error 22)",
+      "parser_error_line": "Invalid argument (os error 22)",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-546.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-546.yaml",
       "source": "github_issues"
     },
     {
       "case_id": "github-aya-rs-aya-808",
-      "heuristic_reasons": [],
-      "heuristic_taxonomy_class": "source_bug",
+      "heuristic_reasons": [
+        "catalog match OBLIGE-E016"
+      ],
+      "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "Global function write() doesn't return scalar. Only those are supported."
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E016",
       "parser_error_line": "processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-808.yaml",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-808.yaml",
       "source": "github_issues"
     },
     {
@@ -5036,7 +5141,7 @@
       "parser_error_id": null,
       "parser_error_line": "Failed to run `sudo -E target/debug/foo`",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-857.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-857.yaml",
       "source": "github_issues"
     },
     {
@@ -5054,7 +5159,7 @@
       "parser_error_id": "OBLIGE-E005",
       "parser_error_line": "Failed to run `sudo -E target/debug/test`",
       "parser_taxonomy_class": "lowering_artifact",
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-863.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-863.yaml",
       "source": "github_issues"
     },
     {
@@ -5072,24 +5177,25 @@
       "parser_error_id": "OBLIGE-E009",
       "parser_error_line": "Failed to run `sudo -E target/debug/interceptor --iface wlo1`",
       "parser_taxonomy_class": "env_mismatch",
-      "path": "benchmark/cases/github_issues/github-aya-rs-aya-864.yaml",
+      "path": "case_study/cases/github_issues/github-aya-rs-aya-864.yaml",
       "source": "github_issues"
     },
     {
       "case_id": "github-cilium-cilium-35182",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E021",
         "unknown BTF reference size"
       ],
       "heuristic_taxonomy_class": "env_mismatch",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "arg#0 reference type('UNKNOWN ') size cannot be determined: -22"
       ],
-      "parser_error_id": null,
-      "parser_error_line": "    \targ#0 reference type('UNKNOWN ') size cannot be determined: -22",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-cilium-cilium-35182.yaml",
+      "parser_error_id": "OBLIGE-E021",
+      "parser_error_line": "arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
+      "parser_taxonomy_class": "env_mismatch",
+      "path": "case_study/cases/github_issues/github-cilium-cilium-35182.yaml",
       "source": "github_issues"
     },
     {
@@ -5107,9 +5213,9 @@
         "R1 invalid mem access 'map_value_or_null' (183 line(s) omitted)\""
       ],
       "parser_error_id": "OBLIGE-E002",
-      "parser_error_line": "2025-01-10T17:54:26.027486150Z \tR1 invalid mem access 'map_value_or_null'",
+      "parser_error_line": "R1 invalid mem access 'map_value_or_null' (183 line(s) omitted)\"",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/github_issues/github-cilium-cilium-36936.yaml",
+      "path": "case_study/cases/github_issues/github-cilium-cilium-36936.yaml",
       "source": "github_issues"
     },
     {
@@ -5127,9 +5233,9 @@
         "R1 invalid mem access 'map_value_or_null'"
       ],
       "parser_error_id": "OBLIGE-E002",
-      "parser_error_line": "> \tR3 invalid mem access 'map_value_or_null'",
+      "parser_error_line": "R3 invalid mem access 'map_value_or_null'",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/github_issues/github-cilium-cilium-37478.yaml",
+      "path": "case_study/cases/github_issues/github-cilium-cilium-37478.yaml",
       "source": "github_issues"
     },
     {
@@ -5146,7 +5252,7 @@
       "parser_error_id": null,
       "parser_error_line": "    \tprocessed 496185 insns (limit 1000000) max_states_per_insn 4 total_states 6230 peak_states 6230 mark_read 3871",
       "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-cilium-cilium-41412.yaml",
+      "path": "case_study/cases/github_issues/github-cilium-cilium-41412.yaml",
       "source": "github_issues"
     },
     {
@@ -5165,7 +5271,7 @@
       "parser_error_id": "OBLIGE-E001",
       "parser_error_line": "invalid access to packet, off=0 size=4, R4(id=0,off=0,r=0)",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/github_issues/github-cilium-cilium-41522.yaml",
+      "path": "case_study/cases/github_issues/github-cilium-cilium-41522.yaml",
       "source": "github_issues"
     },
     {
@@ -5180,9 +5286,9 @@
         "Verifier error: program tail_nodeport_nat_egress_ipv4: load program: permission denied:"
       ],
       "parser_error_id": "OBLIGE-E011",
-      "parser_error_line": "1074: (71) r1 = *(u8 *)(r2 +23): R2 invalid mem access 'inv'",
+      "parser_error_line": "\"DebugPolicy\": \"Disabled\",",
       "parser_taxonomy_class": "source_bug",
-      "path": "benchmark/cases/github_issues/github-cilium-cilium-41996.yaml",
+      "path": "case_study/cases/github_issues/github-cilium-cilium-41996.yaml",
       "source": "github_issues"
     },
     {
@@ -5202,53 +5308,54 @@
       "parser_error_id": "OBLIGE-E010",
       "parser_error_line": "k8s-0: kern: warning: [2026-02-05T19:14:13.467216703Z]: ---[ end trace 0000000000000000 ]---",
       "parser_taxonomy_class": "verifier_bug",
-      "path": "benchmark/cases/github_issues/github-cilium-cilium-44216.yaml",
+      "path": "case_study/cases/github_issues/github-cilium-cilium-44216.yaml",
       "source": "github_issues"
     },
     {
       "case_id": "github-facebookincubator-katran-149",
       "heuristic_reasons": [
+        "catalog match OBLIGE-E023",
         "type mismatch"
       ],
       "heuristic_taxonomy_class": "source_bug",
       "log_field": "verifier_log.combined",
-      "matched": false,
+      "matched": true,
       "message_candidates": [
         "R1 type=inv expected=map_ptr"
       ],
-      "parser_error_id": null,
+      "parser_error_id": "OBLIGE-E023",
       "parser_error_line": "R1 type=inv expected=map_ptr",
-      "parser_taxonomy_class": null,
-      "path": "benchmark/cases/github_issues/github-facebookincubator-katran-149.yaml",
+      "parser_taxonomy_class": "source_bug",
+      "path": "case_study/cases/github_issues/github-facebookincubator-katran-149.yaml",
       "source": "github_issues"
     }
   ],
   "catalog_path": "taxonomy/error_catalog.yaml",
   "catalog_taxonomy_distribution": {
-    "env_mismatch": 15,
+    "env_mismatch": 27,
     "lowering_artifact": 23,
-    "source_bug": 150,
+    "source_bug": 207,
     "verifier_bug": 1,
-    "verifier_limit": 4
+    "verifier_limit": 5
   },
   "coverage_by_source": {
     "github_issues": {
       "cases": 26,
-      "coverage_rate": 0.46153846153846156,
-      "matched": 12
+      "coverage_rate": 0.7692307692307693,
+      "matched": 20
     },
     "kernel_selftests": {
       "cases": 200,
-      "coverage_rate": 0.695,
-      "matched": 139
+      "coverage_rate": 0.93,
+      "matched": 186
     },
     "stackoverflow": {
       "cases": 76,
-      "coverage_rate": 0.5526315789473685,
-      "matched": 42
+      "coverage_rate": 0.75,
+      "matched": 57
     }
   },
-  "coverage_rate": 0.6390728476821192,
+  "coverage_rate": 0.8708609271523179,
   "error_id_distribution": {
     "OBLIGE-E001": 18,
     "OBLIGE-E002": 8,
@@ -5264,217 +5371,29 @@
     "OBLIGE-E012": 22,
     "OBLIGE-E013": 19,
     "OBLIGE-E014": 10,
-    "OBLIGE-E015": 8,
-    "OBLIGE-E016": 12,
+    "OBLIGE-E015": 9,
+    "OBLIGE-E016": 21,
     "OBLIGE-E017": 1,
-    "OBLIGE-E018": 2
+    "OBLIGE-E018": 3,
+    "OBLIGE-E019": 13,
+    "OBLIGE-E020": 9,
+    "OBLIGE-E021": 2,
+    "OBLIGE-E022": 1,
+    "OBLIGE-E023": 34
   },
   "existing_error_id_expansions": [],
-  "generated_at": "2026-03-11T16:27:56+00:00",
+  "generated_at": "2026-03-11T16:39:56+00:00",
   "heuristic_taxonomy_distribution": {
-    "env_mismatch": 24,
+    "env_mismatch": 29,
     "lowering_artifact": 12,
-    "source_bug": 261,
+    "source_bug": 255,
     "verifier_bug": 1,
-    "verifier_limit": 4
+    "verifier_limit": 5
   },
-  "matched_cases": 193,
-  "recommendations": [
-    {
-      "candidate_patterns": [
-        "Expected an initialized dynptr as arg #\\d+",
-        "cannot overwrite referenced dynptr",
-        "Expected a dynptr of type .* as arg #\\d+"
-      ],
-      "example_messages": [
-        "potential write to dynptr at off=-16",
-        "arg#0 expected pointer to stack or const struct bpf_dynptr",
-        "cannot pass in dynptr at an offset"
-      ],
-      "proposed_error_id": "OBLIGE-E019",
-      "short_name": "dynptr_protocol_violation",
-      "sources": {
-        "kernel_selftests": 6
-      },
-      "supporting_case_count": 6,
-      "taxonomy_class": "source_bug",
-      "title": "Dynptr initialization, lifetime, or access protocol violated"
-    },
-    {
-      "candidate_patterns": [
-        "cannot restore irq state out of order",
-        "function calls are not allowed while holding a lock",
-        "BPF_EXIT instruction .* cannot be used inside .* region"
-      ],
-      "example_messages": [
-        "arg#0 doesn't point to an irq flag on stack"
-      ],
-      "proposed_error_id": "OBLIGE-E020",
-      "short_name": "execution_context_discipline_violation",
-      "sources": {
-        "kernel_selftests": 2
-      },
-      "supporting_case_count": 2,
-      "taxonomy_class": "source_bug",
-      "title": "Lock, IRQ, or RCU discipline violated on at least one control-flow path"
-    },
-    {
-      "candidate_patterns": [
-        "arg#\\d+ reference type\\('UNKNOWN '\\) size cannot be determined",
-        "invalid btf[_ ]id"
-      ],
-      "example_messages": [
-        "arg#0 reference type('UNKNOWN ') size cannot be determined: -22"
-      ],
-      "proposed_error_id": "OBLIGE-E021",
-      "short_name": "btf_reference_metadata_missing",
-      "sources": {
-        "github_issues": 1
-      },
-      "supporting_case_count": 1,
-      "taxonomy_class": "env_mismatch",
-      "title": "BTF or reference type metadata is insufficient for verifier type validation"
-    },
-    {
-      "candidate_patterns": [
-        "only read from bpf_array is supported"
-      ],
-      "example_messages": [
-        "only read from bpf_array is supported"
-      ],
-      "proposed_error_id": "OBLIGE-E022",
-      "short_name": "mutable_global_state_unsupported",
-      "sources": {
-        "github_issues": 1
-      },
-      "supporting_case_count": 1,
-      "taxonomy_class": "env_mismatch",
-      "title": "Mutable global or static data access unsupported in the active BPF environment"
-    },
-    {
-      "candidate_patterns": [
-        "R\\d+ invalid mem access '(?:scalar|inv)'",
-        "R\\d+ type=scalar expected=ptr_, trusted_ptr_, rcu_ptr_"
-      ],
-      "example_messages": [
-        "R1 type=fp expected=ptr_, trusted_ptr_, rcu_ptr_"
-      ],
-      "proposed_error_id": "OBLIGE-E023",
-      "short_name": "scalar_pointer_dereference",
-      "sources": {
-        "stackoverflow": 1
-      },
-      "supporting_case_count": 1,
-      "taxonomy_class": "source_bug",
-      "title": "Scalar value dereferenced where a tracked pointer proof is required"
-    }
-  ],
+  "matched_cases": 263,
+  "recommendations": [],
   "taxonomy_path": "taxonomy/taxonomy.yaml",
   "top_unmatched_messages": [
-    {
-      "count": 4,
-      "message": "expected an initialized",
-      "sample_case_ids": [
-        "kernel-selftest-irq-irq-flag-overwrite-partial-tc-51152af8",
-        "kernel-selftest-irq-irq-flag-overwrite-tc-4c974993",
-        "kernel-selftest-irq-irq-restore-invalid-tc-e1f743bf",
-        "kernel-selftest-irq-irq-restore-iter-tc-501bf2c6"
-      ],
-      "sources": {
-        "kernel_selftests": 4
-      }
-    },
-    {
-      "count": 3,
-      "message": "arg 1 is an unacquired reference",
-      "sample_case_ids": [
-        "kernel-selftest-dynptr-fail-release-twice-callback-raw-tp-bd7b2a60",
-        "kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d",
-        "kernel-selftest-dynptr-fail-ringbuf-release-uninit-dynptr-raw-tp-a799622b"
-      ],
-      "sources": {
-        "kernel_selftests": 3
-      }
-    },
-    {
-      "count": 3,
-      "message": "misaligned stack access off 0+-31+0 size 8",
-      "sample_case_ids": [
-        "kernel-selftest-iters-iters-raw-tp-063123db",
-        "kernel-selftest-iters-iters-raw-tp-9292b545",
-        "kernel-selftest-iters-iters-raw-tp-bd99cf85"
-      ],
-      "sources": {
-        "kernel_selftests": 3
-      }
-    },
-    {
-      "count": 3,
-      "message": "must be referenced or trusted",
-      "sample_case_ids": [
-        "kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-rcu-get-release-tp-btf-cgroup-mkdir-29aa212b",
-        "kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403",
-        "kernel-selftest-dynptr-fail-skb-invalid-ctx-fexit-fexit-skb-tx-error-ef42c043"
-      ],
-      "sources": {
-        "kernel_selftests": 3
-      }
-    },
-    {
-      "count": 2,
-      "message": "arg#0 doesn't point to an irq flag on stack",
-      "sample_case_ids": [
-        "kernel-selftest-irq-irq-restore-bad-arg-tc-28a1cb48",
-        "kernel-selftest-irq-irq-save-bad-arg-tc-2e0fba3a"
-      ],
-      "sources": {
-        "kernel_selftests": 2
-      }
-    },
-    {
-      "count": 2,
-      "message": "arg#0 pointer type STRUCT cgroup must point",
-      "sample_case_ids": [
-        "kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-fp-tp-btf-cgroup-mkdir-7d3a90fe",
-        "kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99"
-      ],
-      "sources": {
-        "kernel_selftests": 2
-      }
-    },
-    {
-      "count": 2,
-      "message": "cannot call exception cb directly",
-      "sample_case_ids": [
-        "kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8",
-        "kernel-selftest-exceptions-fail-reject-exception-cb-call-static-func-tc-f3ceb9b7"
-      ],
-      "sources": {
-        "kernel_selftests": 2
-      }
-    },
-    {
-      "count": 2,
-      "message": "exception cb only supports single integer argument",
-      "sample_case_ids": [
-        "kernel-selftest-exceptions-fail-reject-exception-cb-type-2-tc-45ccb6dc",
-        "kernel-selftest-exceptions-fail-reject-exception-cb-type-3-tc-62f713bd"
-      ],
-      "sources": {
-        "kernel_selftests": 2
-      }
-    },
-    {
-      "count": 2,
-      "message": "function calls are not allowed",
-      "sample_case_ids": [
-        "kernel-selftest-irq-irq-wrong-kfunc-class-1-tc-05e98572",
-        "kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958"
-      ],
-      "sources": {
-        "kernel_selftests": 2
-      }
-    },
     {
       "count": 2,
       "message": "Invalid argument (os error 22)",
@@ -5484,62 +5403,6 @@
       ],
       "sources": {
         "github_issues": 2
-      }
-    },
-    {
-      "count": 2,
-      "message": "potential write to dynptr at off=-16",
-      "sample_case_ids": [
-        "kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35",
-        "kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838"
-      ],
-      "sources": {
-        "kernel_selftests": 2
-      }
-    },
-    {
-      "count": 2,
-      "message": "R1 type=inv expected=map_ptr",
-      "sample_case_ids": [
-        "stackoverflow-72606055",
-        "github-facebookincubator-katran-149"
-      ],
-      "sources": {
-        "github_issues": 1,
-        "stackoverflow": 1
-      }
-    },
-    {
-      "count": 2,
-      "message": "R4 invalid zero-sized read: u64=[0,31]",
-      "sample_case_ids": [
-        "github-aya-rs-aya-1207",
-        "github-aya-rs-aya-1267"
-      ],
-      "sources": {
-        "github_issues": 2
-      }
-    },
-    {
-      "count": 2,
-      "message": "R6 !read_ok",
-      "sample_case_ids": [
-        "stackoverflow-67441023",
-        "stackoverflow-75300106"
-      ],
-      "sources": {
-        "stackoverflow": 2
-      }
-    },
-    {
-      "count": 2,
-      "message": "R{{[0-9]+}} cannot write into rdonly_mem",
-      "sample_case_ids": [
-        "kernel-selftest-dynptr-fail-dynptr-fail-tc-db029308",
-        "kernel-selftest-dynptr-fail-dynptr-fail-tc-de3e751b"
-      ],
-      "sources": {
-        "kernel_selftests": 2
       }
     },
     {
@@ -5565,16 +5428,6 @@
     },
     {
       "count": 1,
-      "message": "[13] FUNC bpf_prog1 type_id=9 Invalid arg#1",
-      "sample_case_ids": [
-        "stackoverflow-70392721"
-      ],
-      "sources": {
-        "stackoverflow": 1
-      }
-    },
-    {
-      "count": 1,
       "message": "[30] UNION MaybeUninit<u8> size=1 vlen=2 Invalid name",
       "sample_case_ids": [
         "github-aya-rs-aya-1490"
@@ -5585,12 +5438,162 @@
     },
     {
       "count": 1,
-      "message": "arg#0 expected pointer to stack or const struct bpf_dynptr",
+      "message": "At program exit the register R1 has smin=64 smax=64",
       "sample_case_ids": [
-        "kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9"
+        "kernel-selftest-exceptions-assert-check-assert-with-return-fentry-bpf-check-ba50c498"
       ],
       "sources": {
         "kernel_selftests": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "bpf_test.go:170: verifier error: load program: operation not supported:",
+      "sample_case_ids": [
+        "github-cilium-cilium-41412"
+      ],
+      "sources": {
+        "github_issues": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "cgrp_kfunc_acquire_trusted_walked",
+      "sample_case_ids": [
+        "kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-trusted-walked-tp-btf-cgroup-mkdir-6deeac84"
+      ],
+      "sources": {
+        "kernel_selftests": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "fp-304=??mmmmmm fp-312=mmmmmmmm fp-320=mmmmmmmm fp-328=?mmmmmmm fp-336=mmmmmmmm fp-344= (truncated...)",
+      "sample_case_ids": [
+        "stackoverflow-68815540"
+      ],
+      "sources": {
+        "stackoverflow": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "invalid bpf_context access off=92 size=4",
+      "sample_case_ids": [
+        "stackoverflow-67402772"
+      ],
+      "sources": {
+        "stackoverflow": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "leads to invalid memory access",
+      "sample_case_ids": [
+        "kernel-selftest-cpumask-failure-test-populate-invalid-source-tp-btf-task-newtask-149c6ecc"
+      ],
+      "sources": {
+        "kernel_selftests": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "libbpf: failed to load BPF skeleton 'hello_bpf': -3",
+      "sample_case_ids": [
+        "stackoverflow-77462271"
+      ],
+      "sources": {
+        "stackoverflow": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "libbpf: failed to load object 'work/switch/switch.o'",
+      "sample_case_ids": [
+        "stackoverflow-78633443"
+      ],
+      "sources": {
+        "stackoverflow": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "libbpf: load bpf program failed: Invalid argument",
+      "sample_case_ids": [
+        "stackoverflow-69192685"
+      ],
+      "sources": {
+        "stackoverflow": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "memory, len pair leads to invalid memory access",
+      "sample_case_ids": [
+        "kernel-selftest-dynptr-fail-test-dynptr-skb-small-buff-cgroup-skb-egress-4f498dbd"
+      ],
+      "sources": {
+        "kernel_selftests": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "Permission denied (os error 13)",
+      "sample_case_ids": [
+        "github-aya-rs-aya-857"
+      ],
+      "sources": {
+        "github_issues": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "R0 unbounded memory access, make sure to bounds check any such access",
+      "sample_case_ids": [
+        "stackoverflow-71253472"
+      ],
+      "sources": {
+        "stackoverflow": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "R1=ctx() R2=scalar(smin=umin=smin32=umin32=4096,smax=umax=smax32=umax32=8192,var_off=(0x0; 0x3fff))",
+      "sample_case_ids": [
+        "kernel-selftest-exceptions-assert-check-assert-range-u64-tc-832996f2"
+      ],
+      "sources": {
+        "kernel_selftests": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "R2 pointer arithmetic on PTR_TO_PACKET_END prohibited",
+      "sample_case_ids": [
+        "stackoverflow-60506220"
+      ],
+      "sources": {
+        "stackoverflow": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "R3 pointer comparison prohibited",
+      "sample_case_ids": [
+        "stackoverflow-71351495"
+      ],
+      "sources": {
+        "stackoverflow": 1
+      }
+    },
+    {
+      "count": 1,
+      "message": "section simple verbose",
+      "sample_case_ids": [
+        "stackoverflow-47591176"
+      ],
+      "sources": {
+        "stackoverflow": 1
       }
     }
   ],

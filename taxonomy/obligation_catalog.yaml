@@ -251,3 +251,77 @@ templates:
       - Reduce branching, stack usage, or loop-carried state so the proof shape is simpler.
     related_error_ids:
       - OBLIGE-E018
+
+  - obligation_id: OBLIGE-O019
+    taxonomy_class: source_bug
+    title: Dynptr handles must remain in the required stack slot and be released exactly once
+    expected_state: Each dynptr stays at a verifier-visible constant stack offset or required register form, and every acquired dynptr-backed reference is consumed or released exactly once.
+    observed_state: The program reuses the dynptr slot, varies the offset, passes the wrong backing pointer type, or releases a dynptr-backed reference after ownership has already been lost.
+    verifier_cues:
+      - "arg 1 is an unacquired reference"
+      - "potential write to dynptr"
+      - "const struct bpf_dynptr"
+    repair_hints:
+      - Keep dynptr values in a dedicated stack slot at a constant offset until the helper or kfunc consumes them.
+      - Release dynptr-backed references exactly once and avoid reusing the slot while the verifier still tracks live dynptr state.
+    related_error_ids:
+      - OBLIGE-E019
+
+  - obligation_id: OBLIGE-O020
+    taxonomy_class: source_bug
+    title: IRQ save and restore must use the expected stack-backed flag state
+    expected_state: The IRQ flag object lives in the required stack slot, transitions between uninitialized and initialized states in order, and is restored only from a valid saved state.
+    observed_state: The program overwrites the saved flag bytes, restores from the wrong stack location or state, or performs disallowed work while the IRQ-disabled region is active.
+    verifier_cues:
+      - "expected an initialized"
+      - "expected uninitialized"
+      - "irq flag on stack"
+    repair_hints:
+      - Keep the saved IRQ flag in a dedicated stack variable and do not partially overwrite it.
+      - Pair save and restore operations in order and move disallowed calls outside the IRQ-disabled region.
+    related_error_ids:
+      - OBLIGE-E020
+
+  - obligation_id: OBLIGE-O021
+    taxonomy_class: env_mismatch
+    title: BTF-backed reference arguments require complete runtime metadata
+    expected_state: The target kernel exposes the BTF and reference-size metadata needed to validate the argument and attach context.
+    observed_state: Verification fails because the runtime BTF metadata is missing, invalid, or insufficient to determine reference layout and size.
+    verifier_cues:
+      - "reference type('UNKNOWN ') size cannot be determined"
+      - "invalid btf_id"
+      - "missing btf func_info"
+    repair_hints:
+      - Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.
+      - Align kernel, BTF, and compiled program metadata so reference-typed arguments can be validated.
+    related_error_ids:
+      - OBLIGE-E021
+
+  - obligation_id: OBLIGE-O022
+    taxonomy_class: env_mismatch
+    title: Mutable global state assumptions must match the deployed BPF data model
+    expected_state: The target environment supports the intended mutable global or static data access pattern.
+    observed_state: Verification fails because the runtime only permits read-only access for the chosen global-data representation.
+    verifier_cues:
+      - "only read from bpf_array is supported"
+    repair_hints:
+      - Move mutable state into an explicit map or another supported runtime storage primitive.
+      - Gate the feature on kernel or loader capabilities before selecting the mutable-global code path.
+    related_error_ids:
+      - OBLIGE-E022
+
+  - obligation_id: OBLIGE-O023
+    taxonomy_class: source_bug
+    title: Registers, stack slots, and helper arguments must preserve the verifier type required at use time
+    expected_state: The register or stack slot used at the failing access or call site still has the expected pointer kind, reference state, readability, and alignment.
+    observed_state: The verifier sees a wrong-typed register, unreadable value, misaligned stack slot, or helper argument whose pointer or reference contract was not preserved.
+    verifier_cues:
+      - "must be referenced or trusted"
+      - "type=inv expected=map_ptr"
+      - "!read_ok"
+      - "misaligned stack access"
+    repair_hints:
+      - Re-derive the required pointer or reference from a verified source immediately before the failing use site.
+      - Keep stack accesses aligned and avoid type-erasing casts or helper boundaries that degrade the tracked register state.
+    related_error_ids:
+      - OBLIGE-E023

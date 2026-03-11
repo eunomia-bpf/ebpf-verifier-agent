@@ -4,20 +4,20 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-**OBLIGE** — Obligation-Oriented Diagnostics for eBPF Verifier Failures.
+**OBLIGE** — Proof Trace Analysis for eBPF Verifier Failures.
 
-Research project studying the eBPF verifier's diagnostic interface and building a structured, machine-consumable diagnostic layer that enables both human developers and LLM agents to efficiently repair verification failures. Target: OSDI-level systems publication.
+Research project that analyzes eBPF verifier verbose logs (complete abstract interpreter execution traces) to automatically extract critical state transitions, causal chains, and structured diagnostics. Pure userspace — no kernel patches needed. Target: systems publication.
 
 ### Core Thesis
 
-The eBPF verifier is an admission controller that only exposes free-text logs, not typed failure semantics. This is a **systems interface problem**, not a cosmetic error-message problem. By extracting proof obligations, cross-layer source mappings, and stable failure taxonomies from the verifier, we can dramatically improve both human and automated repair.
+The eBPF verifier at LOG_LEVEL2 already outputs rich per-instruction abstract state (register types, scalar bounds, pointer offsets, BTF source lines, backtracking info). When a program is rejected, this trace contains all the information needed to understand the failure — but it's buried in 500-1000+ lines of flat text. OBLIGE parses the complete proof trace to extract where the proof was lost, why, and how to fix it.
 
 ## Using Codex CLI as Subagent
 
 OpenAI Codex CLI is available on this machine (`codex-cli 0.113.0`, default model: `gpt-5.4`).
 
 ### Division of Labor (IMPORTANT)
-- **Codex handles**: ALL code implementation, benchmark collection, data analysis, experiment scripts, literature search/summarization, prototype building, test writing
+- **Codex handles**: ALL code implementation, data collection, data analysis, experiment scripts, literature search/summarization, prototype building, test writing
 - **Claude Code handles**: scheduling/dispatching codex tasks, document writing (non-tmp), CLAUDE.md/memory updates, architectural decisions, reviewing codex output, paper framing
 - **Claude Code must NEVER**: write analysis code directly, run experiments directly, or manually collect data — always delegate to codex
 
@@ -43,16 +43,16 @@ codex exec --dangerously-bypass-approvals-and-sandbox -C /path/to/dir "your prom
 ebpf-verifier-agent/
 ├── CLAUDE.md                    # This file
 ├── README.md                    # Project overview
-├── benchmark/                   # Verifier failure benchmark corpus
-│   ├── cases/                   # Individual failure cases (YAML + source + expected)
-│   ├── schema.yaml              # Benchmark case schema definition
+├── case_study/                  # Verifier failure case collection (302 cases)
+│   ├── cases/                   # Individual failure cases (YAML)
+│   ├── schema.yaml              # Case schema definition
 │   ├── collect.py               # Scripts to collect cases from various sources
 │   └── reproduce.py             # Reproduce verifier failures across kernel versions
 ├── taxonomy/                    # Failure taxonomy and error classification
 │   ├── taxonomy.yaml            # The 5-class failure taxonomy
 │   ├── error_catalog.yaml       # Enumerated verifier error types with stable IDs
 │   └── obligation_catalog.yaml  # Proof obligation templates
-├── interface/                   # Structured diagnostic interface prototype
+├── interface/                   # Proof trace analysis tools
 │   ├── schema/                  # JSON schema for structured diagnostics
 │   ├── extractor/               # Extract structured diagnostics from verifier output
 │   │   ├── log_parser.py        # Parse raw verifier logs
@@ -60,61 +60,41 @@ ebpf-verifier-agent/
 │   │   └── obligation.py        # Proof obligation extraction
 │   └── api/                     # Agent-facing API
 ├── agent/                       # LLM agent evaluation harness
-│   ├── baselines/               # Baseline conditions (raw log, enhanced log, etc.)
+│   ├── baselines/               # Baseline conditions
 │   ├── repair_loop.py           # Agent repair loop driver
-│   ├── oracle.py                # Semantic correctness oracle (not just verifier pass)
+│   ├── oracle.py                # Semantic correctness oracle
 │   └── eval.py                  # Evaluation metrics computation
 ├── eval/                        # Evaluation infrastructure
 │   ├── metrics.py               # Metric definitions
 │   ├── cross_kernel.py          # Cross-kernel stability evaluation
 │   └── results/                 # Experiment results
 ├── docs/
-│   ├── research-plan.md         # Master research plan
+│   ├── research-plan.md         # Master research plan (single hub)
 │   ├── paper-outline.md         # Paper outline
 │   └── tmp/                     # Codex-generated working documents
 ├── scripts/                     # Utility scripts
-│   ├── setup_kernels.sh         # Set up multiple kernel versions for testing
-│   └── run_eval.sh              # Run full evaluation pipeline
 └── tests/                       # Test suite
 ```
 
 ## Research Phases
 
-### Phase 1: Benchmark Construction (CURRENT)
-- Collect 80-150 reproducible verifier failure cases from:
-  - Stack Overflow eBPF questions (743-question dataset)
-  - ebpf-verifier-errors community repo
-  - Kernel selftests (tools/testing/selftests/bpf/)
-  - Cilium/Aya/Katran verifier-fix commits (Rex dataset)
-  - Synthetic cases for coverage
-- Label each case with 5-class taxonomy:
-  1. **source_bug**: missing bounds/null/refcount/type checks
-  2. **lowering_artifact**: LLVM generated verifier-unfriendly bytecode
-  3. **verifier_limit**: safe program exceeds verifier analysis capacity
-  4. **env_mismatch**: helper/kfunc/BTF/attach target incompatibility
-  5. **verifier_bug**: internal verifier defect
+### Phase 1: Case Collection ✅
+- 302 verifier failure cases from kernel selftests (200), Stack Overflow (76), GitHub issues (26)
+- 23 error IDs (OBLIGE-E001~E023), 87.1% coverage
+- 5-class taxonomy, 30 cases manually labeled
 
-### Phase 2: Taxonomy & Semantic Choke Points
-- Map verifier source (kernel/bpf/verifier.c) check functions to failure classes
-- Identify the ~20 most impactful check points
-- Define stable error_id namespace
+### Phase 2: Proof Trace Analysis (CURRENT)
+- Parse verifier verbose logs (per-instruction register state traces)
+- Detect critical state transitions (bounds collapse, type downgrade, provenance loss)
+- Extract causal chains from error point back to root cause instruction
+- Map to source code via BTF line_info annotations
 
-### Phase 3: Structured Interface
-- Implement diagnostic extractor (userspace first, kernel patch later)
-- Four required fields: error_id, source_span, expected/observed state, missing_obligation
-- JSON schema with backward compatibility guarantees
-
-### Phase 4: Minimal Slice & Action Space
-- Compute minimal failing program slice
-- Define discrete repair action space (ADD_BOUNDS_GUARD, ADD_NULL_CHECK, etc.)
-
-### Phase 5: Agent Evaluation
-- 4-condition comparison: raw log / enhanced log / structured interface / DSL-guided
-- Both human and LLM agent evaluation
-- Metrics: success rate, iterations, wall-clock time, patch correctness, cross-kernel stability
+### Phase 3: Evaluation Dataset
+- Build (buggy_code, verifier_log, fixed_code) triples from Rex commits, SO answers, ebpf-verifier-errors
+- Evaluate: structured trace analysis vs raw log for LLM agent repair
 
 ## Key Design Decisions
-- **Agent is application, not contribution** — the paper's contribution is the interface, not the agent
+- **Pure userspace** — verifier LOG_LEVEL2 already has complete abstract state; no kernel patch needed
+- **Analyze full state trace, not just error message** — key difference from Pretty Verifier (regex on error line only)
+- **Agent is application, not contribution** — the paper's contribution is trace analysis
 - **Passing verifier ≠ semantic correctness** — always include task-level semantic oracle
-- **In-kernel instrumentation preferred** over userspace log parsing for OSDI credibility
-- **Stability over expressiveness** — error_ids must be stable across kernel versions

@@ -23,9 +23,9 @@ if str(ROOT) not in sys.path:
 from interface.extractor.log_parser import ParsedLog, VerifierLogParser
 
 CASE_DIRS = [
-    ROOT / "benchmark" / "cases" / "kernel_selftests",
-    ROOT / "benchmark" / "cases" / "stackoverflow",
-    ROOT / "benchmark" / "cases" / "github_issues",
+    ROOT / "case_study" / "cases" / "kernel_selftests",
+    ROOT / "case_study" / "cases" / "stackoverflow",
+    ROOT / "case_study" / "cases" / "github_issues",
 ]
 DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "taxonomy-coverage-report.md"
 DEFAULT_JSON_PATH = ROOT / "eval" / "results" / "taxonomy_coverage.json"
@@ -388,9 +388,21 @@ def load_yaml(path: Path) -> dict[str, Any]:
         return yaml.safe_load(handle) or {}
 
 
-def iter_case_paths() -> list[Path]:
+def resolve_case_dirs(cases_dir: Path | None = None) -> list[Path]:
+    if cases_dir is None:
+        return CASE_DIRS
+
+    resolved_root = cases_dir if cases_dir.is_absolute() else (ROOT / cases_dir)
+    known_sources = ("kernel_selftests", "stackoverflow", "github_issues")
+    source_dirs = [resolved_root / name for name in known_sources if (resolved_root / name).exists()]
+    if source_dirs:
+        return source_dirs
+    return [resolved_root]
+
+
+def iter_case_paths(case_dirs: list[Path] | None = None) -> list[Path]:
     paths: list[Path] = []
-    for root in CASE_DIRS:
+    for root in case_dirs or CASE_DIRS:
         paths.extend(sorted(path for path in root.glob("*.yaml") if path.name != "index.yaml"))
     return paths
 
@@ -601,14 +613,18 @@ def load_taxonomy_config() -> tuple[list[str], list[str]]:
     return decision_order, class_ids
 
 
-def load_catalog_entries() -> list[dict[str, Any]]:
-    payload = load_yaml(CATALOG_PATH)
+def load_catalog_entries(catalog_path: Path = CATALOG_PATH) -> list[dict[str, Any]]:
+    payload = load_yaml(catalog_path)
     return payload.get("error_types", [])
 
 
-def build_case_results(parser: VerifierLogParser, decision_order: list[str]) -> list[CaseResult]:
+def build_case_results(
+    parser: VerifierLogParser,
+    decision_order: list[str],
+    case_dirs: list[Path] | None = None,
+) -> list[CaseResult]:
     results: list[CaseResult] = []
-    for path in iter_case_paths():
+    for path in iter_case_paths(case_dirs):
         case = load_yaml(path)
         source = str(case.get("source") or path.parent.name)
         raw_log, log_field = normalize_case_log(case, source)
@@ -642,6 +658,7 @@ def make_report(
     results: list[CaseResult],
     catalog_entries: list[dict[str, Any]],
     taxonomy_classes: list[str],
+    catalog_path: Path = CATALOG_PATH,
 ) -> tuple[str, dict[str, Any]]:
     total_cases = len(results)
     matched_cases = sum(1 for result in results if result.matched)
@@ -806,7 +823,7 @@ def make_report(
     timestamp = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     summary = {
         "generated_at": timestamp,
-        "catalog_path": str(CATALOG_PATH.relative_to(ROOT)),
+        "catalog_path": str(catalog_path.relative_to(ROOT)),
         "taxonomy_path": str(TAXONOMY_PATH.relative_to(ROOT)),
         "total_cases": total_cases,
         "matched_cases": matched_cases,
@@ -843,7 +860,7 @@ def make_report(
         "",
         "## Coverage",
         "",
-        f"- Total benchmark cases analyzed: **{total_cases}**",
+        f"- Total cases analyzed: **{total_cases}**",
         f"- Catalog-matched cases: **{matched_cases}**",
         f"- Coverage rate: **{coverage_rate:.1%}**",
         "",
@@ -970,6 +987,24 @@ def make_report(
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "--cases-dir",
+        type=Path,
+        default=None,
+        help="Optional case-study root. If omitted, uses the three default source directories.",
+    )
+    parser.add_argument(
+        "--catalog",
+        type=Path,
+        default=CATALOG_PATH,
+        help="Error catalog YAML to evaluate.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=None,
+        help="Optional directory for the markdown report. Defaults to the current report path.",
+    )
+    parser.add_argument(
         "--report-path",
         type=Path,
         default=DEFAULT_REPORT_PATH,
@@ -981,22 +1016,37 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=DEFAULT_JSON_PATH,
         help="JSON summary output path.",
     )
+    parser.add_argument(
+        "--results-json",
+        type=Path,
+        default=None,
+        help="Alias for --json-path.",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    decision_order, taxonomy_classes = load_taxonomy_config()
-    catalog_entries = load_catalog_entries()
-    parser = VerifierLogParser(catalog_path=CATALOG_PATH)
-    results = build_case_results(parser, decision_order)
-    report, summary = make_report(results, catalog_entries, taxonomy_classes)
+    report_path = args.report_path
+    if args.output_dir is not None and args.report_path == DEFAULT_REPORT_PATH:
+        report_path = args.output_dir / DEFAULT_REPORT_PATH.name
+    json_path = args.results_json or args.json_path
+    case_dirs = resolve_case_dirs(args.cases_dir)
+    catalog_path = args.catalog if args.catalog.is_absolute() else (ROOT / args.catalog)
+    report_path = report_path if report_path.is_absolute() else (ROOT / report_path)
+    json_path = json_path if json_path.is_absolute() else (ROOT / json_path)
 
-    args.report_path.parent.mkdir(parents=True, exist_ok=True)
-    args.json_path.parent.mkdir(parents=True, exist_ok=True)
-    args.report_path.write_text(report, encoding="utf-8")
-    args.json_path.write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
-    print(f"Wrote {args.report_path.relative_to(ROOT)} and {args.json_path.relative_to(ROOT)}")
+    decision_order, taxonomy_classes = load_taxonomy_config()
+    catalog_entries = load_catalog_entries(catalog_path)
+    parser = VerifierLogParser(catalog_path=catalog_path)
+    results = build_case_results(parser, decision_order, case_dirs)
+    report, summary = make_report(results, catalog_entries, taxonomy_classes, catalog_path)
+
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(report, encoding="utf-8")
+    json_path.write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+    print(f"Wrote {report_path.relative_to(ROOT)} and {json_path.relative_to(ROOT)}")
     return 0
 
 

@@ -77,7 +77,7 @@ def build_parser() -> argparse.ArgumentParser:
     collect_parser.add_argument(
         "--output",
         type=Path,
-        default=Path("benchmark") / "cases" / "manifest.yaml",
+        default=Path("case_study") / "cases" / "manifest.yaml",
         help="Destination manifest path.",
     )
     collect_parser.add_argument(
@@ -175,7 +175,7 @@ def build_manifest(request: CollectionRequest) -> dict[str, Any]:
         "collector_version": "0.1.0",
         "source": request.source,
         "limit": request.limit,
-        "schema": "benchmark/schema.yaml",
+        "schema": "case_study/schema.yaml",
         "status": "skeleton",
         "notes": [
             "Collector integrations are not implemented yet.",
@@ -190,13 +190,13 @@ def build_manifest(request: CollectionRequest) -> dict[str, Any]:
                 "source": request.source,
                 "title": "Placeholder verifier failure case",
                 "failure_class": "source_bug",
-                "source_code": "benchmark/cases/stub/prog.bpf.c",
+                "source_code": "case_study/cases/stub/prog.bpf.c",
                 "compile_args": "-O2 -g -target bpf",
                 "target_kernel": "6.8.0",
-                "verifier_log": "benchmark/cases/stub/verifier.log",
+                "verifier_log": "case_study/cases/stub/verifier.log",
                 "root_cause": "Placeholder case emitted by collector skeleton.",
-                "fix_patch": "benchmark/cases/stub/fix.patch",
-                "semantic_test": "benchmark/cases/stub/test.sh",
+                "fix_patch": "case_study/cases/stub/fix.patch",
+                "semantic_test": "case_study/cases/stub/test.sh",
                 "tags": ["stub"],
                 "difficulty": "easy",
             }

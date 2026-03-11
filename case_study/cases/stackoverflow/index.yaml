@@ -1,8 +1,8 @@
 source: stackoverflow
 generated_at: '2026-03-11T16:03:25+00:00'
-generator: benchmark/collect_stackoverflow.py
+generator: case_study/collect_stackoverflow.py
 case_count: 76
-output_dir: benchmark/cases/stackoverflow
+output_dir: case_study/cases/stackoverflow
 source_details:
   site: stackoverflow
   queries:
@@ -16,7 +16,7 @@ source_details:
   - '"BPF program is too large" ebpf'
 cases:
 - case_id: stackoverflow-70750259
-  path: benchmark/cases/stackoverflow/stackoverflow-70750259.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-70750259.yaml
   question_id: 70750259
   title: BPF verification error when trying to extract SNI from TLS packet
   url: https://stackoverflow.com/questions/70750259/bpf-verification-error-when-trying-to-extract-sni-from-tls-packet
@@ -29,7 +29,7 @@ cases:
   verifier_log_blocks: 3
   source_snippet_count: 1
 - case_id: stackoverflow-77713434
-  path: benchmark/cases/stackoverflow/stackoverflow-77713434.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-77713434.yaml
   question_id: 77713434
   title: 'bpf_probe_read_user() is throwing `permission denied: invalid access to map value` in an ebpf program'
   url: https://stackoverflow.com/questions/77713434/bpf-probe-read-user-is-throwing-permission-denied-invalid-access-to-map-valu
@@ -42,7 +42,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 3
 - case_id: stackoverflow-47591176
-  path: benchmark/cases/stackoverflow/stackoverflow-47591176.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-47591176.yaml
   question_id: 47591176
   title: Simple eBPF action not taking effect with tc
   url: https://stackoverflow.com/questions/47591176/simple-ebpf-action-not-taking-effect-with-tc
@@ -54,7 +54,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-67402772
-  path: benchmark/cases/stackoverflow/stackoverflow-67402772.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-67402772.yaml
   question_id: 67402772
   title: BPF verifier rejects when try to access __sk_buff member
   url: https://stackoverflow.com/questions/67402772/bpf-verifier-rejects-when-try-to-access-sk-buff-member
@@ -65,7 +65,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-67679109
-  path: benchmark/cases/stackoverflow/stackoverflow-67679109.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-67679109.yaml
   question_id: 67679109
   title: 'Keep getting bpf: Failed to load program: Permission denied when trying to run eBPF code'
   url: https://stackoverflow.com/questions/67679109/keep-getting-bpf-failed-to-load-program-permission-denied-when-trying-to-run-e
@@ -76,7 +76,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 1
 - case_id: stackoverflow-70841631
-  path: benchmark/cases/stackoverflow/stackoverflow-70841631.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-70841631.yaml
   question_id: 70841631
   title: BPF verifier says program exceeds 1M instruction
   url: https://stackoverflow.com/questions/70841631/bpf-verifier-says-program-exceeds-1m-instruction
@@ -89,7 +89,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-53136145
-  path: benchmark/cases/stackoverflow/stackoverflow-53136145.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-53136145.yaml
   question_id: 53136145
   title: How to solve the &quot;R0 invalid mem access &#39;inv&#39;&quot; error when loading an eBPF file object
   url: https://stackoverflow.com/questions/53136145/how-to-solve-the-r0-invalid-mem-access-inv-error-when-loading-an-ebpf-file-o
@@ -102,7 +102,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-71351495
-  path: benchmark/cases/stackoverflow/stackoverflow-71351495.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-71351495.yaml
   question_id: 71351495
   title: No direct packet access in BPF program with just CAP_BPF?
   url: https://stackoverflow.com/questions/71351495/no-direct-packet-access-in-bpf-program-with-just-cap-bpf
@@ -115,7 +115,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-78753911
-  path: benchmark/cases/stackoverflow/stackoverflow-78753911.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-78753911.yaml
   question_id: 78753911
   title: 'eBPF: The sequence of 8193 jumps is too complex'
   url: https://stackoverflow.com/questions/78753911/ebpf-the-sequence-of-8193-jumps-is-too-complex
@@ -126,7 +126,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 2
 - case_id: stackoverflow-70873332
-  path: benchmark/cases/stackoverflow/stackoverflow-70873332.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-70873332.yaml
   question_id: 70873332
   title: Invalid access to packet even though check made before access
   url: https://stackoverflow.com/questions/70873332/invalid-access-to-packet-even-though-check-made-before-access
@@ -139,7 +139,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 1
 - case_id: stackoverflow-56872436
-  path: benchmark/cases/stackoverflow/stackoverflow-56872436.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-56872436.yaml
   question_id: 56872436
   title: BPF verifier rejecting XDP program due to back-edge even though pragma unroll is used
   url: https://stackoverflow.com/questions/56872436/bpf-verifier-rejecting-xdp-program-due-to-back-edge-even-though-pragma-unroll-is
@@ -151,7 +151,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 2
 - case_id: stackoverflow-68752893
-  path: benchmark/cases/stackoverflow/stackoverflow-68752893.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-68752893.yaml
   question_id: 68752893
   title: How to read/understand the bpf kernel verifier analysis to debug the error?
   url: https://stackoverflow.com/questions/68752893/how-to-read-understand-the-bpf-kernel-verifier-analysis-to-debug-the-error
@@ -164,7 +164,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-69192685
-  path: benchmark/cases/stackoverflow/stackoverflow-69192685.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-69192685.yaml
   question_id: 69192685
   title: what&#39;s func_info in eBPF verifier?
   url: https://stackoverflow.com/questions/69192685/whats-func-info-in-ebpf-verifier
@@ -174,7 +174,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-69413427
-  path: benchmark/cases/stackoverflow/stackoverflow-69413427.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-69413427.yaml
   question_id: 69413427
   title: BPF verifier rejetcs the use of an inode ptr as a key
   url: https://stackoverflow.com/questions/69413427/bpf-verifier-rejetcs-the-use-of-an-inode-ptr-as-a-key
@@ -185,7 +185,7 @@ cases:
   verifier_log_blocks: 3
   source_snippet_count: 2
 - case_id: stackoverflow-70091221
-  path: benchmark/cases/stackoverflow/stackoverflow-70091221.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-70091221.yaml
   question_id: 70091221
   title: 'eBPF: How to use `bpf_map_update_elem` to send data from kernel space?'
   url: https://stackoverflow.com/questions/70091221/ebpf-how-to-use-bpf-map-update-elem-to-send-data-from-kernel-space
@@ -198,7 +198,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-72575736
-  path: benchmark/cases/stackoverflow/stackoverflow-72575736.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-72575736.yaml
   question_id: 72575736
   title: Linux Kernel 5.10 verifier rejects eBPF XDP program that is fine for kernel 5.13
   url: https://stackoverflow.com/questions/72575736/linux-kernel-5-10-verifier-rejects-ebpf-xdp-program-that-is-fine-for-kernel-5-13
@@ -211,7 +211,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 2
 - case_id: stackoverflow-74178703
-  path: benchmark/cases/stackoverflow/stackoverflow-74178703.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-74178703.yaml
   question_id: 74178703
   title: 'eBPF: invalid access to map value even with bounds check'
   url: https://stackoverflow.com/questions/74178703/ebpf-invalid-access-to-map-value-even-with-bounds-check
@@ -222,7 +222,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 2
 - case_id: stackoverflow-77967675
-  path: benchmark/cases/stackoverflow/stackoverflow-77967675.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-77967675.yaml
   question_id: 77967675
   title: Is it possible to access the packet when using bpf_loop?
   url: https://stackoverflow.com/questions/77967675/is-it-possible-to-access-the-packet-when-using-bpf-loop
@@ -233,7 +233,7 @@ cases:
   verifier_log_blocks: 0
   source_snippet_count: 1
 - case_id: stackoverflow-79348306
-  path: benchmark/cases/stackoverflow/stackoverflow-79348306.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-79348306.yaml
   question_id: 79348306
   title: BPF verifier rejects the use of path pointer as argument to the bpf_d_path helper function
   url: https://stackoverflow.com/questions/79348306/bpf-verifier-rejects-the-use-of-path-pointer-as-argument-to-the-bpf-d-path-helpe
@@ -246,7 +246,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 0
 - case_id: stackoverflow-48267671
-  path: benchmark/cases/stackoverflow/stackoverflow-48267671.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-48267671.yaml
   question_id: 48267671
   title: 'eBPF: tail calls'
   url: https://stackoverflow.com/questions/48267671/ebpf-tail-calls
@@ -259,7 +259,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 1
 - case_id: stackoverflow-77462271
-  path: benchmark/cases/stackoverflow/stackoverflow-77462271.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-77462271.yaml
   question_id: 77462271
   title: ebpf verifier - failed to find kernel BTF type ID
   url: https://stackoverflow.com/questions/77462271/ebpf-verifier-failed-to-find-kernel-btf-type-id
@@ -271,7 +271,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-70760516
-  path: benchmark/cases/stackoverflow/stackoverflow-70760516.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-70760516.yaml
   question_id: 70760516
   title: BPF verifier fails because of invalid access to packet
   url: https://stackoverflow.com/questions/70760516/bpf-verifier-fails-because-of-invalid-access-to-packet
@@ -284,7 +284,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-76371104
-  path: benchmark/cases/stackoverflow/stackoverflow-76371104.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-76371104.yaml
   question_id: 76371104
   title: bpf_skb_load_bytes - array loading when len could be 0 - invalid access to memory, min value is outside of the allowed memory range
   url: https://stackoverflow.com/questions/76371104/bpf-skb-load-bytes-array-loading-when-len-could-be-0-invalid-access-to-memor
@@ -295,7 +295,7 @@ cases:
   verifier_log_blocks: 0
   source_snippet_count: 2
 - case_id: stackoverflow-56965789
-  path: benchmark/cases/stackoverflow/stackoverflow-56965789.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-56965789.yaml
   question_id: 56965789
   title: I have an error trying to access iphdr using eBPF
   url: https://stackoverflow.com/questions/56965789/i-have-an-error-trying-to-access-iphdr-using-ebpf
@@ -306,7 +306,7 @@ cases:
   verifier_log_blocks: 0
   source_snippet_count: 3
 - case_id: stackoverflow-67441023
-  path: benchmark/cases/stackoverflow/stackoverflow-67441023.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-67441023.yaml
   question_id: 67441023
   title: 'ebpf: verify LD_ABS and LD_IND instructions'
   url: https://stackoverflow.com/questions/67441023/ebpf-verify-ld-abs-and-ld-ind-instructions
@@ -318,7 +318,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-69767533
-  path: benchmark/cases/stackoverflow/stackoverflow-69767533.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-69767533.yaml
   question_id: 69767533
   title: How do I copy variable length data using bpf_probe_read() in EBPF programs?
   url: https://stackoverflow.com/questions/69767533/how-do-i-copy-variable-length-data-using-bpf-probe-read-in-ebpf-programs
@@ -331,7 +331,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-70721661
-  path: benchmark/cases/stackoverflow/stackoverflow-70721661.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-70721661.yaml
   question_id: 70721661
   title: is there a way I can share some ebpf map between ebpf program and userspace program that has value struct using libbpf for keys
   url: https://stackoverflow.com/questions/70721661/is-there-a-way-i-can-share-some-ebpf-map-between-ebpf-program-and-userspace-prog
@@ -343,7 +343,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 4
 - case_id: stackoverflow-70729664
-  path: benchmark/cases/stackoverflow/stackoverflow-70729664.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-70729664.yaml
   question_id: 70729664
   title: Need help in XDP program failing to load with error &quot;R7 offset is outside of the packet&quot;
   url: https://stackoverflow.com/questions/70729664/need-help-in-xdp-program-failing-to-load-with-error-r7-offset-is-outside-of-the
@@ -357,7 +357,7 @@ cases:
   verifier_log_blocks: 4
   source_snippet_count: 0
 - case_id: stackoverflow-71522674
-  path: benchmark/cases/stackoverflow/stackoverflow-71522674.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-71522674.yaml
   question_id: 71522674
   title: ebpf verifier fails for bpf_csum_diff()
   url: https://stackoverflow.com/questions/71522674/ebpf-verifier-fails-for-bpf-csum-diff
@@ -368,7 +368,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-71946593
-  path: benchmark/cases/stackoverflow/stackoverflow-71946593.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-71946593.yaml
   question_id: 71946593
   title: ebpf verifier fails for accessing SK_BUFF from kprobe function
   url: https://stackoverflow.com/questions/71946593/ebpf-verifier-fails-for-accessing-sk-buff-from-kprobe-function
@@ -380,7 +380,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 2
 - case_id: stackoverflow-72606055
-  path: benchmark/cases/stackoverflow/stackoverflow-72606055.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-72606055.yaml
   question_id: 72606055
   title: BPF verifier throws error &quot;expected=map_ptr&quot;
   url: https://stackoverflow.com/questions/72606055/bpf-verifier-throws-error-expected-map-ptr
@@ -392,7 +392,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-73088287
-  path: benchmark/cases/stackoverflow/stackoverflow-73088287.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-73088287.yaml
   question_id: 73088287
   title: How do I copy data to buffer in eBPF?
   url: https://stackoverflow.com/questions/73088287/how-do-i-copy-data-to-buffer-in-ebpf
@@ -405,7 +405,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 2
 - case_id: stackoverflow-75300106
-  path: benchmark/cases/stackoverflow/stackoverflow-75300106.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-75300106.yaml
   question_id: 75300106
   title: 'eBPF verifier: R1 is not a scalar'
   url: https://stackoverflow.com/questions/75300106/ebpf-verifier-r1-is-not-a-scalar
@@ -417,7 +417,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-76035116
-  path: benchmark/cases/stackoverflow/stackoverflow-76035116.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-76035116.yaml
   question_id: 76035116
   title: cannot use eBPF __kptr_ref feature
   url: https://stackoverflow.com/questions/76035116/cannot-use-ebpf-kptr-ref-feature
@@ -428,7 +428,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-76160985
-  path: benchmark/cases/stackoverflow/stackoverflow-76160985.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-76160985.yaml
   question_id: 76160985
   title: invalid access to memory, R3 min value is outside of the allowed memory range
   url: https://stackoverflow.com/questions/76160985/invalid-access-to-memory-r3-min-value-is-outside-of-the-allowed-memory-range
@@ -439,7 +439,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 2
 - case_id: stackoverflow-76277872
-  path: benchmark/cases/stackoverflow/stackoverflow-76277872.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-76277872.yaml
   question_id: 76277872
   title: Need help in XDP program failing to load with error &quot;R9 offset is outside of the packet&quot;
   url: https://stackoverflow.com/questions/76277872/need-help-in-xdp-program-failing-to-load-with-error-r9-offset-is-outside-of-the
@@ -453,7 +453,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-76637174
-  path: benchmark/cases/stackoverflow/stackoverflow-76637174.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-76637174.yaml
   question_id: 76637174
   title: How to write an ebpf/xdp program to drop TCP packets containing a certain byte pattern?
   url: https://stackoverflow.com/questions/76637174/how-to-write-an-ebpf-xdp-program-to-drop-tcp-packets-containing-a-certain-byte-p
@@ -466,7 +466,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-76994829
-  path: benchmark/cases/stackoverflow/stackoverflow-76994829.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-76994829.yaml
   question_id: 76994829
   title: 'eBPF: Properly passing fixed length strings from userspace using eBPF array maps'
   url: https://stackoverflow.com/questions/76994829/ebpf-properly-passing-fixed-length-strings-from-userspace-using-ebpf-array-maps
@@ -479,7 +479,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 4
 - case_id: stackoverflow-77205912
-  path: benchmark/cases/stackoverflow/stackoverflow-77205912.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-77205912.yaml
   question_id: 77205912
   title: ebpf tc failed calling bpf_csum_diff a second time
   url: https://stackoverflow.com/questions/77205912/ebpf-tc-failed-calling-bpf-csum-diff-a-second-time
@@ -492,7 +492,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-79752670
-  path: benchmark/cases/stackoverflow/stackoverflow-79752670.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-79752670.yaml
   question_id: 79752670
   title: How to collect filename from eBPF hook while file is creating?
   url: https://stackoverflow.com/questions/79752670/how-to-collect-filename-from-ebpf-hook-while-file-is-creating
@@ -504,7 +504,7 @@ cases:
   verifier_log_blocks: 0
   source_snippet_count: 1
 - case_id: stackoverflow-79812509
-  path: benchmark/cases/stackoverflow/stackoverflow-79812509.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-79812509.yaml
   question_id: 79812509
   title: 'BPF LSM: bpf_task_storage_get expects a trusted pointer'
   url: https://stackoverflow.com/questions/79812509/bpf-lsm-bpf-task-storage-get-expects-a-trusted-pointer
@@ -516,7 +516,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 1
 - case_id: stackoverflow-60506220
-  path: benchmark/cases/stackoverflow/stackoverflow-60506220.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-60506220.yaml
   question_id: 60506220
   title: 'EBPF: pointer arithmetic on PTR_TO_PACKET_END prohibited'
   url: https://stackoverflow.com/questions/60506220/ebpf-pointer-arithmetic-on-ptr-to-packet-end-prohibited
@@ -528,7 +528,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-72560675
-  path: benchmark/cases/stackoverflow/stackoverflow-72560675.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-72560675.yaml
   question_id: 72560675
   title: 'Ebpf: Copy variable length data to a map in 4.14 kernel'
   url: https://stackoverflow.com/questions/72560675/ebpf-copy-variable-length-data-to-a-map-in-4-14-kernel
@@ -541,7 +541,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-78695342
-  path: benchmark/cases/stackoverflow/stackoverflow-78695342.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-78695342.yaml
   question_id: 78695342
   title: Why is the eBPF compiler behaving differently when not using bpf_map_update_element()
   url: https://stackoverflow.com/questions/78695342/why-is-the-ebpf-compiler-behaving-differently-when-not-using-bpf-map-update-elem
@@ -554,7 +554,7 @@ cases:
   verifier_log_blocks: 0
   source_snippet_count: 2
 - case_id: stackoverflow-75058008
-  path: benchmark/cases/stackoverflow/stackoverflow-75058008.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-75058008.yaml
   question_id: 75058008
   title: string matching in bpf programs
   url: https://stackoverflow.com/questions/75058008/string-matching-in-bpf-programs
@@ -566,7 +566,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 2
 - case_id: stackoverflow-78525670
-  path: benchmark/cases/stackoverflow/stackoverflow-78525670.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-78525670.yaml
   question_id: 78525670
   title: eBPF verifier error &quot;unbounded variable-offset read&quot; when read is safe and within bounds
   url: https://stackoverflow.com/questions/78525670/ebpf-verifier-error-unbounded-variable-offset-read-when-read-is-safe-and-withi
@@ -578,7 +578,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 3
 - case_id: stackoverflow-79045875
-  path: benchmark/cases/stackoverflow/stackoverflow-79045875.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-79045875.yaml
   question_id: 79045875
   title: How to create a new kfunc and pass an entry from an eBPF map to it as an argument?
   url: https://stackoverflow.com/questions/79045875/how-to-create-a-new-kfunc-and-pass-an-entry-from-an-ebpf-map-to-it-as-an-argumen
@@ -589,7 +589,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-61945212
-  path: benchmark/cases/stackoverflow/stackoverflow-61945212.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-61945212.yaml
   question_id: 61945212
   title: Why does BPF verifier error with null key when using BPF_MAP_TYPE_QUEUE?
   url: https://stackoverflow.com/questions/61945212/why-does-bpf-verifier-error-with-null-key-when-using-bpf-map-type-queue
@@ -601,7 +601,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 2
 - case_id: stackoverflow-70392721
-  path: benchmark/cases/stackoverflow/stackoverflow-70392721.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-70392721.yaml
   question_id: 70392721
   title: Unable to load ebpf program loading stops at [13] FUNC bpf_prog1 type_id=9 Invalid arg#1 why is that? or what is this error even means
   url: https://stackoverflow.com/questions/70392721/unable-to-load-ebpf-program-loading-stops-at-13-func-bpf-prog1-type-id-9-inval
@@ -613,7 +613,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 3
 - case_id: stackoverflow-72005172
-  path: benchmark/cases/stackoverflow/stackoverflow-72005172.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-72005172.yaml
   question_id: 72005172
   title: BPF verifier rejects with &quot;Permission denied (13)!&quot; when using bpf_trace_printk()
   url: https://stackoverflow.com/questions/72005172/bpf-verifier-rejects-with-permission-denied-13-when-using-bpf-trace-printk
@@ -625,7 +625,7 @@ cases:
   verifier_log_blocks: 3
   source_snippet_count: 1
 - case_id: stackoverflow-72074115
-  path: benchmark/cases/stackoverflow/stackoverflow-72074115.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-72074115.yaml
   question_id: 72074115
   title: How to solve the &quot;R2 invalid mem access &#39;inv&#39;&quot; error when i try to loading the ebpf file named bpf_cubic.c
   url: https://stackoverflow.com/questions/72074115/how-to-solve-the-r2-invalid-mem-access-inv-error-when-i-try-to-loading-the-e
@@ -639,7 +639,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 3
 - case_id: stackoverflow-74531552
-  path: benchmark/cases/stackoverflow/stackoverflow-74531552.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-74531552.yaml
   question_id: 74531552
   title: BPF Verification fails due to register offset
   url: https://stackoverflow.com/questions/74531552/bpf-verification-fails-due-to-register-offset
@@ -653,7 +653,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-75294010
-  path: benchmark/cases/stackoverflow/stackoverflow-75294010.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-75294010.yaml
   question_id: 75294010
   title: How to use bpf_probe_read() to copy large length data in EBPF program?
   url: https://stackoverflow.com/questions/75294010/how-to-use-bpf-probe-read-to-copy-large-length-data-in-ebpf-program
@@ -664,7 +664,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 2
 - case_id: stackoverflow-75515263
-  path: benchmark/cases/stackoverflow/stackoverflow-75515263.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-75515263.yaml
   question_id: 75515263
   title: eBPF verifier error in reading map value struct with a __u64 element
   url: https://stackoverflow.com/questions/75515263/ebpf-verifier-error-in-reading-map-value-struct-with-a-u64-element
@@ -675,7 +675,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 4
 - case_id: stackoverflow-75643912
-  path: benchmark/cases/stackoverflow/stackoverflow-75643912.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-75643912.yaml
   question_id: 75643912
   title: Invalid access to packet while iterating over packet in eBPF program
   url: https://stackoverflow.com/questions/75643912/invalid-access-to-packet-while-iterating-over-packet-in-ebpf-program
@@ -685,7 +685,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-76441958
-  path: benchmark/cases/stackoverflow/stackoverflow-76441958.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-76441958.yaml
   question_id: 76441958
   title: How to use atomic operations with user-space variable in BPF?
   url: https://stackoverflow.com/questions/76441958/how-to-use-atomic-operations-with-user-space-variable-in-bpf
@@ -699,7 +699,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-76960866
-  path: benchmark/cases/stackoverflow/stackoverflow-76960866.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-76960866.yaml
   question_id: 76960866
   title: How to correctly read socket-&gt;sk from pt_regs* in ebpf program?
   url: https://stackoverflow.com/questions/76960866/how-to-correctly-read-socket-sk-from-pt-regs-in-ebpf-program
@@ -712,7 +712,7 @@ cases:
   verifier_log_blocks: 3
   source_snippet_count: 2
 - case_id: stackoverflow-77568308
-  path: benchmark/cases/stackoverflow/stackoverflow-77568308.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-77568308.yaml
   question_id: 77568308
   title: cilium/ebpf came across a problem with ```PT_REGS_PARM3_CORE``` and ```PT_REGS_PARM3``` function
   url: https://stackoverflow.com/questions/77568308/cilium-ebpf-came-across-a-problem-with-pt-regs-parm3-core-and-pt-regs-p
@@ -723,7 +723,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 2
 - case_id: stackoverflow-77673256
-  path: benchmark/cases/stackoverflow/stackoverflow-77673256.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-77673256.yaml
   question_id: 77673256
   title: How to link/load .rodata section when loading BPF program with raw syscalls?
   url: https://stackoverflow.com/questions/77673256/how-to-link-load-rodata-section-when-loading-bpf-program-with-raw-syscalls
@@ -735,7 +735,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 1
 - case_id: stackoverflow-77762365
-  path: benchmark/cases/stackoverflow/stackoverflow-77762365.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-77762365.yaml
   question_id: 77762365
   title: 'ebpf: &quot;value is outside of the allowed memory range&quot; when reading data into array with offset'
   url: https://stackoverflow.com/questions/77762365/ebpf-value-is-outside-of-the-allowed-memory-range-when-reading-data-into-arra
@@ -746,7 +746,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-78266602
-  path: benchmark/cases/stackoverflow/stackoverflow-78266602.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-78266602.yaml
   question_id: 78266602
   title: Using a program of type raw_tracepoint to trace sched_wakeup,bpf verifies that task_struct *p is empty
   url: https://stackoverflow.com/questions/78266602/using-a-program-of-type-raw-tracepoint-to-trace-sched-wakeup-bpf-verifies-that-t
@@ -759,7 +759,7 @@ cases:
   verifier_log_blocks: 0
   source_snippet_count: 3
 - case_id: stackoverflow-78591601
-  path: benchmark/cases/stackoverflow/stackoverflow-78591601.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-78591601.yaml
   question_id: 78591601
   title: 'eBPF Verifier Errors: Invalid Access and Unbounded Memory Access in XDP Program'
   url: https://stackoverflow.com/questions/78591601/ebpf-verifier-errors-invalid-access-and-unbounded-memory-access-in-xdp-program
@@ -772,7 +772,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 0
 - case_id: stackoverflow-78603028
-  path: benchmark/cases/stackoverflow/stackoverflow-78603028.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-78603028.yaml
   question_id: 78603028
   title: BPF program is too large. Processed 1000001 insn
   url: https://stackoverflow.com/questions/78603028/bpf-program-is-too-large-processed-1000001-insn
@@ -784,7 +784,7 @@ cases:
   verifier_log_blocks: 0
   source_snippet_count: 1
 - case_id: stackoverflow-78633443
-  path: benchmark/cases/stackoverflow/stackoverflow-78633443.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-78633443.yaml
   question_id: 78633443
   title: Loading large BPF program fails with &quot;Argument list too long&quot; and &quot;processed 0 insns&quot;
   url: https://stackoverflow.com/questions/78633443/loading-large-bpf-program-fails-with-argument-list-too-long-and-processed-0-i
@@ -795,7 +795,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-78958420
-  path: benchmark/cases/stackoverflow/stackoverflow-78958420.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-78958420.yaml
   question_id: 78958420
   title: ebpf XDP program R2 offset is outside of the packet
   url: https://stackoverflow.com/questions/78958420/ebpf-xdp-program-r2-offset-is-outside-of-the-packet
@@ -807,7 +807,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 1
 - case_id: stackoverflow-79485758
-  path: benchmark/cases/stackoverflow/stackoverflow-79485758.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-79485758.yaml
   question_id: 79485758
   title: Invalid access to packet while parsing packet in an eBPF program
   url: https://stackoverflow.com/questions/79485758/invalid-access-to-packet-while-parsing-packet-in-an-ebpf-program
@@ -818,7 +818,7 @@ cases:
   verifier_log_blocks: 2
   source_snippet_count: 1
 - case_id: stackoverflow-79616493
-  path: benchmark/cases/stackoverflow/stackoverflow-79616493.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-79616493.yaml
   question_id: 79616493
   title: How to use bpf_d_path correctly in rust aya-bpf fentry program? Verifier rejects pointer with &quot;R1 type=fp expected=ptr_&quot;
   url: https://stackoverflow.com/questions/79616493/how-to-use-bpf-d-path-correctly-in-rust-aya-bpf-fentry-program-verifier-rejects
@@ -830,7 +830,7 @@ cases:
   verifier_log_blocks: 0
   source_snippet_count: 2
 - case_id: stackoverflow-79817058
-  path: benchmark/cases/stackoverflow/stackoverflow-79817058.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-79817058.yaml
   question_id: 79817058
   title: Manual strstr implementation in eBPF on kernel level
   url: https://stackoverflow.com/questions/79817058/manual-strstr-implementation-in-ebpf-on-kernel-level
@@ -842,7 +842,7 @@ cases:
   verifier_log_blocks: 0
   source_snippet_count: 4
 - case_id: stackoverflow-71253472
-  path: benchmark/cases/stackoverflow/stackoverflow-71253472.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-71253472.yaml
   question_id: 71253472
   title: __sync_fetch_and_add() doesn&#39;t work in bpf
   url: https://stackoverflow.com/questions/71253472/sync-fetch-and-add-doesnt-work-in-bpf
@@ -855,7 +855,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-75301643
-  path: benchmark/cases/stackoverflow/stackoverflow-75301643.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-75301643.yaml
   question_id: 75301643
   title: BPF verifier throws error &quot;BPF program is too large&quot;
   url: https://stackoverflow.com/questions/75301643/bpf-verifier-throws-error-bpf-program-is-too-large
@@ -868,7 +868,7 @@ cases:
   verifier_log_blocks: 0
   source_snippet_count: 2
 - case_id: stackoverflow-78236856
-  path: benchmark/cases/stackoverflow/stackoverflow-78236856.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-78236856.yaml
   question_id: 78236856
   title: R2 max value is outside of the allowed memory range after explicit bounds checking
   url: https://stackoverflow.com/questions/78236856/r2-max-value-is-outside-of-the-allowed-memory-range-after-explicit-bounds-checki
@@ -882,7 +882,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 2
 - case_id: stackoverflow-78471487
-  path: benchmark/cases/stackoverflow/stackoverflow-78471487.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-78471487.yaml
   question_id: 78471487
   title: 'ebpf verifier: R3 invalid mem access &#39;scalar&#39;'
   url: https://stackoverflow.com/questions/78471487/ebpf-verifier-r3-invalid-mem-access-scalar
@@ -893,7 +893,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-60053570
-  path: benchmark/cases/stackoverflow/stackoverflow-60053570.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-60053570.yaml
   question_id: 60053570
   title: verifier failure for a xdp code computing icmp checksum?
   url: https://stackoverflow.com/questions/60053570/verifier-failure-for-a-xdp-code-computing-icmp-checksum
@@ -906,7 +906,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 1
 - case_id: stackoverflow-68815540
-  path: benchmark/cases/stackoverflow/stackoverflow-68815540.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-68815540.yaml
   question_id: 68815540
   title: bpf verifier log is truncated, how to get the full log?
   url: https://stackoverflow.com/questions/68815540/bpf-verifier-log-is-truncated-how-to-get-the-full-log
@@ -918,7 +918,7 @@ cases:
   verifier_log_blocks: 1
   source_snippet_count: 0
 - case_id: stackoverflow-79530762
-  path: benchmark/cases/stackoverflow/stackoverflow-79530762.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-79530762.yaml
   question_id: 79530762
   title: Question about how the eBPF Verifier behaves in my specific use case
   url: https://stackoverflow.com/questions/79530762/question-about-how-the-ebpf-verifier-behaves-in-my-specific-use-case
@@ -930,7 +930,7 @@ cases:
   verifier_log_blocks: 3
   source_snippet_count: 0
 - case_id: stackoverflow-78236201
-  path: benchmark/cases/stackoverflow/stackoverflow-78236201.yaml
+  path: case_study/cases/stackoverflow/stackoverflow-78236201.yaml
   question_id: 78236201
   title: 'invalid access to map value, value_size=128 off=0 size=0; libbpf: prog &#39;xdp_parser_func&#39;: failed to load: -13'
   url: https://stackoverflow.com/questions/78236201/invalid-access-to-map-value-value-size-128-off-0-size-0-libbpf-prog-xdp-pars

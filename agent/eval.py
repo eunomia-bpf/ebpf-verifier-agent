@@ -54,7 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--cases-dir",
         type=Path,
-        default=Path("benchmark/cases"),
+        default=Path("case_study/cases"),
         help="Benchmark case directory used for counting or future execution.",
     )
     return parser
@@ -79,4 +79,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

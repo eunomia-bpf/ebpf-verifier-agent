@@ -64,7 +64,7 @@ def build_parser() -> argparse.ArgumentParser:
         "batch",
         help="Read a benchmark manifest and print the cases that would be reproduced.",
     )
-    batch_parser.add_argument("manifest", type=Path, help="Manifest file produced by benchmark/collect.py.")
+    batch_parser.add_argument("manifest", type=Path, help="Manifest file produced by case_study/collect.py.")
     batch_parser.set_defaults(handler=handle_batch)
 
     return parser

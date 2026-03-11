@@ -116,13 +116,13 @@ example:
   title: Missing bounds guard before packet access
   url: https://stackoverflow.com/questions/example
   failure_class: source_bug
-  source_code: benchmark/cases/so-12345/prog.bpf.c
+  source_code: case_study/cases/so-12345/prog.bpf.c
   compile_args: -O2 -g -target bpf -D__TARGET_ARCH_x86
   target_kernel: 6.8.0
-  verifier_log: benchmark/cases/so-12345/verifier.log
+  verifier_log: case_study/cases/so-12345/verifier.log
   root_cause: Packet cursor is advanced without proving room for the subsequent load.
-  fix_patch: benchmark/cases/so-12345/fix.patch
-  semantic_test: benchmark/cases/so-12345/test.sh
+  fix_patch: case_study/cases/so-12345/fix.patch
+  semantic_test: case_study/cases/so-12345/test.sh
   tags:
     - packet
     - bounds

@@ -1,0 +1,31 @@
+# Evaluation case schema
+# Ground truth = independently verifiable facts only
+# System-generated labels (error_id, taxonomy_class, root_cause) are OUTPUT, not ground truth
+
+required_fields:
+  case_id: string
+  source:
+    type: enum
+    values:
+      - kernel_selftests
+      - stackoverflow
+      - github_issues
+      - eval_commits
+
+input_fields:
+  buggy_code: string
+  verifier_log: string
+
+ground_truth_fields:
+  fixed_code: string
+  fix_description: string
+  fix_type: string
+  expected_verifier_message: string
+  source_url: string
+  commit_hash: string
+
+eval_levels:
+  - classification
+  - localization
+  - fix_description
+  - fix_code

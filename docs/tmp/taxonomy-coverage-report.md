@@ -1,20 +1,20 @@
 # Taxonomy Coverage Analysis
 
-Generated at: `2026-03-11T16:27:56+00:00`
+Generated at: `2026-03-11T16:39:56+00:00`
 
 ## Coverage
 
 - Total benchmark cases analyzed: **302**
-- Catalog-matched cases: **193**
-- Coverage rate: **63.9%**
+- Catalog-matched cases: **263**
+- Coverage rate: **87.1%**
 
 ### Coverage by Source
 
 | Source | Cases | Matched | Coverage |
 | --- | ---: | ---: | ---: |
-| `github_issues` | 26 | 12 | 46.2% |
-| `kernel_selftests` | 200 | 139 | 69.5% |
-| `stackoverflow` | 76 | 42 | 55.3% |
+| `github_issues` | 26 | 20 | 76.9% |
+| `kernel_selftests` | 200 | 186 | 93.0% |
+| `stackoverflow` | 76 | 57 | 75.0% |
 
 ## Distribution by Catalog Error ID
 
@@ -34,10 +34,15 @@ Generated at: `2026-03-11T16:27:56+00:00`
 | `OBLIGE-E012` | 22 |
 | `OBLIGE-E013` | 19 |
 | `OBLIGE-E014` | 10 |
-| `OBLIGE-E015` | 8 |
-| `OBLIGE-E016` | 12 |
+| `OBLIGE-E015` | 9 |
+| `OBLIGE-E016` | 21 |
 | `OBLIGE-E017` | 1 |
-| `OBLIGE-E018` | 2 |
+| `OBLIGE-E018` | 3 |
+| `OBLIGE-E019` | 13 |
+| `OBLIGE-E020` | 9 |
+| `OBLIGE-E021` | 2 |
+| `OBLIGE-E022` | 1 |
+| `OBLIGE-E023` | 34 |
 
 ## Distribution by Taxonomy Class
 
@@ -45,46 +50,46 @@ Generated at: `2026-03-11T16:27:56+00:00`
 
 | Taxonomy Class | Count |
 | --- | ---: |
-| `source_bug` | 150 |
+| `source_bug` | 207 |
 | `lowering_artifact` | 23 |
-| `verifier_limit` | 4 |
-| `env_mismatch` | 15 |
+| `verifier_limit` | 5 |
+| `env_mismatch` | 27 |
 | `verifier_bug` | 1 |
 
 ### Heuristic Classification Across All Cases
 
 | Taxonomy Class | Count |
 | --- | ---: |
-| `source_bug` | 261 |
+| `source_bug` | 255 |
 | `lowering_artifact` | 12 |
-| `verifier_limit` | 4 |
-| `env_mismatch` | 24 |
+| `verifier_limit` | 5 |
+| `env_mismatch` | 29 |
 | `verifier_bug` | 1 |
 
 ## Top Unmatched Verifier Messages
 
 | Rank | Message | Count | Sources | Sample Cases |
 | ---: | --- | ---: | --- | --- |
-| 1 | expected an initialized | 4 | kernel_selftests:4 | `kernel-selftest-irq-irq-flag-overwrite-partial-tc-51152af8`, `kernel-selftest-irq-irq-flag-overwrite-tc-4c974993`, `kernel-selftest-irq-irq-restore-invalid-tc-e1f743bf`, `kernel-selftest-irq-irq-restore-iter-tc-501bf2c6` |
-| 2 | arg 1 is an unacquired reference | 3 | kernel_selftests:3 | `kernel-selftest-dynptr-fail-release-twice-callback-raw-tp-bd7b2a60`, `kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d`, `kernel-selftest-dynptr-fail-ringbuf-release-uninit-dynptr-raw-tp-a799622b` |
-| 3 | misaligned stack access off 0+-31+0 size 8 | 3 | kernel_selftests:3 | `kernel-selftest-iters-iters-raw-tp-063123db`, `kernel-selftest-iters-iters-raw-tp-9292b545`, `kernel-selftest-iters-iters-raw-tp-bd99cf85` |
-| 4 | must be referenced or trusted | 3 | kernel_selftests:3 | `kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-rcu-get-release-tp-btf-cgroup-mkdir-29aa212b`, `kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403`, `kernel-selftest-dynptr-fail-skb-invalid-ctx-fexit-fexit-skb-tx-error-ef42c043` |
-| 5 | arg#0 doesn't point to an irq flag on stack | 2 | kernel_selftests:2 | `kernel-selftest-irq-irq-restore-bad-arg-tc-28a1cb48`, `kernel-selftest-irq-irq-save-bad-arg-tc-2e0fba3a` |
-| 6 | arg#0 pointer type STRUCT cgroup must point | 2 | kernel_selftests:2 | `kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-fp-tp-btf-cgroup-mkdir-7d3a90fe`, `kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99` |
-| 7 | cannot call exception cb directly | 2 | kernel_selftests:2 | `kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8`, `kernel-selftest-exceptions-fail-reject-exception-cb-call-static-func-tc-f3ceb9b7` |
-| 8 | exception cb only supports single integer argument | 2 | kernel_selftests:2 | `kernel-selftest-exceptions-fail-reject-exception-cb-type-2-tc-45ccb6dc`, `kernel-selftest-exceptions-fail-reject-exception-cb-type-3-tc-62f713bd` |
-| 9 | function calls are not allowed | 2 | kernel_selftests:2 | `kernel-selftest-irq-irq-wrong-kfunc-class-1-tc-05e98572`, `kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958` |
-| 10 | Invalid argument (os error 22) | 2 | github_issues:2 | `github-aya-rs-aya-1104`, `github-aya-rs-aya-546` |
-| 11 | potential write to dynptr at off=-16 | 2 | kernel_selftests:2 | `kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35`, `kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838` |
-| 12 | R1 type=inv expected=map_ptr | 2 | github_issues:1, stackoverflow:1 | `stackoverflow-72606055`, `github-facebookincubator-katran-149` |
-| 13 | R4 invalid zero-sized read: u64=[0,31] | 2 | github_issues:2 | `github-aya-rs-aya-1207`, `github-aya-rs-aya-1267` |
-| 14 | R6 !read_ok | 2 | stackoverflow:2 | `stackoverflow-67441023`, `stackoverflow-75300106` |
-| 15 | R{{[0-9]+}} cannot write into rdonly_mem | 2 | kernel_selftests:2 | `kernel-selftest-dynptr-fail-dynptr-fail-tc-db029308`, `kernel-selftest-dynptr-fail-dynptr-fail-tc-de3e751b` |
-| 16 | unbounded memory access | 2 | kernel_selftests:2 | `kernel-selftest-dynptr-fail-dynptr-slice-var-len1-tc-76a0b3fb`, `kernel-selftest-iters-iter-err-unsafe-asm-loop-raw-tp-9ee4d943` |
-| 17 | 0: the BPF_PROG_LOAD syscall failed. Verifier output: fd 12 is not pointing to valid bpf_map | 1 | github_issues:1 | `github-aya-rs-aya-1324` |
-| 18 | [13] FUNC bpf_prog1 type_id=9 Invalid arg#1 | 1 | stackoverflow:1 | `stackoverflow-70392721` |
-| 19 | [30] UNION MaybeUninit<u8> size=1 vlen=2 Invalid name | 1 | github_issues:1 | `github-aya-rs-aya-1490` |
-| 20 | arg#0 expected pointer to stack or const struct bpf_dynptr | 1 | kernel_selftests:1 | `kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9` |
+| 1 | Invalid argument (os error 22) | 2 | github_issues:2 | `github-aya-rs-aya-1104`, `github-aya-rs-aya-546` |
+| 2 | unbounded memory access | 2 | kernel_selftests:2 | `kernel-selftest-dynptr-fail-dynptr-slice-var-len1-tc-76a0b3fb`, `kernel-selftest-iters-iter-err-unsafe-asm-loop-raw-tp-9ee4d943` |
+| 3 | 0: the BPF_PROG_LOAD syscall failed. Verifier output: fd 12 is not pointing to valid bpf_map | 1 | github_issues:1 | `github-aya-rs-aya-1324` |
+| 4 | [30] UNION MaybeUninit<u8> size=1 vlen=2 Invalid name | 1 | github_issues:1 | `github-aya-rs-aya-1490` |
+| 5 | At program exit the register R1 has smin=64 smax=64 | 1 | kernel_selftests:1 | `kernel-selftest-exceptions-assert-check-assert-with-return-fentry-bpf-check-ba50c498` |
+| 6 | bpf_test.go:170: verifier error: load program: operation not supported: | 1 | github_issues:1 | `github-cilium-cilium-41412` |
+| 7 | cgrp_kfunc_acquire_trusted_walked | 1 | kernel_selftests:1 | `kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-trusted-walked-tp-btf-cgroup-mkdir-6deeac84` |
+| 8 | fp-304=??mmmmmm fp-312=mmmmmmmm fp-320=mmmmmmmm fp-328=?mmmmmmm fp-336=mmmmmmmm fp-344= (truncated...) | 1 | stackoverflow:1 | `stackoverflow-68815540` |
+| 9 | invalid bpf_context access off=92 size=4 | 1 | stackoverflow:1 | `stackoverflow-67402772` |
+| 10 | leads to invalid memory access | 1 | kernel_selftests:1 | `kernel-selftest-cpumask-failure-test-populate-invalid-source-tp-btf-task-newtask-149c6ecc` |
+| 11 | libbpf: failed to load BPF skeleton 'hello_bpf': -3 | 1 | stackoverflow:1 | `stackoverflow-77462271` |
+| 12 | libbpf: failed to load object 'work/switch/switch.o' | 1 | stackoverflow:1 | `stackoverflow-78633443` |
+| 13 | libbpf: load bpf program failed: Invalid argument | 1 | stackoverflow:1 | `stackoverflow-69192685` |
+| 14 | memory, len pair leads to invalid memory access | 1 | kernel_selftests:1 | `kernel-selftest-dynptr-fail-test-dynptr-skb-small-buff-cgroup-skb-egress-4f498dbd` |
+| 15 | Permission denied (os error 13) | 1 | github_issues:1 | `github-aya-rs-aya-857` |
+| 16 | R0 unbounded memory access, make sure to bounds check any such access | 1 | stackoverflow:1 | `stackoverflow-71253472` |
+| 17 | R1=ctx() R2=scalar(smin=umin=smin32=umin32=4096,smax=umax=smax32=umax32=8192,var_off=(0x0; 0x3fff)) | 1 | kernel_selftests:1 | `kernel-selftest-exceptions-assert-check-assert-range-u64-tc-832996f2` |
+| 18 | R2 pointer arithmetic on PTR_TO_PACKET_END prohibited | 1 | stackoverflow:1 | `stackoverflow-60506220` |
+| 19 | R3 pointer comparison prohibited | 1 | stackoverflow:1 | `stackoverflow-71351495` |
+| 20 | section simple verbose | 1 | stackoverflow:1 | `stackoverflow-47591176` |
 
 ## Recommended Pattern Expansions to Existing IDs
 
@@ -94,48 +99,3 @@ These unmatched themes already look semantically close to existing catalog entri
 ## Recommendations for New Error IDs
 
 The current gap list mixes two kinds of misses: genuinely new semantic categories and messages that are likely pattern variants of existing catalog entries. The proposals below focus on the highest-frequency unmatched themes that recur across multiple cases.
-
-### OBLIGE-E019 `dynptr_protocol_violation`
-
-- Taxonomy class: `source_bug`
-- Proposed title: Dynptr initialization, lifetime, or access protocol violated
-- Supporting unmatched cases: 6
-- Candidate regex patterns: `Expected an initialized dynptr as arg #\d+`, `cannot overwrite referenced dynptr`, `Expected a dynptr of type .* as arg #\d+`
-- Example messages: `potential write to dynptr at off=-16`; `arg#0 expected pointer to stack or const struct bpf_dynptr`; `cannot pass in dynptr at an offset`
-- Sources: kernel_selftests:6
-
-### OBLIGE-E020 `execution_context_discipline_violation`
-
-- Taxonomy class: `source_bug`
-- Proposed title: Lock, IRQ, or RCU discipline violated on at least one control-flow path
-- Supporting unmatched cases: 2
-- Candidate regex patterns: `cannot restore irq state out of order`, `function calls are not allowed while holding a lock`, `BPF_EXIT instruction .* cannot be used inside .* region`
-- Example messages: `arg#0 doesn't point to an irq flag on stack`
-- Sources: kernel_selftests:2
-
-### OBLIGE-E021 `btf_reference_metadata_missing`
-
-- Taxonomy class: `env_mismatch`
-- Proposed title: BTF or reference type metadata is insufficient for verifier type validation
-- Supporting unmatched cases: 1
-- Candidate regex patterns: `arg#\d+ reference type\('UNKNOWN '\) size cannot be determined`, `invalid btf[_ ]id`
-- Example messages: `arg#0 reference type('UNKNOWN ') size cannot be determined: -22`
-- Sources: github_issues:1
-
-### OBLIGE-E022 `mutable_global_state_unsupported`
-
-- Taxonomy class: `env_mismatch`
-- Proposed title: Mutable global or static data access unsupported in the active BPF environment
-- Supporting unmatched cases: 1
-- Candidate regex patterns: `only read from bpf_array is supported`
-- Example messages: `only read from bpf_array is supported`
-- Sources: github_issues:1
-
-### OBLIGE-E023 `scalar_pointer_dereference`
-
-- Taxonomy class: `source_bug`
-- Proposed title: Scalar value dereferenced where a tracked pointer proof is required
-- Supporting unmatched cases: 1
-- Candidate regex patterns: `R\d+ invalid mem access '(?:scalar|inv)'`, `R\d+ type=scalar expected=ptr_, trusted_ptr_, rcu_ptr_`
-- Example messages: `R1 type=fp expected=ptr_, trusted_ptr_, rcu_ptr_`
-- Sources: stackoverflow:1

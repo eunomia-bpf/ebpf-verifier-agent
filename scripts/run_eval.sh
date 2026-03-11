@@ -47,9 +47,8 @@ main() {
     return 0
   fi
 
-  log "summarizing current benchmark manifests"
-  "${PYTHON_BIN}" -m agent.eval --cases-dir benchmark/cases
+  log "summarizing current case-study manifests"
+  "${PYTHON_BIN}" -m agent.eval --cases-dir case_study/cases
 }
 
 main "$@"
-

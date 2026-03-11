@@ -40,13 +40,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("benchmark/cases/kernel_selftests"),
+        default=Path("case_study/cases/kernel_selftests"),
         help="Directory where YAML case files and index.yaml are written.",
     )
     parser.add_argument(
         "--cache-dir",
         type=Path,
-        default=Path("benchmark/.cache/linux-selftests"),
+        default=Path("case_study/.cache/linux-selftests"),
         help="Cache directory for the sparse kernel checkout or extracted tarball.",
     )
     parser.add_argument(
@@ -154,7 +154,7 @@ class KernelSelftestsCollector:
 
         index_payload = compact_case_index(
             source_name="kernel_selftests",
-            script_name="benchmark/collect_kernel_selftests.py",
+            script_name="case_study/collect_kernel_selftests.py",
             output_dir=self.args.output_dir,
             cases=case_summaries,
             source_details=fetch_metadata,

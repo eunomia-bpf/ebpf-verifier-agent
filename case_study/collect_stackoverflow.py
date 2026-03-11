@@ -46,7 +46,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("benchmark/cases/stackoverflow"),
+        default=Path("case_study/cases/stackoverflow"),
         help="Directory where YAML case files and index.yaml are written.",
     )
     parser.add_argument(
@@ -152,7 +152,7 @@ class StackOverflowCollector:
 
         index_payload = compact_case_index(
             source_name="stackoverflow",
-            script_name="benchmark/collect_stackoverflow.py",
+            script_name="case_study/collect_stackoverflow.py",
             output_dir=self.args.output_dir,
             cases=case_summaries,
             source_details={"site": self.args.site, "queries": queries},

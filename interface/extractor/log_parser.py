@@ -7,6 +7,48 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+ERROR_LINE_PATTERNS: tuple[tuple[re.Pattern[str], int], ...] = (
+    (
+        re.compile(
+            r"invalid|unknown|unreleased|too many|warning|bug|loop is not bounded|back-edge|complexity limit",
+            flags=re.IGNORECASE,
+        ),
+        5,
+    ),
+    (
+        re.compile(
+            "|".join(
+                (
+                    r"expected an initialized",
+                    r"expected uninitialized",
+                    r"unacquired reference",
+                    r"dynptr",
+                    r"irq flag",
+                    r"misaligned stack access",
+                    r"!read_ok",
+                    r"must be referenced",
+                    r"trusted",
+                    r"pointer type .* must point",
+                    r"type=.* expected=.*",
+                    r"arg#?\d+",
+                    r"reference type\('unknown '\)",
+                    r"invalid btf",
+                    r"missing btf func_info",
+                    r"only read from bpf_array is supported",
+                    r"function calls are not allowed",
+                    r"cannot call exception cb directly",
+                    r"exception cb only supports single integer argument",
+                    r"attach to unsupported member",
+                    r"unbounded memory access",
+                    r"bpf program is too large",
+                )
+            ),
+            flags=re.IGNORECASE,
+        ),
+        4,
+    ),
+)
+
 
 @dataclass(slots=True)
 class ParsedLog:
@@ -60,10 +102,33 @@ class VerifierLogParser:
         )
 
     def _select_error_line(self, lines: list[str]) -> str:
-        keywords = ("invalid", "unknown", "unreleased", "too many", "warning", "bug")
-        for line in reversed(lines):
-            if any(keyword in line.lower() for keyword in keywords):
-                return line
+        best_line = ""
+        best_score = -1
+
+        for line in lines:
+            normalized = line.strip()
+            if not normalized:
+                continue
+
+            lowered = normalized.lower()
+            score = 0
+            for pattern, weight in ERROR_LINE_PATTERNS:
+                if pattern.search(normalized):
+                    score += weight
+
+            if re.match(r"^\d+: \([0-9a-f]{2}\)", lowered):
+                score -= 4
+            if lowered.startswith(("processed ", "max_states", "peak_states", "mark_read", "verification time")):
+                score -= 4
+            if normalized.startswith(("R", "arg#")):
+                score += 1
+
+            if score >= best_score:
+                best_score = score
+                best_line = normalized
+
+        if best_score > 0:
+            return best_line
         return lines[-1] if lines else ""
 
     def _match_catalog(self, lines: list[str]) -> tuple[str | None, str | None]:
@@ -87,10 +152,36 @@ class VerifierLogParser:
         return None
 
     def _collect_evidence(self, lines: list[str]) -> list[str]:
-        evidence_tokens = ("R0", "R1", "R2", "stack", "packet", "helper", "loop", "reference")
+        evidence_tokens = (
+            "R0",
+            "R1",
+            "R2",
+            "stack",
+            "packet",
+            "helper",
+            "loop",
+            "reference",
+            "dynptr",
+            "irq",
+            "btf",
+            "map",
+            "kptr",
+            "trusted",
+            "rcu",
+            "arg#",
+            "read_ok",
+        )
         return [
             line
             for line in lines
             if any(token.lower() in line.lower() for token in evidence_tokens)
         ][:5]
 
+
+def parse_log(raw_log: str, catalog_path: str | Path | None = None) -> ParsedLog:
+    """Convenience wrapper matching the lightweight comparison-script API."""
+
+    parser = VerifierLogParser(
+        catalog_path=Path(catalog_path) if catalog_path is not None else None
+    )
+    return parser.parse(raw_log)

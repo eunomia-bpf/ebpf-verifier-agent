@@ -188,6 +188,8 @@ error_types:
     verifier_messages:
       - "Possibly NULL pointer passed to trusted arg[0-9]+"
       - "NULL pointer passed to trusted arg[0-9]+"
+      - "Possibly NULL pointer passed to helper arg[0-9]+"
+      - "NULL pointer passed to helper arg[0-9]+"
     likely_obligation: OBLIGE-O015
     example_fix_actions:
       - ADD_NULL_CHECK
@@ -202,6 +204,12 @@ error_types:
       - "calling kernel function .* is not allowed"
       - "global functions that may sleep are not allowed in non-sleepable context"
       - "kernel func .* is sleepable within IRQ-disabled region"
+      - "cannot call exception cb directly"
+      - "exception cb only supports single integer argument"
+      - "Global function .* doesn't return scalar(?:\\. Only those are supported\\.)?"
+      - "multiple exception callback tags for main subprog"
+      - "attach to unsupported member .*"
+      - "helper access to the packet is not allowed"
     likely_obligation: OBLIGE-O016
     example_fix_actions:
       - SWITCH_HELPER
@@ -229,7 +237,91 @@ error_types:
       - "too many states"
       - "loop is not bounded"
       - "back-edge"
+      - "BPF program is too large(?:\\. Processed [0-9]+ insn)?"
     likely_obligation: OBLIGE-O018
     example_fix_actions:
       - REDUCE_CONTROL_FLOW_BRANCHING
       - SPLIT_PROGRAM_INTO_HELPERS
+
+  - error_id: OBLIGE-E019
+    short_name: dynptr_storage_or_release_contract_violation
+    taxonomy_class: source_bug
+    title: Dynptr storage, offset, or release contract violated
+    verifier_messages:
+      - "arg [0-9]+ is an unacquired reference"
+      - "potential write to dynptr at off=-?[0-9]+"
+      - "arg#[0-9]+ expected pointer to stack or const struct bpf_dynptr"
+      - "cannot pass in dynptr at an offset"
+      - "dynptr has to be at a constant offset"
+      - "(?:^|\\n)must be a known constant(?:\\n|$)"
+      - "Unsupported reg type fp for bpf_dynptr_from_mem data"
+      - "type=mem expected=ringbuf_mem"
+      - "cannot write into rdonly_mem"
+    likely_obligation: OBLIGE-O019
+    example_fix_actions:
+      - KEEP_DYNPTR_AT_FIXED_STACK_OFFSET
+      - RELEASE_DYNPTR_EXACTLY_ONCE
+
+  - error_id: OBLIGE-E020
+    short_name: irq_flag_state_protocol_violation
+    taxonomy_class: source_bug
+    title: IRQ flag state or stack-slot protocol violated
+    verifier_messages:
+      - "(?:^|\\n)expected an initialized(?:\\n|$)"
+      - "(?:^|\\n)expected uninitialized(?:\\n|$)"
+      - "arg#0 doesn't point to an irq flag on stack"
+      - "(?:^|\\n)function calls are not allowed(?:\\n|$)"
+    likely_obligation: OBLIGE-O020
+    example_fix_actions:
+      - KEEP_IRQ_FLAG_ON_STACK
+      - BALANCE_IRQ_SAVE_RESTORE
+
+  - error_id: OBLIGE-E021
+    short_name: btf_reference_metadata_missing
+    taxonomy_class: env_mismatch
+    title: BTF or reference metadata is insufficient for verifier type validation
+    verifier_messages:
+      - "arg#[0-9]+ reference type\\('UNKNOWN '\\) size cannot be determined(?:: -?[0-9]+)?"
+      - "invalid btf[_ ]id"
+      - "missing btf func_info"
+    likely_obligation: OBLIGE-O021
+    example_fix_actions:
+      - REGENERATE_BTF_ARTIFACTS
+      - ALIGN_BTF_AND_KERNEL_METADATA
+
+  - error_id: OBLIGE-E022
+    short_name: mutable_global_state_unsupported
+    taxonomy_class: env_mismatch
+    title: Mutable global or static data access unsupported in the active BPF environment
+    verifier_messages:
+      - "only read from bpf_array is supported"
+    likely_obligation: OBLIGE-O022
+    example_fix_actions:
+      - MOVE_MUTABLE_STATE_INTO_MAP
+      - GATE_ON_RUNTIME_CAPABILITY
+
+  - error_id: OBLIGE-E023
+    short_name: register_or_stack_contract_violation
+    taxonomy_class: source_bug
+    title: Register, stack slot, or helper argument violates the required verifier contract
+    verifier_messages:
+      - "must be referenced(?: or trusted)?"
+      - "arg#[0-9]+ pointer type .* must point"
+      - "bpf_cpumask_set_cpu args#[0-9]+ expected pointer to STRUCT bpf_cpumask"
+      - "release kernel function .* expects"
+      - "has no valid kptr"
+      - "R[0-9]+ must be a rcu pointer"
+      - "R[0-9]+ type=(?:inv|map_value) expected=map_ptr"
+      - "R[0-9]+ type=fp expected=ptr_, trusted_ptr_, rcu_ptr_"
+      - "R[0-9]+ type=(?:ctx|inv|map_value|scalar) expected=fp(?:, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf(?:, trusted_ptr_)?)?"
+      - "type=scalar expected=percpu_ptr_"
+      - "R[0-9]+ !read_ok"
+      - "R[0-9]+ invalid zero-sized read: .*"
+      - "misaligned stack access off .* size [0-9]+"
+      - "\\[[0-9]+\\] FUNC .* Invalid arg#[0-9]+"
+      - "reg type unsupported for arg#[0-9]+ function .*"
+      - "At program exit the register R[0-9]+ has .* should"
+    likely_obligation: OBLIGE-O023
+    example_fix_actions:
+      - RELOAD_VALUE_WITH_REQUIRED_TYPE
+      - KEEP_STACK_ACCESS_ALIGNED

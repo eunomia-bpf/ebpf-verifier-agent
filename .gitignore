@@ -19,9 +19,9 @@ dist/
 # Local outputs and artifacts
 out/
 eval/results/
-benchmark/cases/*/
-!benchmark/cases/*/index.yaml
-benchmark/.cache/
+case_study/cases/*/
+!case_study/cases/*/index.yaml
+case_study/.cache/
 *.log
 *.jsonl
 
