@@ -21,6 +21,7 @@ error_types:
     title: Dereference of `map_value_or_null` without a null check
     verifier_messages:
       - "invalid mem access 'map_value_or_null'"
+      - "invalid mem access 'mem_or_null'"
       - "R[0-9]+ type=map_value_or_null expected=map_value"
     likely_obligation: OBLIGE-O002
     example_fix_actions:
@@ -32,7 +33,7 @@ error_types:
     taxonomy_class: source_bug
     title: Stack read before initialization proof
     verifier_messages:
-      - "invalid indirect read from stack"
+      - "invalid (?:indirect )?read from stack"
       - "stack depth .* before init"
     likely_obligation: OBLIGE-O003
     example_fix_actions:
@@ -44,7 +45,7 @@ error_types:
     taxonomy_class: source_bug
     title: Referenced object escapes or is released on the wrong path
     verifier_messages:
-      - "Unreleased reference id="
+      - "Unreleased reference(?: id=\\d+)?"
       - "reference type=ptr_ expected release"
     likely_obligation: OBLIGE-O004
     example_fix_actions:
@@ -58,6 +59,8 @@ error_types:
     verifier_messages:
       - "unbounded min value"
       - "min value is negative, either use unsigned or 'var &= const'"
+      - "math between .* pointer and register with unbounded.*"
+      - "(?:R[0-9]+ )?(?:(?:min|max) )?value is outside of the allowed memory range"
     likely_obligation: OBLIGE-O005
     example_fix_actions:
       - INSERT_RANGE_CLAMP
@@ -104,6 +107,7 @@ error_types:
     taxonomy_class: env_mismatch
     title: Helper, kfunc, or attach target unavailable in the active environment
     verifier_messages:
+      - "program of this type cannot use helper .*"
       - "unknown func"
       - "helper call is not allowed"
       - "attach_btf_id is not a function"
@@ -125,3 +129,107 @@ error_types:
       - MINIMIZE_REPRODUCER
       - BISECT_KERNEL
 
+  - error_id: OBLIGE-E011
+    short_name: scalar_pointer_dereference
+    taxonomy_class: source_bug
+    title: Scalar value dereferenced where a tracked pointer proof is required
+    verifier_messages:
+      - "(?:R[0-9]+ )?invalid mem access '(?:scalar|inv)'"
+      - "(?:R[0-9]+ )?type=scalar expected=ptr_, trusted_ptr_, rcu_ptr_"
+    likely_obligation: OBLIGE-O011
+    example_fix_actions:
+      - RELOAD_POINTER_FROM_VERIFIED_BASE
+      - KEEP_POINTER_AND_OFFSET_SEPARATE
+
+  - error_id: OBLIGE-E012
+    short_name: dynptr_protocol_violation
+    taxonomy_class: source_bug
+    title: Dynptr initialization, lifetime, or access protocol violated
+    verifier_messages:
+      - "Expected an initialized dynptr as arg #[0-9]+"
+      - "cannot overwrite referenced dynptr"
+      - "Expected a dynptr of type .* as arg #[0-9]+"
+      - "cannot pass in dynptr at an offset=-?[0-9]+"
+    likely_obligation: OBLIGE-O012
+    example_fix_actions:
+      - INITIALIZE_DYNPTR_SLOT
+      - AVOID_DYNPTR_OVERWRITE
+
+  - error_id: OBLIGE-E013
+    short_name: execution_context_discipline_violation
+    taxonomy_class: source_bug
+    title: Lock, IRQ, or RCU discipline violated on at least one control-flow path
+    verifier_messages:
+      - "cannot restore irq state out of order"
+      - "function calls are not allowed while holding a lock"
+      - "BPF_EXIT instruction .* cannot be used inside .* region"
+      - "requires RCU critical section protection"
+    likely_obligation: OBLIGE-O013
+    example_fix_actions:
+      - BALANCE_LOCK_IRQ_RCU_SCOPE
+      - MOVE_DISALLOWED_CALL_OUTSIDE_CRITICAL_SECTION
+
+  - error_id: OBLIGE-E014
+    short_name: iterator_state_protocol_violation
+    taxonomy_class: source_bug
+    title: Iterator state machine or stack-placement contract violated
+    verifier_messages:
+      - "expected (?:an )?(?:un)?initialized iter_num as arg #[0-9]+"
+      - "arg#[0-9]+ expected pointer to an iterator on stack"
+    likely_obligation: OBLIGE-O014
+    example_fix_actions:
+      - INITIALIZE_ITERATOR_STATE
+      - KEEP_ITERATOR_ON_STACK
+
+  - error_id: OBLIGE-E015
+    short_name: trusted_arg_nullability
+    taxonomy_class: source_bug
+    title: Trusted pointer argument may be NULL at call site
+    verifier_messages:
+      - "Possibly NULL pointer passed to trusted arg[0-9]+"
+      - "NULL pointer passed to trusted arg[0-9]+"
+    likely_obligation: OBLIGE-O015
+    example_fix_actions:
+      - ADD_NULL_CHECK
+      - SPLIT_CONTROL_FLOW
+
+  - error_id: OBLIGE-E016
+    short_name: helper_or_kfunc_context_restriction
+    taxonomy_class: env_mismatch
+    title: Helper or kfunc is unavailable in the current program type or execution context
+    verifier_messages:
+      - "cannot be called from callback(?: subprog)?"
+      - "calling kernel function .* is not allowed"
+      - "global functions that may sleep are not allowed in non-sleepable context"
+      - "kernel func .* is sleepable within IRQ-disabled region"
+    likely_obligation: OBLIGE-O016
+    example_fix_actions:
+      - SWITCH_HELPER
+      - GATE_ON_PROGRAM_CONTEXT
+
+  - error_id: OBLIGE-E017
+    short_name: map_value_bounds_violation
+    taxonomy_class: source_bug
+    title: Map value access exceeds the verifier-proven bounds of the target object
+    verifier_messages:
+      - "invalid access to map value, value_size=[0-9]+ off=-?[0-9]+ size=[0-9]+"
+    likely_obligation: OBLIGE-O017
+    example_fix_actions:
+      - ADD_BOUNDS_GUARD
+      - TIGHTEN_OFFSET_RANGE
+
+  - error_id: OBLIGE-E018
+    short_name: verifier_analysis_budget_limit
+    taxonomy_class: verifier_limit
+    title: Verifier rejects the proof shape due to bounded analysis or complexity limits
+    verifier_messages:
+      - "combined stack size .*"
+      - "stack depth .* exceeds"
+      - "complexity limit"
+      - "too many states"
+      - "loop is not bounded"
+      - "back-edge"
+    likely_obligation: OBLIGE-O018
+    example_fix_actions:
+      - REDUCE_CONTROL_FLOW_BRANCHING
+      - SPLIT_PROGRAM_INTO_HELPERS

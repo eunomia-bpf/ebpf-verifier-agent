@@ -136,3 +136,118 @@ templates:
     related_error_ids:
       - OBLIGE-E010
 
+  - obligation_id: OBLIGE-O011
+    taxonomy_class: source_bug
+    title: Memory accesses require a register the verifier still tracks as a pointer
+    expected_state: The access register retains pointer, trusted-pointer, or RCU-pointer type with a proven offset at the dereference site.
+    observed_state: The verifier has degraded the access register to a scalar or invalid value before the load or store.
+    verifier_cues:
+      - "invalid mem access 'scalar'"
+      - "type=scalar expected=ptr_"
+    repair_hints:
+      - Re-derive the pointer from a verified base immediately before dereference.
+      - Keep pointer values separate from scalar arithmetic that widens or erases type information.
+    related_error_ids:
+      - OBLIGE-E011
+
+  - obligation_id: OBLIGE-O012
+    taxonomy_class: source_bug
+    title: Dynptr objects must stay initialized, correctly typed, and live for the required scope
+    expected_state: Each dynptr argument refers to an initialized stack slot of the expected dynptr type, and referenced dynptr state is not clobbered before release.
+    observed_state: An uninitialized, wrong-typed, overwritten, or otherwise invalid dynptr reaches a helper or kfunc call.
+    verifier_cues:
+      - "Expected an initialized dynptr"
+      - "cannot overwrite referenced dynptr"
+    repair_hints:
+      - Initialize the dynptr in the same control-flow region where it is consumed.
+      - Avoid overwriting or partially reusing stack slots that still carry dynptr state.
+    related_error_ids:
+      - OBLIGE-E012
+
+  - obligation_id: OBLIGE-O013
+    taxonomy_class: source_bug
+    title: Critical sections must be balanced and free of disallowed operations
+    expected_state: On every path, lock, IRQ, and RCU state is acquired and released in order before exit or before any operation forbidden inside the protected region.
+    observed_state: At least one control-flow path exits early, restores state out of order, or performs a disallowed call while the critical section is still active.
+    verifier_cues:
+      - "cannot restore irq state out of order"
+      - "holding a lock"
+      - "requires RCU critical section protection"
+      - "cannot be used inside"
+    repair_hints:
+      - Balance save and restore operations on all control-flow paths.
+      - Move exits, helper calls, or sleepable work outside the critical section.
+    related_error_ids:
+      - OBLIGE-E013
+
+  - obligation_id: OBLIGE-O014
+    taxonomy_class: source_bug
+    title: Iterator state must follow the expected stack-based lifecycle
+    expected_state: Iterator objects live in the expected stack slot and are passed only in the initialized or uninitialized state required by the called helper or kfunc.
+    observed_state: An iterator is passed from the wrong location, in the wrong state, or after its lifecycle has already advanced or ended.
+    verifier_cues:
+      - "expected an initialized iter_num"
+      - "expected pointer to an iterator on stack"
+    repair_hints:
+      - Keep iterator storage on the stack location expected by the API.
+      - Call constructor, next, and destroy operations in the required order without reusing stale iterator state.
+    related_error_ids:
+      - OBLIGE-E014
+
+  - obligation_id: OBLIGE-O015
+    taxonomy_class: source_bug
+    title: Trusted pointer arguments must be proven non-null at the call site
+    expected_state: The verifier can prove the trusted pointer argument is non-null on the exact path that reaches the helper or kfunc call.
+    observed_state: The call receives a pointer the verifier still tracks as possibly NULL because the refinement is missing or was lost across a join.
+    verifier_cues:
+      - "Possibly NULL pointer passed to trusted arg"
+      - "NULL pointer passed to trusted arg"
+    repair_hints:
+      - Add a dominating null check immediately before the call.
+      - Avoid storing or merging the refined pointer in ways that lose the non-null proof.
+    related_error_ids:
+      - OBLIGE-E015
+
+  - obligation_id: OBLIGE-O016
+    taxonomy_class: env_mismatch
+    title: Helper and kfunc usage must match the active program type and execution context
+    expected_state: The selected helper or kfunc is available for the running kernel, program type, callback context, and sleepability constraints.
+    observed_state: Verification fails because the current attachment or execution context forbids the helper or kfunc invocation.
+    verifier_cues:
+      - "cannot be called from callback"
+      - "calling kernel function"
+      - "non-sleepable context"
+    repair_hints:
+      - Switch to an API that is valid for the current program type or callback context.
+      - Gate the feature or refactor control flow so the call runs only in a compatible context.
+    related_error_ids:
+      - OBLIGE-E016
+
+  - obligation_id: OBLIGE-O017
+    taxonomy_class: source_bug
+    title: Map value accesses must stay within the verifier-proven object bounds
+    expected_state: The verifier can prove `off + size` stays inside the retrieved map value object on every access path.
+    observed_state: Offset arithmetic or size selection produces an access whose bounds exceed or obscure the reachable portion of the map value.
+    verifier_cues:
+      - "invalid access to map value"
+    repair_hints:
+      - Add explicit bounds checks around computed offsets and sizes.
+      - Use narrower copies or a struct layout that keeps accesses inside the proven object.
+    related_error_ids:
+      - OBLIGE-E017
+
+  - obligation_id: OBLIGE-O018
+    taxonomy_class: verifier_limit
+    title: Program structure must remain within verifier analysis and stack budgets
+    expected_state: Control flow, loop structure, and stacked call frames stay inside the verifier's bounded exploration model.
+    observed_state: The verifier rejects the program because state explosion, loop proof shape, or combined stack depth exceeds implementation limits.
+    verifier_cues:
+      - "combined stack size"
+      - "too many states"
+      - "loop is not bounded"
+      - "back-edge"
+    repair_hints:
+      - Split the program into smaller helpers or tail-call stages.
+      - Reduce branching, stack usage, or loop-carried state so the proof shape is simpler.
+    related_error_ids:
+      - OBLIGE-E018
