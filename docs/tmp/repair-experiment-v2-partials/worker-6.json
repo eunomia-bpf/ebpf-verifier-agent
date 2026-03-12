@@ -1,0 +1,238 @@
+{
+  "cases": [
+    {
+      "case_id": "github-aya-rs-aya-1104",
+      "condition_a": {
+        "fix_type_label": "release_mode",
+        "predicted_fix": "Build the eBPF object in release mode instead of the debug/dev profile.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the build configuration"
+      },
+      "condition_b": {
+        "fix_type_label": "release_mode",
+        "predicted_fix": "Build the eBPF object in release mode instead of the debug/dev profile.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the build configuration"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "kernel-selftest-async-stack-depth-pseudo-call-check-tc-320d654d",
+      "condition_a": {
+        "fix_type_label": "reduce_stack_depth",
+        "predicted_fix": "Refactor the call tree or shrink per-frame stack use so combined stack depth stays within limits.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack-heavy call chain"
+      },
+      "condition_b": {
+        "fix_type_label": "reduce_stack_depth",
+        "predicted_fix": "Refactor the call tree or shrink per-frame stack use so combined stack depth stays within limits.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack-heavy call chain"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993",
+      "condition_a": {
+        "fix_type_label": "pointer_type_fix",
+        "predicted_fix": "Pass the dynptr from its exact stack slot/base address instead of an offset or forged pointer.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper call argument / dynptr object site"
+      },
+      "condition_b": {
+        "fix_type_label": "btf_regen",
+        "predicted_fix": "Regenerate or align the BTF / func_info metadata for this build.",
+        "rationale": "The diagnostic surface makes this look like a metadata/toolchain issue even though the accepted fix is elsewhere.",
+        "scores": {
+          "fix_type": 0,
+          "location": 0,
+          "root_cause": 0
+        },
+        "target_location": "the BTF/toolchain artifacts"
+      },
+      "overall_notes": "Condition B hurt: the diagnostic pulled attention toward a misleading proof/BTF story instead of the actual fix."
+    },
+    {
+      "case_id": "stackoverflow-69767533",
+      "condition_a": {
+        "fix_type_label": "init_stack",
+        "predicted_fix": "Zero-initialize `tmp_buffer` before `bpf_probe_read` and keep the copy length explicitly bounded.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack buffer before the helper call"
+      },
+      "condition_b": {
+        "fix_type_label": "init_stack",
+        "predicted_fix": "Zero-initialize `tmp_buffer` before `bpf_probe_read` and keep the copy length explicitly bounded.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack buffer before the helper call"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-71946593",
+      "condition_a": {
+        "fix_type_label": "context_member_read",
+        "predicted_fix": "Use `bpf_probe_read*` to read the `sk_buff` member instead of direct field dereference.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the direct context-member dereference"
+      },
+      "condition_b": {
+        "fix_type_label": "context_member_read",
+        "predicted_fix": "Use `bpf_probe_read*` to read the `sk_buff` member instead of direct field dereference.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the direct context-member dereference"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-74178703",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Add or tighten the bounds check immediately before the failing access.",
+        "rationale": "The raw rejection looks like a local bounds-proof failure, so a log-only repair would likely patch the guard near the reject site.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "checked_pointer_reuse",
+        "predicted_fix": "Recompute and dereference through the same checked `b + offset + i` expression inside the loop body.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the checked pointer calculation and subsequent dereference"
+      },
+      "overall_notes": "Condition B helped: the additional diagnostic context disambiguated the root cause and improved the repair."
+    },
+    {
+      "case_id": "stackoverflow-75643912",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Fix the off-by-one and width check so the loop only reads bytes that are proven in-bounds.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Fix the off-by-one and width check so the loop only reads bytes that are proven in-bounds.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-78958420",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Track the parsed domain length, zero-init a fixed buffer, and bounds-check/copy only that many bytes.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Track the parsed domain length, zero-init a fixed buffer, and bounds-check/copy only that many bytes.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-79812509",
+      "condition_a": {
+        "fix_type_label": "trusted_task_helper",
+        "predicted_fix": "Use `bpf_get_current_task_btf()` so the task pointer stays trusted for `bpf_task_storage_get`.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper choice for obtaining the task pointer"
+      },
+      "condition_b": {
+        "fix_type_label": "trusted_task_helper",
+        "predicted_fix": "Use `bpf_get_current_task_btf()` so the task pointer stays trusted for `bpf_task_storage_get`.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper choice for obtaining the task pointer"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    }
+  ]
+}

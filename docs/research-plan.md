@@ -1,4 +1,167 @@
-s | 23 | "unbounded min value" |
+# OBLIGE：计划与进度
+
+> 本文档是 OBLIGE 项目的单一 hub。
+> **编辑规则**：
+> - 任何 TODO/实验/文档引用条目被取代时，必须至少保留一行并标注状态，不得直接删除。
+> - 每个任务做完 → 立即更新本文档（任务条目状态 + 关键数据 + 文档路径）。
+> - 每次 context 压缩后 → 完整读取本文档恢复全局状态。
+> - 用 codex background 跑任务，不阻塞主对话。
+> 上次更新：2026-03-12 (proof engine 集成 + obligation 扩展 + 批量修复 round)
+
+---
+
+## 1. 论文定位与策略
+
+### 1.1 核心 Thesis：Rust-Quality Diagnostics via Proof Trace Meta-Analysis（2026-03-11 再调整）
+
+> **旧 thesis（已放弃）**：verifier 缺少诊断信息，需要 kernel-side hooks 暴露 abstract state。
+> **第一次调整**：发现 LOG_LEVEL2 已有完整 abstract state，问题是 unstructured。做 proof trace analysis。
+> **第二次调整（当前）**：分类准确率不是贡献（LLM 已做到 95%+）。真正的贡献是 **diagnostic output 的质量**——类比 Rust 的 borrow checker 错误信息。
+
+> **当前 thesis**：
+> eBPF verifier 的 LOG_LEVEL2 trace 是 abstract interpretation 的完整输出，包含 proof lifecycle 的所有信息（proof 在哪里建立、传播、丢失）。
+> OBLIGE 对这个 trace 做 **meta-analysis**——backward slicing、proof obligation inference、proof propagation tracking——然后结合 BTF source annotation，生成 **Rust-quality multi-span source-level diagnostics**。
+>
+> **关键类比**：Rust borrow checker 无法证明内存安全 → 指出多个源码位置 + 因果标签（"borrow occurs here", "conflict here"）。
+> eBPF verifier 无法证明程序安全 → OBLIGE 做同样的事：指出 proof-established、proof-lost、rejected 的源码位置。
+> 纯 userspace，不需要改 kernel。
+
+**OBLIGE 输出示例**：
+```
+error[OBLIGE-E005]: lowering_artifact — packet access with lost bounds proof
+  ┌─ xdp_prog.c
+   │
+38 │     if (data + ext_len <= data_end) {
+   │         ─────────────────────────── proof established
+   │         R3: pkt(range=0) → pkt(range=14)
+   │
+42 │     __u16 ext_len = __bpf_htons(ext->len);
+   │                     ────────────────────── proof lost: OR destroys bounds
+   │                     R0: scalar(umax=255) → scalar(unbounded)
+   │
+45 │     void *next = data + ext_len;
+   │                  ─────────────── rejected: pkt_ptr + unbounded
+   │
+   = note: Bounds check exists (line 38) but LLVM's lowering breaks it.
+   = help: Add explicit clamp: if (ext_len > 1500) return XDP_DROP;
+```
+
+#### Verifier Log 已有的信息（LOG_LEVEL2）
+
+```
+; __u16 ext_len = __bpf_htons(ext->len);     ← BTF source line annotation
+19: (71) r6 = *(u8 *)(r0 +2)                 ← instruction
+20: R0=pkt(id=0,off=2,r=6)                   ← 完整 register abstract state
+    R6_w=inv(id=0,umax_value=255,                (type, bounds, offset, range)
+    var_off=(0x0; 0xff))
+...
+22: (4f) r0 |= r6                            ← critical transition
+23: R0_w=inv(id=0)                            ← bounds 丢失！
+...
+math between pkt pointer and register with    ← final error (症状，不是原因)
+unbounded min value is not allowed
+```
+
+**已有**：per-instruction register state (type/bounds/offset/range/var_off)、BTF source lines、backtracking annotations、control flow merge points
+
+**缺失的（OBLIGE 要提取的）**：
+1. Critical state transition — 在哪条指令 proof 丢失了（上例：insn 22 的 OR）
+2. Causal chain — 从 error point 反向追溯到 root cause instruction
+3. Source mapping — critical transition 对应源码哪一行
+4. Error classification — stable error type（不是 free-text message）
+5. Repair guidance — 应该怎么改
+
+#### 类比定位
+
+| 系统 | 输入 | 做了什么 | 没做什么 |
+|------|------|----------|----------|
+| Pretty Verifier (GitHub tool, 未发表) | error message 那一行 | regex 匹配 + source mapping | 不分析 state trace，跨版本 break |
+| Model checking counterexample analysis | counterexample trace | 提取 property violation 原因 | 不适用于 eBPF abstract interpreter |
+| **OBLIGE** | **完整 verifier state trace** | **state transition analysis + causal chain** | — |
+
+#### 论文逻辑链条（更新版）
+
+1. eBPF 广泛部署，verifier 必须拒绝不安全程序
+2. 拒绝时 verifier 输出 verbose log（LOG_LEVEL2）包含完整 abstract state trace
+3. 这个 trace 有时 500-1000+ 行，开发者无法有效利用
+4. **Semantic opacity 的根源不是信息缺失，而是 unstructured trace 中的 needle-in-haystack**
+5. 现有工具（Pretty Verifier）只 parse error message 那一行，忽略了 trace 里的丰富 state 信息
+6. LLM agent（Kgent）直接消费 raw text，同样受限于 trace 噪音
+7. **OBLIGE 解析完整 proof trace，提取 critical transition + causal chain + structured diagnosis**
+8. 纯 userspace，不改 kernel，今天就能部署
+
+### 1.2 Novelty（2026-03-11 再调整）
+
+**核心 novelty（不是分类准确率——LLM 已做到 95%+）**：
+1. **Meta-analysis of abstract interpretation output** — verifier 做了 abstract interpretation，OBLIGE 对其输出再做 backward slicing + proof propagation。这是"分析的分析"，在 eBPF 领域首创
+2. **Leveraging verifier's own `mark_precise` backtracking** — verifier 内部的 precision tracking（`last_idx`, `first_idx`, `regs=`, `before N:` ）是 verifier 自己算好的根因链，但只以 debug text 暴露。OBLIGE 提取并结构化它
+3. **Rust-quality multi-span diagnostics for eBPF** — 多个源码位置 + 因果标签（proof established / propagated / lost / rejected）。没有人做过
+4. **Proof obligation inference from verifier's type system** — 对每种访问类型，从 error message + register state 推导 "verifier 需要什么条件"（packet: `reg.off+size <= reg.range`）。不是启发式，是基于 verifier 类型系统
+5. **Proof propagation analysis** — 从 proof-establishing branch 正向追踪：proof 是否传播到实际访问的 register？没有传播 → lowering artifact。没有建立 → source bug
+6. **实证研究** — 64% of 591 production commits 是 proof-reshaping workaround，不是 source bug fix
+
+**与 Pretty Verifier 的本质差异**：
+- Pretty Verifier：parse **1 行** error message（91 regex）→ 1 个 enhanced text + 1 个建议
+- OBLIGE：parse **500 行** state trace → **多个源码位置** + 因果链 + proof lifecycle + 结构化 JSON
+
+**Go 条件（全部满足才提交）**：
+1. Benchmark ≥80 个 labeled cases，覆盖全 5 类 ✅ 302 cases, 30 labeled
+2. Rust-style multi-span diagnostic engine end-to-end 跑通 ❌（codex 实现中）
+3. OBLIGE 输出的 source spans 覆盖实际 fix 位置（vs PV: 1 span only）❌
+4. A/B repair experiment：OBLIGE 输出 + LLM vs raw log + LLM，修复质量差异 ❌
+5. 信息压缩质量：500 行 → 3-5 个带标签的源码跨度，expert 评估 sufficiency ❌
+
+### 1.3 与 existing work 的关键差异
+
+| Work | 做了什么 | 没做什么（我们的空位） |
+|------|----------|----------------------|
+| Deokar et al. (eBPF'24) | 743 SO 问题，19.3% verifier | 只描述痛点 |
+| HotOS'23 | Verifier untenable 论证 | 没提出新工具 |
+| Rex (ATC'25) | 72 workaround commits 分类 | 回顾性分析，不是工具 |
+| Pretty Verifier (GitHub, 未发表) | 83 regex handlers + source mapping | **只 parse error message，不分析 state trace**；跨版本 break |
+| Kgent (eBPF'24) | verifier text → LLM loop | raw text 限制质量 |
+| SimpleBPF / verifier-safe DSL | DSL 绕开 verifier | 只覆盖 DSL 子集 |
+| ebpf-verifier-errors | 社区收集 log+fix | 手动, 无分析工具 |
+
+### 1.4 核心设计约束
+
+1. **纯 userspace** — 不需要 kernel patch，解析现有 verbose log
+2. **Agent 是 application，不是 contribution** — 论文贡献是 trace analysis，不是 agent
+3. **分析 state trace，不只是 error message** — 这是与 Pretty Verifier 的核心区别
+4. **Passes verifier ≠ semantic correctness** — 必须有 task-level oracle
+5. **Register state format stability > error message stability** — 跨版本稳定性的基础
+
+---
+
+## 2. 五类 Failure Taxonomy
+
+| Class | 含义 | 典型信号 | 占比 |
+|-------|------|----------|:---:|
+| `source_bug` | 源码真缺 bounds/null/refcount check | "invalid access to packet", "invalid mem access" | **88.1%** (266/302 heuristic) |
+| `lowering_artifact` | LLVM 生成 verifier-unfriendly bytecode | "unbounded min value" after spill/reload | **4.0%** (12/302) |
+| `verifier_limit` | 程序安全但超了分析能力 | "too many states", "loop not bounded" | **1.3%** (4/302) |
+| `env_mismatch` | helper/kfunc/BTF/attach target 不匹配 | "unknown func", "helper not allowed" | **6.3%** (19/302) |
+| `verifier_bug` | verifier 自己的 bug | regression across versions | **0.3%** (1/302) |
+
+**人工验证**：30 cases labeled，heuristic agreement 76.7%（κ=0.652）。Lowering artifacts 系统性被误分类为 source_bug（4/6）。
+
+**决策顺序**（消歧义时）：verifier_bug → env_mismatch → lowering_artifact → verifier_limit → source_bug
+
+**完整定义**：`taxonomy/taxonomy.yaml`
+
+---
+
+## 3. Error Catalog
+
+当前 23 个 stable error IDs（OBLIGE-E001 ~ E023），覆盖率 87.1%（263/302）。
+
+| ID | Short Name | Class | Matches | 典型 verifier message |
+|----|-----------|-------|:---:|----------------------|
+| E001 | packet_bounds_missing | source_bug | 18 | "invalid access to packet" |
+| E002 | nullable_map_value_dereference | source_bug | 8 | "invalid mem access 'map_value_or_null'" |
+| E003 | uninitialized_stack_read | source_bug | 9 | "invalid indirect read from stack" |
+| E004 | reference_lifetime_violation | source_bug | 17 | "Unreleased reference id=" |
+| E005 | scalar_range_too_wide_after_lowering | lowering_artifact | 23 | "unbounded min value" |
 | E006 | provenance_lost_across_spill | lowering_artifact | 0 | "expected pointer type, got scalar" |
 | E007 | verifier_state_explosion | verifier_limit | 1 | "too many states" |
 | E008 | bounded_loop_not_proved | verifier_limit | 1 | "loop is not bounded" |
@@ -184,7 +347,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | Diagnoser 30-case eval | 23/30 (77%), source_bug 9/13, lowering 5/6 | `docs/tmp/diagnoser-30case-evaluation.md` |
 | Cross-log stability (33 cases) | 20/33 stable, 12/33 text-varies-but-id-stable | `docs/tmp/cross-log-stability-analysis.md` |
 | Cross-kernel feasibility | QEMU/KVM feasible, Docker won't work, deferred | `docs/tmp/cross-kernel-feasibility-report.md` |
-| **Batch diagnostic eval (241 cases)** | **241/241 成功; BTF 62.7%; rejected 100%; established 45.6%; lost 40.2%; 0 crashes** | `docs/tmp/batch-diagnostic-eval.md` |
+| **Batch diagnostic eval (241 cases)** | **241/241 成功; BTF 62.7%; rejected 100%; established 40.2%; lost 34.0%; 0 crashes; taxonomy: source_bug 45.2%, env_mismatch 34.4%, lowering 12.0%, limit 8.3%, unknown 0%** | `docs/tmp/batch-diagnostic-eval.md` |
 | **Synthetic case generation** | **535 cases from eval_commits (249 lowering, 220 source_bug, 50 limit, 16 env)** | `docs/tmp/synthetic-cases-report.md` |
 | **Span coverage eval (263 cases)** | **101/263 covered (38%), manual 12/14 (86%), KS rejected 85/102 (83%); 535 synthetic fix-pattern 分析** | `docs/tmp/span-coverage-eval.md` |
 | **Deep quality analysis** | **119 单 span 正确; 14→~2 unknown taxonomy; 3 false satisfied; SO BTF 是数据问题; 5 级 priority 修复建议** | `docs/tmp/output-quality-analysis.md` |
@@ -283,10 +446,11 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | # | 任务 | 状态 | 关键数据 / 文档 |
 |---|------|:---:|------|
 | 35 | Enhanced backtracking extraction (`mark_precise` chains) | ✅ | `BacktrackLink`/`BacktrackChain` in trace_parser.py; `extract_backtrack_chains()` handles cross-state splits; 9/9 tests pass |
-| 36 | Proof obligation inference + proof propagation analysis | ✅ | `interface/extractor/proof_analysis.py` (701 lines); `ProofEvent`/`ProofObligation`/`ProofLifecycle`; correctly finds loss at insn 22 for SO-70750259 |
+| 36 | Proof obligation inference + proof propagation analysis（旧 heuristic 版） | ✅→被 #50 取代 | `interface/extractor/proof_analysis.py`; heuristic event labeling，novelty 不够 |
 | 37 | BTF source correlation | ✅ | `interface/extractor/source_correlator.py` (374 lines); maps proof events to source spans via BTF annotation; fallback to bytecode spans |
 | 38 | Multi-span diagnostic renderer (Rust-style text + JSON) | ✅ | `interface/extractor/renderer.py` (167 lines); Rust-style text + structured JSON |
 | 39 | Top-level entry point | ✅ | `interface/extractor/rust_diagnostic.py` (539 lines); `generate_diagnostic()` end-to-end pipeline; 27/27 tests pass |
+| 50 | **Real proof engine (formal predicate tracking)** | ✅ R3+集成+扩展 | `proof_engine.py`; **85 tests; obligation 42.3%→60.2% (145/241)**; 10 families; catalog override 109→18; JSON schema 统一; source_bug 合同特化。`docs/tmp/proof-engine-integration-report.md` |
 
 ### Phase 3: Evaluation（原 Phase 5 合并）
 
@@ -294,12 +458,12 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 |---|------|:---:|------|
 | 40 | Span coverage evaluation | ✅ | **101/263 covered (38%), manual 12/14 (86%), KS rejected match 85/102 (83%)**; 152 unknown（fix 不可定位）。`docs/tmp/span-coverage-eval.md`, `eval/results/span_coverage_results.json` |
 | 41 | Deep output quality analysis | ✅ | 119 单 span 是正确行为（95 never_established）; 14 unknown taxonomy→~2 可修; 3 false satisfied 可修; SO BTF 是数据问题不是 parser 问题。`docs/tmp/output-quality-analysis.md` |
-| 42 | **A/B repair experiment** | ✅ | **整体 A=B 10/30 (33%); lowering_artifact A 0/8→B 2/8 (+25pp); verifier_limit A 1/4→B 2/4; source_bug A 9/13→B 6/13 (-23pp); root-cause A 50%→B 57%; semantic A 77%→B 83%**。`docs/tmp/repair-experiment-report.md` |
+| 42 | **A/B repair experiment** | ✅ v1; 需 v2 重跑 | **v1: 10/30; lowering +25pp; source_bug -23pp**。已扩展到 54 cases（15 lowering, 23 source, 8 limit, 8 env）。source_bug 回退已修复（specific contract parsing）。需用 codex 重跑 v2。`docs/tmp/repair-experiment-report.md` |
 | 43 | Quality fix round 2 | ✅ | **unknown taxonomy 14→2; false satisfied 3→0; 44/44 tests; 241/241 batch; 12 新 catalog patterns**。`docs/tmp/quality-fix-round2-report.md` |
 | 44 | Compile synthetic cases | ✅ 失败 | **0/20 pilot 编译成功**（snippets 是 diff 片段，缺完整上下文）。需从原始 repo checkout 完整源文件才可行。`docs/tmp/synthetic-compilation-report.md` |
 | 45 | PV comparison on Rust-style output | ❌ | 扩展现有 PV comparison |
 | 46 | Cross-kernel stability evaluation | ❌ 暂缓 | QEMU/KVM, ≥3 kernel versions |
-| 47 | Overhead measurement | ❌ | Trace analysis latency |
+| 47 | Overhead measurement | ✅ | **中位 33ms, P95 48ms, P99 76ms, max 116ms; 96.3% <50ms**。足够交互式使用。`docs/tmp/latency-benchmark-report.md` |
 
 ### Phase 4: Paper
 
@@ -412,10 +576,11 @@ sidocs/tmp/selftests-collection-report.md` | Codex |
 | # | 任务 | 状态 | 关键数据 / 文档 |
 |---|------|:---:|------|
 | 35 | Enhanced backtracking extraction (`mark_precise` chains) | ✅ | `BacktrackLink`/`BacktrackChain` in trace_parser.py; `extract_backtrack_chains()` handles cross-state splits; 9/9 tests pass |
-| 36 | Proof obligation inference + proof propagation analysis | ✅ | `interface/extractor/proof_analysis.py` (701 lines); `ProofEvent`/`ProofObligation`/`ProofLifecycle`; correctly finds loss at insn 22 for SO-70750259 |
+| 36 | Proof obligation inference + proof propagation analysis（旧 heuristic 版） | ✅→被 #50 取代 | `interface/extractor/proof_analysis.py`; heuristic event labeling，novelty 不够 |
 | 37 | BTF source correlation | ✅ | `interface/extractor/source_correlator.py` (374 lines); maps proof events to source spans via BTF annotation; fallback to bytecode spans |
 | 38 | Multi-span diagnostic renderer (Rust-style text + JSON) | ✅ | `interface/extractor/renderer.py` (167 lines); Rust-style text + structured JSON |
 | 39 | Top-level entry point | ✅ | `interface/extractor/rust_diagnostic.py` (539 lines); `generate_diagnostic()` end-to-end pipeline; 27/27 tests pass |
+| 50 | **Real proof engine (formal predicate tracking)** | ✅ R3+集成+扩展 | `proof_engine.py`; **85 tests; obligation 42.3%→60.2% (145/241)**; 10 families; catalog override 109→18; JSON schema 统一; source_bug 合同特化。`docs/tmp/proof-engine-integration-report.md` |
 
 ### Phase 3: Evaluation（原 Phase 5 合并）
 
@@ -423,12 +588,12 @@ sidocs/tmp/selftests-collection-report.md` | Codex |
 |---|------|:---:|------|
 | 40 | Span coverage evaluation | ✅ | **101/263 covered (38%), manual 12/14 (86%), KS rejected match 85/102 (83%)**; 152 unknown（fix 不可定位）。`docs/tmp/span-coverage-eval.md`, `eval/results/span_coverage_results.json` |
 | 41 | Deep output quality analysis | ✅ | 119 单 span 是正确行为（95 never_established）; 14 unknown taxonomy→~2 可修; 3 false satisfied 可修; SO BTF 是数据问题不是 parser 问题。`docs/tmp/output-quality-analysis.md` |
-| 42 | **A/B repair experiment** | ✅ | **整体 A=B 10/30 (33%); lowering_artifact A 0/8→B 2/8 (+25pp); verifier_limit A 1/4→B 2/4; source_bug A 9/13→B 6/13 (-23pp); root-cause A 50%→B 57%; semantic A 77%→B 83%**。`docs/tmp/repair-experiment-report.md` |
+| 42 | **A/B repair experiment** | ✅ v1; 需 v2 重跑 | **v1: 10/30; lowering +25pp; source_bug -23pp**。已扩展到 54 cases（15 lowering, 23 source, 8 limit, 8 env）。source_bug 回退已修复（specific contract parsing）。需用 codex 重跑 v2。`docs/tmp/repair-experiment-report.md` |
 | 43 | Quality fix round 2 | ✅ | **unknown taxonomy 14→2; false satisfied 3→0; 44/44 tests; 241/241 batch; 12 新 catalog patterns**。`docs/tmp/quality-fix-round2-report.md` |
 | 44 | Compile synthetic cases | ✅ 失败 | **0/20 pilot 编译成功**（snippets 是 diff 片段，缺完整上下文）。需从原始 repo checkout 完整源文件才可行。`docs/tmp/synthetic-compilation-report.md` |
 | 45 | PV comparison on Rust-style output | ❌ | 扩展现有 PV comparison |
 | 46 | Cross-kernel stability evaluation | ❌ 暂缓 | QEMU/KVM, ≥3 kernel versions |
-| 47 | Overhead measurement | ❌ | Trace analysis latency |
+| 47 | Overhead measurement | ✅ | **中位 33ms, P95 48ms, P99 76ms, max 116ms; 96.3% <50ms**。足够交互式使用。`docs/tmp/latency-benchmark-report.md` |
 
 ### Phase 4: Paper
 

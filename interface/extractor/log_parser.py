@@ -78,6 +78,16 @@ SUMMARY_PREFIXES = (
     "mark_read",
     "verification time",
 )
+CATALOG_PREFIX_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"^libbpf:\s+prog\s+'.*?':\s+", flags=re.IGNORECASE),
+    re.compile(r"^libbpf:\s+", flags=re.IGNORECASE),
+    re.compile(r"^R\d+\s+", flags=re.IGNORECASE),
+    re.compile(r"^insn\s+\d+\s+", flags=re.IGNORECASE),
+    re.compile(r"^\d+:\s+"),
+    re.compile(r"^verifier error:\s+", flags=re.IGNORECASE),
+    re.compile(r"^load program:\s+", flags=re.IGNORECASE),
+    re.compile(r"^permission denied:\s+", flags=re.IGNORECASE),
+)
 
 
 @dataclass(slots=True)
@@ -90,7 +100,17 @@ class ParsedLog:
     error_id: str | None
     taxonomy_class: str | None
     source_line: int | None
+    catalog_confidence: str | None = None
+    catalog_source: str | None = None
     evidence: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class _CatalogMatch:
+    error_id: str
+    taxonomy_class: str
+    confidence: str
+    source: str
 
 
 class VerifierLogParser:
@@ -117,7 +137,7 @@ class VerifierLogParser:
 
         lines = [line.rstrip() for line in raw_log.splitlines() if line.strip()]
         error_line = self._select_error_line(lines)
-        error_id, taxonomy_class = self._match_catalog(lines)
+        catalog_match = self._match_catalog(lines, error_line)
         source_line = self._extract_source_line(lines)
         evidence = self._collect_evidence(lines)
 
@@ -125,9 +145,11 @@ class VerifierLogParser:
             raw_log=raw_log,
             lines=lines,
             error_line=error_line,
-            error_id=error_id,
-            taxonomy_class=taxonomy_class,
+            error_id=catalog_match.error_id if catalog_match is not None else None,
+            taxonomy_class=catalog_match.taxonomy_class if catalog_match is not None else None,
             source_line=source_line,
+            catalog_confidence=catalog_match.confidence if catalog_match is not None else None,
+            catalog_source=catalog_match.source if catalog_match is not None else None,
             evidence=evidence,
         )
 
@@ -173,13 +195,62 @@ class VerifierLogParser:
             return best_line
         return lines[-1] if lines else ""
 
-    def _match_catalog(self, lines: list[str]) -> tuple[str | None, str | None]:
-        joined = "\n".join(lines)
+    def _match_catalog(self, lines: list[str], error_line: str) -> _CatalogMatch | None:
+        error_variants = _catalog_line_variants(error_line)
+        all_variants = [
+            variant
+            for line in lines
+            for variant in _catalog_line_variants(line)
+        ]
+        other_variants = [variant for variant in all_variants if variant not in set(error_variants)]
+
+        for confidence, source, candidates, primary_only in (
+            ("high", "error_line_primary", error_variants, True),
+            ("medium", "error_line_alternate", error_variants, False),
+            ("low", "other_line_primary", other_variants, True),
+            ("low", "other_line_alternate", other_variants, False),
+        ):
+            match = self._scan_catalog(
+                candidates=candidates,
+                confidence=confidence,
+                source=source,
+                primary_only=primary_only,
+            )
+            if match is not None:
+                return match
+        return None
+
+    def _scan_catalog(
+        self,
+        candidates: list[str],
+        confidence: str,
+        source: str,
+        primary_only: bool,
+    ) -> _CatalogMatch | None:
+        if not candidates:
+            return None
+
+        seen_candidates: set[str] = set()
+        ordered_candidates = [
+            candidate
+            for candidate in candidates
+            if candidate and not (candidate in seen_candidates or seen_candidates.add(candidate))
+        ]
         for entry in self._catalog:
-            for pattern in entry.get("verifier_messages", []):
-                if re.search(pattern, joined, flags=re.IGNORECASE):
-                    return entry["error_id"], entry["taxonomy_class"]
-        return None, None
+            patterns = entry.get("verifier_messages", [])
+            if not patterns:
+                continue
+            candidate_patterns = patterns[:1] if primary_only else patterns[1:]
+            for pattern in candidate_patterns:
+                for candidate in ordered_candidates:
+                    if re.match(pattern, candidate, flags=re.IGNORECASE):
+                        return _CatalogMatch(
+                            error_id=entry["error_id"],
+                            taxonomy_class=entry["taxonomy_class"],
+                            confidence=confidence,
+                            source=source,
+                        )
+        return None
 
     def _extract_source_line(self, lines: list[str]) -> int | None:
         patterns = [
@@ -229,8 +300,40 @@ def parse_log(raw_log: str, catalog_path: str | Path | None = None) -> ParsedLog
     return parser.parse(raw_log)
 
 
+def parse_verifier_log(raw_log: str, catalog_path: str | Path | None = None) -> ParsedLog:
+    """Backward-compatible alias used by corpus coverage scripts."""
+
+    return parse_log(raw_log, catalog_path=catalog_path)
+
+
 def _is_specific_verifier_symptom(line: str) -> bool:
     lowered = line.lower()
     if not line or line.startswith(";") or lowered.startswith(SUMMARY_PREFIXES):
         return False
     return EXACT_VERIFIER_SYMPTOM_RE.search(line) is not None
+
+
+def _normalize_catalog_line(line: str) -> str:
+    normalized = line.strip()
+    while normalized.startswith(":"):
+        normalized = normalized[1:].lstrip()
+    return normalized
+
+
+def _catalog_line_variants(line: str) -> list[str]:
+    normalized = _normalize_catalog_line(line)
+    if not normalized:
+        return []
+
+    variants = [normalized]
+    queue = [normalized]
+    seen = {normalized}
+    while queue:
+        current = queue.pop(0)
+        for pattern in CATALOG_PREFIX_PATTERNS:
+            candidate = pattern.sub("", current, count=1).lstrip()
+            if candidate and candidate not in seen:
+                seen.add(candidate)
+                variants.append(candidate)
+                queue.append(candidate)
+    return variants

@@ -156,6 +156,10 @@ def role_set(spans: list[dict[str, Any]]) -> set[str]:
 
 
 def has_file_line(span: dict[str, Any]) -> bool:
+    # New format: path/line at top level of span
+    if span.get("path") and span.get("line") is not None:
+        return True
+    # Old format: source.file / source.line
     source = span.get("source")
     if not isinstance(source, dict):
         return False
@@ -232,13 +236,23 @@ def evaluate_case(
         )
 
     json_data = output.json_data if isinstance(output.json_data, dict) else {}
-    spans = json_data.get("spans", [])
+    metadata = json_data.get("metadata", {}) if isinstance(json_data.get("metadata"), dict) else {}
+    spans = json_data.get("spans") or metadata.get("proof_spans") or []
     if not isinstance(spans, list):
         spans = []
 
     roles = role_set(spans)
     output_text = output.text or ""
     output_text_length = len(output_text)
+
+    taxonomy_class = (
+        _as_str_or_none(json_data.get("taxonomy_class"))
+        or _as_str_or_none(json_data.get("failure_class"))
+    )
+    proof_status = (
+        _as_str_or_none(json_data.get("proof_status"))
+        or _as_str_or_none(metadata.get("proof_status"))
+    )
 
     return CaseResult(
         case_id=case_id,
@@ -251,8 +265,8 @@ def evaluate_case(
         verifier_log_chars=verifier_log_chars,
         log_has_source_locations=has_source_markers,
         error_id=_as_str_or_none(json_data.get("error_id")),
-        taxonomy_class=_as_str_or_none(json_data.get("taxonomy_class")),
-        proof_status=_as_str_or_none(json_data.get("proof_status")),
+        taxonomy_class=taxonomy_class,
+        proof_status=proof_status,
         num_spans=len(spans),
         has_btf_file_line=any(has_file_line(span) for span in spans if isinstance(span, dict)),
         has_proof_lost_span="proof_lost" in roles,

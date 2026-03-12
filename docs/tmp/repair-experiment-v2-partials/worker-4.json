@@ -1,0 +1,238 @@
+{
+  "cases": [
+    {
+      "case_id": "stackoverflow-72575736",
+      "condition_a": {
+        "predicted_fix": "Add an explicit unsigned clamp on `off`/`i` and dereference the same checked `address` register inside the loop.",
+        "target_location": "the `address = start + off + i` / packet-read loop",
+        "fix_type_label": "unsigned clamp / pointer arithmetic rewrite",
+        "scores": {
+          "location": 0,
+          "fix_type": 0,
+          "root_cause": 0
+        },
+        "rationale": "The raw log looks like packet-bounds loss in the loop, but the accepted fix is a kernel backport rather than a source change."
+      },
+      "condition_b": {
+        "predicted_fix": "Clamp the offset to a small unsigned range and keep the offset calculation in a separate verified register before dereference.",
+        "target_location": "the same loop-side pointer arithmetic before `let byte = *(address as *const u8)`",
+        "fix_type_label": "unsigned clamp",
+        "scores": {
+          "location": 0,
+          "fix_type": 0,
+          "root_cause": 0
+        },
+        "rationale": "The diagnostic reinforces a code-side arithmetic rewrite, but the ground truth is still an unfixed verifier bug on the older kernel."
+      },
+      "overall_notes": "Condition B tied A. Both conditions chase a source rewrite, while the accepted fix is upgrading/backporting the kernel verifier fix."
+    },
+    {
+      "case_id": "stackoverflow-79530762",
+      "condition_a": {
+        "predicted_fix": "Introduce a temporary checked pointer and read/write through that exact pointer instead of recomputing `data_bytes + i + option_length` after the bounds check.",
+        "target_location": "the packet-copy loop that writes `data_bytes[i + option_length] = data_bytes[i]`",
+        "fix_type_label": "reuse checked pointer",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The code already has a local bounds check, so the failure is most plausibly proof loss across recomputed packet arithmetic."
+      },
+      "condition_b": {
+        "predicted_fix": "Add a stronger `data_bytes + i + option_length + 1 <= data_end` guard immediately before the write.",
+        "target_location": "the same packet-copy loop",
+        "fix_type_label": "add bounds check",
+        "scores": {
+          "location": 1,
+          "fix_type": 0,
+          "root_cause": 0
+        },
+        "rationale": "The diagnostic frames the failure as a missing reject-site bounds proof, which treats the symptom rather than the checked-vs-accessed-pointer mismatch."
+      },
+      "overall_notes": "Condition B hurt. Raw log plus source already suggested a lowering-induced pointer-reuse bug, while the diagnostic pushed toward another surface bounds check."
+    },
+    {
+      "case_id": "stackoverflow-67402772",
+      "condition_a": {
+        "predicted_fix": "Stop reading `skb->local_ip4` and `skb->remote_ip4` in this `lwt_out` program; use an allowed context field/API or move the logic to a program type that exposes them.",
+        "target_location": "the direct `skb->local_ip4` / `skb->remote_ip4` loads",
+        "fix_type_label": "use allowed context access / program type",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The raw verifier error is an invalid `__sk_buff` context access at those exact offsets."
+      },
+      "condition_b": {
+        "predicted_fix": "Replace the forbidden `skb` member reads with a verifier-allowed field or helper, or run this logic in a program type that permits those offsets.",
+        "target_location": "the same `skb->local_ip4` / `skb->remote_ip4` reads",
+        "fix_type_label": "use allowed context access / program type",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic is generic here, but the raw log still makes the forbidden context-member access obvious."
+      },
+      "overall_notes": "Condition B tied A. The raw log already pinpointed unsupported `__sk_buff` field access, so the extra diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-70760516",
+      "condition_a": {
+        "predicted_fix": "Cap the number of parsed extensions and tighten per-extension and server-name lengths so the cumulative packet offset cannot grow past 64K.",
+        "target_location": "the outer extension loop and the `ext_len` / `server_name_len` bounds",
+        "fix_type_label": "bound loop / total packet offset",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The verifier range grows across loop iterations, so the fix is to constrain total advancement, not to add another local packet check."
+      },
+      "condition_b": {
+        "predicted_fix": "Insert an explicit `data + sizeof(struct extension) <= data_end` check right before reading `ext->type`.",
+        "target_location": "the `ext->type` access inside the extension loop",
+        "fix_type_label": "add bounds check",
+        "scores": {
+          "location": 1,
+          "fix_type": 0,
+          "root_cause": 0
+        },
+        "rationale": "The diagnostic collapses a cumulative range-growth problem into a reject-site bounds-check symptom."
+      },
+      "overall_notes": "Condition B hurt. The accepted fix constrains loop growth and total offset, while the diagnostic steers toward a redundant local bounds check."
+    },
+    {
+      "case_id": "stackoverflow-75294010",
+      "condition_a": {
+        "predicted_fix": "Pass `event` to `bpf_perf_event_output` instead of `&event`, so the helper receives the record buffer rather than a pointer to the pointer.",
+        "target_location": "the final `bpf_perf_event_output` call",
+        "fix_type_label": "use value buffer, not pointer-to-pointer",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The helper signature plus the source code make the pointer-to-pointer mistake visible even though the packet's log excerpt is noisy."
+      },
+      "condition_b": {
+        "predicted_fix": "Re-derive the `event` pointer from the verified map lookup before each dereference and write.",
+        "target_location": "the `event->attr.*` writes after the map lookup",
+        "fix_type_label": "re-derive pointer",
+        "scores": {
+          "location": 0,
+          "fix_type": 0,
+          "root_cause": 0
+        },
+        "rationale": "The diagnostic pulls attention to an earlier pointer-provenance symptom instead of the accepted helper-argument bug at the final emit call."
+      },
+      "overall_notes": "Condition B hurt. The raw source exposes the pointer-to-pointer bug in `bpf_perf_event_output`, while the diagnostic redirects attention to an earlier symptom."
+    },
+    {
+      "case_id": "stackoverflow-77205912",
+      "condition_a": {
+        "predicted_fix": "After `skb_store_bytes` and the checksum helpers, reload `data`, `data_end`, and the IP/TCP pointers from `skb`, or compute both checksum diffs before mutating the packet.",
+        "target_location": "the second checksum-update sequence after the first packet-modifying helper calls",
+        "fix_type_label": "re-read packet pointers after helper",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "Packet-mutating helpers invalidate verifier packet pointers, so the second checksum pass cannot safely reuse the old `ip4`-derived pointer."
+      },
+      "condition_b": {
+        "predicted_fix": "Clamp the checksum offset arithmetic and keep it in a separate verified register before the second `csum_diff`.",
+        "target_location": "the second checksum-update block",
+        "fix_type_label": "unsigned clamp",
+        "scores": {
+          "location": 1,
+          "fix_type": 0,
+          "root_cause": 0
+        },
+        "rationale": "The diagnostic misreads the failure as arithmetic proof loss, but the accepted fix is to rebuild packet pointers after helper-induced invalidation."
+      },
+      "overall_notes": "Condition B hurt. The raw case points to helper-induced packet-pointer invalidation, while the diagnostic turns it into an arithmetic-clamp problem."
+    },
+    {
+      "case_id": "github-aya-rs-aya-521",
+      "condition_a": {
+        "predicted_fix": "Reduce branching inside the `bpf_loop` callback or replace it with a smaller bounded/unrolled loop so the verifier does not explode states.",
+        "target_location": "the `loop_body` callback and its `bpf_loop(256, ...)` use",
+        "fix_type_label": "reduce branching / loop simplification",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The case context itself is about verifier trouble with the loop shape, and the accepted answer is to minimize branching in the loop body."
+      },
+      "condition_b": {
+        "predicted_fix": "Regenerate matching BTF and `func_info` metadata for the `bpf_loop` callback so the kernel can load it.",
+        "target_location": "the build/BTF metadata for the generated program",
+        "fix_type_label": "regenerate BTF metadata",
+        "scores": {
+          "location": 0,
+          "fix_type": 0,
+          "root_cause": 0
+        },
+        "rationale": "The diagnostic fully misclassifies this loop-shape case as a metadata mismatch."
+      },
+      "overall_notes": "Condition B hurt. The raw packet context still points to verifier complexity in the loop body, while the diagnostic diverts entirely to BTF metadata."
+    },
+    {
+      "case_id": "stackoverflow-78753911",
+      "condition_a": {
+        "predicted_fix": "Split the parser into simpler stages and hoist common checks so the bounded loop has fewer branches and state splits.",
+        "target_location": "the main bounded loop over `field_offset` and nested action handling",
+        "fix_type_label": "reduce branching/state fan-out",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The raw verifier error explicitly reports state explosion (`8193 jumps is too complex`), so restructuring control flow is the right fix."
+      },
+      "condition_b": {
+        "predicted_fix": "Split the program with tail calls or otherwise reduce branching and loop work so the verifier tracks fewer states.",
+        "target_location": "the same bounded-loop control flow",
+        "fix_type_label": "reduce branching/state fan-out",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic mostly restates the raw complexity failure and lands on the same structural fix."
+      },
+      "overall_notes": "Condition B tied A. The raw log already directly identified verifier complexity, and OBLIGE mostly paraphrased it."
+    },
+    {
+      "case_id": "stackoverflow-76441958",
+      "condition_a": {
+        "predicted_fix": "Ensure `state_ptr` points to 8-byte aligned storage, for example an aligned struct or map value slot, before using `atomic64_cmpxchg`.",
+        "target_location": "the backing storage for `state_ptr` used by `__sync_val_compare_and_swap`",
+        "fix_type_label": "alignment fix",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The raw log explicitly reports a misaligned 8-byte atomic access."
+      },
+      "condition_b": {
+        "predicted_fix": "Move the atomic state into an 8-byte aligned map value or padded struct field so the compare-and-swap target is naturally aligned.",
+        "target_location": "the same `state_ptr` backing storage",
+        "fix_type_label": "alignment fix",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "Even with the generic provenance wording, the raw verifier message still makes the alignment requirement clear."
+      },
+      "overall_notes": "Condition B tied A. The verifier already says `misaligned access`, so the extra diagnostic did not materially change the repair."
+    }
+  ]
+}

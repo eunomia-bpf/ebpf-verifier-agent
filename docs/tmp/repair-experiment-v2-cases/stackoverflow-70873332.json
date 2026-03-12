@@ -1,0 +1,154 @@
+{
+  "case_id": "stackoverflow-70873332",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-70873332.yaml",
+  "code_source": "source_snippets",
+  "error_id": "OBLIGE-E001",
+  "expected_fix_tags": [
+    "bounds_check"
+  ],
+  "expected_fix_type": "bounds_check",
+  "expected_location_kind": "local",
+  "ground_truth_fix": "TL;DR. You are hitting a corner-case of the verifier. See https://stackoverflow.com/a/70731589/6884590. Adding a bounds check on pkt_ctx->pkt_offset will fix it, as noticed by @Qeole. The verifier is complaining because the packet access (insn. 18) is out-of-bounds. That seems unexpected because you check the packet's length (insn. 17) right before the access. Unfortunately, the bounds check is not even considered by the verifier because you're hitting this condition. Basically, the maximum value for R2 is too high (by 1 only for the first iteration) and the verifier thinks there's a risk o...",
+  "ground_truth_fix_source": "selected_answer.fix_description",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "ADD_BOUNDS_GUARD",
+        "patch_hint": "Add bounds check: if (data + offset + size <= data_end)",
+        "rationale": "The required packet access proof was never established."
+      }
+    ],
+    "confidence": 0.89,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E001",
+    "evidence": [
+      {
+        "detail": "invalid access to packet, off=0 size=1, R1(id=2,off=0,r=0)",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "rejected at <source>:19: if (data[pkt_ctx->pkt_offset + j] == '\\r') {",
+        "instruction_index": 18,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R1: pkt(range=0, off=0)",
+        "instruction_index": 18,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "The required packet access proof was never established.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: invalid access to packet, off=0 size=1, R1(id=2,off=0,r=0)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E001 (source_bug)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Symptom insn 18: r1 = *(u8 *)(r1 +0)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Branch at insn 9 appears to establish a proof: if r0 == 0x0 goto pc+22",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Branch at insn 17 appears to establish a proof: if r2 > r8 goto pc+14",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Root cause localized to insn 2, earlier than the reject site.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Loss context inferred as branch.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "0: (61) r7 = *(u32 *)(r1 +0)",
+        "kind": "heuristic"
+      }
+    ],
+    "expected_state": {
+      "notes": [
+        "Expected proof: packet access",
+        "R1.type == pkt; 0 + 1 <= R1.range"
+      ]
+    },
+    "failure_class": "source_bug",
+    "message": "required proof never established",
+    "metadata": {
+      "help": "Add bounds check: if (data + offset + size <= data_end)",
+      "note": "The required packet access proof was never established.",
+      "obligation": {
+        "required": "R1.type == pkt; 0 + 1 <= R1.range",
+        "type": "packet_access"
+      },
+      "proof_spans": [
+        {
+          "insn_range": [
+            18,
+            18
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R1",
+          "role": "rejected",
+          "source_text": "if (data[pkt_ctx->pkt_offset + j] == '\\r') {",
+          "state_change": "R1: pkt(range=0, off=0)"
+        }
+      ],
+      "proof_status": "never_established"
+    },
+    "missing_obligation": "R1.type == pkt; 0 + 1 <= R1.range",
+    "observed_state": {
+      "notes": [
+        "The required packet access proof was never established.",
+        "invalid access to packet, off=0 size=1, R1(id=2,off=0,r=0)"
+      ],
+      "registers": {
+        "R1": "pkt(range=0, off=0)"
+      }
+    },
+    "raw_log_excerpt": "invalid access to packet, off=0 size=1, R1(id=2,off=0,r=0)",
+    "source_span": {
+      "line_end": 19,
+      "line_start": 19,
+      "path": "<source>",
+      "snippet": "if (data[pkt_ctx->pkt_offset + j] == '\\r') {"
+    },
+    "verifier_site": {
+      "instruction_index": 18
+    }
+  },
+  "oblige_output": "error[OBLIGE-E001]: source_bug \u2014 required proof never established\n  \u250c\u2500 <source>\n  \u2502\n18 \u2502     if (data[pkt_ctx->pkt_offset + j] == '\\r') {\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R1: pkt(range=0, off=0)\n   \u2502\n  = note: The required packet access proof was never established.\n  = help: Add bounds check: if (data + offset + size <= data_end)",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <linux/bpf.h>\n#include <bpf/bpf_helpers.h>\n\nstruct packet_context {\n    __u16 pkt_offset;\n};\n\nstruct bpf_map_def SEC(\"maps\") context_table = {\n   .type = BPF_MAP_TYPE_ARRAY,\n   .key_size = sizeof(__u32),\n   .value_size = sizeof(struct packet_context),\n   .max_entries = 1,\n};\n\nSEC(\"xdp\")\nint collect_ips_prog(struct xdp_md *ctx) {\n    char *data_end = (char *)(long)ctx->data_end;\n    char *data = (char *)(long)ctx->data;\n    __u32 index = 0;\n    struct packet_context *pkt_ctx = (struct packet_context *) bpf_map_lookup_elem(&context_table, &index);\n\n    if (pkt_ctx == NULL) {\n        goto end;\n    }\n\n    __u32 length = 0;\n\n    for (__u16 j = 0; j < 253; j++) {\n        if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n            goto end;\n        }\n\n        if (data[pkt_ctx->pkt_offset + j] == '\\r') {\n            break;\n        }\n\n        length++;\n    }\n\n    bpf_printk(\"%d\", length);\n\nend:\n    return XDP_PASS;\n}\n\nVerifier log:\n0: (61) r7 = *(u32 *)(r1 +0)\n; char *data_end = (char *)(long)ctx->data_end;\n1: (61) r8 = *(u32 *)(r1 +4)\n2: (b7) r6 = 0\n; __u32 index = 0;\n3: (63) *(u32 *)(r10 -4) = r6\nlast_idx 3 first_idx 0\nregs=40 stack=0 before 2: (b7) r6 = 0\n4: (bf) r2 = r10\n;\n5: (07) r2 += -4\n; struct packet_context *pkt_ctx = (struct packet_context *) bpf_map_lookup_elem(&context_table, &index);\n6: (18) r1 = 0xffff9790029a2e00\n8: (85) call bpf_map_lookup_elem#1\n; if (pkt_ctx == NULL) {\n9: (15) if r0 == 0x0 goto pc+22\n R0_w=map_value(id=0,off=0,ks=4,vs=2,imm=0) R6_w=invP0 R7_w=pkt(id=0,off=0,r=0,imm=0) R8_w=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n10: (69) r1 = *(u16 *)(r0 +0)\n R0_w=map_value(id=0,off=0,ks=4,vs=2,imm=0) R6_w=invP0 R7_w=pkt(id=0,off=0,r=0,imm=0) R8_w=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n; for (__u16 j = 0; j < 253; j++) {\n11: (0f) r7 += r1\nlast_idx 11 first_idx 0\nregs=2 stack=0 before 10: (69) r1 = *(u16 *)(r0 +0)\n12: (b7) r3 = 253\n; if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n13: (bf) r1 = r7\n14: (0f) r1 += r6\n15: (bf) r2 = r1\n16: (07) r2 += 1\n; if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n17: (2d) if r2 > r8 goto pc+14\n R0=map_value(id=0,off=0,ks=4,vs=2,imm=0) R1_w=pkt(id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R2_w=pkt(id=2,off=1,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv253 R6=invP0 R7=pkt(id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R8=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n; if (data[pkt_ctx->pkt_offset + j] == '\\r') {\n18: (71) r1 = *(u8 *)(r1 +0)\ninvalid access to packet, off=0 size=1, R1(id=2,off=0,r=0)\nR1 offset is outside of the packet\nprocessed 18 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n\n13: (bf) r1 = r7\n14: (0f) r1 += r6\n15: (bf) r2 = r1\n16: (07) r2 += 1\n; if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n17: (2d) if r2 > r8 goto pc+14\n R0=map_value(id=0,off=0,ks=4,vs=2,imm=0) R1_w=pkt(id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R2_w=pkt(id=2,off=1,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv253 R6=invP0 R7=pkt(    id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R8=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n; if (data[pkt_ctx->pkt_offset + j] == '\\r') {\n18: (71) r1 = *(u8 *)(r1 +0)\ninvalid access to packet, off=0 size=1, R1(id=2,off=0,r=0)\nR1 offset is outside of the packet",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <linux/bpf.h>\n#include <bpf/bpf_helpers.h>\n\nstruct packet_context {\n    __u16 pkt_offset;\n};\n\nstruct bpf_map_def SEC(\"maps\") context_table = {\n   .type = BPF_MAP_TYPE_ARRAY,\n   .key_size = sizeof(__u32),\n   .value_size = sizeof(struct packet_context),\n   .max_entries = 1,\n};\n\nSEC(\"xdp\")\nint collect_ips_prog(struct xdp_md *ctx) {\n    char *data_end = (char *)(long)ctx->data_end;\n    char *data = (char *)(long)ctx->data;\n    __u32 index = 0;\n    struct packet_context *pkt_ctx = (struct packet_context *) bpf_map_lookup_elem(&context_table, &index);\n\n    if (pkt_ctx == NULL) {\n        goto end;\n    }\n\n    __u32 length = 0;\n\n    for (__u16 j = 0; j < 253; j++) {\n        if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n            goto end;\n        }\n\n        if (data[pkt_ctx->pkt_offset + j] == '\\r') {\n            break;\n        }\n\n        length++;\n    }\n\n    bpf_printk(\"%d\", length);\n\nend:\n    return XDP_PASS;\n}\n\nVerifier log:\n0: (61) r7 = *(u32 *)(r1 +0)\n; char *data_end = (char *)(long)ctx->data_end;\n1: (61) r8 = *(u32 *)(r1 +4)\n2: (b7) r6 = 0\n; __u32 index = 0;\n3: (63) *(u32 *)(r10 -4) = r6\nlast_idx 3 first_idx 0\nregs=40 stack=0 before 2: (b7) r6 = 0\n4: (bf) r2 = r10\n;\n5: (07) r2 += -4\n; struct packet_context *pkt_ctx = (struct packet_context *) bpf_map_lookup_elem(&context_table, &index);\n6: (18) r1 = 0xffff9790029a2e00\n8: (85) call bpf_map_lookup_elem#1\n; if (pkt_ctx == NULL) {\n9: (15) if r0 == 0x0 goto pc+22\n R0_w=map_value(id=0,off=0,ks=4,vs=2,imm=0) R6_w=invP0 R7_w=pkt(id=0,off=0,r=0,imm=0) R8_w=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n10: (69) r1 = *(u16 *)(r0 +0)\n R0_w=map_value(id=0,off=0,ks=4,vs=2,imm=0) R6_w=invP0 R7_w=pkt(id=0,off=0,r=0,imm=0) R8_w=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n; for (__u16 j = 0; j < 253; j++) {\n11: (0f) r7 += r1\nlast_idx 11 first_idx 0\nregs=2 stack=0 before 10: (69) r1 = *(u16 *)(r0 +0)\n12: (b7) r3 = 253\n; if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n13: (bf) r1 = r7\n14: (0f) r1 += r6\n15: (bf) r2 = r1\n16: (07) r2 += 1\n; if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n17: (2d) if r2 > r8 goto pc+14\n R0=map_value(id=0,off=0,ks=4,vs=2,imm=0) R1_w=pkt(id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R2_w=pkt(id=2,off=1,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv253 R6=invP0 R7=pkt(id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R8=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n; if (data[pkt_ctx->pkt_offset + j] == '\\r') {\n18: (71) r1 = *(u8 *)(r1 +0)\ninvalid access to packet, off=0 size=1, R1(id=2,off=0,r=0)\nR1 offset is outside of the packet\nprocessed 18 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n\n13: (bf) r1 = r7\n14: (0f) r1 += r6\n15: (bf) r2 = r1\n16: (07) r2 += 1\n; if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n17: (2d) if r2 > r8 goto pc+14\n R0=map_value(id=0,off=0,ks=4,vs=2,imm=0) R1_w=pkt(id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R2_w=pkt(id=2,off=1,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv253 R6=invP0 R7=pkt(    id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R8=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n; if (data[pkt_ctx->pkt_offset + j] == '\\r') {\n18: (71) r1 = *(u8 *)(r1 +0)\ninvalid access to packet, off=0 size=1, R1(id=2,off=0,r=0)\nR1 offset is outside of the packet\n\nDiagnostic analysis:\nerror[OBLIGE-E001]: source_bug \u2014 required proof never established\n  \u250c\u2500 <source>\n  \u2502\n18 \u2502     if (data[pkt_ctx->pkt_offset + j] == '\\r') {\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R1: pkt(range=0, off=0)\n   \u2502\n  = note: The required packet access proof was never established.\n  = help: Add bounds check: if (data + offset + size <= data_end)",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+320",
+    "raw_fix:+50",
+    "accepted_fix:+25",
+    "expected_from_gt:+40",
+    "specific_fix:+35",
+    "tag_taxonomy:+20",
+    "log_lines:+96",
+    "trace_state_lines:+32"
+  ],
+  "selection_score": 618,
+  "source": "stackoverflow",
+  "source_code": "#include <linux/bpf.h>\n#include <bpf/bpf_helpers.h>\n\nstruct packet_context {\n    __u16 pkt_offset;\n};\n\nstruct bpf_map_def SEC(\"maps\") context_table = {\n   .type = BPF_MAP_TYPE_ARRAY,\n   .key_size = sizeof(__u32),\n   .value_size = sizeof(struct packet_context),\n   .max_entries = 1,\n};\n\nSEC(\"xdp\")\nint collect_ips_prog(struct xdp_md *ctx) {\n    char *data_end = (char *)(long)ctx->data_end;\n    char *data = (char *)(long)ctx->data;\n    __u32 index = 0;\n    struct packet_context *pkt_ctx = (struct packet_context *) bpf_map_lookup_elem(&context_table, &index);\n\n    if (pkt_ctx == NULL) {\n        goto end;\n    }\n\n    __u32 length = 0;\n\n    for (__u16 j = 0; j < 253; j++) {\n        if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n            goto end;\n        }\n\n        if (data[pkt_ctx->pkt_offset + j] == '\\r') {\n            break;\n        }\n\n        length++;\n    }\n\n    bpf_printk(\"%d\", length);\n\nend:\n    return XDP_PASS;\n}",
+  "source_url": "https://stackoverflow.com/questions/70873332/invalid-access-to-packet-even-though-check-made-before-access",
+  "symptom_span_text": "",
+  "taxonomy_class": "source_bug",
+  "taxonomy_source": "fix_tag_heuristic",
+  "title": "Invalid access to packet even though check made before access",
+  "verifier_log": "0: (61) r7 = *(u32 *)(r1 +0)\n; char *data_end = (char *)(long)ctx->data_end;\n1: (61) r8 = *(u32 *)(r1 +4)\n2: (b7) r6 = 0\n; __u32 index = 0;\n3: (63) *(u32 *)(r10 -4) = r6\nlast_idx 3 first_idx 0\nregs=40 stack=0 before 2: (b7) r6 = 0\n4: (bf) r2 = r10\n;\n5: (07) r2 += -4\n; struct packet_context *pkt_ctx = (struct packet_context *) bpf_map_lookup_elem(&context_table, &index);\n6: (18) r1 = 0xffff9790029a2e00\n8: (85) call bpf_map_lookup_elem#1\n; if (pkt_ctx == NULL) {\n9: (15) if r0 == 0x0 goto pc+22\n R0_w=map_value(id=0,off=0,ks=4,vs=2,imm=0) R6_w=invP0 R7_w=pkt(id=0,off=0,r=0,imm=0) R8_w=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n10: (69) r1 = *(u16 *)(r0 +0)\n R0_w=map_value(id=0,off=0,ks=4,vs=2,imm=0) R6_w=invP0 R7_w=pkt(id=0,off=0,r=0,imm=0) R8_w=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n; for (__u16 j = 0; j < 253; j++) {\n11: (0f) r7 += r1\nlast_idx 11 first_idx 0\nregs=2 stack=0 before 10: (69) r1 = *(u16 *)(r0 +0)\n12: (b7) r3 = 253\n; if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n13: (bf) r1 = r7\n14: (0f) r1 += r6\n15: (bf) r2 = r1\n16: (07) r2 += 1\n; if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n17: (2d) if r2 > r8 goto pc+14\n R0=map_value(id=0,off=0,ks=4,vs=2,imm=0) R1_w=pkt(id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R2_w=pkt(id=2,off=1,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv253 R6=invP0 R7=pkt(id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R8=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n; if (data[pkt_ctx->pkt_offset + j] == '\\r') {\n18: (71) r1 = *(u8 *)(r1 +0)\ninvalid access to packet, off=0 size=1, R1(id=2,off=0,r=0)\nR1 offset is outside of the packet\nprocessed 18 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n\n13: (bf) r1 = r7\n14: (0f) r1 += r6\n15: (bf) r2 = r1\n16: (07) r2 += 1\n; if (data_end < data + pkt_ctx->pkt_offset + j + 1) {\n17: (2d) if r2 > r8 goto pc+14\n R0=map_value(id=0,off=0,ks=4,vs=2,imm=0) R1_w=pkt(id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R2_w=pkt(id=2,off=1,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv253 R6=invP0 R7=pkt(    id=2,off=0,r=0,umax_value=65535,var_off=(0x0; 0xffff)) R8=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-8=mmmm????\n; if (data[pkt_ctx->pkt_offset + j] == '\\r') {\n18: (71) r1 = *(u8 *)(r1 +0)\ninvalid access to packet, off=0 size=1, R1(id=2,off=0,r=0)\nR1 offset is outside of the packet"
+}

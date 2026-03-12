@@ -18,6 +18,12 @@ from .source_correlator import (
     SourceSpan,
     correlate_to_source,
 )
+from .proof_engine import (
+    ObligationSpec as _EngineObligationSpec,
+    ProofAnalysisResult as _EngineResult,
+    analyze_proof as _analyze_proof_engine,
+    infer_obligation as _infer_engine_obligation_spec,
+)
 from .trace_parser import (
     ChainLink as _ChainLink,
     CausalChain as _CausalChain,
@@ -66,6 +72,67 @@ SPAN_IMPORTANCE = {
     "proof_lost": 3,
     "rejected": 4,
 }
+REGISTER_TYPE_EXPECTED_RE = re.compile(
+    r"(?P<register>R\d+)\s+type=(?P<actual>[^,\s]+)\s+expected=(?P<expected>.+)",
+    re.IGNORECASE,
+)
+ARG_POINTER_CONTRACT_RE = re.compile(
+    r"arg#(?P<arg_index>\d+)\s+pointer type\s+(?P<actual>.+?)\s+must point to\s+(?P<expected>.+)",
+    re.IGNORECASE,
+)
+ARG_EXPECTED_CONTRACT_RE = re.compile(
+    r"arg#(?P<arg_index>\d+)\s+expected\s+(?P<expected>.+)",
+    re.IGNORECASE,
+)
+CALL_TARGET_RE = re.compile(r"\bcall\s+(?P<target>[a-zA-Z0-9_]+)#(?P<helper_id>\d+)\b")
+NULL_ARG_RE = re.compile(
+    r"Possibly NULL pointer passed to (?P<target>helper|trusted) arg(?P<arg_index>\d+)",
+    re.IGNORECASE,
+)
+ITERATOR_PROTOCOL_RE = re.compile(
+    r"expected\s+(?P<state>an initialized|uninitialized)\s+(?P<iter_type>[a-zA-Z0-9_]+)\s+as arg\s*#(?P<arg_index>\d+)",
+    re.IGNORECASE,
+)
+DYNPTR_INITIALIZED_RE = re.compile(
+    r"expected an initialized dynptr as arg\s*#(?P<arg_index>\d+)",
+    re.IGNORECASE,
+)
+UNACQUIRED_REFERENCE_RE = re.compile(
+    r"arg\s+(?P<arg_index>\d+)\s+is an unacquired reference",
+    re.IGNORECASE,
+)
+HELPER_UNAVAILABLE_RE = re.compile(
+    r"program of this type cannot use helper\s+(?P<helper>[a-zA-Z0-9_]+)#(?P<helper_id>\d+)",
+    re.IGNORECASE,
+)
+UNKNOWN_FUNC_RE = re.compile(
+    r"unknown func\s+(?P<helper>[a-zA-Z0-9_]+)#(?P<helper_id>\d+)",
+    re.IGNORECASE,
+)
+RAW_CALLBACK_CONTEXT_RE = re.compile(
+    r"cannot (?:call|be called).*\bfrom callback",
+    re.IGNORECASE,
+)
+REFERENCE_LEAK_RE = re.compile(r"(?:reference leak|unreleased reference)", re.IGNORECASE)
+TYPE_LABELS = {
+    "fp": "a stack pointer",
+    "inv": "an untyped scalar value",
+    "scalar": "a scalar value",
+    "struct with scalar": "a struct with scalar fields",
+    "map_ptr": "a map pointer",
+    "map_value": "a map-value pointer",
+    "map_key": "a map-key pointer",
+    "pkt": "a packet pointer",
+    "pkt_meta": "a packet-metadata pointer",
+    "ptr": "a generic pointer",
+    "ptr_": "a typed pointer",
+    "pointer to stack": "a stack pointer",
+    "const struct bpf_dynptr": "a const struct bpf_dynptr",
+    "trusted_ptr_": "a trusted pointer",
+    "rcu_ptr_": "an RCU-protected pointer",
+    "ctx": "a context pointer",
+    "unknown": "UNKNOWN data",
+}
 
 
 @dataclass(slots=True)
@@ -73,6 +140,26 @@ class _FallbackProofResult:
     proof_status: str | None
     proof_events: list[ProofEvent] = field(default_factory=list)
     obligation: ProofObligation | None = None
+
+
+@dataclass(slots=True)
+class _SpecificContractMismatch:
+    raw: str
+    register: str | None = None
+    arg_index: int | None = None
+    actual: str | None = None
+    expected_text: str = ""
+    expected_tokens: tuple[str, ...] = ()
+
+
+@dataclass(slots=True)
+class _SpecificRejectInfo:
+    raw: str
+    kind: str
+    note: str | None = None
+    help_text: str | None = None
+    obligation_type: str | None = None
+    obligation_required: str | None = None
 
 
 def generate_diagnostic(verifier_log: str, catalog_path: str | None = None) -> DiagnosticOutput:
@@ -84,7 +171,13 @@ def generate_diagnostic(verifier_log: str, catalog_path: str | None = None) -> D
     proof_result = _analyze_proof(parsed_log, parsed_trace, diagnosis)
 
     proof_status = proof_result.proof_status or diagnosis.proof_status or "unknown"
-    obligation = proof_result.obligation or _infer_obligation(parsed_log, diagnosis)
+    obligation = (
+        proof_result.obligation
+        or _infer_obligation_from_engine(parsed_log, parsed_trace, diagnosis)
+        or _infer_obligation(parsed_log, diagnosis)
+    )
+    specific_reject = _extract_specific_reject_info(parsed_log)
+    obligation = _refine_obligation_with_specific_reject(obligation, specific_reject)
     spans = correlate_to_source(parsed_trace, proof_result.proof_events)
     spans = _normalize_spans(
         parsed_log=parsed_log,
@@ -93,8 +186,8 @@ def generate_diagnostic(verifier_log: str, catalog_path: str | None = None) -> D
         proof_status=proof_status,
         spans=spans,
     )
-    note = _build_note(diagnosis, obligation)
-    help_text = _build_help_text(parsed_log, diagnosis)
+    note = _build_note(parsed_log, diagnosis, obligation, proof_status, specific_reject)
+    help_text = _build_help_text(parsed_log, diagnosis, obligation, proof_status, specific_reject)
 
     return render_diagnostic(
         error_id=diagnosis.error_id or parsed_log.error_id or "OBLIGE-UNKNOWN",
@@ -104,6 +197,10 @@ def generate_diagnostic(verifier_log: str, catalog_path: str | None = None) -> D
         obligation=obligation,
         note=note,
         help_text=help_text,
+        confidence=diagnosis.confidence,
+        diagnosis_evidence=diagnosis.evidence,
+        raw_log_excerpt=(specific_reject.raw if specific_reject is not None else parsed_log.error_line)
+        or None,
     )
 
 
@@ -112,8 +209,13 @@ def _analyze_proof(
     parsed_trace: ParsedTrace,
     diagnosis: Diagnosis,
 ) -> _FallbackProofResult:
+    engine_result = _try_proof_engine(parsed_log, parsed_trace, diagnosis)
+    engine_obligation = engine_result.obligation if engine_result is not None else None
+    if engine_result is not None and not _should_ignore_engine_result(engine_result, diagnosis):
+        return engine_result
+
     if diagnosis.taxonomy_class == "source_bug" and diagnosis.proof_status == "never_established":
-        obligation = _infer_with_proof_analysis(parsed_log, parsed_trace, diagnosis)
+        obligation = _infer_with_proof_analysis(parsed_log, parsed_trace, diagnosis) or engine_obligation
         return _FallbackProofResult(
             proof_status=diagnosis.proof_status,
             proof_events=_synthesize_proof_events(parsed_trace, diagnosis),
@@ -126,14 +228,169 @@ def _analyze_proof(
         return _FallbackProofResult(
             proof_status=getattr(lifecycle, "status", None) or diagnosis.proof_status,
             proof_events=list(getattr(lifecycle, "events", None) or []),
-            obligation=obligation,
+            obligation=obligation or engine_obligation,
         )
 
     return _FallbackProofResult(
         proof_status=diagnosis.proof_status,
         proof_events=_synthesize_proof_events(parsed_trace, diagnosis),
-        obligation=None,
+        obligation=engine_obligation,
     )
+
+
+def _should_ignore_engine_result(
+    result: _FallbackProofResult,
+    diagnosis: Diagnosis,
+) -> bool:
+    if result.proof_status != "unknown":
+        return False
+    if diagnosis.proof_status in {None, "unknown"}:
+        return False
+    return not any(event.event_type != "rejected" for event in result.proof_events)
+
+
+def _try_proof_engine(
+    parsed_log: ParsedLog,
+    parsed_trace: ParsedTrace,
+    diagnosis: Diagnosis,
+) -> _FallbackProofResult | None:
+    try:
+        error_line = parsed_trace.error_line or parsed_log.error_line or ""
+        error_insn = diagnosis.symptom_insn
+        result = _analyze_proof_engine(parsed_trace, error_line, error_insn)
+
+        events = _engine_result_to_events(result, parsed_trace)
+        obligation = _engine_obligation_to_proof_obligation(result)
+        if obligation is None:
+            obligation = _infer_obligation_from_engine(parsed_log, parsed_trace, diagnosis)
+        if obligation is None and result.proof_status == "unknown":
+            return None
+        proof_status = result.proof_status
+        if (
+            proof_status == "never_established"
+            and result.obligation is not None
+            and result.obligation.kind == "helper_arg"
+        ):
+            specific_contract = _extract_specific_contract_mismatch(error_line)
+            if specific_contract is not None:
+                obligation = _make_proof_obligation("helper_arg", specific_contract.raw)
+
+        return _FallbackProofResult(
+            proof_status=proof_status,
+            proof_events=events,
+            obligation=obligation,
+        )
+    except Exception:
+        return None
+
+
+def _engine_result_to_events(
+    result: _EngineResult,
+    parsed_trace: ParsedTrace,
+) -> list[ProofEvent]:
+    events: list[ProofEvent] = []
+
+    if result.establish_site is not None:
+        insn = _find_instruction(parsed_trace.instructions, result.establish_site)
+        reg = result.obligation.base_reg if result.obligation else "R0"
+        before_state = insn.pre_state.get(reg) if insn and reg else None
+        after_state = insn.post_state.get(reg) if insn and reg else None
+        events.append(
+            _make_proof_event(
+                insn_idx=result.establish_site,
+                event_type="proof_established",
+                register=reg or "R0",
+                before=before_state,
+                after=after_state,
+                source_line=insn.source_line if insn else None,
+                description=f"Proof obligation satisfied at insn {result.establish_site}",
+            )
+        )
+
+    if result.loss_site is not None and result.transition is not None:
+        insn = _find_instruction(parsed_trace.instructions, result.loss_site)
+        transition_atom = None
+        if result.obligation is not None:
+            transition_atom = next(
+                (
+                    atom
+                    for atom in result.obligation.atoms
+                    if atom.atom_id == result.transition.atom_id
+                ),
+                None,
+            )
+        reg = "R0"
+        if transition_atom is not None and transition_atom.registers:
+            reg = transition_atom.registers[0]
+        elif result.transition.carrier_register:
+            reg = result.transition.carrier_register
+        before_state = insn.pre_state.get(reg) if insn and reg else None
+        after_state = insn.post_state.get(reg) if insn and reg else None
+        reason = (
+            f"{transition_atom.atom_id}: {transition_atom.expression}"
+            if transition_atom is not None
+            else f"{result.transition.atom_id}: {result.transition.witness}"
+        )
+        events.append(
+            _make_proof_event(
+                insn_idx=result.loss_site,
+                event_type="proof_lost",
+                register=reg,
+                before=before_state,
+                after=after_state,
+                source_line=insn.source_line if insn else None,
+                description=reason,
+            )
+        )
+
+    if result.reject_site is not None:
+        insn = _find_instruction(parsed_trace.instructions, result.reject_site)
+        reg = result.obligation.base_reg if result.obligation else "R0"
+        before_state = insn.pre_state.get(reg) if insn and reg else None
+        after_state = insn.post_state.get(reg) if insn and reg else None
+        error_text = insn.error_text if insn else "verifier rejected"
+        events.append(
+            _make_proof_event(
+                insn_idx=result.reject_site,
+                event_type="rejected",
+                register=reg or "R0",
+                before=before_state,
+                after=after_state,
+                source_line=insn.source_line if insn else None,
+                description=error_text or "verifier rejected the access",
+            )
+        )
+
+    return events
+
+
+def _engine_obligation_spec_to_proof_obligation(
+    spec: _EngineObligationSpec | None,
+) -> ProofObligation | None:
+    if spec is None:
+        return None
+    obligation_type = "packet_access" if spec.kind == "packet_ptr_add" else spec.kind
+    atoms_desc = "; ".join(a.expression for a in spec.atoms)
+    return _make_proof_obligation(obligation_type, atoms_desc or obligation_type)
+
+
+def _engine_obligation_to_proof_obligation(result: _EngineResult) -> ProofObligation | None:
+    return _engine_obligation_spec_to_proof_obligation(result.obligation)
+
+
+def _infer_obligation_from_engine(
+    parsed_log: ParsedLog,
+    parsed_trace: ParsedTrace,
+    diagnosis: Diagnosis,
+) -> ProofObligation | None:
+    error_line = parsed_trace.error_line or parsed_log.error_line or ""
+    if not error_line:
+        return None
+    try:
+        spec = _infer_engine_obligation_spec(parsed_trace, error_line, diagnosis.symptom_insn)
+    except Exception:
+        return None
+    return _engine_obligation_spec_to_proof_obligation(spec)
 
 
 def _infer_with_proof_analysis(
@@ -729,6 +986,392 @@ def _transition_reason(
     return "verifier-visible proof was lost"
 
 
+def _extract_specific_reject_info(parsed_log: ParsedLog) -> _SpecificRejectInfo | None:
+    surface_line = _select_specific_verifier_line(parsed_log)
+    if not surface_line:
+        return None
+
+    specific_contract = _extract_specific_contract_mismatch(surface_line)
+    if specific_contract is not None:
+        return _SpecificRejectInfo(
+            raw=surface_line,
+            kind="helper_arg",
+            note=_specific_contract_note(specific_contract),
+            help_text=_specific_contract_help(parsed_log, specific_contract),
+            obligation_type="helper_arg",
+            obligation_required=specific_contract.raw,
+        )
+
+    for builder in (
+        _specific_null_reject_info,
+        _specific_iterator_reject_info,
+        _specific_dynptr_reject_info,
+        _specific_execution_context_reject_info,
+        _specific_reference_leak_reject_info,
+        _specific_env_helper_reject_info,
+    ):
+        result = builder(parsed_log, surface_line)
+        if result is not None:
+            return result
+
+    if surface_line != (parsed_log.error_line or ""):
+        return _SpecificRejectInfo(
+            raw=surface_line,
+            kind="verifier_reject",
+            note=f"Verifier reject line: {surface_line}",
+        )
+    return None
+
+
+def _select_specific_verifier_line(parsed_log: ParsedLog) -> str | None:
+    best_line = _normalize_verifier_line(parsed_log.error_line)
+    best_score = _specific_reject_line_score(best_line)
+
+    for line in parsed_log.lines:
+        candidate = _normalize_verifier_line(line)
+        if not candidate:
+            continue
+        score = _specific_reject_line_score(candidate)
+        if score > best_score or (score == best_score and score > 0 and candidate != best_line):
+            best_line = candidate
+            best_score = score
+
+    return best_line or None
+
+
+def _normalize_verifier_line(line: str | None) -> str:
+    if not line:
+        return ""
+    normalized = " ".join(line.strip().split())
+    while normalized.startswith(":"):
+        normalized = normalized[1:].lstrip()
+    if not normalized or normalized.startswith(";"):
+        return ""
+    if re.match(r"^\d+:\s+\([0-9a-f]{2}\)", normalized, flags=re.IGNORECASE):
+        return ""
+    return normalized
+
+
+def _specific_reject_line_score(line: str) -> int:
+    if not line:
+        return -1
+
+    lowered = line.lower()
+    if _extract_specific_contract_mismatch(line) is not None:
+        return 100
+    if NULL_ARG_RE.search(line):
+        return 95
+    if ITERATOR_PROTOCOL_RE.search(line):
+        return 94
+    if DYNPTR_INITIALIZED_RE.search(line):
+        return 94
+    if (
+        "unacquired reference" in lowered
+        or "cannot pass in dynptr at an offset" in lowered
+        or "dynptr has to be at a constant offset" in lowered
+        or "cannot overwrite referenced dynptr" in lowered
+    ):
+        return 93
+    if "function calls are not allowed while holding a lock" in lowered:
+        return 92
+    if "cannot call exception cb directly" in lowered or RAW_CALLBACK_CONTEXT_RE.search(line):
+        return 92
+    if REFERENCE_LEAK_RE.search(line):
+        return 92
+    if HELPER_UNAVAILABLE_RE.search(line):
+        return 91
+    if UNKNOWN_FUNC_RE.search(line):
+        return 90
+    if "caller passes invalid args into func" in lowered:
+        return 80
+    if "reference type('unknown ')" in lowered and "size cannot be determined" in lowered:
+        return 5
+    if "invalid argument (os error 22)" in lowered:
+        return 1
+    return 0
+
+
+def _specific_null_reject_info(
+    parsed_log: ParsedLog,
+    surface_line: str,
+) -> _SpecificRejectInfo | None:
+    match = NULL_ARG_RE.search(surface_line)
+    if match is None:
+        return None
+
+    arg_index = int(match.group("arg_index"))
+    target = match.group("target").lower()
+    subject = f"arg{arg_index}"
+    call_type = "trusted call site" if target == "trusted" else "helper call"
+    obligation_type = "trusted_null_check" if target == "trusted" else "null_check"
+
+    return _SpecificRejectInfo(
+        raw=surface_line,
+        kind="null_check",
+        note=(
+            f"The verifier still treats {subject} as nullable at this {call_type}, "
+            "so NULL can flow to the callee on one path."
+        ),
+        help_text=(
+            f"Add a dominating null check for the value passed as {subject} and keep the "
+            "checked register/value through the call."
+        ),
+        obligation_type=obligation_type,
+        obligation_required=f"{subject} not nullable",
+    )
+
+
+def _specific_iterator_reject_info(
+    parsed_log: ParsedLog,
+    surface_line: str,
+) -> _SpecificRejectInfo | None:
+    match = ITERATOR_PROTOCOL_RE.search(surface_line)
+    if match is None:
+        return None
+
+    arg_index = int(match.group("arg_index"))
+    iter_type = match.group("iter_type")
+    helper_target = (_last_helper_target(parsed_log.raw_log) or "").lower()
+    needs_initialized = "initialized" in match.group("state").lower()
+
+    if needs_initialized:
+        note = (
+            f"This call expects an initialized {iter_type} in arg#{arg_index}, "
+            "but that iterator slot was never created on this path."
+        )
+        if "destroy" in helper_target:
+            help_text = (
+                "Initialize the iterator with the matching create/new helper before destroy, "
+                "or avoid destroy on an uninitialized iterator."
+            )
+        elif "next" in helper_target:
+            help_text = (
+                "Create the iterator before calling next, and only advance it after successful "
+                "initialization."
+            )
+        else:
+            help_text = (
+                "Initialize the iterator with the matching create/new helper before this call, "
+                "and keep the iterator live until its matching release/destroy."
+            )
+    else:
+        note = (
+            f"This call expects an uninitialized {iter_type} in arg#{arg_index}, "
+            "but the iterator slot is already live."
+        )
+        help_text = (
+            "Use a fresh iterator slot for creation, or destroy the existing iterator before "
+            "reinitializing it."
+        )
+
+    return _SpecificRejectInfo(
+        raw=surface_line,
+        kind="iterator_protocol",
+        note=note,
+        help_text=help_text,
+        obligation_type="iterator_protocol",
+        obligation_required=surface_line,
+    )
+
+
+def _specific_dynptr_reject_info(
+    parsed_log: ParsedLog,
+    surface_line: str,
+) -> _SpecificRejectInfo | None:
+    lowered = surface_line.lower()
+
+    match = DYNPTR_INITIALIZED_RE.search(surface_line)
+    if match is not None:
+        arg_index = int(match.group("arg_index"))
+        return _SpecificRejectInfo(
+            raw=surface_line,
+            kind="dynptr_protocol",
+            note=(
+                f"This helper expects an initialized dynptr in arg#{arg_index}, "
+                "but the dynptr was never successfully created on this path."
+            ),
+            help_text=(
+                "Create the dynptr first and pass the original stack-backed dynptr slot "
+                "to the helper."
+            ),
+            obligation_type="dynptr_protocol",
+            obligation_required=surface_line,
+        )
+
+    if "cannot pass in dynptr at an offset" in lowered or "dynptr has to be at a constant offset" in lowered:
+        return _SpecificRejectInfo(
+            raw=surface_line,
+            kind="dynptr_protocol",
+            note="The verifier requires the dynptr object to stay at its exact stack slot and constant offset.",
+            help_text=(
+                "Pass the dynptr at its exact stack slot / constant base address, not at a shifted "
+                "or forged offset."
+            ),
+            obligation_type="dynptr_protocol",
+            obligation_required=surface_line,
+        )
+
+    if "cannot overwrite referenced dynptr" in lowered:
+        return _SpecificRejectInfo(
+            raw=surface_line,
+            kind="dynptr_protocol",
+            note="A live slice/reference still depends on this dynptr, so the dynptr cannot be overwritten yet.",
+            help_text=(
+                "Release or stop using derived slices/references before reinitializing or overwriting "
+                "the dynptr."
+            ),
+            obligation_type="dynptr_protocol",
+            obligation_required=surface_line,
+        )
+
+    if UNACQUIRED_REFERENCE_RE.search(surface_line) and "dynptr" in parsed_log.raw_log.lower():
+        return _SpecificRejectInfo(
+            raw=surface_line,
+            kind="dynptr_protocol",
+            note="This call is using a dynptr reference that has already been released or was never acquired.",
+            help_text=(
+                "Release or discard the dynptr exactly once and stop using it after submit/discard/release."
+            ),
+            obligation_type="dynptr_protocol",
+            obligation_required=surface_line,
+        )
+
+    return None
+
+
+def _specific_execution_context_reject_info(
+    parsed_log: ParsedLog,
+    surface_line: str,
+) -> _SpecificRejectInfo | None:
+    lowered = surface_line.lower()
+    if "function calls are not allowed while holding a lock" in lowered:
+        return _SpecificRejectInfo(
+            raw=surface_line,
+            kind="execution_context",
+            note="The verifier rejects this call because the program is still holding a lock at the call site.",
+            help_text=(
+                "Move the subprogram/helper call out of the locked region, or unlock before calling."
+            ),
+            obligation_type="execution_context",
+            obligation_required=surface_line,
+        )
+
+    if "cannot call exception cb directly" in lowered or RAW_CALLBACK_CONTEXT_RE.search(surface_line):
+        return _SpecificRejectInfo(
+            raw=surface_line,
+            kind="callback_context",
+            note="This callback may only be invoked from the verifier-approved callback context.",
+            help_text=(
+                "Invoke the callback through its owning helper/iterator framework instead of calling "
+                "it directly from program code."
+            ),
+            obligation_type="exception_callback_context",
+            obligation_required=surface_line,
+        )
+
+    return None
+
+
+def _specific_reference_leak_reject_info(
+    parsed_log: ParsedLog,
+    surface_line: str,
+) -> _SpecificRejectInfo | None:
+    if REFERENCE_LEAK_RE.search(surface_line) is None:
+        return None
+
+    return _SpecificRejectInfo(
+        raw=surface_line,
+        kind="reference_leak",
+        note="A referenced object remains live at exit on this path.",
+        help_text=(
+            "Release or destroy the acquired reference on every exit path, including early returns "
+            "and callee-return paths."
+        ),
+        obligation_type="unreleased_reference",
+        obligation_required=surface_line,
+    )
+
+
+def _specific_env_helper_reject_info(
+    parsed_log: ParsedLog,
+    surface_line: str,
+) -> _SpecificRejectInfo | None:
+    match = HELPER_UNAVAILABLE_RE.search(surface_line)
+    if match is not None:
+        helper = match.group("helper")
+        return _SpecificRejectInfo(
+            raw=surface_line,
+            kind="env_helper",
+            note=f"This program type does not permit the helper {helper}#{match.group('helper_id')}.",
+            help_text=(
+                f"Use a helper allowed in this program type, or move the logic to a program type "
+                f"that permits {helper}."
+            ),
+        )
+
+    match = UNKNOWN_FUNC_RE.search(surface_line)
+    if match is None:
+        return None
+
+    helper = match.group("helper")
+    if helper == "bpf_get_current_pid_tgid":
+        help_text = (
+            "Read the PID from the program context instead of calling bpf_get_current_pid_tgid "
+            "in this program type."
+        )
+    else:
+        help_text = (
+            f"Use a supported helper in this program type/kernel, or target an environment that "
+            f"provides {helper}."
+        )
+
+    return _SpecificRejectInfo(
+        raw=surface_line,
+        kind="env_helper",
+        note=f"The target verifier context does not expose the helper {helper}#{match.group('helper_id')}.",
+        help_text=help_text,
+    )
+
+
+def _refine_obligation_with_specific_reject(
+    obligation: ProofObligation | None,
+    specific_reject: _SpecificRejectInfo | None,
+) -> ProofObligation | None:
+    if specific_reject is None:
+        return obligation
+    if specific_reject.obligation_type is None or specific_reject.obligation_required is None:
+        return obligation
+
+    if obligation is None:
+        return _make_proof_obligation(
+            specific_reject.obligation_type,
+            specific_reject.obligation_required,
+        )
+
+    current_type = _obligation_type(obligation)
+    current_required = getattr(obligation, "required_condition", None) or getattr(
+        obligation,
+        "required",
+        None,
+    )
+    current_required_text = str(current_required or "").lower()
+    if current_type in {"unknown", "btf_reference_type"}:
+        return _make_proof_obligation(
+            specific_reject.obligation_type,
+            specific_reject.obligation_required,
+        )
+    if current_type == "helper_arg" and (
+        not current_required
+        or "reference type('unknown ')" in current_required_text
+        or "type matches" in current_required_text
+    ):
+        return _make_proof_obligation(
+            specific_reject.obligation_type,
+            specific_reject.obligation_required,
+        )
+    return obligation
+
+
 def _infer_obligation(parsed_log: ParsedLog, diagnosis: Diagnosis) -> ProofObligation | None:
     catalog_path = Path(__file__).resolve().parents[2] / "taxonomy" / "obligation_catalog.yaml"
     try:
@@ -756,10 +1399,22 @@ def _infer_obligation(parsed_log: ParsedLog, diagnosis: Diagnosis) -> ProofOblig
     if diagnosis.taxonomy_class == "lowering_artifact":
         detail = OBLIGATION_DETAILS["OBLIGE-O005"]
         return _make_proof_obligation(detail[0], detail[1])
+    specific_contract = _extract_specific_contract_mismatch(parsed_log.error_line)
+    if specific_contract is not None:
+        return _make_proof_obligation("helper_arg", specific_contract.raw)
     return None
 
 
-def _build_note(diagnosis: Diagnosis, obligation: ProofObligation | None) -> str | None:
+def _build_note(
+    parsed_log: ParsedLog,
+    diagnosis: Diagnosis,
+    obligation: ProofObligation | None,
+    proof_status: str,
+    specific_reject: _SpecificRejectInfo | None = None,
+) -> str | None:
+    if specific_reject is not None and specific_reject.note:
+        return specific_reject.note
+
     if diagnosis.taxonomy_class == "lowering_artifact":
         if diagnosis.loss_context == "arithmetic":
             return "A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access."
@@ -773,7 +1428,15 @@ def _build_note(diagnosis: Diagnosis, obligation: ProofObligation | None) -> str
     if diagnosis.error_id == "OBLIGE-E002":
         return "The dereference happens while the pointer is still nullable on this control-flow path."
 
-    if obligation is not None and diagnosis.proof_status == "never_established":
+    specific_contract = _extract_specific_contract_mismatch(parsed_log.error_line)
+    if (
+        diagnosis.taxonomy_class == "source_bug"
+        and specific_contract is not None
+        and proof_status in {"never_established", "unknown"}
+    ):
+        return _specific_contract_note(specific_contract)
+
+    if obligation is not None and proof_status == "never_established":
         obligation_type = _obligation_type(obligation)
         return f"The required {obligation_type.replace('_', ' ')} proof was never established."
 
@@ -783,7 +1446,30 @@ def _build_note(diagnosis: Diagnosis, obligation: ProofObligation | None) -> str
     return None
 
 
-def _build_help_text(parsed_log: ParsedLog, diagnosis: Diagnosis) -> str | None:
+def _build_help_text(
+    parsed_log: ParsedLog,
+    diagnosis: Diagnosis,
+    obligation: ProofObligation | None,
+    proof_status: str,
+    specific_reject: _SpecificRejectInfo | None = None,
+) -> str | None:
+    if specific_reject is not None and specific_reject.help_text:
+        return specific_reject.help_text
+
+    specific_contract = _extract_specific_contract_mismatch(parsed_log.error_line)
+    if (
+        diagnosis.taxonomy_class == "source_bug"
+        and specific_contract is not None
+        and (
+            proof_status == "never_established"
+            or (obligation is not None and _obligation_type(obligation) == "helper_arg")
+            or diagnosis.error_id == "OBLIGE-E023"
+        )
+    ):
+        specific_help = _specific_contract_help(parsed_log, specific_contract)
+        if specific_help is not None:
+            return specific_help
+
     if diagnosis.recommended_fix:
         return diagnosis.recommended_fix
 
@@ -909,3 +1595,159 @@ def _make_proof_obligation(obligation_type: str, required: str) -> ProofObligati
 
 def _obligation_type(obligation: ProofObligation) -> str:
     return getattr(obligation, "type", None) or getattr(obligation, "obligation_type", "unknown")
+
+
+def _extract_specific_contract_mismatch(error_line: str | None) -> _SpecificContractMismatch | None:
+    if not error_line:
+        return None
+
+    raw = " ".join(error_line.strip().split())
+    match = REGISTER_TYPE_EXPECTED_RE.search(raw)
+    if match:
+        expected_text = match.group("expected").strip()
+        return _SpecificContractMismatch(
+            raw=raw,
+            register=match.group("register").upper(),
+            actual=match.group("actual").strip(),
+            expected_text=expected_text,
+            expected_tokens=_split_expected_tokens(expected_text),
+        )
+
+    match = ARG_POINTER_CONTRACT_RE.search(raw)
+    if match:
+        expected_text = match.group("expected").strip()
+        return _SpecificContractMismatch(
+            raw=raw,
+            arg_index=int(match.group("arg_index")),
+            actual=match.group("actual").strip(),
+            expected_text=expected_text,
+            expected_tokens=_split_expected_tokens(expected_text),
+        )
+
+    match = ARG_EXPECTED_CONTRACT_RE.search(raw)
+    if match:
+        expected_text = match.group("expected").strip()
+        return _SpecificContractMismatch(
+            raw=raw,
+            arg_index=int(match.group("arg_index")),
+            expected_text=expected_text,
+            expected_tokens=_split_expected_tokens(expected_text),
+        )
+
+    return None
+
+
+def _split_expected_tokens(expected_text: str) -> tuple[str, ...]:
+    tokens: list[str] = []
+    for token in re.split(
+        r",\s*(?:or\s+)?|\s+or\s+",
+        expected_text.strip(),
+        flags=re.IGNORECASE,
+    ):
+        cleaned = token.strip().strip(".")
+        if cleaned:
+            tokens.append(cleaned.lower())
+    return tuple(tokens)
+
+
+def _specific_contract_note(contract: _SpecificContractMismatch) -> str:
+    subject = contract.register or (
+        f"arg#{contract.arg_index}" if contract.arg_index is not None else "this argument"
+    )
+    expected = _humanize_expected(contract)
+    if contract.actual:
+        actual = _describe_type_token(contract.actual)
+        return f"The verifier sees {subject} as {actual}, but this call requires {expected}."
+    return f"This call requires {expected}."
+
+
+def _specific_contract_help(
+    parsed_log: ParsedLog,
+    contract: _SpecificContractMismatch,
+) -> str | None:
+    expected = set(contract.expected_tokens)
+    helper_target = _last_helper_target(parsed_log.raw_log)
+
+    if "map_ptr" in expected:
+        return (
+            "Pass the map object itself as this argument, not a pointer to a map value. "
+            "Preserve the loader-generated map reference so the verifier sees map_ptr."
+        )
+
+    if "fp" in expected:
+        if helper_target == "bpf_map_update_elem" and contract.register == "R2":
+            return (
+                "Pass a stack-backed key pointer as arg2 instead of NULL or a scalar value. "
+                "If this map type has no key, use the map API that matches that map type "
+                "instead of bpf_map_update_elem()."
+            )
+        return "Pass a stack pointer for this argument, not a map, packet, or scalar value."
+
+    lowered_expected = contract.expected_text.lower()
+    if "scalar" in expected or "struct with scalar" in lowered_expected:
+        return (
+            "Pass data whose pointee is scalar-compatible, or change the kfunc signature to "
+            "accept the exact BTF-typed object you pass. Casts alone will not satisfy the "
+            "verifier-visible contract."
+        )
+
+    if "trusted_ptr_" in expected or "trusted" in lowered_expected:
+        return (
+            "Pass a trusted/BTF-typed object obtained from a verifier-recognized source. "
+            "Casts from unrelated pointers will not satisfy this call."
+        )
+
+    if "map_value" in expected:
+        return "Pass a map-value pointer returned by lookup, not the map object itself."
+
+    if {"pkt", "pkt_meta"} & expected:
+        return "Pass a packet pointer for this argument, not a stack, map, or scalar value."
+
+    if "ctx" in expected:
+        return "Pass the program context pointer for this argument."
+
+    if "pointer to stack" in lowered_expected and "bpf_dynptr" in lowered_expected:
+        return (
+            "Pass a stack pointer or a const struct bpf_dynptr for this argument. "
+            "Plain scalars or unrelated pointers will not satisfy the contract."
+        )
+
+    if contract.expected_text:
+        return (
+            "Match the verifier-visible call contract from the reject line directly: "
+            f"{contract.expected_text}."
+        )
+    return None
+
+
+def _last_helper_target(raw_log: str) -> str | None:
+    matches = list(CALL_TARGET_RE.finditer(raw_log))
+    if not matches:
+        return None
+    return matches[-1].group("target")
+
+
+def _humanize_expected(contract: _SpecificContractMismatch) -> str:
+    if contract.expected_tokens:
+        if len(contract.expected_tokens) == 1:
+            return _describe_expected_token(contract.expected_tokens[0])
+        options = ", ".join(_describe_expected_token(token) for token in contract.expected_tokens)
+        return f"one of: {options}"
+    lowered = contract.expected_text.lower()
+    if lowered:
+        return lowered
+    return "a different verifier-visible argument type"
+
+
+def _describe_type_token(token: str) -> str:
+    lowered = token.strip().lower()
+    if lowered in TYPE_LABELS:
+        return f"{TYPE_LABELS[lowered]} ({token.strip()})"
+    return token.strip()
+
+
+def _describe_expected_token(token: str) -> str:
+    lowered = token.strip().lower()
+    if lowered in TYPE_LABELS:
+        return TYPE_LABELS[lowered]
+    return token.strip()

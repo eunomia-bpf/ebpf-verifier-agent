@@ -1,0 +1,141 @@
+{
+  "case_id": "stackoverflow-72074115",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-72074115.yaml",
+  "code_source": "source_snippets",
+  "error_id": "OBLIGE-E011",
+  "expected_fix_tags": [],
+  "expected_fix_type": "bounds_check",
+  "expected_location_kind": "local",
+  "ground_truth_fix": "A friend of mine told me that I should verify it by: He told me that I should judge whether the corresponding position of the array exists, rather than directly judge the size of the \"shift\".",
+  "ground_truth_fix_source": "selected_answer.fix_description",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "UNKNOWN",
+        "patch_hint": "Re-derive the pointer from a verified base immediately before dereference.",
+        "rationale": "The required scalar deref proof was never established."
+      }
+    ],
+    "confidence": 0.89,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E011",
+    "evidence": [
+      {
+        "detail": "R2 invalid mem access 'inv'",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "rejected at <source>:233: x = ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;",
+        "instruction_index": 232,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R2: scalar(0)",
+        "instruction_index": 232,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "The required scalar deref proof was never established.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: R2 invalid mem access 'inv'",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E011 (source_bug)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Symptom insn 235: r5 = *(u8 *)(r2 +0)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "No earlier dominating proof-establishing branch or narrowing was found.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "R0=inv(id=26,umin_value=1152921504606846976,umax_value=11517967026549683715)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "R1_rw=invP(id=26,umin_value=1152921504606846976,umax_value=11517967026549683715) R2_r=inv0",
+        "kind": "heuristic"
+      }
+    ],
+    "expected_state": {
+      "notes": [
+        "Expected proof: scalar deref",
+        "R2.type is pointer-compatible"
+      ]
+    },
+    "failure_class": "source_bug",
+    "message": "required proof never established",
+    "metadata": {
+      "help": "Re-derive the pointer from a verified base immediately before dereference.",
+      "note": "The required scalar deref proof was never established.",
+      "obligation": {
+        "required": "R2.type is pointer-compatible",
+        "type": "scalar_deref"
+      },
+      "proof_spans": [
+        {
+          "insn_range": [
+            232,
+            235
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R2",
+          "role": "rejected",
+          "source_text": "x = ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;",
+          "state_change": "R2: scalar(0)"
+        }
+      ],
+      "proof_status": "never_established"
+    },
+    "missing_obligation": "R2.type is pointer-compatible",
+    "observed_state": {
+      "notes": [
+        "The required scalar deref proof was never established.",
+        "R2 invalid mem access 'inv'"
+      ],
+      "registers": {
+        "R2": "scalar(0)"
+      }
+    },
+    "raw_log_excerpt": "R2 invalid mem access 'inv'",
+    "source_span": {
+      "line_end": 236,
+      "line_start": 233,
+      "path": "<source>",
+      "snippet": "x = ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;"
+    },
+    "verifier_site": {
+      "instruction_index": 232
+    }
+  },
+  "oblige_output": "error[OBLIGE-E011]: source_bug \u2014 required proof never established\n  \u250c\u2500 <source>\n  \u2502\n232 \u2502     x = ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R2: scalar(0)\n    \u2502\n  = note: The required scalar deref proof was never established.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n/*\n * cbrt(x) MSB values for x MSB values in [0..63].\n * Precomputed then refined by hand - Willy Tarreau\n *\n * For x in [0..63],\n *   v = cbrt(x << 18) - 1\n *   cbrt(x) = (v[x] + 10) >> 6\n */\nstatic const __u8 v[] = {\n/* 0x00 */    0,   54,   54,   54,  118,  118,  118,  118,\n/* 0x08 */  123,  129,  134,  138,  143,  147,  151,  156,\n/* 0x10 */  157,  161,  164,  168,  170,  173,  176,  179,\n/* 0x18 */  181,  185,  187,  190,  192,  194,  197,  199,\n/* 0x20 */  200,  202,  204,  206,  209,  211,  213,  215,\n/* 0x28 */  217,  219,  221,  222,  224,  225,  227,  229,\n/* 0x30 */  231,  232,  234,  236,  237,  239,  240,  242,\n/* 0x38 */  244,  245,  246,  248,  250,  251,  252,  254,\n};\n\n/* calculate the cubic root of x using a table lookup followed by one\n * Newton-Raphson iteration.\n * Avg err ~= 0.195%\n */\nstatic __always_inline __u32 cubic_root(__u64 a)\n{\n    __u32 x=0, b, shift;\n\n    if (a < 64) {\n        /* a in [0..63] */\n        return ((__u32)v[(__u32)a] + 35) >> 6;\n    }\n\n    b = fls64(a);\n    b = ((b * 84) >> 8) - 1;\n    shift = (a >> (b * 3));\n\n    /* it is needed for verifier's bound check on v */\n    if (shift >= 64){\n        return 0;\n    }else{\n        x = ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;\n\n        /*\n        * Newton-Raphson iteration\n        *                         2\n        * x    = ( 2 * x  +  a / x  ) / 3\n        *  k+1          k         k\n        */\n        x = (2 * x + (__u32)div64_u64(a, (__u64)x * (__u64)(x - 1)));\n        x = ((x * 341) >> 10);\n    }\n    return x;\n}\n\nVerifier log:\nR0=inv(id=26,umin_value=1152921504606846976,umax_value=11517967026549683715)\nR1_rw=invP(id=26,umin_value=1152921504606846976,umax_value=11517967026549683715) R2_r=inv0\nR3=invP(id=26,umin_value=1152921504606846976,umax_value=11517967026549683715)\nR4_w=inv1152921504606846976 R5_rw=invP63 R6_r=ptr_tcp_sock(id=0,off=0,imm=0) R7_r=inv(id=2)\nR8_r=ptr_tcp_sock(id=0,off=1296,imm=0) R9_r=inv(id=8,umax_value=4294967295,var_off=(0x0;0xffffffff)) R10=fp0 fp-8_r=inv\nparent already had regs=2a stack=0 marks\n; x = ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;\n232: (18) r2 = 0xffffa7ee80066000\n234: (0f) r2 += r1\n235: (71) r5 = *(u8 *)(r2 +0)\nR2 invalid mem access 'inv'\nprocessed 544 insns (limit 1000000) max_states_per_insn 2 total_states 30 peak_states 30 mark_read 10\n-- END PROG LOAD LOG --\nlibbpf: failed to load program 'bictcp_cong_avoid'\nlibbpf: failed to load object 'bpf_cubic_bpf'\nlibbpf: failed to load BPF skeleton 'bpf_cubic_bpf': -13\nFailed to load and verify BPF skeleton",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n/*\n * cbrt(x) MSB values for x MSB values in [0..63].\n * Precomputed then refined by hand - Willy Tarreau\n *\n * For x in [0..63],\n *   v = cbrt(x << 18) - 1\n *   cbrt(x) = (v[x] + 10) >> 6\n */\nstatic const __u8 v[] = {\n/* 0x00 */    0,   54,   54,   54,  118,  118,  118,  118,\n/* 0x08 */  123,  129,  134,  138,  143,  147,  151,  156,\n/* 0x10 */  157,  161,  164,  168,  170,  173,  176,  179,\n/* 0x18 */  181,  185,  187,  190,  192,  194,  197,  199,\n/* 0x20 */  200,  202,  204,  206,  209,  211,  213,  215,\n/* 0x28 */  217,  219,  221,  222,  224,  225,  227,  229,\n/* 0x30 */  231,  232,  234,  236,  237,  239,  240,  242,\n/* 0x38 */  244,  245,  246,  248,  250,  251,  252,  254,\n};\n\n/* calculate the cubic root of x using a table lookup followed by one\n * Newton-Raphson iteration.\n * Avg err ~= 0.195%\n */\nstatic __always_inline __u32 cubic_root(__u64 a)\n{\n    __u32 x=0, b, shift;\n\n    if (a < 64) {\n        /* a in [0..63] */\n        return ((__u32)v[(__u32)a] + 35) >> 6;\n    }\n\n    b = fls64(a);\n    b = ((b * 84) >> 8) - 1;\n    shift = (a >> (b * 3));\n\n    /* it is needed for verifier's bound check on v */\n    if (shift >= 64){\n        return 0;\n    }else{\n        x = ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;\n\n        /*\n        * Newton-Raphson iteration\n        *                         2\n        * x    = ( 2 * x  +  a / x  ) / 3\n        *  k+1          k         k\n        */\n        x = (2 * x + (__u32)div64_u64(a, (__u64)x * (__u64)(x - 1)));\n        x = ((x * 341) >> 10);\n    }\n    return x;\n}\n\nVerifier log:\nR0=inv(id=26,umin_value=1152921504606846976,umax_value=11517967026549683715)\nR1_rw=invP(id=26,umin_value=1152921504606846976,umax_value=11517967026549683715) R2_r=inv0\nR3=invP(id=26,umin_value=1152921504606846976,umax_value=11517967026549683715)\nR4_w=inv1152921504606846976 R5_rw=invP63 R6_r=ptr_tcp_sock(id=0,off=0,imm=0) R7_r=inv(id=2)\nR8_r=ptr_tcp_sock(id=0,off=1296,imm=0) R9_r=inv(id=8,umax_value=4294967295,var_off=(0x0;0xffffffff)) R10=fp0 fp-8_r=inv\nparent already had regs=2a stack=0 marks\n; x = ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;\n232: (18) r2 = 0xffffa7ee80066000\n234: (0f) r2 += r1\n235: (71) r5 = *(u8 *)(r2 +0)\nR2 invalid mem access 'inv'\nprocessed 544 insns (limit 1000000) max_states_per_insn 2 total_states 30 peak_states 30 mark_read 10\n-- END PROG LOAD LOG --\nlibbpf: failed to load program 'bictcp_cong_avoid'\nlibbpf: failed to load object 'bpf_cubic_bpf'\nlibbpf: failed to load BPF skeleton 'bpf_cubic_bpf': -13\nFailed to load and verify BPF skeleton\n\nDiagnostic analysis:\nerror[OBLIGE-E011]: source_bug \u2014 required proof never established\n  \u250c\u2500 <source>\n  \u2502\n232 \u2502     x = ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R2: scalar(0)\n    \u2502\n  = note: The required scalar deref proof was never established.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+320",
+    "raw_fix:+50",
+    "specific_fix:+35",
+    "log_lines:+34",
+    "trace_state_lines:+20"
+  ],
+  "selection_score": 459,
+  "source": "stackoverflow",
+  "source_code": "/*\n * cbrt(x) MSB values for x MSB values in [0..63].\n * Precomputed then refined by hand - Willy Tarreau\n *\n * For x in [0..63],\n *   v = cbrt(x << 18) - 1\n *   cbrt(x) = (v[x] + 10) >> 6\n */\nstatic const __u8 v[] = {\n/* 0x00 */    0,   54,   54,   54,  118,  118,  118,  118,\n/* 0x08 */  123,  129,  134,  138,  143,  147,  151,  156,\n/* 0x10 */  157,  161,  164,  168,  170,  173,  176,  179,\n/* 0x18 */  181,  185,  187,  190,  192,  194,  197,  199,\n/* 0x20 */  200,  202,  204,  206,  209,  211,  213,  215,\n/* 0x28 */  217,  219,  221,  222,  224,  225,  227,  229,\n/* 0x30 */  231,  232,  234,  236,  237,  239,  240,  242,\n/* 0x38 */  244,  245,  246,  248,  250,  251,  252,  254,\n};\n\n/* calculate the cubic root of x using a table lookup followed by one\n * Newton-Raphson iteration.\n * Avg err ~= 0.195%\n */\nstatic __always_inline __u32 cubic_root(__u64 a)\n{\n    __u32 x=0, b, shift;\n\n    if (a < 64) {\n        /* a in [0..63] */\n        return ((__u32)v[(__u32)a] + 35) >> 6;\n    }\n\n    b = fls64(a);\n    b = ((b * 84) >> 8) - 1;\n    shift = (a >> (b * 3));\n\n    /* it is needed for verifier's bound check on v */\n    if (shift >= 64){\n        return 0;\n    }else{\n        x = ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;\n\n        /*\n        * Newton-Raphson iteration\n        *                         2\n        * x    = ( 2 * x  +  a / x  ) / 3\n        *  k+1          k         k\n        */\n        x = (2 * x + (__u32)div64_u64(a, (__u64)x * (__u64)(x - 1)));\n        x = ((x * 341) >> 10);\n    }\n    return x;\n}",
+  "source_url": "https://stackoverflow.com/questions/72074115/how-to-solve-the-r2-invalid-mem-access-inv-error-when-i-try-to-loading-the-e",
+  "symptom_span_text": "",
+  "taxonomy_class": "source_bug",
+  "taxonomy_source": "oblige_diagnosis",
+  "title": "How to solve the &quot;R2 invalid mem access &#39;inv&#39;&quot; error when i try to loading the ebpf file named bpf_cubic.c",
+  "verifier_log": "R0=inv(id=26,umin_value=1152921504606846976,umax_value=11517967026549683715)\nR1_rw=invP(id=26,umin_value=1152921504606846976,umax_value=11517967026549683715) R2_r=inv0\nR3=invP(id=26,umin_value=1152921504606846976,umax_value=11517967026549683715)\nR4_w=inv1152921504606846976 R5_rw=invP63 R6_r=ptr_tcp_sock(id=0,off=0,imm=0) R7_r=inv(id=2)\nR8_r=ptr_tcp_sock(id=0,off=1296,imm=0) R9_r=inv(id=8,umax_value=4294967295,var_off=(0x0;0xffffffff)) R10=fp0 fp-8_r=inv\nparent already had regs=2a stack=0 marks\n; x = ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;\n232: (18) r2 = 0xffffa7ee80066000\n234: (0f) r2 += r1\n235: (71) r5 = *(u8 *)(r2 +0)\nR2 invalid mem access 'inv'\nprocessed 544 insns (limit 1000000) max_states_per_insn 2 total_states 30 peak_states 30 mark_read 10\n-- END PROG LOAD LOG --\nlibbpf: failed to load program 'bictcp_cong_avoid'\nlibbpf: failed to load object 'bpf_cubic_bpf'\nlibbpf: failed to load BPF skeleton 'bpf_cubic_bpf': -13\nFailed to load and verify BPF skeleton"
+}

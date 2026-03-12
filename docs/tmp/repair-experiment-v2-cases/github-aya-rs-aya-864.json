@@ -1,0 +1,129 @@
+{
+  "case_id": "github-aya-rs-aya-864",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/github_issues/github-aya-rs-aya-864.yaml",
+  "code_source": "source_snippets",
+  "error_id": "OBLIGE-E018",
+  "expected_fix_tags": [
+    "helper_switch"
+  ],
+  "expected_fix_type": "helper_switch",
+  "expected_location_kind": "root_cause",
+  "ground_truth_fix": "Read the PID from `TcContext`/`skb` instead of calling the unavailable helper.",
+  "ground_truth_fix_source": "manual_label",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "SIMPLIFY_CFG",
+        "patch_hint": "Split the program with tail calls or reduce branching and loop work",
+        "rationale": "No earlier dominating proof-establishing branch or narrowing was found."
+      }
+    ],
+    "confidence": 0.96,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E018",
+    "evidence": [
+      {
+        "detail": "Invalid argument (os error 22)",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "rejected at <bytecode>:2: call bpf_get_current_pid_tgid#14",
+        "instruction_index": 1,
+        "kind": "source_map"
+      },
+      {
+        "detail": "No earlier dominating proof-establishing branch or narrowing was found.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: Invalid argument (os error 22)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E009 (env_mismatch)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Symptom insn 1: call bpf_get_current_pid_tgid#14",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Final diagnosis overrides the catalog seed to OBLIGE-E018 (verifier_limit).",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Error: the BPF_PROG_LOAD syscall failed. Verifier output: 0: R1=ctx(off=0,imm=0) R10=fp0",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "0: (bf) r6 = r1                       ; R1=ctx(off=0,imm=0) R6_w=ctx(off=0,imm=0)",
+        "kind": "heuristic"
+      }
+    ],
+    "failure_class": "verifier_limit",
+    "message": "never established",
+    "metadata": {
+      "help": "Split the program with tail calls or reduce branching and loop work",
+      "note": "No earlier dominating proof-establishing branch or narrowing was found.",
+      "proof_spans": [
+        {
+          "insn_range": [
+            1,
+            1
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R0",
+          "role": "rejected",
+          "source_text": "call bpf_get_current_pid_tgid#14",
+          "state_change": null
+        }
+      ],
+      "proof_status": "never_established"
+    },
+    "missing_obligation": "manual analysis required to identify the missing proof obligation",
+    "observed_state": {
+      "notes": [
+        "No earlier dominating proof-establishing branch or narrowing was found.",
+        "Invalid argument (os error 22)"
+      ]
+    },
+    "raw_log_excerpt": "Invalid argument (os error 22)",
+    "source_span": {
+      "line_end": 2,
+      "line_start": 2,
+      "path": "<bytecode>",
+      "snippet": "call bpf_get_current_pid_tgid#14"
+    },
+    "verifier_site": {
+      "instruction_index": 1
+    }
+  },
+  "oblige_output": "error[OBLIGE-E018]: verifier_limit \u2014 never established\n  \u250c\u2500 <bytecode>\n  \u2502\n1 \u2502     call bpf_get_current_pid_tgid#14\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502\n  = note: No earlier dominating proof-establishing branch or narrowing was found.\n  = help: Split the program with tail calls or reduce branching and loop work",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#![no_std]\n#![no_main]\n\nuse aya_bpf::{macros::classifier, programs::TcContext, BpfContext};\nuse aya_log_ebpf::info;\n\n#[classifier]\npub fn interceptor(ctx: TcContext) -> i32 {\n    match try_interceptor(ctx) {\n        Ok(ret) => ret,\n        Err(ret) => ret,\n    }\n}\n\nfn try_interceptor(ctx: TcContext) -> Result<i32, i32> {\n    let pid = ctx.pid();\n    info!(&ctx, \"received a packet\");\n    Ok(0)\n}\n\n#[panic_handler]\nfn panic(_info: &core::panic::PanicInfo) -> ! {\n    unsafe { core::hint::unreachable_unchecked() }\n}\n\nVerifier log:\nFinished dev [unoptimized + debuginfo] target(s) in 0.08s\n[sudo] password for emanuele:\nError: the BPF_PROG_LOAD syscall failed. Verifier output: 0: R1=ctx(off=0,imm=0) R10=fp0\n0: (bf) r6 = r1                       ; R1=ctx(off=0,imm=0) R6_w=ctx(off=0,imm=0)\n1: (85) call bpf_get_current_pid_tgid#14\nunknown func bpf_get_current_pid_tgid#14\nverification time 19 usec\nstack depth 0\nprocessed 2 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\nCaused by:\n    Invalid argument (os error 22)\nFailed to run `sudo -E target/debug/interceptor --iface wlo1`",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#![no_std]\n#![no_main]\n\nuse aya_bpf::{macros::classifier, programs::TcContext, BpfContext};\nuse aya_log_ebpf::info;\n\n#[classifier]\npub fn interceptor(ctx: TcContext) -> i32 {\n    match try_interceptor(ctx) {\n        Ok(ret) => ret,\n        Err(ret) => ret,\n    }\n}\n\nfn try_interceptor(ctx: TcContext) -> Result<i32, i32> {\n    let pid = ctx.pid();\n    info!(&ctx, \"received a packet\");\n    Ok(0)\n}\n\n#[panic_handler]\nfn panic(_info: &core::panic::PanicInfo) -> ! {\n    unsafe { core::hint::unreachable_unchecked() }\n}\n\nVerifier log:\nFinished dev [unoptimized + debuginfo] target(s) in 0.08s\n[sudo] password for emanuele:\nError: the BPF_PROG_LOAD syscall failed. Verifier output: 0: R1=ctx(off=0,imm=0) R10=fp0\n0: (bf) r6 = r1                       ; R1=ctx(off=0,imm=0) R6_w=ctx(off=0,imm=0)\n1: (85) call bpf_get_current_pid_tgid#14\nunknown func bpf_get_current_pid_tgid#14\nverification time 19 usec\nstack depth 0\nprocessed 2 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\nCaused by:\n    Invalid argument (os error 22)\nFailed to run `sudo -E target/debug/interceptor --iface wlo1`\n\nDiagnostic analysis:\nerror[OBLIGE-E018]: verifier_limit \u2014 never established\n  \u250c\u2500 <bytecode>\n  \u2502\n1 \u2502     call bpf_get_current_pid_tgid#14\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502\n  = note: No earlier dominating proof-establishing branch or narrowing was found.\n  = help: Split the program with tail calls or reduce branching and loop work",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+220",
+    "manual_label:+120",
+    "curated_fix:+80",
+    "accepted_fix:+25",
+    "expected_from_gt:+40",
+    "specific_fix:+35",
+    "manual_taxonomy:+50",
+    "log_lines:+24",
+    "trace_state_lines:+0"
+  ],
+  "selection_score": 594,
+  "source": "github_issues",
+  "source_code": "#![no_std]\n#![no_main]\n\nuse aya_bpf::{macros::classifier, programs::TcContext, BpfContext};\nuse aya_log_ebpf::info;\n\n#[classifier]\npub fn interceptor(ctx: TcContext) -> i32 {\n    match try_interceptor(ctx) {\n        Ok(ret) => ret,\n        Err(ret) => ret,\n    }\n}\n\nfn try_interceptor(ctx: TcContext) -> Result<i32, i32> {\n    let pid = ctx.pid();\n    info!(&ctx, \"received a packet\");\n    Ok(0)\n}\n\n#[panic_handler]\nfn panic(_info: &core::panic::PanicInfo) -> ! {\n    unsafe { core::hint::unreachable_unchecked() }\n}",
+  "source_url": "https://github.com/aya-rs/aya/issues/864",
+  "symptom_span_text": "",
+  "taxonomy_class": "env_mismatch",
+  "taxonomy_source": "manual_label",
+  "title": "unknown func bpf_get_current_pid_tgid - but it actually exists",
+  "verifier_log": "Finished dev [unoptimized + debuginfo] target(s) in 0.08s\n[sudo] password for emanuele:\nError: the BPF_PROG_LOAD syscall failed. Verifier output: 0: R1=ctx(off=0,imm=0) R10=fp0\n0: (bf) r6 = r1                       ; R1=ctx(off=0,imm=0) R6_w=ctx(off=0,imm=0)\n1: (85) call bpf_get_current_pid_tgid#14\nunknown func bpf_get_current_pid_tgid#14\nverification time 19 usec\nstack depth 0\nprocessed 2 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\nCaused by:\n    Invalid argument (os error 22)\nFailed to run `sudo -E target/debug/interceptor --iface wlo1`"
+}

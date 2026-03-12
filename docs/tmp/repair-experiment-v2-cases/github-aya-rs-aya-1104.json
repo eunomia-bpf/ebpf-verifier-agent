@@ -1,0 +1,110 @@
+{
+  "case_id": "github-aya-rs-aya-1104",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/github_issues/github-aya-rs-aya-1104.yaml",
+  "code_source": "source_snippets",
+  "error_id": "OBLIGE-E018",
+  "expected_fix_tags": [
+    "release_mode"
+  ],
+  "expected_fix_type": "release_mode",
+  "expected_location_kind": "root_cause",
+  "ground_truth_fix": "The template and book have been updated to only build ebpf in release mode. Please file an issue against those if you continue to be able to reproduce.",
+  "ground_truth_fix_source": "fix.selected_comment.body_text",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "SIMPLIFY_CFG",
+        "patch_hint": "Split the program with tail calls or reduce branching and loop work",
+        "rationale": "Split the program with tail calls or reduce branching and loop work"
+      }
+    ],
+    "confidence": 0.75,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E018",
+    "evidence": [
+      {
+        "detail": "Invalid argument (os error 22)",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "rejected at <bytecode>:1: Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.26s",
+        "instruction_index": 0,
+        "kind": "source_map"
+      },
+      {
+        "detail": "Verifier symptom: Invalid argument (os error 22)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Final diagnosis overrides the catalog seed to OBLIGE-E018 (verifier_limit).",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "stack depth 0+0+0",
+        "kind": "heuristic"
+      }
+    ],
+    "failure_class": "verifier_limit",
+    "message": "verifier rejection",
+    "metadata": {
+      "help": "Split the program with tail calls or reduce branching and loop work",
+      "proof_spans": [
+        {
+          "insn_range": [
+            0,
+            0
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": null,
+          "role": "rejected",
+          "source_text": "Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.26s",
+          "state_change": null
+        }
+      ],
+      "proof_status": "unknown"
+    },
+    "missing_obligation": "manual analysis required to identify the missing proof obligation",
+    "observed_state": {
+      "notes": [
+        "Invalid argument (os error 22)"
+      ]
+    },
+    "raw_log_excerpt": "Invalid argument (os error 22)",
+    "source_span": {
+      "line_end": 1,
+      "line_start": 1,
+      "path": "<bytecode>",
+      "snippet": "Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.26s"
+    },
+    "verifier_site": {
+      "instruction_index": 0
+    }
+  },
+  "oblige_output": "error[OBLIGE-E018]: verifier_limit \u2014 verifier rejection\n  \u250c\u2500 <bytecode>\n  \u2502\n0 \u2502     Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.26s\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502\n  = help: Split the program with tail calls or reduce branching and loop work",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\nunsafe {\n    aya_ebpf::bpf_printk!(b\"packet  received!\");\n}\n\nVerifier log:\nCompiling xdp-hello-common v0.1.0 (/myapp/examples/xdp-hello/xdp-hello-common)\n   Compiling xdp-hello v0.1.0 (/myapp/examples/xdp-hello/xdp-hello)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.26s\nError: the BPF_PROG_LOAD syscall failed. Verifier output: last insn is not an exit or jmp\nverification time 9 usec\nstack depth 0+0+0\nprocessed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\nCaused by:\n    Invalid argument (os error 22)",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\nunsafe {\n    aya_ebpf::bpf_printk!(b\"packet  received!\");\n}\n\nVerifier log:\nCompiling xdp-hello-common v0.1.0 (/myapp/examples/xdp-hello/xdp-hello-common)\n   Compiling xdp-hello v0.1.0 (/myapp/examples/xdp-hello/xdp-hello)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.26s\nError: the BPF_PROG_LOAD syscall failed. Verifier output: last insn is not an exit or jmp\nverification time 9 usec\nstack depth 0+0+0\nprocessed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\nCaused by:\n    Invalid argument (os error 22)\n\nDiagnostic analysis:\nerror[OBLIGE-E018]: verifier_limit \u2014 verifier rejection\n  \u250c\u2500 <bytecode>\n  \u2502\n0 \u2502     Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.26s\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502\n  = help: Split the program with tail calls or reduce branching and loop work",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+220",
+    "raw_fix:+50",
+    "accepted_fix:+25",
+    "expected_from_gt:+40",
+    "specific_fix:+35",
+    "tag_taxonomy:+20",
+    "log_lines:+18",
+    "trace_state_lines:+0"
+  ],
+  "selection_score": 408,
+  "source": "github_issues",
+  "source_code": "unsafe {\n    aya_ebpf::bpf_printk!(b\"packet  received!\");\n}",
+  "source_url": "https://github.com/aya-rs/aya/issues/1104",
+  "symptom_span_text": "",
+  "taxonomy_class": "env_mismatch",
+  "taxonomy_source": "fix_tag_heuristic",
+  "title": "xdp_hello example fails verifier in docker rust container",
+  "verifier_log": "Compiling xdp-hello-common v0.1.0 (/myapp/examples/xdp-hello/xdp-hello-common)\n   Compiling xdp-hello v0.1.0 (/myapp/examples/xdp-hello/xdp-hello)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.26s\nError: the BPF_PROG_LOAD syscall failed. Verifier output: last insn is not an exit or jmp\nverification time 9 usec\nstack depth 0+0+0\nprocessed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\nCaused by:\n    Invalid argument (os error 22)"
+}

@@ -64,6 +64,18 @@ ENV_BTF_MARKERS = (
     "unknown type",
     "reference type('unknown ')",
 )
+EXPLICIT_E005_MARKERS = (
+    "unbounded min value",
+    "unbounded memory access",
+    "min value is negative",
+    "value is outside of the allowed memory range",
+    "memory, len pair leads to invalid memory access",
+)
+EXPLICIT_E006_MARKERS = (
+    "expected pointer type, got scalar",
+    "pointer arithmetic on pkt_end",
+    "pointer arithmetic on ptr_to_packet_end prohibited",
+)
 
 TRANSITION_PRIORITY = {
     "RANGE_LOSS": 0,
@@ -74,6 +86,10 @@ TRANSITION_PRIORITY = {
 ARITHMETIC_TOKEN_RE = re.compile(r"(\+=|-=|<<=|>>=|&=|\|=|\^=|\*=|/=|\bbe16\b|\bbe32\b)")
 STACK_ACCESS_RE = re.compile(r"\(r10\s*[-+]")
 BACKWARD_JUMP_RE = re.compile(r"\bgoto pc-\d+\b", re.IGNORECASE)
+DIRECT_HELPER_CONTRACT_RE = re.compile(
+    r"(type=.*expected=|arg#\d+.*must point to|arg#\d+\s+expected)",
+    re.IGNORECASE,
+)
 
 
 @dataclass(slots=True)
@@ -128,6 +144,7 @@ def diagnose(verifier_log: str, catalog_path: str | None = None) -> Diagnosis:
         symptom_insn=initial_symptom_insn,
         registers_of_interest=registers_of_interest,
         relevant_transitions=relevant_transitions,
+        error_line=error_line,
     )
     root_transition = _select_root_transition(relevant_transitions)
     loss_context = _infer_loss_context(
@@ -362,6 +379,7 @@ def _assess_proof(
     symptom_insn: int | None,
     registers_of_interest: Sequence[str],
     relevant_transitions: Sequence[CriticalTransition],
+    error_line: str | None,
 ) -> _ProofAssessment:
     if relevant_transitions:
         transition = relevant_transitions[0]
@@ -390,6 +408,11 @@ def _assess_proof(
         return _ProofAssessment(
             status="never_established",
             evidence=["No earlier dominating proof-establishing branch or narrowing was found."],
+        )
+    if error_line and DIRECT_HELPER_CONTRACT_RE.search(error_line):
+        return _ProofAssessment(
+            status="never_established",
+            evidence=["Verifier symptom directly names an unsatisfied helper or kfunc argument contract."],
         )
     return _ProofAssessment(status=None, evidence=[])
 
@@ -549,31 +572,47 @@ def _classify(
     error_lowered = error_line.lower() if error_line else ""
     parsed_error_lowered = parsed_log.error_line.lower() if parsed_log.error_line else ""
     error_candidates = [text for text in (error_lowered, parsed_error_lowered) if text]
+    heuristic_classification = _classify_without_catalog(
+        verifier_log=verifier_log,
+        error_candidates=error_candidates,
+        error_lowered=error_lowered,
+        lowered=lowered,
+        proof_status=proof_status,
+        relevant_transitions=relevant_transitions,
+        loss_context=loss_context,
+    )
 
-    # --- Priority 1: catalog-based classification (most precise) ---
-    # The catalog has per-error-pattern matching that is more specific than
-    # broad keyword scans.  Trust it when available.
+    # Only a primary-pattern match on the selected error line is treated as an
+    # authoritative catalog classification. Everything else is a hint/fallback.
     if parsed_log.error_id and parsed_log.taxonomy_class:
-        # The catalog already classified this case.  Only override it below
-        # if trace analysis shows strong proof-loss evidence.
         catalog_id = parsed_log.error_id
         catalog_class = parsed_log.taxonomy_class
-
-        # Override: proof was established then lost → lowering artifact,
-        # regardless of what the catalog said (catalog only sees the error
-        # line, not the proof lifecycle).
-        if proof_status == "established_then_lost" and catalog_class == "source_bug":
-            transition_types = {t.transition_type for t in relevant_transitions}
-            if (
-                {"PROVENANCE_LOSS", "TYPE_DOWNGRADE"} & transition_types
-                and loss_context in {"function_boundary", "register_spill"}
-            ):
-                return "OBLIGE-E006", "lowering_artifact"
-            return "OBLIGE-E005", "lowering_artifact"
-
+        if catalog_class == "source_bug" and heuristic_classification[1] == "lowering_artifact":
+            return heuristic_classification
+        if catalog_class == "env_mismatch":
+            if any("mem_or_null" in text or "or_null" in text for text in error_candidates):
+                return "OBLIGE-E002", "source_bug"
+            if any("invalid access to packet" in text for text in error_candidates):
+                return "OBLIGE-E001", "source_bug"
+        if parsed_log.catalog_confidence == "high":
+            return catalog_id, catalog_class
+        if heuristic_classification != (None, None):
+            return heuristic_classification
         return catalog_id, catalog_class
 
-    # --- Priority 2: verifier_limit (unambiguous structural signals) ---
+    return heuristic_classification
+
+
+def _classify_without_catalog(
+    verifier_log: str,
+    error_candidates: Sequence[str],
+    error_lowered: str,
+    lowered: str,
+    proof_status: str | None,
+    relevant_transitions: Sequence[CriticalTransition],
+    loss_context: str | None,
+) -> tuple[str | None, str | None]:
+    # --- Priority 1: verifier_limit (unambiguous structural signals) ---
     processed = _processed_insn_count(verifier_log)
     if any(marker in lowered for marker in LOOP_LIMIT_MARKERS):
         return "OBLIGE-E008", "verifier_limit"
@@ -584,9 +623,7 @@ def _classify(
     ):
         return "OBLIGE-E018", "verifier_limit"
 
-    # --- Priority 3: env_mismatch (check ERROR LINE, not full log) ---
-    # Only match env markers against the error line to avoid false positives
-    # from BTF-like text appearing in register-state dumps of source_bug cases.
+    # --- Priority 2: env_mismatch (check ERROR LINE, not full log) ---
     if any(marker in error_lowered for marker in ENV_HELPER_MARKERS):
         return "OBLIGE-E009", "env_mismatch"
     if any(marker in error_lowered for marker in ENV_CONTEXT_MARKERS):
@@ -602,22 +639,71 @@ def _classify(
     if any("pointer comparison prohibited" in text for text in error_candidates):
         return "OBLIGE-E023", "source_bug"
 
-    # --- Priority 4: proof-loss → lowering artifact ---
-    if proof_status == "established_then_lost":
-        transition_types = {t.transition_type for t in relevant_transitions}
-        if (
-            {"PROVENANCE_LOSS", "TYPE_DOWNGRADE"} & transition_types
-            and loss_context in {"function_boundary", "register_spill"}
-        ):
-            return "OBLIGE-E006", "lowering_artifact"
-        if "expected pointer type, got scalar" in lowered:
-            return "OBLIGE-E006", "lowering_artifact"
-        return "OBLIGE-E005", "lowering_artifact"
+    # --- Priority 3: lowering artifact (requires reject-site evidence) ---
+    lowering = _classify_lowering_artifact(
+        error_candidates=error_candidates,
+        proof_status=proof_status,
+        relevant_transitions=relevant_transitions,
+        loss_context=loss_context,
+    )
+    if lowering != (None, None):
+        return lowering
 
-    # --- Priority 5: fallback from error line ---
+    # --- Priority 4: fallback from error line ---
     if "invalid access to packet" in error_lowered:
         return "OBLIGE-E001", "source_bug"
     return None, None
+
+
+def _classify_lowering_artifact(
+    error_candidates: Sequence[str],
+    proof_status: str | None,
+    relevant_transitions: Sequence[CriticalTransition],
+    loss_context: str | None,
+) -> tuple[str | None, str | None]:
+    if proof_status != "established_then_lost":
+        return None, None
+
+    if any(any(marker in text for marker in EXPLICIT_E006_MARKERS) for text in error_candidates):
+        return "OBLIGE-E006", "lowering_artifact"
+    if any(
+        "math between" in text and "pointer and register with unbounded" in text
+        for text in error_candidates
+    ):
+        return "OBLIGE-E005", "lowering_artifact"
+    if any(any(marker in text for marker in EXPLICIT_E005_MARKERS) for text in error_candidates):
+        return "OBLIGE-E005", "lowering_artifact"
+
+    error_registers = _error_registers(error_candidates)
+    if not error_registers:
+        return None, None
+
+    same_register_transitions = [
+        transition
+        for transition in relevant_transitions
+        if transition.register in error_registers
+    ]
+    if not same_register_transitions:
+        return None, None
+
+    transition_types = {transition.transition_type for transition in same_register_transitions}
+    if (
+        {"PROVENANCE_LOSS", "TYPE_DOWNGRADE"} & transition_types
+        and loss_context in {"function_boundary", "register_spill"}
+    ):
+        return "OBLIGE-E006", "lowering_artifact"
+    if {"RANGE_LOSS", "BOUNDS_COLLAPSE"} & transition_types:
+        return "OBLIGE-E005", "lowering_artifact"
+    if loss_context == "arithmetic" and transition_types:
+        return "OBLIGE-E005", "lowering_artifact"
+    return None, None
+
+
+def _error_registers(error_candidates: Sequence[str]) -> set[str]:
+    registers: set[str] = set()
+    for text in error_candidates:
+        registers.update(_extract_registers(text))
+    return registers
 
 
 def _processed_insn_count(verifier_log: str) -> int | None:

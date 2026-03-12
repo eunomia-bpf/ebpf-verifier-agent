@@ -1,0 +1,189 @@
+{
+  "case_id": "stackoverflow-77205912",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-77205912.yaml",
+  "code_source": "question_body_text",
+  "error_id": "OBLIGE-E005",
+  "expected_fix_tags": [
+    "checked_pointer_reuse"
+  ],
+  "expected_fix_type": "checked_pointer_reuse",
+  "expected_location_kind": "root_cause",
+  "ground_truth_fix": "Re-read packet pointers from `skb` after the helper calls, or compute the checksum work before mutating the packet.",
+  "ground_truth_fix_source": "manual_label",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "TIGHTEN_RANGE",
+        "patch_hint": "Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+        "rationale": "A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access."
+      }
+    ],
+    "confidence": 0.98,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E005",
+    "evidence": [
+      {
+        "detail": "R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "proof established at <bytecode>:52: r1 = r7",
+        "instruction_index": 51,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R1: ctx(off=0) \u2192 scalar(unbounded)",
+        "instruction_index": 51,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "proof lost at <bytecode>:52: r1 = r7",
+        "instruction_index": 51,
+        "kind": "source_map"
+      },
+      {
+        "detail": "arithmetic destroys scalar bounds",
+        "instruction_index": 51,
+        "kind": "heuristic"
+      },
+      {
+        "detail": "rejected at <bytecode>:57: call bpf_csum_diff#28",
+        "instruction_index": 56,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R1: scalar(unbounded)",
+        "instruction_index": 56,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E023 (source_bug)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Symptom insn 56: call bpf_csum_diff#28",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Proof existed earlier and was lost at insn 51 (PROVENANCE_LOSS).",
+        "kind": "heuristic"
+      }
+    ],
+    "expected_state": {
+      "notes": [
+        "Expected proof: helper arg",
+        "R1.type matches fp,pkt,pkt_meta,map_key,map_value,mem,ringbuf_mem,buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2"
+      ],
+      "registers": {
+        "R1": "ctx(off=0) -> scalar(unbounded)"
+      }
+    },
+    "failure_class": "lowering_artifact",
+    "message": "proof established, then lost before rejection",
+    "metadata": {
+      "help": "Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+      "note": "A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access.",
+      "obligation": {
+        "required": "R1.type matches fp,pkt,pkt_meta,map_key,map_value,mem,ringbuf_mem,buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2",
+        "type": "helper_arg"
+      },
+      "proof_spans": [
+        {
+          "insn_range": [
+            51,
+            51
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R1",
+          "role": "proof_established",
+          "source_text": "r1 = r7",
+          "state_change": "R1: ctx(off=0) \u2192 scalar(unbounded)"
+        },
+        {
+          "insn_range": [
+            51,
+            51
+          ],
+          "line": null,
+          "path": null,
+          "reason": "arithmetic destroys scalar bounds",
+          "register": "R1",
+          "role": "proof_lost",
+          "source_text": "r1 = r7",
+          "state_change": "R1: ctx(off=0) \u2192 scalar(unbounded)"
+        },
+        {
+          "insn_range": [
+            56,
+            56
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R1",
+          "role": "rejected",
+          "source_text": "call bpf_csum_diff#28",
+          "state_change": "R1: scalar(unbounded)"
+        }
+      ],
+      "proof_status": "established_then_lost"
+    },
+    "missing_obligation": "R1.type matches fp,pkt,pkt_meta,map_key,map_value,mem,ringbuf_mem,buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2",
+    "observed_state": {
+      "notes": [
+        "arithmetic destroys scalar bounds",
+        "A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access.",
+        "R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2"
+      ],
+      "registers": {
+        "R1": "scalar(unbounded)"
+      }
+    },
+    "raw_log_excerpt": "R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2",
+    "source_span": {
+      "line_end": 57,
+      "line_start": 57,
+      "path": "<bytecode>",
+      "snippet": "call bpf_csum_diff#28"
+    },
+    "verifier_site": {
+      "instruction_index": 56
+    }
+  },
+  "oblige_output": "error[OBLIGE-E005]: lowering_artifact \u2014 proof established, then lost before rejection\n  \u250c\u2500 <bytecode>\n  \u2502\n51 \u2502     r1 = r7\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R1: ctx(off=0) \u2192 scalar(unbounded)\n   \u2502\n51 \u2502     r1 = r7\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: arithmetic destroys scalar bounds\n   \u2502     R1: ctx(off=0) \u2192 scalar(unbounded)\n   \u2502\n56 \u2502     call bpf_csum_diff#28\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R1: scalar(unbounded)\n   \u2502\n  = note: A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access.\n  = help: Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n__section(\"egress\")\nint tc_egress(struct __sk_buff *skb)\n{\nconst __be32 cluster_ip = SRC_IP_ADDR;\nconst __be32 pod_ip = IBP_IP_ADDR;\nconst __be32 loc_ip = LOC_IP_ADDR;\nconst int l3_off = ETH_HLEN; // IP header offset\nconst int l4_off = l3_off + 20; // TCP header offset: l3_off + sizeof(struct iphdr)\n__be32 sum; // IP checksum\nvoid *data = (void *)(long)skb->data;\nvoid *data_end = (void *)(long)skb->data_end;\nif (data_end < data + l4_off) { // not our packet\nreturn TC_ACT_OK;\n}\nstruct iphdr *ip4 = (struct iphdr *)(data + l3_off);\nif (ip4->daddr != cluster_ip || ip4->protocol != IPPROTO_TCP /* || tcp->dport == 80 */) {\nreturn TC_ACT_OK;\n}\nif (data_end < data + l4_off + sizeof(struct tcphdr)) { // have verifier give a enough range\nreturn TC_ACT_OK;\n}\nstruct tcphdr *tcph = (struct tcphdr *)(data + l4_off);\nif (bpf_ntohs(tcph->dest) != 9080) {\nreturn TC_ACT_OK;\n}\n// DNAT: cluster_ip -> pod_ip, then update L3 and L4 checksum\nsum = csum_diff((void *)&ip4->daddr, 4, (void *)&pod_ip, 4, 0);\nskb_store_bytes(skb, l3_off + offsetof(struct iphdr, daddr), (void *)&pod_ip, 4, 0);\nl3_csum_replace(skb, l3_off + offsetof(struct iphdr, check), 0, sum, 0);\nl4_csum_replace(skb, l4_off + offsetof(struct tcphdr, check), 0, sum, BPF_F_PSEUDO_HDR);\n// modify source ip then update l3 and l4 checksum\nsum = csum_diff((void *)&ip4->saddr, 4, (void *)&loc_ip, 4, 0);\nskb_store_bytes(skb, l3_off + offsetof(struct iphdr, saddr), (void *)&loc_ip, 4, 0);\nl3_csum_replace(skb, l3_off + offsetof(struct iphdr, check), 0, sum, 0);\nl4_csum_replace(skb, l4_off + offsetof(struct tcphdr, check), 0, sum, BPF_F_PSEUDO_HDR);\nreturn redirect(19, 0);\n}\nThe blog author's original code worked fine, but mine, with a second csum_diff and its following, could not be loaded due to the verifier.\nHere is the error message during loading:\n\nVerifier log:\nlibbpf: -- BEGIN DUMP LOG ---\nlibbpf:\n0: R1=ctx(off=0,imm=0) R10=fp0\n0: (bf) r6 = r1                       ; R1=ctx(off=0,imm=0) R6_w=ctx(off=0,imm=0)\n1: (b7) r1 = 139192586                ; R1_w=139192586\n2: (63) *(u32 *)(r10 -4) = r1         ; R1_w=139192586 R10=fp0 fp-8=mmmm????\n3: (b7) r1 = 335587520                ; R1_w=335587520\n4: (63) *(u32 *)(r10 -8) = r1         ; R1_w=335587520 R10=fp0 fp-8=335587520\n5: (b7) r0 = 0                        ; R0_w=0\n6: (61) r1 = *(u32 *)(r6 +80)         ; R1_w=pkt_end(off=0,imm=0) R6_w=ctx(off=0,imm=0)\n7: (61) r7 = *(u32 *)(r6 +76)         ; R6_w=ctx(off=0,imm=0) R7_w=pkt(off=0,r=0,imm=0)\n8: (bf) r2 = r7                       ; R2_w=pkt(off=0,r=0,imm=0) R7_w=pkt(off=0,r=0,imm=0)\n9: (07) r2 += 34                      ; R2_w=pkt(off=34,r=0,imm=0)\n10: (2d) if r2 > r1 goto pc+68        ; R1_w=pkt_end(off=0,imm=0) R2_w=pkt(off=34,r=34,imm=0)\n11: (61) r2 = *(u32 *)(r7 +30)        ; R2_w=scalar(umax=4294967295,var_off=(0x0; 0xffffffff)) R7_w=pkt(off=0,r=34,imm=0)\n12: (55) if r2 != 0x100007f goto pc+66        ; R2_w=16777343\n13: (71) r2 = *(u8 *)(r7 +23)         ; R2=scalar(umax=255,var_off=(0x0; 0xff)) R7=pkt(off=0,r=34,imm=0)\n14: (55) if r2 != 0x6 goto pc+64      ; R2=6\n15: (bf) r2 = r7                      ; R2_w=pkt(off=0,r=34,imm=0) R7=pkt(off=0,r=34,imm=0)\n16: (07) r2 += 54                     ; R2_w=pkt(off=54,r=34,imm=0)\n17: (2d) if r2 > r1 goto pc+61        ; R1=pkt_end(off=0,imm=0) R2_w=pkt(off=54,r=54,imm=0)\n18: (69) r1 = *(u16 *)(r7 +36)        ; R1_w=scalar(umax=65535,var_off=(0x0; 0xffff)) R7=pkt(off=0,r=54,imm= 0)\n19: (55) if r1 != 0x7823 goto pc+59   ; R1_w=30755\n20: (bf) r1 = r7                      ; R1_w=pkt(off=0,r=54,imm=0) R7=pkt(off=0,r=54,imm=0)\n21: (07) r1 += 30                     ; R1_w=pkt(off=30,r=54,imm=0)\n22: (07) r7 += 26                     ; R7_w=pkt(off=26,r=54,imm=0)\n23: (bf) r9 = r10                     ; R9_w=fp0 R10=fp0\n24: (07) r9 += -4                     ; R9_w=fp-4\n25: (b7) r2 = 4                       ; R2_w=4\n26: (bf) r3 = r9                      ; R3_w=fp-4 R9_w=fp-4\n27: (b7) r4 = 4                       ; R4_w=4\n28: (b7) r5 = 0                       ; R5_w=0\n29: (85) call bpf_csum_diff#28        ; R0=scalar()\n30: (bf) r8 = r0                      ; R0=scalar(id=1) R8_w=scalar(id=1)\n31: (bf) r1 = r6                      ; R1_w=ctx(off=0,imm=0) R6=ctx(off=0,imm=0)\n32: (b7) r2 = 30                      ; R2_w=30\n33: (bf) r3 = r9                      ; R3_w=fp-4 R9=fp-4\n34: (b7) r4 = 4                       ; R4_w=4\n35: (b7) r5 = 0                       ; R5_w=0\n36: (85) call bpf_skb_store_bytes#9   ; R0_w=scalar()\n37: (bf) r1 = r6                      ; R1_w=ctx(off=0,imm=0) R6=ctx(off=0,imm=0)\n38: (b7) r2 = 24                      ; R2_w=24\n39: (b7) r3 = 0                       ; R3_w=0\n40: (bf) r4 = r8                      ; R4_w=scalar(id=1) R8_w=scalar(id=1)\n41: (b7) r5 = 0                       ; R5_w=0\n42: (85) call bpf_l3_csum_replace#10          ; R0=scalar()\n43: (bf) r1 = r6                      ; R1_w=ctx(off=0,imm=0) R6=ctx(off=0,imm=0)\n44: (b7) r2 = 50                      ; R2_w=50\n45: (b7) r3 = 0                       ; R3_w=0\n46: (bf) r4 = r8                      ; R4_w=scalar(id=1) R8=scalar(id=1)\n47: (b7) r5 = 16                      ; R5_w=16\n48: (85) call bpf_l4_csum_replace#11          ; R0_w=scalar()\n49: (bf) r8 = r10                     ; R8_w=fp0 R10=fp0\n50: (07) r8 += -8                     ; R8_w=fp-8\n51: (bf) r1 = r7                      ; R1_w=scalar(id=2) R7=scalar(id=2)\n52: (b7) r2 = 4                       ; R2_w=4\n53: (bf) r3 = r8                      ; R3_w=fp-8 R8_w=fp-8\n54: (b7) r4 = 4                       ; R4_w=4\n55: (b7) r5 = 0                       ; R5_w=0\n56: (85) call bpf_csum_diff#28\nR1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n__section(\"egress\")\nint tc_egress(struct __sk_buff *skb)\n{\nconst __be32 cluster_ip = SRC_IP_ADDR;\nconst __be32 pod_ip = IBP_IP_ADDR;\nconst __be32 loc_ip = LOC_IP_ADDR;\nconst int l3_off = ETH_HLEN; // IP header offset\nconst int l4_off = l3_off + 20; // TCP header offset: l3_off + sizeof(struct iphdr)\n__be32 sum; // IP checksum\nvoid *data = (void *)(long)skb->data;\nvoid *data_end = (void *)(long)skb->data_end;\nif (data_end < data + l4_off) { // not our packet\nreturn TC_ACT_OK;\n}\nstruct iphdr *ip4 = (struct iphdr *)(data + l3_off);\nif (ip4->daddr != cluster_ip || ip4->protocol != IPPROTO_TCP /* || tcp->dport == 80 */) {\nreturn TC_ACT_OK;\n}\nif (data_end < data + l4_off + sizeof(struct tcphdr)) { // have verifier give a enough range\nreturn TC_ACT_OK;\n}\nstruct tcphdr *tcph = (struct tcphdr *)(data + l4_off);\nif (bpf_ntohs(tcph->dest) != 9080) {\nreturn TC_ACT_OK;\n}\n// DNAT: cluster_ip -> pod_ip, then update L3 and L4 checksum\nsum = csum_diff((void *)&ip4->daddr, 4, (void *)&pod_ip, 4, 0);\nskb_store_bytes(skb, l3_off + offsetof(struct iphdr, daddr), (void *)&pod_ip, 4, 0);\nl3_csum_replace(skb, l3_off + offsetof(struct iphdr, check), 0, sum, 0);\nl4_csum_replace(skb, l4_off + offsetof(struct tcphdr, check), 0, sum, BPF_F_PSEUDO_HDR);\n// modify source ip then update l3 and l4 checksum\nsum = csum_diff((void *)&ip4->saddr, 4, (void *)&loc_ip, 4, 0);\nskb_store_bytes(skb, l3_off + offsetof(struct iphdr, saddr), (void *)&loc_ip, 4, 0);\nl3_csum_replace(skb, l3_off + offsetof(struct iphdr, check), 0, sum, 0);\nl4_csum_replace(skb, l4_off + offsetof(struct tcphdr, check), 0, sum, BPF_F_PSEUDO_HDR);\nreturn redirect(19, 0);\n}\nThe blog author's original code worked fine, but mine, with a second csum_diff and its following, could not be loaded due to the verifier.\nHere is the error message during loading:\n\nVerifier log:\nlibbpf: -- BEGIN DUMP LOG ---\nlibbpf:\n0: R1=ctx(off=0,imm=0) R10=fp0\n0: (bf) r6 = r1                       ; R1=ctx(off=0,imm=0) R6_w=ctx(off=0,imm=0)\n1: (b7) r1 = 139192586                ; R1_w=139192586\n2: (63) *(u32 *)(r10 -4) = r1         ; R1_w=139192586 R10=fp0 fp-8=mmmm????\n3: (b7) r1 = 335587520                ; R1_w=335587520\n4: (63) *(u32 *)(r10 -8) = r1         ; R1_w=335587520 R10=fp0 fp-8=335587520\n5: (b7) r0 = 0                        ; R0_w=0\n6: (61) r1 = *(u32 *)(r6 +80)         ; R1_w=pkt_end(off=0,imm=0) R6_w=ctx(off=0,imm=0)\n7: (61) r7 = *(u32 *)(r6 +76)         ; R6_w=ctx(off=0,imm=0) R7_w=pkt(off=0,r=0,imm=0)\n8: (bf) r2 = r7                       ; R2_w=pkt(off=0,r=0,imm=0) R7_w=pkt(off=0,r=0,imm=0)\n9: (07) r2 += 34                      ; R2_w=pkt(off=34,r=0,imm=0)\n10: (2d) if r2 > r1 goto pc+68        ; R1_w=pkt_end(off=0,imm=0) R2_w=pkt(off=34,r=34,imm=0)\n11: (61) r2 = *(u32 *)(r7 +30)        ; R2_w=scalar(umax=4294967295,var_off=(0x0; 0xffffffff)) R7_w=pkt(off=0,r=34,imm=0)\n12: (55) if r2 != 0x100007f goto pc+66        ; R2_w=16777343\n13: (71) r2 = *(u8 *)(r7 +23)         ; R2=scalar(umax=255,var_off=(0x0; 0xff)) R7=pkt(off=0,r=34,imm=0)\n14: (55) if r2 != 0x6 goto pc+64      ; R2=6\n15: (bf) r2 = r7                      ; R2_w=pkt(off=0,r=34,imm=0) R7=pkt(off=0,r=34,imm=0)\n16: (07) r2 += 54                     ; R2_w=pkt(off=54,r=34,imm=0)\n17: (2d) if r2 > r1 goto pc+61        ; R1=pkt_end(off=0,imm=0) R2_w=pkt(off=54,r=54,imm=0)\n18: (69) r1 = *(u16 *)(r7 +36)        ; R1_w=scalar(umax=65535,var_off=(0x0; 0xffff)) R7=pkt(off=0,r=54,imm= 0)\n19: (55) if r1 != 0x7823 goto pc+59   ; R1_w=30755\n20: (bf) r1 = r7                      ; R1_w=pkt(off=0,r=54,imm=0) R7=pkt(off=0,r=54,imm=0)\n21: (07) r1 += 30                     ; R1_w=pkt(off=30,r=54,imm=0)\n22: (07) r7 += 26                     ; R7_w=pkt(off=26,r=54,imm=0)\n23: (bf) r9 = r10                     ; R9_w=fp0 R10=fp0\n24: (07) r9 += -4                     ; R9_w=fp-4\n25: (b7) r2 = 4                       ; R2_w=4\n26: (bf) r3 = r9                      ; R3_w=fp-4 R9_w=fp-4\n27: (b7) r4 = 4                       ; R4_w=4\n28: (b7) r5 = 0                       ; R5_w=0\n29: (85) call bpf_csum_diff#28        ; R0=scalar()\n30: (bf) r8 = r0                      ; R0=scalar(id=1) R8_w=scalar(id=1)\n31: (bf) r1 = r6                      ; R1_w=ctx(off=0,imm=0) R6=ctx(off=0,imm=0)\n32: (b7) r2 = 30                      ; R2_w=30\n33: (bf) r3 = r9                      ; R3_w=fp-4 R9=fp-4\n34: (b7) r4 = 4                       ; R4_w=4\n35: (b7) r5 = 0                       ; R5_w=0\n36: (85) call bpf_skb_store_bytes#9   ; R0_w=scalar()\n37: (bf) r1 = r6                      ; R1_w=ctx(off=0,imm=0) R6=ctx(off=0,imm=0)\n38: (b7) r2 = 24                      ; R2_w=24\n39: (b7) r3 = 0                       ; R3_w=0\n40: (bf) r4 = r8                      ; R4_w=scalar(id=1) R8_w=scalar(id=1)\n41: (b7) r5 = 0                       ; R5_w=0\n42: (85) call bpf_l3_csum_replace#10          ; R0=scalar()\n43: (bf) r1 = r6                      ; R1_w=ctx(off=0,imm=0) R6=ctx(off=0,imm=0)\n44: (b7) r2 = 50                      ; R2_w=50\n45: (b7) r3 = 0                       ; R3_w=0\n46: (bf) r4 = r8                      ; R4_w=scalar(id=1) R8=scalar(id=1)\n47: (b7) r5 = 16                      ; R5_w=16\n48: (85) call bpf_l4_csum_replace#11          ; R0_w=scalar()\n49: (bf) r8 = r10                     ; R8_w=fp0 R10=fp0\n50: (07) r8 += -8                     ; R8_w=fp-8\n51: (bf) r1 = r7                      ; R1_w=scalar(id=2) R7=scalar(id=2)\n52: (b7) r2 = 4                       ; R2_w=4\n53: (bf) r3 = r8                      ; R3_w=fp-8 R8_w=fp-8\n54: (b7) r4 = 4                       ; R4_w=4\n55: (b7) r5 = 0                       ; R5_w=0\n56: (85) call bpf_csum_diff#28\nR1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2\n\nDiagnostic analysis:\nerror[OBLIGE-E005]: lowering_artifact \u2014 proof established, then lost before rejection\n  \u250c\u2500 <bytecode>\n  \u2502\n51 \u2502     r1 = r7\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R1: ctx(off=0) \u2192 scalar(unbounded)\n   \u2502\n51 \u2502     r1 = r7\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: arithmetic destroys scalar bounds\n   \u2502     R1: ctx(off=0) \u2192 scalar(unbounded)\n   \u2502\n56 \u2502     call bpf_csum_diff#28\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R1: scalar(unbounded)\n   \u2502\n  = note: A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access.\n  = help: Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+320",
+    "manual_label:+120",
+    "curated_fix:+80",
+    "accepted_fix:+25",
+    "expected_from_gt:+40",
+    "specific_fix:+35",
+    "manual_taxonomy:+50",
+    "log_lines:+122",
+    "trace_state_lines:+4"
+  ],
+  "selection_score": 796,
+  "source": "stackoverflow",
+  "source_code": "__section(\"egress\")\nint tc_egress(struct __sk_buff *skb)\n{\nconst __be32 cluster_ip = SRC_IP_ADDR;\nconst __be32 pod_ip = IBP_IP_ADDR;\nconst __be32 loc_ip = LOC_IP_ADDR;\nconst int l3_off = ETH_HLEN; // IP header offset\nconst int l4_off = l3_off + 20; // TCP header offset: l3_off + sizeof(struct iphdr)\n__be32 sum; // IP checksum\nvoid *data = (void *)(long)skb->data;\nvoid *data_end = (void *)(long)skb->data_end;\nif (data_end < data + l4_off) { // not our packet\nreturn TC_ACT_OK;\n}\nstruct iphdr *ip4 = (struct iphdr *)(data + l3_off);\nif (ip4->daddr != cluster_ip || ip4->protocol != IPPROTO_TCP /* || tcp->dport == 80 */) {\nreturn TC_ACT_OK;\n}\nif (data_end < data + l4_off + sizeof(struct tcphdr)) { // have verifier give a enough range\nreturn TC_ACT_OK;\n}\nstruct tcphdr *tcph = (struct tcphdr *)(data + l4_off);\nif (bpf_ntohs(tcph->dest) != 9080) {\nreturn TC_ACT_OK;\n}\n// DNAT: cluster_ip -> pod_ip, then update L3 and L4 checksum\nsum = csum_diff((void *)&ip4->daddr, 4, (void *)&pod_ip, 4, 0);\nskb_store_bytes(skb, l3_off + offsetof(struct iphdr, daddr), (void *)&pod_ip, 4, 0);\nl3_csum_replace(skb, l3_off + offsetof(struct iphdr, check), 0, sum, 0);\nl4_csum_replace(skb, l4_off + offsetof(struct tcphdr, check), 0, sum, BPF_F_PSEUDO_HDR);\n// modify source ip then update l3 and l4 checksum\nsum = csum_diff((void *)&ip4->saddr, 4, (void *)&loc_ip, 4, 0);\nskb_store_bytes(skb, l3_off + offsetof(struct iphdr, saddr), (void *)&loc_ip, 4, 0);\nl3_csum_replace(skb, l3_off + offsetof(struct iphdr, check), 0, sum, 0);\nl4_csum_replace(skb, l4_off + offsetof(struct tcphdr, check), 0, sum, BPF_F_PSEUDO_HDR);\nreturn redirect(19, 0);\n}\nThe blog author's original code worked fine, but mine, with a second csum_diff and its following, could not be loaded due to the verifier.\nHere is the error message during loading:",
+  "source_url": "https://stackoverflow.com/questions/77205912/ebpf-tc-failed-calling-bpf-csum-diff-a-second-time",
+  "symptom_span_text": "",
+  "taxonomy_class": "source_bug",
+  "taxonomy_source": "manual_label",
+  "title": "ebpf tc failed calling bpf_csum_diff a second time",
+  "verifier_log": "libbpf: -- BEGIN DUMP LOG ---\nlibbpf:\n0: R1=ctx(off=0,imm=0) R10=fp0\n0: (bf) r6 = r1                       ; R1=ctx(off=0,imm=0) R6_w=ctx(off=0,imm=0)\n1: (b7) r1 = 139192586                ; R1_w=139192586\n2: (63) *(u32 *)(r10 -4) = r1         ; R1_w=139192586 R10=fp0 fp-8=mmmm????\n3: (b7) r1 = 335587520                ; R1_w=335587520\n4: (63) *(u32 *)(r10 -8) = r1         ; R1_w=335587520 R10=fp0 fp-8=335587520\n5: (b7) r0 = 0                        ; R0_w=0\n6: (61) r1 = *(u32 *)(r6 +80)         ; R1_w=pkt_end(off=0,imm=0) R6_w=ctx(off=0,imm=0)\n7: (61) r7 = *(u32 *)(r6 +76)         ; R6_w=ctx(off=0,imm=0) R7_w=pkt(off=0,r=0,imm=0)\n8: (bf) r2 = r7                       ; R2_w=pkt(off=0,r=0,imm=0) R7_w=pkt(off=0,r=0,imm=0)\n9: (07) r2 += 34                      ; R2_w=pkt(off=34,r=0,imm=0)\n10: (2d) if r2 > r1 goto pc+68        ; R1_w=pkt_end(off=0,imm=0) R2_w=pkt(off=34,r=34,imm=0)\n11: (61) r2 = *(u32 *)(r7 +30)        ; R2_w=scalar(umax=4294967295,var_off=(0x0; 0xffffffff)) R7_w=pkt(off=0,r=34,imm=0)\n12: (55) if r2 != 0x100007f goto pc+66        ; R2_w=16777343\n13: (71) r2 = *(u8 *)(r7 +23)         ; R2=scalar(umax=255,var_off=(0x0; 0xff)) R7=pkt(off=0,r=34,imm=0)\n14: (55) if r2 != 0x6 goto pc+64      ; R2=6\n15: (bf) r2 = r7                      ; R2_w=pkt(off=0,r=34,imm=0) R7=pkt(off=0,r=34,imm=0)\n16: (07) r2 += 54                     ; R2_w=pkt(off=54,r=34,imm=0)\n17: (2d) if r2 > r1 goto pc+61        ; R1=pkt_end(off=0,imm=0) R2_w=pkt(off=54,r=54,imm=0)\n18: (69) r1 = *(u16 *)(r7 +36)        ; R1_w=scalar(umax=65535,var_off=(0x0; 0xffff)) R7=pkt(off=0,r=54,imm= 0)\n19: (55) if r1 != 0x7823 goto pc+59   ; R1_w=30755\n20: (bf) r1 = r7                      ; R1_w=pkt(off=0,r=54,imm=0) R7=pkt(off=0,r=54,imm=0)\n21: (07) r1 += 30                     ; R1_w=pkt(off=30,r=54,imm=0)\n22: (07) r7 += 26                     ; R7_w=pkt(off=26,r=54,imm=0)\n23: (bf) r9 = r10                     ; R9_w=fp0 R10=fp0\n24: (07) r9 += -4                     ; R9_w=fp-4\n25: (b7) r2 = 4                       ; R2_w=4\n26: (bf) r3 = r9                      ; R3_w=fp-4 R9_w=fp-4\n27: (b7) r4 = 4                       ; R4_w=4\n28: (b7) r5 = 0                       ; R5_w=0\n29: (85) call bpf_csum_diff#28        ; R0=scalar()\n30: (bf) r8 = r0                      ; R0=scalar(id=1) R8_w=scalar(id=1)\n31: (bf) r1 = r6                      ; R1_w=ctx(off=0,imm=0) R6=ctx(off=0,imm=0)\n32: (b7) r2 = 30                      ; R2_w=30\n33: (bf) r3 = r9                      ; R3_w=fp-4 R9=fp-4\n34: (b7) r4 = 4                       ; R4_w=4\n35: (b7) r5 = 0                       ; R5_w=0\n36: (85) call bpf_skb_store_bytes#9   ; R0_w=scalar()\n37: (bf) r1 = r6                      ; R1_w=ctx(off=0,imm=0) R6=ctx(off=0,imm=0)\n38: (b7) r2 = 24                      ; R2_w=24\n39: (b7) r3 = 0                       ; R3_w=0\n40: (bf) r4 = r8                      ; R4_w=scalar(id=1) R8_w=scalar(id=1)\n41: (b7) r5 = 0                       ; R5_w=0\n42: (85) call bpf_l3_csum_replace#10          ; R0=scalar()\n43: (bf) r1 = r6                      ; R1_w=ctx(off=0,imm=0) R6=ctx(off=0,imm=0)\n44: (b7) r2 = 50                      ; R2_w=50\n45: (b7) r3 = 0                       ; R3_w=0\n46: (bf) r4 = r8                      ; R4_w=scalar(id=1) R8=scalar(id=1)\n47: (b7) r5 = 16                      ; R5_w=16\n48: (85) call bpf_l4_csum_replace#11          ; R0_w=scalar()\n49: (bf) r8 = r10                     ; R8_w=fp0 R10=fp0\n50: (07) r8 += -8                     ; R8_w=fp-8\n51: (bf) r1 = r7                      ; R1_w=scalar(id=2) R7=scalar(id=2)\n52: (b7) r2 = 4                       ; R2_w=4\n53: (bf) r3 = r8                      ; R3_w=fp-8 R8_w=fp-8\n54: (b7) r4 = 4                       ; R4_w=4\n55: (b7) r5 = 0                       ; R5_w=0\n56: (85) call bpf_csum_diff#28\nR1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf processed 57 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2"
+}

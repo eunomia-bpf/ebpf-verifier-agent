@@ -35,6 +35,7 @@ BACKTRACK_PARENT_RE = re.compile(
     re.IGNORECASE,
 )
 TO_CALLER_RE = re.compile(r"^\s*to caller at\s+(?P<idx>\d+):\s*$", re.IGNORECASE)
+VALIDATING_FUNC_RE = re.compile(r"^\s*Validating\b.*?\bfunc#(?P<func>\d+)\b", re.IGNORECASE)
 STATE_TOKEN_RE = re.compile(
     r"(?P<key>(?:[Rr]\d+|fp-?\d+)(?:_[a-z]+)?)="
     r"(?P<value>.+?)(?=(?:\s+(?:[Rr]\d+|fp-?\d+)(?:_[a-z]+)?=)|$)"
@@ -219,6 +220,8 @@ class ParsedTrace:
     total_instructions: int
     has_btf_annotations: bool
     has_backtracking: bool
+    validated_functions: list[int] = field(default_factory=list)
+    caller_transfer_sites: list[int] = field(default_factory=list)
 
 
 def parse_line(line: str) -> TraceLine:
@@ -287,6 +290,7 @@ def parse_trace(log_text: str) -> ParsedTrace:
     causal_chain = _extract_causal_chain(instructions)
     backtrack_chains = extract_backtrack_chains(log_text)
     error_texts = _collect_error_texts(instructions, raw_lines)
+    validated_functions, caller_transfer_sites = _collect_validation_context(raw_lines)
 
     return ParsedTrace(
         instructions=instructions,
@@ -299,7 +303,33 @@ def parse_trace(log_text: str) -> ParsedTrace:
         has_backtracking=bool(backtrack_chains) or any(
             instruction.backtrack for instruction in instructions
         ),
+        validated_functions=validated_functions,
+        caller_transfer_sites=caller_transfer_sites,
     )
+
+
+def parse_verifier_trace(log_text: str) -> ParsedTrace:
+    """Backward-compatible alias used by corpus coverage scripts."""
+
+    return parse_trace(log_text)
+
+
+def _collect_validation_context(raw_lines: list[str]) -> tuple[list[int], list[int]]:
+    validated_functions: list[int] = []
+    caller_transfer_sites: list[int] = []
+
+    for raw_line in raw_lines:
+        normalized = _normalize_line(raw_line)
+        func_match = VALIDATING_FUNC_RE.match(normalized)
+        if func_match:
+            validated_functions.append(int(func_match.group("func")))
+            continue
+
+        to_caller_match = TO_CALLER_RE.match(normalized)
+        if to_caller_match:
+            caller_transfer_sites.append(int(to_caller_match.group("idx")))
+
+    return validated_functions, caller_transfer_sites
 
 
 def extract_backtrack_chains(log_text: str) -> list[BacktrackChain]:

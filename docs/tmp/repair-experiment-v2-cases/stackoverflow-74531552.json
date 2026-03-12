@@ -1,0 +1,189 @@
+{
+  "case_id": "stackoverflow-74531552",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-74531552.yaml",
+  "code_source": "question_body_text",
+  "error_id": "OBLIGE-E005",
+  "expected_fix_tags": [
+    "bounds_check"
+  ],
+  "expected_fix_type": "bounds_check",
+  "expected_location_kind": "local",
+  "ground_truth_fix": "So, I've found the solution. It seems that I didn't properly check for the bounds of *curr_state. So the solution is to simply add the following snippet, prior to indexing aut.function.",
+  "ground_truth_fix_source": "selected_answer.fix_description",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "TIGHTEN_RANGE",
+        "patch_hint": "Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+        "rationale": "A proof existed earlier, but a helper or function boundary erased the verifier-tracked provenance."
+      }
+    ],
+    "confidence": 0.98,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E005",
+    "evidence": [
+      {
+        "detail": "bpf: Failed to load program: Invalid argument",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "proof established at <bytecode>:61: if r0 s> 0xffffffff goto pc+41",
+        "instruction_index": 60,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R7: scalar(0) \u2192 scalar(0)",
+        "instruction_index": 60,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "proof lost at <bytecode>:103: r1 = *(u32 *)(r6 +0)",
+        "instruction_index": 102,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R0: scalar(umin=-2147483648, var_off=(0xffffffff80000000; 0x7fffffff)) \u2192 scalar(unbounded)",
+        "instruction_index": 102,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "arithmetic destroys scalar bounds",
+        "instruction_index": 102,
+        "kind": "heuristic"
+      },
+      {
+        "detail": "rejected at <bytecode>:109: r2 += r1",
+        "instruction_index": 108,
+        "kind": "source_map"
+      },
+      {
+        "detail": "A proof existed earlier, but a helper or function boundary erased the verifier-tracked provenance.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: math between fp pointer and register with unbounded min value is not allowed",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E005 (lowering_artifact)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Symptom insn 108: r2 += r1",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Proof existed earlier and was lost at insn 102 (BOUNDS_COLLAPSE).",
+        "kind": "heuristic"
+      }
+    ],
+    "expected_state": {
+      "notes": [
+        "Expected proof: packet access",
+        "reg.off+size <= reg.range"
+      ],
+      "registers": {
+        "R7": "scalar(0) -> scalar(0)"
+      }
+    },
+    "failure_class": "lowering_artifact",
+    "message": "packet access with lost proof",
+    "metadata": {
+      "help": "Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+      "note": "A proof existed earlier, but a helper or function boundary erased the verifier-tracked provenance.",
+      "obligation": {
+        "required": "reg.off+size <= reg.range",
+        "type": "packet_access"
+      },
+      "proof_spans": [
+        {
+          "insn_range": [
+            60,
+            60
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R7",
+          "role": "proof_established",
+          "source_text": "if r0 s> 0xffffffff goto pc+41",
+          "state_change": "R7: scalar(0) \u2192 scalar(0)"
+        },
+        {
+          "insn_range": [
+            102,
+            102
+          ],
+          "line": null,
+          "path": null,
+          "reason": "arithmetic destroys scalar bounds",
+          "register": "R0",
+          "role": "proof_lost",
+          "source_text": "r1 = *(u32 *)(r6 +0)",
+          "state_change": "R0: scalar(umin=-2147483648, var_off=(0xffffffff80000000; 0x7fffffff)) \u2192 scalar(unbounded)"
+        },
+        {
+          "insn_range": [
+            108,
+            108
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R2",
+          "role": "rejected",
+          "source_text": "r2 += r1",
+          "state_change": null
+        }
+      ],
+      "proof_status": "established_then_lost"
+    },
+    "missing_obligation": "reg.off+size <= reg.range",
+    "observed_state": {
+      "notes": [
+        "arithmetic destroys scalar bounds",
+        "A proof existed earlier, but a helper or function boundary erased the verifier-tracked provenance.",
+        "bpf: Failed to load program: Invalid argument"
+      ],
+      "registers": {
+        "R0": "scalar(umin=-2147483648, var_off=(0xffffffff80000000; 0x7fffffff)) -> scalar(unbounded)"
+      }
+    },
+    "raw_log_excerpt": "bpf: Failed to load program: Invalid argument",
+    "source_span": {
+      "line_end": 109,
+      "line_start": 109,
+      "path": "<bytecode>",
+      "snippet": "r2 += r1"
+    },
+    "verifier_site": {
+      "instruction_index": 108
+    }
+  },
+  "oblige_output": "error[OBLIGE-E005]: lowering_artifact \u2014 packet access with lost proof\n  \u250c\u2500 <bytecode>\n  \u2502\n 60 \u2502     if r0 s> 0xffffffff goto pc+41\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n    \u2502     R7: scalar(0) \u2192 scalar(0)\n    \u2502\n102 \u2502     r1 = *(u32 *)(r6 +0)\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: arithmetic destroys scalar bounds\n    \u2502     R0: scalar(umin=-2147483648, var_off=(0xffffffff80000000; 0x7fffffff)) \u2192 scalar(unbounded)\n    \u2502\n108 \u2502     r2 += r1\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502\n  = note: A proof existed earlier, but a helper or function boundary erased the verifier-tracked provenance.\n  = help: Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <bcc/proto.h>\nstruct automaton_s {\nint initial_state;\nint function[4][4];\n};\ntypedef struct automaton_s automaton_t;\nBPF_STACK(automaton, automaton_t, 1);\nBPF_TABLE_PINNED(\"hash\", int, int, state_store, 1, \"/sys/fs/bpf/state\");\nint trace_connect_v4_return(struct pt_regs *ctx)\n{\nint key = 0, init_val = 0;\nint *curr_state;\ncurr_state = state_store.lookup_or_try_init(&key, &init_val);\nif (!curr_state) {\nbpf_trace_printk(\"State store is full\");\nreturn -1;\n}\nbpf_trace_printk(\"curr state: %d\", *curr_state);\nautomaton_t aut;\nif (automaton.peek(&aut) < 0) {\nbpf_trace_printk(\"automaton init\");\naut = (automaton_t) {\n.initial_state = 0,\n.function = {\n{ 1, -1, -1, -1 },\n{ -1, 2, -1, -1 },\n{ -1, -1, 3, -1 },\n{ -1, -1, -1, 0 }\n}\n};\nautomaton.push(&aut, BPF_EXIST);\n}\nint next = aut.function[*curr_state][0];\nbpf_trace_printk(\"next val: %d\", next);\nstate_store.update(&key, &next);\nreturn 0;\n}\nThe error occurs whenever I try to use this next value, for either printing or updating state_store (see last two lines before return 0;). I get the error math between fp pointer and register with unbounded min value is not allowed. Commenting out these two lines makes the program compile at least, but I still need to update the state_store.\nGoogling the issue has led me to believe that this is some sort of register offset error, rejected by the verifier.\nThe entire error message:\nbpf: Failed to load program: Invalid argument\n\nVerifier log:\nbpf: Failed to load program: Invalid argument\n0: (b7) r7 = 0\n1: (63) *(u32 *)(r10 -4) = r7\nlast_idx 1 first_idx 0\nregs=80 stack=0 before 0: (b7) r7 = 0\n2: (63) *(u32 *)(r10 -8) = r7\n3: (18) r1 = 0xffff98ec8a7dd800\n5: (bf) r2 = r10\n6: (07) r2 += -4\n7: (85) call bpf_map_lookup_elem#1\n8: (bf) r6 = r0\n9: (55) if r6 != 0x0 goto pc+30\n R0_w=inv0 R6_w=inv0 R7_w=invP0 R10=fp0 fp-8=mmmm0000\n10: (18) r1 = 0xffff98ec8a7dd800\n12: (bf) r6 = r10\n13: (07) r6 += -4\n14: (bf) r3 = r10\n15: (07) r3 += -8\n16: (bf) r2 = r6\n17: (b7) r4 = 1\n18: (85) call bpf_map_update_elem#2\n19: (18) r1 = 0xffff98ec8a7dd800\n21: (bf) r2 = r6\n22: (85) call bpf_map_lookup_elem#1\n23: (bf) r6 = r0\n24: (55) if r6 != 0x0 goto pc+15\n\nfrom 24 to 40: R0_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R6_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm\n40: (73) *(u8 *)(r10 -66) = r7\n41: (b7) r1 = 25637\n42: (6b) *(u16 *)(r10 -68) = r1\n43: (b7) r1 = 540697972\n44: (63) *(u32 *)(r10 -72) = r1\n45: (18) r1 = 0x6174732072727563\n47: (7b) *(u64 *)(r10 -80) = r1\n48: (61) r3 = *(u32 *)(r6 +0)\n R0_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R1_w=inv7022364302173697379 R6_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm fp-72=?0mmmmmm fp-80_w=inv7022364302173697379\n49: (bf) r1 = r10\n50: (07) r1 += -80\n51: (b7) r2 = 15\n52: (85) call bpf_trace_printk#6\nlast_idx 52 first_idx 19\nregs=4 stack=0 before 51: (b7) r2 = 15\n53: (18) r1 = 0xffff98ed35b5b000\n55: (bf) r2 = r10\n56: (07) r2 += -80\n57: (85) call bpf_map_peek_elem#89\n58: (67) r0 <<= 32\n59: (c7) r0 s>>= 32\n60: (65) if r0 s> 0xffffffff goto pc+41\n R0_w=inv(id=0,umin_value=18446744071562067968,var_off=(0xffffffff80000000; 0x7fffffff),u32_min_value=-2147483648) R6=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm fp-16=????mmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmmmm\n61: (b7) r1 = 29801\n62: (6b) *(u16 *)(r10 -84) = r1\n63: (b7) r1 = 1852383342\n64: (63) *(u32 *)(r10 -88) = r1\n65: (18) r1 = 0x6f74616d6f747561\n67: (7b) *(u64 *)(r10 -96) = r1\n68: (b7) r7 = 0\n69: (73) *(u8 *)(r10 -82) = r7\nlast_idx 69 first_idx 53\nregs=80 stack=0 before 68: (b7) r7 = 0\n70: (bf) r1 = r10\n71: (07) r1 += -96\n72: (b7) r2 = 15\n73: (85) call bpf_trace_printk#6\nlast_idx 73 first_idx 53\nregs=4 stack=0 before 72: (b7) r2 = 15\n74: (18) r1 = 0xffffffff\n76: (63) *(u32 *)(r10 -72) = r1\n77: (b7) r2 = 1\n78: (63) *(u32 *)(r10 -76) = r2\n79: (63) *(u32 *)(r10 -64) = r1\n80: (63) *(u32 *)(r10 -68) = r1\n81: (b7) r2 = 2\n82: (63) *(u32 *)(r10 -56) = r2\n83: (63) *(u32 *)(r10 -60) = r1\n84: (63) *(u32 *)(r10 -48) = r1\n85: (63) *(u32 *)(r10 -52) = r1\n86: (63) *(u32 *)(r10 -40) = r1\n87: (63) *(u32 *)(r10 -44) = r1\n88: (63) *(u32 *)(r10 -32) = r1\n89: (b7) r2 = 3\n90: (63) *(u32 *)(r10 -36) = r2\n91: (63) *(u32 *)(r10 -24) = r1\n92: (63) *(u32 *)(r10 -28) = r1\n93: (63) *(u32 *)(r10 -16) = r7\n94: (63) *(u32 *)(r10 -20) = r1\n95: (63) *(u32 *)(r10 -80) = r7\n96: (18) r1 = 0xffff98ed35b5b000\n98: (bf) r2 = r10\n99: (07) r2 += -80\n100: (b7) r3 = 2\n101: (85) call bpf_map_push_elem#87\n102: (61) r1 = *(u32 *)(r6 +0)\n R0_w=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm fp-16=????mmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmmmm fp-88=?mmmmmmm fp-96=mmmmmmmm\n103: (67) r1 <<= 32\n104: (c7) r1 s>>= 32\n105: (67) r1 <<= 4\n106: (bf) r2 = r10\n107: (07) r2 += -80\n108: (0f) r2 += r1\nlast_idx 108 first_idx 74\nregs=2 stack=0 before 107: (07) r2 += -80\nregs=2 stack=0 before 106: (bf) r2 = r10\nregs=2 stack=0 before 105: (67) r1 <<= 4\nregs=2 stack=0 before 104: (c7) r1 s>>= 32\nregs=2 stack=0 before 103: (67) r1 <<= 32\nregs=2 stack=0 before 102: (61) r1 = *(u32 *)(r6 +0)\nmath between fp pointer and register with unbounded min value is not allowed\nprocessed 100 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 2",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <bcc/proto.h>\nstruct automaton_s {\nint initial_state;\nint function[4][4];\n};\ntypedef struct automaton_s automaton_t;\nBPF_STACK(automaton, automaton_t, 1);\nBPF_TABLE_PINNED(\"hash\", int, int, state_store, 1, \"/sys/fs/bpf/state\");\nint trace_connect_v4_return(struct pt_regs *ctx)\n{\nint key = 0, init_val = 0;\nint *curr_state;\ncurr_state = state_store.lookup_or_try_init(&key, &init_val);\nif (!curr_state) {\nbpf_trace_printk(\"State store is full\");\nreturn -1;\n}\nbpf_trace_printk(\"curr state: %d\", *curr_state);\nautomaton_t aut;\nif (automaton.peek(&aut) < 0) {\nbpf_trace_printk(\"automaton init\");\naut = (automaton_t) {\n.initial_state = 0,\n.function = {\n{ 1, -1, -1, -1 },\n{ -1, 2, -1, -1 },\n{ -1, -1, 3, -1 },\n{ -1, -1, -1, 0 }\n}\n};\nautomaton.push(&aut, BPF_EXIST);\n}\nint next = aut.function[*curr_state][0];\nbpf_trace_printk(\"next val: %d\", next);\nstate_store.update(&key, &next);\nreturn 0;\n}\nThe error occurs whenever I try to use this next value, for either printing or updating state_store (see last two lines before return 0;). I get the error math between fp pointer and register with unbounded min value is not allowed. Commenting out these two lines makes the program compile at least, but I still need to update the state_store.\nGoogling the issue has led me to believe that this is some sort of register offset error, rejected by the verifier.\nThe entire error message:\nbpf: Failed to load program: Invalid argument\n\nVerifier log:\nbpf: Failed to load program: Invalid argument\n0: (b7) r7 = 0\n1: (63) *(u32 *)(r10 -4) = r7\nlast_idx 1 first_idx 0\nregs=80 stack=0 before 0: (b7) r7 = 0\n2: (63) *(u32 *)(r10 -8) = r7\n3: (18) r1 = 0xffff98ec8a7dd800\n5: (bf) r2 = r10\n6: (07) r2 += -4\n7: (85) call bpf_map_lookup_elem#1\n8: (bf) r6 = r0\n9: (55) if r6 != 0x0 goto pc+30\n R0_w=inv0 R6_w=inv0 R7_w=invP0 R10=fp0 fp-8=mmmm0000\n10: (18) r1 = 0xffff98ec8a7dd800\n12: (bf) r6 = r10\n13: (07) r6 += -4\n14: (bf) r3 = r10\n15: (07) r3 += -8\n16: (bf) r2 = r6\n17: (b7) r4 = 1\n18: (85) call bpf_map_update_elem#2\n19: (18) r1 = 0xffff98ec8a7dd800\n21: (bf) r2 = r6\n22: (85) call bpf_map_lookup_elem#1\n23: (bf) r6 = r0\n24: (55) if r6 != 0x0 goto pc+15\n\nfrom 24 to 40: R0_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R6_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm\n40: (73) *(u8 *)(r10 -66) = r7\n41: (b7) r1 = 25637\n42: (6b) *(u16 *)(r10 -68) = r1\n43: (b7) r1 = 540697972\n44: (63) *(u32 *)(r10 -72) = r1\n45: (18) r1 = 0x6174732072727563\n47: (7b) *(u64 *)(r10 -80) = r1\n48: (61) r3 = *(u32 *)(r6 +0)\n R0_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R1_w=inv7022364302173697379 R6_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm fp-72=?0mmmmmm fp-80_w=inv7022364302173697379\n49: (bf) r1 = r10\n50: (07) r1 += -80\n51: (b7) r2 = 15\n52: (85) call bpf_trace_printk#6\nlast_idx 52 first_idx 19\nregs=4 stack=0 before 51: (b7) r2 = 15\n53: (18) r1 = 0xffff98ed35b5b000\n55: (bf) r2 = r10\n56: (07) r2 += -80\n57: (85) call bpf_map_peek_elem#89\n58: (67) r0 <<= 32\n59: (c7) r0 s>>= 32\n60: (65) if r0 s> 0xffffffff goto pc+41\n R0_w=inv(id=0,umin_value=18446744071562067968,var_off=(0xffffffff80000000; 0x7fffffff),u32_min_value=-2147483648) R6=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm fp-16=????mmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmmmm\n61: (b7) r1 = 29801\n62: (6b) *(u16 *)(r10 -84) = r1\n63: (b7) r1 = 1852383342\n64: (63) *(u32 *)(r10 -88) = r1\n65: (18) r1 = 0x6f74616d6f747561\n67: (7b) *(u64 *)(r10 -96) = r1\n68: (b7) r7 = 0\n69: (73) *(u8 *)(r10 -82) = r7\nlast_idx 69 first_idx 53\nregs=80 stack=0 before 68: (b7) r7 = 0\n70: (bf) r1 = r10\n71: (07) r1 += -96\n72: (b7) r2 = 15\n73: (85) call bpf_trace_printk#6\nlast_idx 73 first_idx 53\nregs=4 stack=0 before 72: (b7) r2 = 15\n74: (18) r1 = 0xffffffff\n76: (63) *(u32 *)(r10 -72) = r1\n77: (b7) r2 = 1\n78: (63) *(u32 *)(r10 -76) = r2\n79: (63) *(u32 *)(r10 -64) = r1\n80: (63) *(u32 *)(r10 -68) = r1\n81: (b7) r2 = 2\n82: (63) *(u32 *)(r10 -56) = r2\n83: (63) *(u32 *)(r10 -60) = r1\n84: (63) *(u32 *)(r10 -48) = r1\n85: (63) *(u32 *)(r10 -52) = r1\n86: (63) *(u32 *)(r10 -40) = r1\n87: (63) *(u32 *)(r10 -44) = r1\n88: (63) *(u32 *)(r10 -32) = r1\n89: (b7) r2 = 3\n90: (63) *(u32 *)(r10 -36) = r2\n91: (63) *(u32 *)(r10 -24) = r1\n92: (63) *(u32 *)(r10 -28) = r1\n93: (63) *(u32 *)(r10 -16) = r7\n94: (63) *(u32 *)(r10 -20) = r1\n95: (63) *(u32 *)(r10 -80) = r7\n96: (18) r1 = 0xffff98ed35b5b000\n98: (bf) r2 = r10\n99: (07) r2 += -80\n100: (b7) r3 = 2\n101: (85) call bpf_map_push_elem#87\n102: (61) r1 = *(u32 *)(r6 +0)\n R0_w=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm fp-16=????mmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmmmm fp-88=?mmmmmmm fp-96=mmmmmmmm\n103: (67) r1 <<= 32\n104: (c7) r1 s>>= 32\n105: (67) r1 <<= 4\n106: (bf) r2 = r10\n107: (07) r2 += -80\n108: (0f) r2 += r1\nlast_idx 108 first_idx 74\nregs=2 stack=0 before 107: (07) r2 += -80\nregs=2 stack=0 before 106: (bf) r2 = r10\nregs=2 stack=0 before 105: (67) r1 <<= 4\nregs=2 stack=0 before 104: (c7) r1 s>>= 32\nregs=2 stack=0 before 103: (67) r1 <<= 32\nregs=2 stack=0 before 102: (61) r1 = *(u32 *)(r6 +0)\nmath between fp pointer and register with unbounded min value is not allowed\nprocessed 100 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 2\n\nDiagnostic analysis:\nerror[OBLIGE-E005]: lowering_artifact \u2014 packet access with lost proof\n  \u250c\u2500 <bytecode>\n  \u2502\n 60 \u2502     if r0 s> 0xffffffff goto pc+41\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n    \u2502     R7: scalar(0) \u2192 scalar(0)\n    \u2502\n102 \u2502     r1 = *(u32 *)(r6 +0)\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: arithmetic destroys scalar bounds\n    \u2502     R0: scalar(umin=-2147483648, var_off=(0xffffffff80000000; 0x7fffffff)) \u2192 scalar(unbounded)\n    \u2502\n108 \u2502     r2 += r1\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502\n  = note: A proof existed earlier, but a helper or function boundary erased the verifier-tracked provenance.\n  = help: Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+320",
+    "raw_fix:+50",
+    "accepted_fix:+25",
+    "expected_from_gt:+40",
+    "specific_fix:+35",
+    "tag_taxonomy:+20",
+    "log_lines:+218",
+    "trace_state_lines:+80",
+    "trace_rich:+60"
+  ],
+  "selection_score": 848,
+  "source": "stackoverflow",
+  "source_code": "#include <bcc/proto.h>\nstruct automaton_s {\nint initial_state;\nint function[4][4];\n};\ntypedef struct automaton_s automaton_t;\nBPF_STACK(automaton, automaton_t, 1);\nBPF_TABLE_PINNED(\"hash\", int, int, state_store, 1, \"/sys/fs/bpf/state\");\nint trace_connect_v4_return(struct pt_regs *ctx)\n{\nint key = 0, init_val = 0;\nint *curr_state;\ncurr_state = state_store.lookup_or_try_init(&key, &init_val);\nif (!curr_state) {\nbpf_trace_printk(\"State store is full\");\nreturn -1;\n}\nbpf_trace_printk(\"curr state: %d\", *curr_state);\nautomaton_t aut;\nif (automaton.peek(&aut) < 0) {\nbpf_trace_printk(\"automaton init\");\naut = (automaton_t) {\n.initial_state = 0,\n.function = {\n{ 1, -1, -1, -1 },\n{ -1, 2, -1, -1 },\n{ -1, -1, 3, -1 },\n{ -1, -1, -1, 0 }\n}\n};\nautomaton.push(&aut, BPF_EXIST);\n}\nint next = aut.function[*curr_state][0];\nbpf_trace_printk(\"next val: %d\", next);\nstate_store.update(&key, &next);\nreturn 0;\n}\nThe error occurs whenever I try to use this next value, for either printing or updating state_store (see last two lines before return 0;). I get the error math between fp pointer and register with unbounded min value is not allowed. Commenting out these two lines makes the program compile at least, but I still need to update the state_store.\nGoogling the issue has led me to believe that this is some sort of register offset error, rejected by the verifier.\nThe entire error message:\nbpf: Failed to load program: Invalid argument",
+  "source_url": "https://stackoverflow.com/questions/74531552/bpf-verification-fails-due-to-register-offset",
+  "symptom_span_text": "",
+  "taxonomy_class": "source_bug",
+  "taxonomy_source": "fix_tag_heuristic",
+  "title": "BPF Verification fails due to register offset",
+  "verifier_log": "bpf: Failed to load program: Invalid argument\n0: (b7) r7 = 0\n1: (63) *(u32 *)(r10 -4) = r7\nlast_idx 1 first_idx 0\nregs=80 stack=0 before 0: (b7) r7 = 0\n2: (63) *(u32 *)(r10 -8) = r7\n3: (18) r1 = 0xffff98ec8a7dd800\n5: (bf) r2 = r10\n6: (07) r2 += -4\n7: (85) call bpf_map_lookup_elem#1\n8: (bf) r6 = r0\n9: (55) if r6 != 0x0 goto pc+30\n R0_w=inv0 R6_w=inv0 R7_w=invP0 R10=fp0 fp-8=mmmm0000\n10: (18) r1 = 0xffff98ec8a7dd800\n12: (bf) r6 = r10\n13: (07) r6 += -4\n14: (bf) r3 = r10\n15: (07) r3 += -8\n16: (bf) r2 = r6\n17: (b7) r4 = 1\n18: (85) call bpf_map_update_elem#2\n19: (18) r1 = 0xffff98ec8a7dd800\n21: (bf) r2 = r6\n22: (85) call bpf_map_lookup_elem#1\n23: (bf) r6 = r0\n24: (55) if r6 != 0x0 goto pc+15\n\nfrom 24 to 40: R0_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R6_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm\n40: (73) *(u8 *)(r10 -66) = r7\n41: (b7) r1 = 25637\n42: (6b) *(u16 *)(r10 -68) = r1\n43: (b7) r1 = 540697972\n44: (63) *(u32 *)(r10 -72) = r1\n45: (18) r1 = 0x6174732072727563\n47: (7b) *(u64 *)(r10 -80) = r1\n48: (61) r3 = *(u32 *)(r6 +0)\n R0_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R1_w=inv7022364302173697379 R6_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm fp-72=?0mmmmmm fp-80_w=inv7022364302173697379\n49: (bf) r1 = r10\n50: (07) r1 += -80\n51: (b7) r2 = 15\n52: (85) call bpf_trace_printk#6\nlast_idx 52 first_idx 19\nregs=4 stack=0 before 51: (b7) r2 = 15\n53: (18) r1 = 0xffff98ed35b5b000\n55: (bf) r2 = r10\n56: (07) r2 += -80\n57: (85) call bpf_map_peek_elem#89\n58: (67) r0 <<= 32\n59: (c7) r0 s>>= 32\n60: (65) if r0 s> 0xffffffff goto pc+41\n R0_w=inv(id=0,umin_value=18446744071562067968,var_off=(0xffffffff80000000; 0x7fffffff),u32_min_value=-2147483648) R6=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm fp-16=????mmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmmmm\n61: (b7) r1 = 29801\n62: (6b) *(u16 *)(r10 -84) = r1\n63: (b7) r1 = 1852383342\n64: (63) *(u32 *)(r10 -88) = r1\n65: (18) r1 = 0x6f74616d6f747561\n67: (7b) *(u64 *)(r10 -96) = r1\n68: (b7) r7 = 0\n69: (73) *(u8 *)(r10 -82) = r7\nlast_idx 69 first_idx 53\nregs=80 stack=0 before 68: (b7) r7 = 0\n70: (bf) r1 = r10\n71: (07) r1 += -96\n72: (b7) r2 = 15\n73: (85) call bpf_trace_printk#6\nlast_idx 73 first_idx 53\nregs=4 stack=0 before 72: (b7) r2 = 15\n74: (18) r1 = 0xffffffff\n76: (63) *(u32 *)(r10 -72) = r1\n77: (b7) r2 = 1\n78: (63) *(u32 *)(r10 -76) = r2\n79: (63) *(u32 *)(r10 -64) = r1\n80: (63) *(u32 *)(r10 -68) = r1\n81: (b7) r2 = 2\n82: (63) *(u32 *)(r10 -56) = r2\n83: (63) *(u32 *)(r10 -60) = r1\n84: (63) *(u32 *)(r10 -48) = r1\n85: (63) *(u32 *)(r10 -52) = r1\n86: (63) *(u32 *)(r10 -40) = r1\n87: (63) *(u32 *)(r10 -44) = r1\n88: (63) *(u32 *)(r10 -32) = r1\n89: (b7) r2 = 3\n90: (63) *(u32 *)(r10 -36) = r2\n91: (63) *(u32 *)(r10 -24) = r1\n92: (63) *(u32 *)(r10 -28) = r1\n93: (63) *(u32 *)(r10 -16) = r7\n94: (63) *(u32 *)(r10 -20) = r1\n95: (63) *(u32 *)(r10 -80) = r7\n96: (18) r1 = 0xffff98ed35b5b000\n98: (bf) r2 = r10\n99: (07) r2 += -80\n100: (b7) r3 = 2\n101: (85) call bpf_map_push_elem#87\n102: (61) r1 = *(u32 *)(r6 +0)\n R0_w=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=4,imm=0) R7=invP0 R10=fp0 fp-8=mmmmmmmm fp-16=????mmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmmmm fp-88=?mmmmmmm fp-96=mmmmmmmm\n103: (67) r1 <<= 32\n104: (c7) r1 s>>= 32\n105: (67) r1 <<= 4\n106: (bf) r2 = r10\n107: (07) r2 += -80\n108: (0f) r2 += r1\nlast_idx 108 first_idx 74\nregs=2 stack=0 before 107: (07) r2 += -80\nregs=2 stack=0 before 106: (bf) r2 = r10\nregs=2 stack=0 before 105: (67) r1 <<= 4\nregs=2 stack=0 before 104: (c7) r1 s>>= 32\nregs=2 stack=0 before 103: (67) r1 <<= 32\nregs=2 stack=0 before 102: (61) r1 = *(u32 *)(r6 +0)\nmath between fp pointer and register with unbounded min value is not allowed\nprocessed 100 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 2"
+}

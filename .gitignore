@@ -25,6 +25,21 @@ case_study/.cache/
 *.log
 *.jsonl
 
+# LaTeX temporaries
+*.aux
+*.out
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+
 # Editor and OS noise
 .DS_Store
 .idea/

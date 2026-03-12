@@ -1,0 +1,1409 @@
+{
+  "cases": [
+    {
+      "case_id": "github-aya-rs-aya-1062",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Add or tighten the bounds check immediately before the failing access.",
+        "rationale": "The raw rejection looks like a local bounds-proof failure, so a log-only repair would likely patch the guard near the reject site.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "no_panic_unwrap",
+        "predicted_fix": "Replace `ctx.ret().unwrap()` with explicit error handling and clamp the resulting length before the read.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "`ctx.ret()` handling before the read"
+      },
+      "overall_notes": "Condition B helped: the proof-oriented diagnostic pulled the repair from a reject-site patch toward the underlying lowering/proof-loss cause."
+    },
+    {
+      "case_id": "stackoverflow-75058008",
+      "condition_a": {
+        "fix_type_label": "null_check",
+        "predicted_fix": "Add a null check in the same function right before the dereference.",
+        "rationale": "The nullable-pointer rejection points directly at the dereference, so a shallow repair would add a local null guard.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the failing statement or its immediate setup"
+      },
+      "condition_b": {
+        "fix_type_label": "null_check",
+        "predicted_fix": "Add a null check in the same function right before the dereference.",
+        "rationale": "The nullable-pointer rejection points directly at the dereference, so a shallow repair would add a local null guard.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the failing statement or its immediate setup"
+      },
+      "overall_notes": "Condition B tied: both conditions stayed anchored on the reject site and missed the deeper cause."
+    },
+    {
+      "case_id": "kernel-selftest-iters-state-safety-leak-iter-from-subprog-fail-raw-tp-65737a09",
+      "condition_a": {
+        "fix_type_label": "release_balance",
+        "predicted_fix": "Destroy the iterator on every exit path, including the callee path that currently leaks it.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the acquire/release paths across all exits"
+      },
+      "condition_b": {
+        "fix_type_label": "btf_regen",
+        "predicted_fix": "Regenerate or align the BTF / func_info metadata for this build.",
+        "rationale": "The diagnostic surface makes this look like a metadata/toolchain issue even though the accepted fix is elsewhere.",
+        "scores": {
+          "fix_type": 0,
+          "location": 0,
+          "root_cause": 0
+        },
+        "target_location": "the BTF/toolchain artifacts"
+      },
+      "overall_notes": "Condition B hurt: the diagnostic pulled attention toward a misleading proof/BTF story instead of the actual fix."
+    },
+    {
+      "case_id": "stackoverflow-70091221",
+      "condition_a": {
+        "fix_type_label": "map_declaration",
+        "predicted_fix": "Declare the map with `SEC(\"maps\")` so helper arg 1 is the actual map object.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the map definition / loader-facing declaration"
+      },
+      "condition_b": {
+        "fix_type_label": "map_declaration",
+        "predicted_fix": "Declare the map with `SEC(\"maps\")` so helper arg 1 is the actual map object.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the map definition / loader-facing declaration"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-72074115",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Add a dominating bounds check that proves the buffer access is within range on every path.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Add a dominating bounds check that proves the buffer access is within range on every path.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-76277872",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Check bounds against the actual header/payload size you read, not just `sizeof(struct ethhdr)`.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Check bounds against the actual header/payload size you read, not just `sizeof(struct ethhdr)`.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-79045875",
+      "condition_a": {
+        "fix_type_label": "pointer_type_fix",
+        "predicted_fix": "Pass data whose pointee type matches the kfunc contract instead of an `UNKNOWN` pointer shape.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper call argument / dynptr object site"
+      },
+      "condition_b": {
+        "fix_type_label": "pointer_type_fix",
+        "predicted_fix": "Pass data whose pointee type matches the kfunc contract instead of an `UNKNOWN` pointer shape.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper call argument / dynptr object site"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-47591176",
+      "condition_a": {
+        "fix_type_label": "tc_direct_action",
+        "predicted_fix": "Load the tc program with the direct-action (`da`) flag so `TC_ACT_SHOT` is interpreted as an action result.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the tc filter invocation / direct-action flag"
+      },
+      "condition_b": {
+        "fix_type_label": "tc_direct_action",
+        "predicted_fix": "Load the tc program with the direct-action (`da`) flag so `TC_ACT_SHOT` is interpreted as an action result.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the tc filter invocation / direct-action flag"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "github-aya-rs-aya-1233",
+      "condition_a": {
+        "fix_type_label": "helper_switch",
+        "predicted_fix": "Replace `bpf_probe_read` with a helper allowed in `cgroup_skb`, or move the logic to a compatible program type.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the unsupported helper call or program-type choice"
+      },
+      "condition_b": {
+        "fix_type_label": "helper_switch",
+        "predicted_fix": "Replace `bpf_probe_read` with a helper allowed in `cgroup_skb`, or move the logic to a compatible program type.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the unsupported helper call or program-type choice"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-70729664",
+      "condition_a": {
+        "fix_type_label": "extra packet bounds check",
+        "predicted_fix": "Tighten the SCTP chunk-walk check so the code revalidates `nh->pos + size + 4` against `data_end` before reading the next chunk type.",
+        "rationale": "The raw log localizes the failing packet read but does not cleanly expose the verifier overflow corner case behind it.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "SCTP chunk cursor update around `nh->pos += size` / `parse_sctp_chunk_type`"
+      },
+      "condition_b": {
+        "fix_type_label": "unsigned clamp to preserve verifier proof",
+        "predicted_fix": "Clamp the computed chunk advance to a small unsigned max such as `MAX_PACKET_OFF` and keep the offset arithmetic in a separate verified register before dereferencing `nh->pos`.",
+        "rationale": "The diagnostic explicitly points to arithmetic widening/proof loss in the cursor update, which matches the accepted clamp-based workaround.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "SCTP chunk cursor update around `nh->pos += size`"
+      },
+      "overall_notes": "Condition B helped; the raw log mostly suggests a reject-site bounds check, while the diagnostic points to the proof-loss site in the chunk-offset arithmetic."
+    },
+    {
+      "case_id": "stackoverflow-76160985",
+      "condition_a": {
+        "fix_type_label": "force inlining / keep proof in one function",
+        "predicted_fix": "Mark `find_substring` and, if needed, `mystrlen` as `__always_inline` so the verifier sees the caller's proof in one function.",
+        "rationale": "The verifier is validating `find_substring()` as a separate subprog, so inlining is the direct repair.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "`find_substring` helper definition"
+      },
+      "condition_b": {
+        "fix_type_label": "force inlining / keep proof in one function",
+        "predicted_fix": "Mark `find_substring` as `__always_inline` so the string-walk proof stays in the caller instead of being validated as a separate subprogram.",
+        "rationale": "The raw log still clearly indicates a subprog-boundary issue; the diagnostic's clamp hint is not persuasive here.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "`find_substring` helper definition"
+      },
+      "overall_notes": "Condition B tied; the raw log already exposed the separate-subprog validation, and the diagnostic was misleading but not enough to change the repair."
+    },
+    {
+      "case_id": "stackoverflow-60053570",
+      "condition_a": {
+        "fix_type_label": "fix helper length / bounds at checksum call",
+        "predicted_fix": "Change the `bpf_csum_diff` length argument to the actual ICMP header size, such as `sizeof(struct icmphdr)`, unless the code first proves a larger region is in bounds.",
+        "rationale": "The log says the helper is reading 64 bytes from a packet region where only the ICMP header has been checked.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "`bpf_csum_diff` call in `_xdp_icmp`"
+      },
+      "condition_b": {
+        "fix_type_label": "fix helper length / bounds at checksum call",
+        "predicted_fix": "Use the correct byte length at `bpf_csum_diff` for the ICMP header instead of the larger unchecked constant, or add a dominating proof for that larger size.",
+        "rationale": "Even with the generic diagnostic, the call-site size mismatch remains the obvious root cause.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "`bpf_csum_diff` call in `_xdp_icmp`"
+      },
+      "overall_notes": "Condition B tied; the raw log already localizes the checksum-size bug at the helper call."
+    },
+    {
+      "case_id": "stackoverflow-70392721",
+      "condition_a": {
+        "fix_type_label": "toolchain build-flag fix",
+        "predicted_fix": "Rebuild the BPF object with `-O2` and strip incompatible debug/BTF payloads with `llvm-strip -g` instead of changing program logic.",
+        "rationale": "The failure happens in BTF/object loading before meaningful verification, which points to a bad object-file/toolchain setup.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "BPF build pipeline / clang invocation"
+      },
+      "condition_b": {
+        "fix_type_label": "toolchain build-flag fix",
+        "predicted_fix": "Compile with `-O2` and strip the object so libbpf sees a clean BPF program/BTF payload; this is a build artifact issue, not a pointer fix in the source.",
+        "rationale": "The diagnostic's pointer advice conflicts with the loader/BTF error, so the toolchain fix still dominates.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "BPF build pipeline / clang invocation"
+      },
+      "overall_notes": "Condition B tied; the raw log already screams toolchain/BTF mismatch, and the diagnostic is mostly noise here."
+    },
+    {
+      "case_id": "stackoverflow-72606055",
+      "condition_a": {
+        "fix_type_label": "loader map relocation fix",
+        "predicted_fix": "Fix the custom loader to create the map and apply ELF relocation for `my_map`, or use libbpf/bpftool so the helper sees a real map reference instead of `r1 = 0x0`.",
+        "rationale": "The program already declares the map; the log shows the loader failed to substitute the map FD/reference.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "userspace loader and map-relocation path"
+      },
+      "condition_b": {
+        "fix_type_label": "loader map relocation fix",
+        "predicted_fix": "Use a loader path that preserves the loader-generated map reference for `my_map` rather than sending an unrelocated `map_lookup_elem` call to the verifier.",
+        "rationale": "The diagnostic correctly centers the missing map reference, which is still a loader-side issue.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "userspace loader and map-relocation path"
+      },
+      "overall_notes": "Condition B tied; both conditions point to the custom loader/relocation bug, with B only adding verifier wording."
+    },
+    {
+      "case_id": "stackoverflow-76637174",
+      "condition_a": {
+        "fix_type_label": "loop rewrite with explicit bound and checked pointer",
+        "predicted_fix": "Rewrite the payload scan to use a checked `tcp_data` pointer, test `tcp_data + i + 1 <= data_end`, and cap the loop with a fixed maximum iteration bound.",
+        "rationale": "The bad read happens in the payload loop, and the current `data + i` walk plus unbounded iteration is verifier-hostile.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "TCP payload loop after the `tcph->dest` check"
+      },
+      "condition_b": {
+        "fix_type_label": "loop rewrite with explicit bound and checked pointer",
+        "predicted_fix": "Rewrite the payload walk around a verified `tcp_data` pointer and add an explicit maximum iteration bound so both the packet-access proof and loop complexity stay visible.",
+        "rationale": "The diagnostic reinforces that proof is lost around pointer arithmetic, but the same bounded loop rewrite remains the right repair.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "TCP payload loop after the `tcph->dest` check"
+      },
+      "overall_notes": "Condition B tied; it nudges toward the same loop/pointer rewrite, but the raw code already makes the bounded-iteration fix apparent."
+    },
+    {
+      "case_id": "stackoverflow-79348306",
+      "condition_a": {
+        "fix_type_label": "use trusted original pointer",
+        "predicted_fix": "Delete `BPF_CORE_READ_INTO(&file_path, file, f_path)` and call `bpf_d_path(&file->f_path, path_buffer, sizeof(path_buffer))` directly.",
+        "rationale": "The log explicitly says the helper got a stack pointer where it expects a trusted/BTF pointer.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "`bpf_d_path` call and preceding `BPF_CORE_READ_INTO`"
+      },
+      "condition_b": {
+        "fix_type_label": "use trusted original pointer",
+        "predicted_fix": "Pass `&file->f_path` directly to `bpf_d_path` and stop copying the path object onto the stack before the helper call.",
+        "rationale": "The diagnostic names the same trusted-pointer contract, so the direct `&file->f_path` fix still follows.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "`bpf_d_path` call and preceding `BPF_CORE_READ_INTO`"
+      },
+      "overall_notes": "Condition B tied; the diagnostic agrees with the raw helper-contract error, but the log was already explicit."
+    },
+    {
+      "case_id": "stackoverflow-56872436",
+      "condition_a": {
+        "fix_type_label": "fully unroll loop",
+        "predicted_fix": "Rewrite the loop into a form the verifier can fully unroll, or manually unroll the 8-iteration walk and inline the helper if needed.",
+        "rationale": "The raw log is a direct back-edge rejection, so this is plainly a loop-form/verifier-limit issue.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the `for (i = 0; i < 8; i++)` map-lookup loop"
+      },
+      "condition_b": {
+        "fix_type_label": "fully unroll loop",
+        "predicted_fix": "Make the loop verifier-visible by fully unrolling it or rewriting it so the bound/invariant is explicit at compile time.",
+        "rationale": "The diagnostic repeats the same loop-bound message already present in the verifier log.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the `for (i = 0; i < 8; i++)` map-lookup loop"
+      },
+      "overall_notes": "Condition B tied; the verifier log alone already states the back-edge problem."
+    },
+    {
+      "case_id": "github-aya-rs-aya-864",
+      "condition_a": {
+        "fix_type_label": "switch away from unavailable helper",
+        "predicted_fix": "Stop using `ctx.pid()` in `TcContext`; read the PID from `skb`/`TcContext` fields or patch Aya's wrapper so it does not call the unavailable helper.",
+        "rationale": "The log explicitly says `bpf_get_current_pid_tgid` is unknown in this program type.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "Aya `TcContext::pid()` usage / wrapper"
+      },
+      "condition_b": {
+        "fix_type_label": "switch away from unavailable helper",
+        "predicted_fix": "Avoid `ctx.pid()` and fetch the PID from classifier context data instead, or fix Aya's `TcContext` helper wrapper so it stops calling `bpf_get_current_pid_tgid` here.",
+        "rationale": "The diagnostic is off-target, but the raw helper-availability error is unambiguous.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "Aya `TcContext::pid()` usage / wrapper"
+      },
+      "overall_notes": "Condition B tied; the raw log already pinpoints the unavailable-helper mismatch, and the diagnostic adds no useful signal."
+    },
+    {
+      "case_id": "stackoverflow-70750259",
+      "condition_a": {
+        "fix_type_label": "unsigned clamp",
+        "predicted_fix": "Keep ext_len unsigned and clamp it before data += ext_len; avoid the signed or volatile conversion that makes the verifier lose the range proof.",
+        "rationale": "The raw log already shows packet-pointer arithmetic with an unbounded value created by the ext->len byte-swap path.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "ext_len calculation and the data/i advancement in the extension loop"
+      },
+      "condition_b": {
+        "fix_type_label": "unsigned clamp",
+        "predicted_fix": "Compute ext_len in a separate verified unsigned register, clamp it to the remaining packet span, then advance data with that checked value.",
+        "rationale": "OBLIGE identifies the proof-loss point more explicitly, but it reinforces the same unsigned-clamp repair the raw log already suggests.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "ext_len calculation and the data/i advancement in the extension loop"
+      },
+      "overall_notes": "Condition B tied; the raw log already exposed the unbounded offset arithmetic, and OBLIGE mainly sharpened the proof-loss explanation."
+    },
+    {
+      "case_id": "stackoverflow-79485758",
+      "condition_a": {
+        "fix_type_label": "generic bounds check",
+        "predicted_fix": "Add a stronger guard before x = *((uint16_t *)(data + field_offset)), rejecting any case where field_offset or that 2-byte read may run past packet end.",
+        "rationale": "From the raw log alone, the natural repair is just another local packet-bounds check around the failing dereference.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "field_offset guard before x = *((uint16_t *)(data + field_offset))"
+      },
+      "condition_b": {
+        "fix_type_label": "unsigned clamp",
+        "predicted_fix": "Clamp field_offset into a verifier-friendly unsigned range and read through a separately checked pkt_ptr before dereferencing it.",
+        "rationale": "The diagnostic points to a proof-loss corner case, so the right fix is not just another generic check but a clamp or checked-pointer rewrite.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "field_offset computation and the packet read at x = *((uint16_t *)(data + field_offset))"
+      },
+      "overall_notes": "Condition B helped; the raw log invites a symptom-level bounds tweak, while OBLIGE points to the MAX_PACKET_OFF-style clamp and checked-pointer workaround."
+    },
+    {
+      "case_id": "stackoverflow-61945212",
+      "condition_a": {
+        "fix_type_label": "helper argument fix",
+        "predicted_fix": "Fix the helper call site by passing a real stack-backed key to bpf_map_update_elem, or switch to a keyed map if you need keyed updates.",
+        "rationale": "The verifier exposes arg2 as invalid, so a raw-log-only repair naturally focuses on making the key pointer acceptable.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "bpf_map_update_elem(&queue_map, NULL, &value, BPF_ANY)"
+      },
+      "condition_b": {
+        "fix_type_label": "queue-map API switch",
+        "predicted_fix": "Replace bpf_map_update_elem with the queue-map API, e.g. bpf_map_push_elem(&queue_map, &value, 0).",
+        "rationale": "OBLIGE explicitly notes that this map type has no key and should use the queue-specific helper API instead.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "queue_map update call in bpf_prog"
+      },
+      "overall_notes": "Condition B helped; it turns a symptom-level arg2 repair into the correct queue-map API change."
+    },
+    {
+      "case_id": "stackoverflow-70721661",
+      "condition_a": {
+        "fix_type_label": "bounds check",
+        "predicted_fix": "Prove the IP header is in bounds before memcpy, either with (void *)ip + sizeof(*ip) <= data_end or by folding that size into the first header check.",
+        "rationale": "The log shows the verifier only knows the Ethernet header is safe, not the full IP header copied by memcpy.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "packet-length check before memcpy(&me.dest_ip, ip, sizeof(struct iphdr))"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds check",
+        "predicted_fix": "Add an explicit bounds check that covers the full IP header before memcpy, not just the Ethernet header.",
+        "rationale": "The diagnostic restates the same missing proof: the program never established that the IP header bytes are within data_end.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "packet-length check before memcpy(&me.dest_ip, ip, sizeof(struct iphdr))"
+      },
+      "overall_notes": "Condition B tied; the verifier log already localizes the missing header-length proof cleanly."
+    },
+    {
+      "case_id": "stackoverflow-74531552",
+      "condition_a": {
+        "fix_type_label": "index bounds check",
+        "predicted_fix": "Check *curr_state is within [0, 4) before using it to index aut.function, and bail out if it is negative or too large.",
+        "rationale": "The unchecked map-derived state value is the only source-level value feeding the fixed-size table index, and the accepted fix is a direct range guard.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "aut.function[*curr_state][0] array access"
+      },
+      "condition_b": {
+        "fix_type_label": "index bounds check",
+        "predicted_fix": "Check *curr_state is within [0, 4) before indexing aut.function so the table access has an explicit verifier-visible bound.",
+        "rationale": "The diagnostic talks about scalar range loss, but the concrete source-level repair is still the missing curr_state bounds check.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "aut.function[*curr_state][0] array access"
+      },
+      "overall_notes": "Condition B tied; OBLIGE was noisy here, but the unchecked table index is obvious from the source and still drives the same repair."
+    },
+    {
+      "case_id": "stackoverflow-76960866",
+      "condition_a": {
+        "fix_type_label": "indirect pointer read",
+        "predicted_fix": "Do not dereference newsock directly; read the field via bpf_probe_read_kernel(&sk, sizeof(sk), &newsock->sk) and then inspect the resulting sock safely.",
+        "rationale": "The raw log shows PT_REGS_PARM2 is just an untyped scalar to the verifier, so direct newsock->sk dereference is invalid.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "extract_sock_key(newsock->sk, &sk_key) and other direct newsock field dereferences"
+      },
+      "condition_b": {
+        "fix_type_label": "indirect pointer read",
+        "predicted_fix": "Re-read the socket field through bpf_probe_read_kernel using &newsock->sk, then pass that verified value to extract_sock_key.",
+        "rationale": "The diagnostic is less precise than the accepted answer, but it still points at rebuilding the pointer from a verifier-safe base right before dereference.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "extract_sock_key(newsock->sk, &sk_key) and other direct newsock field dereferences"
+      },
+      "overall_notes": "Condition B tied; the raw log already exposes the bad direct dereference, and OBLIGE does not change the repair direction."
+    },
+    {
+      "case_id": "github-aya-rs-aya-1324",
+      "condition_a": {
+        "fix_type_label": "logger lifetime / map fd retention",
+        "predicted_fix": "Keep the logger returned by EbpfLogger::init alive for the lifetime of the program instead of dropping it immediately.",
+        "rationale": "The failure is a load-time invalid map FD, and the only suspicious map-owning initialization in the snippet is the discarded EbpfLogger handle.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "EbpfLogger::init(&mut bpf)? call in main"
+      },
+      "condition_b": {
+        "fix_type_label": "logger lifetime / map fd retention",
+        "predicted_fix": "Keep the EbpfLogger handle alive instead of dropping it, so the logging map FD stays valid through program load and attach.",
+        "rationale": "The diagnostic is off-topic for this case, but the raw code and verifier text still point back to the logger-backed map lifetime issue.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "EbpfLogger::init(&mut bpf)? call in main"
+      },
+      "overall_notes": "Condition B tied; OBLIGE was clearly misclassified here, but the raw code and log were strong enough that the repair stayed the same."
+    },
+    {
+      "case_id": "stackoverflow-70841631",
+      "condition_a": {
+        "fix_type_label": "reduce branching/state fan-out",
+        "predicted_fix": "Reduce verifier state explosion by simplifying or splitting the nested packet-scanning loops, hoisting checks, and keeping the per-packet scan more tightly bounded.",
+        "rationale": "The raw log directly says the verifier hit the 1,000,001-instruction analysis limit, which is a complexity problem rather than a bad memory proof.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the Host-header scan loop and the server-name extraction loop"
+      },
+      "condition_b": {
+        "fix_type_label": "reduce branching/state fan-out",
+        "predicted_fix": "Refactor the nested parsing loops into simpler bounded stages so verifier branching and iteration count stay below the analysis budget.",
+        "rationale": "OBLIGE matches the raw log here and points to the same complexity-reduction repair.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the Host-header scan loop and the server-name extraction loop"
+      },
+      "overall_notes": "Condition B tied; the verifier log already gives a direct state-explosion signal."
+    },
+    {
+      "case_id": "stackoverflow-69413427",
+      "condition_a": {
+        "fix_type_label": "stack-backed key",
+        "predicted_fix": "Materialize the inode-derived key on the BPF stack and pass &key to bpf_map_lookup_elem, ideally using a scalar inode identifier instead of the raw pointer itself.",
+        "rationale": "The raw log already says arg2 must be a stack or map-key style pointer, not the scalar pointer value produced by BPF_CORE_READ.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "BPF_CORE_READ(dentry, d_inode) result and bpf_map_lookup_elem(&info, p)"
+      },
+      "condition_b": {
+        "fix_type_label": "stack-backed key",
+        "predicted_fix": "Copy the inode key material into a stack local and pass a pointer to that stack object to bpf_map_lookup_elem.",
+        "rationale": "The diagnostic makes the helper contract explicit, but it confirms the same stack-backed key repair visible from the verifier message.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "BPF_CORE_READ(dentry, d_inode) result and bpf_map_lookup_elem(&info, p)"
+      },
+      "overall_notes": "Condition B tied; the raw verifier text already points directly to the helper-contract violation and stack-key repair."
+    },
+    {
+      "case_id": "stackoverflow-72575736",
+      "condition_a": {
+        "fix_type_label": "unsigned clamp / pointer arithmetic rewrite",
+        "predicted_fix": "Add an explicit unsigned clamp on `off`/`i` and dereference the same checked `address` register inside the loop.",
+        "rationale": "The raw log looks like packet-bounds loss in the loop, but the accepted fix is a kernel backport rather than a source change.",
+        "scores": {
+          "fix_type": 0,
+          "location": 0,
+          "root_cause": 0
+        },
+        "target_location": "the `address = start + off + i` / packet-read loop"
+      },
+      "condition_b": {
+        "fix_type_label": "unsigned clamp",
+        "predicted_fix": "Clamp the offset to a small unsigned range and keep the offset calculation in a separate verified register before dereference.",
+        "rationale": "The diagnostic reinforces a code-side arithmetic rewrite, but the ground truth is still an unfixed verifier bug on the older kernel.",
+        "scores": {
+          "fix_type": 0,
+          "location": 0,
+          "root_cause": 0
+        },
+        "target_location": "the same loop-side pointer arithmetic before `let byte = *(address as *const u8)`"
+      },
+      "overall_notes": "Condition B tied A. Both conditions chase a source rewrite, while the accepted fix is upgrading/backporting the kernel verifier fix."
+    },
+    {
+      "case_id": "stackoverflow-79530762",
+      "condition_a": {
+        "fix_type_label": "reuse checked pointer",
+        "predicted_fix": "Introduce a temporary checked pointer and read/write through that exact pointer instead of recomputing `data_bytes + i + option_length` after the bounds check.",
+        "rationale": "The code already has a local bounds check, so the failure is most plausibly proof loss across recomputed packet arithmetic.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the packet-copy loop that writes `data_bytes[i + option_length] = data_bytes[i]`"
+      },
+      "condition_b": {
+        "fix_type_label": "add bounds check",
+        "predicted_fix": "Add a stronger `data_bytes + i + option_length + 1 <= data_end` guard immediately before the write.",
+        "rationale": "The diagnostic frames the failure as a missing reject-site bounds proof, which treats the symptom rather than the checked-vs-accessed-pointer mismatch.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the same packet-copy loop"
+      },
+      "overall_notes": "Condition B hurt. Raw log plus source already suggested a lowering-induced pointer-reuse bug, while the diagnostic pushed toward another surface bounds check."
+    },
+    {
+      "case_id": "stackoverflow-67402772",
+      "condition_a": {
+        "fix_type_label": "use allowed context access / program type",
+        "predicted_fix": "Stop reading `skb->local_ip4` and `skb->remote_ip4` in this `lwt_out` program; use an allowed context field/API or move the logic to a program type that exposes them.",
+        "rationale": "The raw verifier error is an invalid `__sk_buff` context access at those exact offsets.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the direct `skb->local_ip4` / `skb->remote_ip4` loads"
+      },
+      "condition_b": {
+        "fix_type_label": "use allowed context access / program type",
+        "predicted_fix": "Replace the forbidden `skb` member reads with a verifier-allowed field or helper, or run this logic in a program type that permits those offsets.",
+        "rationale": "The diagnostic is generic here, but the raw log still makes the forbidden context-member access obvious.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the same `skb->local_ip4` / `skb->remote_ip4` reads"
+      },
+      "overall_notes": "Condition B tied A. The raw log already pinpointed unsupported `__sk_buff` field access, so the extra diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-70760516",
+      "condition_a": {
+        "fix_type_label": "bound loop / total packet offset",
+        "predicted_fix": "Cap the number of parsed extensions and tighten per-extension and server-name lengths so the cumulative packet offset cannot grow past 64K.",
+        "rationale": "The verifier range grows across loop iterations, so the fix is to constrain total advancement, not to add another local packet check.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the outer extension loop and the `ext_len` / `server_name_len` bounds"
+      },
+      "condition_b": {
+        "fix_type_label": "add bounds check",
+        "predicted_fix": "Insert an explicit `data + sizeof(struct extension) <= data_end` check right before reading `ext->type`.",
+        "rationale": "The diagnostic collapses a cumulative range-growth problem into a reject-site bounds-check symptom.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the `ext->type` access inside the extension loop"
+      },
+      "overall_notes": "Condition B hurt. The accepted fix constrains loop growth and total offset, while the diagnostic steers toward a redundant local bounds check."
+    },
+    {
+      "case_id": "stackoverflow-75294010",
+      "condition_a": {
+        "fix_type_label": "use value buffer, not pointer-to-pointer",
+        "predicted_fix": "Pass `event` to `bpf_perf_event_output` instead of `&event`, so the helper receives the record buffer rather than a pointer to the pointer.",
+        "rationale": "The helper signature plus the source code make the pointer-to-pointer mistake visible even though the packet's log excerpt is noisy.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the final `bpf_perf_event_output` call"
+      },
+      "condition_b": {
+        "fix_type_label": "re-derive pointer",
+        "predicted_fix": "Re-derive the `event` pointer from the verified map lookup before each dereference and write.",
+        "rationale": "The diagnostic pulls attention to an earlier pointer-provenance symptom instead of the accepted helper-argument bug at the final emit call.",
+        "scores": {
+          "fix_type": 0,
+          "location": 0,
+          "root_cause": 0
+        },
+        "target_location": "the `event->attr.*` writes after the map lookup"
+      },
+      "overall_notes": "Condition B hurt. The raw source exposes the pointer-to-pointer bug in `bpf_perf_event_output`, while the diagnostic redirects attention to an earlier symptom."
+    },
+    {
+      "case_id": "stackoverflow-77205912",
+      "condition_a": {
+        "fix_type_label": "re-read packet pointers after helper",
+        "predicted_fix": "After `skb_store_bytes` and the checksum helpers, reload `data`, `data_end`, and the IP/TCP pointers from `skb`, or compute both checksum diffs before mutating the packet.",
+        "rationale": "Packet-mutating helpers invalidate verifier packet pointers, so the second checksum pass cannot safely reuse the old `ip4`-derived pointer.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the second checksum-update sequence after the first packet-modifying helper calls"
+      },
+      "condition_b": {
+        "fix_type_label": "unsigned clamp",
+        "predicted_fix": "Clamp the checksum offset arithmetic and keep it in a separate verified register before the second `csum_diff`.",
+        "rationale": "The diagnostic misreads the failure as arithmetic proof loss, but the accepted fix is to rebuild packet pointers after helper-induced invalidation.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the second checksum-update block"
+      },
+      "overall_notes": "Condition B hurt. The raw case points to helper-induced packet-pointer invalidation, while the diagnostic turns it into an arithmetic-clamp problem."
+    },
+    {
+      "case_id": "github-aya-rs-aya-521",
+      "condition_a": {
+        "fix_type_label": "reduce branching / loop simplification",
+        "predicted_fix": "Reduce branching inside the `bpf_loop` callback or replace it with a smaller bounded/unrolled loop so the verifier does not explode states.",
+        "rationale": "The case context itself is about verifier trouble with the loop shape, and the accepted answer is to minimize branching in the loop body.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the `loop_body` callback and its `bpf_loop(256, ...)` use"
+      },
+      "condition_b": {
+        "fix_type_label": "regenerate BTF metadata",
+        "predicted_fix": "Regenerate matching BTF and `func_info` metadata for the `bpf_loop` callback so the kernel can load it.",
+        "rationale": "The diagnostic fully misclassifies this loop-shape case as a metadata mismatch.",
+        "scores": {
+          "fix_type": 0,
+          "location": 0,
+          "root_cause": 0
+        },
+        "target_location": "the build/BTF metadata for the generated program"
+      },
+      "overall_notes": "Condition B hurt. The raw packet context still points to verifier complexity in the loop body, while the diagnostic diverts entirely to BTF metadata."
+    },
+    {
+      "case_id": "stackoverflow-78753911",
+      "condition_a": {
+        "fix_type_label": "reduce branching/state fan-out",
+        "predicted_fix": "Split the parser into simpler stages and hoist common checks so the bounded loop has fewer branches and state splits.",
+        "rationale": "The raw verifier error explicitly reports state explosion (`8193 jumps is too complex`), so restructuring control flow is the right fix.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the main bounded loop over `field_offset` and nested action handling"
+      },
+      "condition_b": {
+        "fix_type_label": "reduce branching/state fan-out",
+        "predicted_fix": "Split the program with tail calls or otherwise reduce branching and loop work so the verifier tracks fewer states.",
+        "rationale": "The diagnostic mostly restates the raw complexity failure and lands on the same structural fix.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the same bounded-loop control flow"
+      },
+      "overall_notes": "Condition B tied A. The raw log already directly identified verifier complexity, and OBLIGE mostly paraphrased it."
+    },
+    {
+      "case_id": "stackoverflow-76441958",
+      "condition_a": {
+        "fix_type_label": "alignment fix",
+        "predicted_fix": "Ensure `state_ptr` points to 8-byte aligned storage, for example an aligned struct or map value slot, before using `atomic64_cmpxchg`.",
+        "rationale": "The raw log explicitly reports a misaligned 8-byte atomic access.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the backing storage for `state_ptr` used by `__sync_val_compare_and_swap`"
+      },
+      "condition_b": {
+        "fix_type_label": "alignment fix",
+        "predicted_fix": "Move the atomic state into an 8-byte aligned map value or padded struct field so the compare-and-swap target is naturally aligned.",
+        "rationale": "Even with the generic provenance wording, the raw verifier message still makes the alignment requirement clear.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the same `state_ptr` backing storage"
+      },
+      "overall_notes": "Condition B tied A. The verifier already says `misaligned access`, so the extra diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-73088287",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Add or tighten the bounds check immediately before the failing access.",
+        "rationale": "The raw rejection looks like a local bounds-proof failure, so a log-only repair would likely patch the guard near the reject site.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Add or tighten the bounds check immediately before the failing access.",
+        "rationale": "The raw rejection looks like a local bounds-proof failure, so a log-only repair would likely patch the guard near the reject site.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: both conditions stayed anchored on the reject site and missed the deeper cause."
+    },
+    {
+      "case_id": "github-aya-rs-aya-407",
+      "condition_a": {
+        "fix_type_label": "use_value_not_pointer",
+        "predicted_fix": "Pass the scalar value expected by the call rather than an unsupported pointer wrapper.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper or kfunc argument list"
+      },
+      "condition_b": {
+        "fix_type_label": "use_value_not_pointer",
+        "predicted_fix": "Pass the scalar value expected by the call rather than an unsupported pointer wrapper.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper or kfunc argument list"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-67679109",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Use a plain value/current variable instead of pointer arithmetic that the verifier cannot prove safe.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Use a plain value/current variable instead of pointer arithmetic that the verifier cannot prove safe.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-70873332",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Restructure the access so the verifier can see the same bounded expression at check and dereference time.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Restructure the access so the verifier can see the same bounded expression at check and dereference time.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-75515263",
+      "condition_a": {
+        "fix_type_label": "map_value_type",
+        "predicted_fix": "Declare the map value as `struct sock_info` rather than a pointer so reads of `sport` and `dport` stay in-bounds.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the map value type declaration"
+      },
+      "condition_b": {
+        "fix_type_label": "map_value_type",
+        "predicted_fix": "Declare the map value as `struct sock_info` rather than a pointer so reads of `sport` and `dport` stay in-bounds.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the map value type declaration"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-77762365",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Make the read length explicitly bounded before combining it with `event->len` for the copy.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Make the read length explicitly bounded before combining it with `event->len` for the copy.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda",
+      "condition_a": {
+        "fix_type_label": "reduce_stack_depth",
+        "predicted_fix": "Reduce aggregate stack use across async calls or shrink the involved frames.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack-heavy call chain"
+      },
+      "condition_b": {
+        "fix_type_label": "reduce_stack_depth",
+        "predicted_fix": "Reduce aggregate stack use across async calls or shrink the involved frames.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack-heavy call chain"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "github-aya-rs-aya-1002",
+      "condition_a": {
+        "fix_type_label": "use_map_state",
+        "predicted_fix": "Move mutable global state into a BPF map instead of writing static data directly.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the mutable static/global state access"
+      },
+      "condition_b": {
+        "fix_type_label": "use_map_state",
+        "predicted_fix": "Move mutable global state into a BPF map instead of writing static data directly.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the mutable static/global state access"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-78236201",
+      "condition_a": {
+        "fix_type_label": "printk_api",
+        "predicted_fix": "Use `bpf_printk` or a stack-allocated format string with the correct size instead of the current printk call shape.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the printk/bpf_printk call site"
+      },
+      "condition_b": {
+        "fix_type_label": "pointer_rederive",
+        "predicted_fix": "Re-derive the pointer immediately before the failing use instead of reusing the current value.",
+        "rationale": "The extra diagnostic points at proof reconstruction near the reject site, which is not the actual environment-level fix here.",
+        "scores": {
+          "fix_type": 0,
+          "location": 0,
+          "root_cause": 0
+        },
+        "target_location": "the failing statement or its immediate setup"
+      },
+      "overall_notes": "Condition B hurt: the diagnostic pulled attention toward a misleading proof/BTF story instead of the actual fix."
+    },
+    {
+      "case_id": "github-aya-rs-aya-1104",
+      "condition_a": {
+        "fix_type_label": "release_mode",
+        "predicted_fix": "Build the eBPF object in release mode instead of the debug/dev profile.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the build configuration"
+      },
+      "condition_b": {
+        "fix_type_label": "release_mode",
+        "predicted_fix": "Build the eBPF object in release mode instead of the debug/dev profile.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the build configuration"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "kernel-selftest-async-stack-depth-pseudo-call-check-tc-320d654d",
+      "condition_a": {
+        "fix_type_label": "reduce_stack_depth",
+        "predicted_fix": "Refactor the call tree or shrink per-frame stack use so combined stack depth stays within limits.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack-heavy call chain"
+      },
+      "condition_b": {
+        "fix_type_label": "reduce_stack_depth",
+        "predicted_fix": "Refactor the call tree or shrink per-frame stack use so combined stack depth stays within limits.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack-heavy call chain"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993",
+      "condition_a": {
+        "fix_type_label": "pointer_type_fix",
+        "predicted_fix": "Pass the dynptr from its exact stack slot/base address instead of an offset or forged pointer.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper call argument / dynptr object site"
+      },
+      "condition_b": {
+        "fix_type_label": "btf_regen",
+        "predicted_fix": "Regenerate or align the BTF / func_info metadata for this build.",
+        "rationale": "The diagnostic surface makes this look like a metadata/toolchain issue even though the accepted fix is elsewhere.",
+        "scores": {
+          "fix_type": 0,
+          "location": 0,
+          "root_cause": 0
+        },
+        "target_location": "the BTF/toolchain artifacts"
+      },
+      "overall_notes": "Condition B hurt: the diagnostic pulled attention toward a misleading proof/BTF story instead of the actual fix."
+    },
+    {
+      "case_id": "stackoverflow-69767533",
+      "condition_a": {
+        "fix_type_label": "init_stack",
+        "predicted_fix": "Zero-initialize `tmp_buffer` before `bpf_probe_read` and keep the copy length explicitly bounded.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack buffer before the helper call"
+      },
+      "condition_b": {
+        "fix_type_label": "init_stack",
+        "predicted_fix": "Zero-initialize `tmp_buffer` before `bpf_probe_read` and keep the copy length explicitly bounded.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack buffer before the helper call"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-71946593",
+      "condition_a": {
+        "fix_type_label": "context_member_read",
+        "predicted_fix": "Use `bpf_probe_read*` to read the `sk_buff` member instead of direct field dereference.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the direct context-member dereference"
+      },
+      "condition_b": {
+        "fix_type_label": "context_member_read",
+        "predicted_fix": "Use `bpf_probe_read*` to read the `sk_buff` member instead of direct field dereference.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the direct context-member dereference"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-74178703",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Add or tighten the bounds check immediately before the failing access.",
+        "rationale": "The raw rejection looks like a local bounds-proof failure, so a log-only repair would likely patch the guard near the reject site.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "checked_pointer_reuse",
+        "predicted_fix": "Recompute and dereference through the same checked `b + offset + i` expression inside the loop body.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the checked pointer calculation and subsequent dereference"
+      },
+      "overall_notes": "Condition B helped: the additional diagnostic context disambiguated the root cause and improved the repair."
+    },
+    {
+      "case_id": "stackoverflow-75643912",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Fix the off-by-one and width check so the loop only reads bytes that are proven in-bounds.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Fix the off-by-one and width check so the loop only reads bytes that are proven in-bounds.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-78958420",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Track the parsed domain length, zero-init a fixed buffer, and bounds-check/copy only that many bytes.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Track the parsed domain length, zero-init a fixed buffer, and bounds-check/copy only that many bytes.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-79812509",
+      "condition_a": {
+        "fix_type_label": "trusted_task_helper",
+        "predicted_fix": "Use `bpf_get_current_task_btf()` so the task pointer stays trusted for `bpf_task_storage_get`.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper choice for obtaining the task pointer"
+      },
+      "condition_b": {
+        "fix_type_label": "trusted_task_helper",
+        "predicted_fix": "Use `bpf_get_current_task_btf()` so the task pointer stays trusted for `bpf_task_storage_get`.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper choice for obtaining the task pointer"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    }
+  ],
+  "generated_at": "2026-03-12T20:40:54+00:00"
+}

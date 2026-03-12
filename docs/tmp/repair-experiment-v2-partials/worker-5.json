@@ -1,0 +1,238 @@
+{
+  "cases": [
+    {
+      "case_id": "stackoverflow-73088287",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Add or tighten the bounds check immediately before the failing access.",
+        "rationale": "The raw rejection looks like a local bounds-proof failure, so a log-only repair would likely patch the guard near the reject site.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Add or tighten the bounds check immediately before the failing access.",
+        "rationale": "The raw rejection looks like a local bounds-proof failure, so a log-only repair would likely patch the guard near the reject site.",
+        "scores": {
+          "fix_type": 0,
+          "location": 1,
+          "root_cause": 0
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: both conditions stayed anchored on the reject site and missed the deeper cause."
+    },
+    {
+      "case_id": "github-aya-rs-aya-407",
+      "condition_a": {
+        "fix_type_label": "use_value_not_pointer",
+        "predicted_fix": "Pass the scalar value expected by the call rather than an unsupported pointer wrapper.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper or kfunc argument list"
+      },
+      "condition_b": {
+        "fix_type_label": "use_value_not_pointer",
+        "predicted_fix": "Pass the scalar value expected by the call rather than an unsupported pointer wrapper.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the helper or kfunc argument list"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-67679109",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Use a plain value/current variable instead of pointer arithmetic that the verifier cannot prove safe.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Use a plain value/current variable instead of pointer arithmetic that the verifier cannot prove safe.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-70873332",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Restructure the access so the verifier can see the same bounded expression at check and dereference time.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Restructure the access so the verifier can see the same bounded expression at check and dereference time.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-75515263",
+      "condition_a": {
+        "fix_type_label": "map_value_type",
+        "predicted_fix": "Declare the map value as `struct sock_info` rather than a pointer so reads of `sport` and `dport` stay in-bounds.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the map value type declaration"
+      },
+      "condition_b": {
+        "fix_type_label": "map_value_type",
+        "predicted_fix": "Declare the map value as `struct sock_info` rather than a pointer so reads of `sport` and `dport` stay in-bounds.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the map value type declaration"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-77762365",
+      "condition_a": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Make the read length explicitly bounded before combining it with `event->len` for the copy.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "condition_b": {
+        "fix_type_label": "bounds_check",
+        "predicted_fix": "Make the read length explicitly bounded before combining it with `event->len` for the copy.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the failing access and its dominating bounds guard"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda",
+      "condition_a": {
+        "fix_type_label": "reduce_stack_depth",
+        "predicted_fix": "Reduce aggregate stack use across async calls or shrink the involved frames.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack-heavy call chain"
+      },
+      "condition_b": {
+        "fix_type_label": "reduce_stack_depth",
+        "predicted_fix": "Reduce aggregate stack use across async calls or shrink the involved frames.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the stack-heavy call chain"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "github-aya-rs-aya-1002",
+      "condition_a": {
+        "fix_type_label": "use_map_state",
+        "predicted_fix": "Move mutable global state into a BPF map instead of writing static data directly.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the mutable static/global state access"
+      },
+      "condition_b": {
+        "fix_type_label": "use_map_state",
+        "predicted_fix": "Move mutable global state into a BPF map instead of writing static data directly.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the mutable static/global state access"
+      },
+      "overall_notes": "Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair."
+    },
+    {
+      "case_id": "stackoverflow-78236201",
+      "condition_a": {
+        "fix_type_label": "printk_api",
+        "predicted_fix": "Use `bpf_printk` or a stack-allocated format string with the correct size instead of the current printk call shape.",
+        "rationale": "This matches the accepted fix and addresses the actual verifier root cause, not just the reject site.",
+        "scores": {
+          "fix_type": 1,
+          "location": 1,
+          "root_cause": 1
+        },
+        "target_location": "the printk/bpf_printk call site"
+      },
+      "condition_b": {
+        "fix_type_label": "pointer_rederive",
+        "predicted_fix": "Re-derive the pointer immediately before the failing use instead of reusing the current value.",
+        "rationale": "The extra diagnostic points at proof reconstruction near the reject site, which is not the actual environment-level fix here.",
+        "scores": {
+          "fix_type": 0,
+          "location": 0,
+          "root_cause": 0
+        },
+        "target_location": "the failing statement or its immediate setup"
+      },
+      "overall_notes": "Condition B hurt: the diagnostic pulled attention toward a misleading proof/BTF story instead of the actual fix."
+    }
+  ]
+}

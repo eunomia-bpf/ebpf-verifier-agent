@@ -1,0 +1,183 @@
+{
+  "case_id": "github-aya-rs-aya-1233",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/github_issues/github-aya-rs-aya-1233.yaml",
+  "code_source": "source_snippets",
+  "error_id": "OBLIGE-E018",
+  "expected_fix_tags": [
+    "helper_switch"
+  ],
+  "expected_fix_type": "helper_switch",
+  "expected_location_kind": "root_cause",
+  "ground_truth_fix": "Use a helper allowed in `cgroup_skb`, or move the logic to a program type that permits the read helper.",
+  "ground_truth_fix_source": "manual_label",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "SIMPLIFY_CFG",
+        "patch_hint": "Split the program with tail calls or reduce branching and loop work",
+        "rationale": "Proof existed earlier and was lost at insn 2 (PROVENANCE_LOSS)."
+      }
+    ],
+    "confidence": 0.98,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E018",
+    "evidence": [
+      {
+        "detail": "2: Invalid argument (os error 22)",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "proof established at task.bpf.h:11: return (struct task_struct*)bpf_get_current_task();",
+        "instruction_index": 1,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R1: ctx",
+        "instruction_index": 1,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "proof lost at task.bpf.h:11: return (struct task_struct*)bpf_get_current_task();",
+        "instruction_index": 1,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R1: ctx \u2192 scalar(2756)",
+        "instruction_index": 1,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "verifier-visible bounds were lost",
+        "instruction_index": 1,
+        "kind": "heuristic"
+      },
+      {
+        "detail": "rejected at probes.bpf.c:488: pid_t tgid = BPF_CORE_READ(task, tgid);",
+        "instruction_index": 6,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R0: scalar(unbounded)",
+        "instruction_index": 6,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "Proof existed earlier and was lost at insn 2 (PROVENANCE_LOSS).",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: 2: Invalid argument (os error 22)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E009 (env_mismatch)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Symptom insn 8: call bpf_probe_read#4",
+        "kind": "heuristic"
+      }
+    ],
+    "expected_state": {
+      "registers": {
+        "R1": "ctx"
+      }
+    },
+    "failure_class": "verifier_limit",
+    "message": "established then lost",
+    "metadata": {
+      "help": "Split the program with tail calls or reduce branching and loop work",
+      "note": "Proof existed earlier and was lost at insn 2 (PROVENANCE_LOSS).",
+      "proof_spans": [
+        {
+          "insn_range": [
+            1,
+            5
+          ],
+          "line": 11,
+          "path": "task.bpf.h",
+          "reason": null,
+          "register": "R1",
+          "role": "proof_established",
+          "source_text": "return (struct task_struct*)bpf_get_current_task();",
+          "state_change": "R1: ctx"
+        },
+        {
+          "insn_range": [
+            1,
+            5
+          ],
+          "line": 11,
+          "path": "task.bpf.h",
+          "reason": "verifier-visible bounds were lost",
+          "register": "R1",
+          "role": "proof_lost",
+          "source_text": "return (struct task_struct*)bpf_get_current_task();",
+          "state_change": "R1: ctx \u2192 scalar(2756)"
+        },
+        {
+          "insn_range": [
+            6,
+            8
+          ],
+          "line": 488,
+          "path": "probes.bpf.c",
+          "reason": null,
+          "register": "R0",
+          "role": "rejected",
+          "source_text": "pid_t tgid = BPF_CORE_READ(task, tgid);",
+          "state_change": "R0: scalar(unbounded)"
+        }
+      ],
+      "proof_status": "established_then_lost"
+    },
+    "missing_obligation": "manual analysis required to identify the missing proof obligation",
+    "observed_state": {
+      "notes": [
+        "verifier-visible bounds were lost",
+        "Proof existed earlier and was lost at insn 2 (PROVENANCE_LOSS).",
+        "2: Invalid argument (os error 22)"
+      ],
+      "registers": {
+        "R0": "scalar(unbounded)",
+        "R1": "ctx -> scalar(2756)"
+      }
+    },
+    "raw_log_excerpt": "2: Invalid argument (os error 22)",
+    "source_span": {
+      "line_end": 488,
+      "line_start": 488,
+      "path": "probes.bpf.c",
+      "snippet": "pid_t tgid = BPF_CORE_READ(task, tgid);"
+    },
+    "verifier_site": {
+      "instruction_index": 6
+    }
+  },
+  "oblige_output": "error[OBLIGE-E018]: verifier_limit \u2014 established then lost\n  \u250c\u2500 task.bpf.h\n  \u2502\n 11 \u2502     return (struct task_struct*)bpf_get_current_task();\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n    \u2502     R1: ctx\n    \u2502\n 11 \u2502     return (struct task_struct*)bpf_get_current_task();\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n    \u2502     R1: ctx \u2192 scalar(2756)\n    \u2502\n488 \u2502     pid_t tgid = BPF_CORE_READ(task, tgid);\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R0: scalar(unbounded)\n    \u2502\n  = note: Proof existed earlier and was lost at insn 2 (PROVENANCE_LOSS).\n  = help: Split the program with tail calls or reduce branching and loop work",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\nstruct task_struct *task = get_current_task();\n  pid_t tgid = BPF_CORE_READ(task, tgid);\n\nVerifier log:\nCaused by:\n    0: failed program load cgroup_skb/egress skb_egress\n    1: the BPF_PROG_LOAD syscall failed. Verifier output: 0: R1=ctx() R10=fp0\n       ; int skb_egress(struct __sk_buff *skb) { @ probes.bpf.c:679\n       0: (bf) r7 = r1                       ; R1=ctx() R7_w=ctx()\n       ; return (struct task_struct*)bpf_get_current_task(); @ task.bpf.h:11\n       1: (85) call bpf_get_current_task#35          ; R0_w=scalar()\n       2: (b7) r1 = 2756                     ; R1_w=2756\n       3: (0f) r0 += r1                      ; R0_w=scalar() R1_w=2756\n       4: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0\n       5: (07) r1 += -4                      ; R1_w=fp-4\n       ; pid_t tgid = BPF_CORE_READ(task, tgid); @ probes.bpf.c:488\n       6: (b7) r2 = 4                        ; R2_w=4\n       7: (bf) r3 = r0                       ; R0_w=scalar(id=1) R3_w=scalar(id=1)\n       8: (85) call bpf_probe_read#4\n       program of this type cannot use helper bpf_probe_read#4\n       verification time 424 usec\n       stack depth 0\n       processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\n    2: Invalid argument (os error 22)\n  | at /home/vadorovsky/src/pulsar/crates/bpf-common/src/test_runner.rs:122:64\n\n0: failed program load cgroup_skb/egress skb_egress\n1: the BPF_PROG_LOAD syscall failed. Verifier output: 0: R1=ctx() R10=fp0\n   ; int skb_egress(struct __sk_buff *skb) { @ probes.bpf.c:679\n   0: (bf) r7 = r1                       ; R1=ctx() R7_w=ctx()\n   ; return (struct task_struct*)bpf_get_current_task(); @ task.bpf.h:11\n   1: (85) call bpf_get_current_task#35          ; R0_w=scalar()\n   2: (b7) r1 = 2756                     ; R1_w=2756\n   3: (0f) r0 += r1                      ; R0_w=scalar() R1_w=2756\n   4: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0\n   5: (07) r1 += -4                      ; R1_w=fp-4\n   ; pid_t tgid = BPF_CORE_READ(task, tgid); @ probes.bpf.c:488\n   6: (b7) r2 = 4                        ; R2_w=4\n   7: (bf) r3 = r0                       ; R0_w=scalar(id=1) R3_w=scalar(id=1)\n   8: (85) call bpf_probe_read#4\n   program of this type cannot use helper bpf_probe_read#4\n   verification time 424 usec\n   stack depth 0\n   processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\nstruct task_struct *task = get_current_task();\n  pid_t tgid = BPF_CORE_READ(task, tgid);\n\nVerifier log:\nCaused by:\n    0: failed program load cgroup_skb/egress skb_egress\n    1: the BPF_PROG_LOAD syscall failed. Verifier output: 0: R1=ctx() R10=fp0\n       ; int skb_egress(struct __sk_buff *skb) { @ probes.bpf.c:679\n       0: (bf) r7 = r1                       ; R1=ctx() R7_w=ctx()\n       ; return (struct task_struct*)bpf_get_current_task(); @ task.bpf.h:11\n       1: (85) call bpf_get_current_task#35          ; R0_w=scalar()\n       2: (b7) r1 = 2756                     ; R1_w=2756\n       3: (0f) r0 += r1                      ; R0_w=scalar() R1_w=2756\n       4: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0\n       5: (07) r1 += -4                      ; R1_w=fp-4\n       ; pid_t tgid = BPF_CORE_READ(task, tgid); @ probes.bpf.c:488\n       6: (b7) r2 = 4                        ; R2_w=4\n       7: (bf) r3 = r0                       ; R0_w=scalar(id=1) R3_w=scalar(id=1)\n       8: (85) call bpf_probe_read#4\n       program of this type cannot use helper bpf_probe_read#4\n       verification time 424 usec\n       stack depth 0\n       processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\n    2: Invalid argument (os error 22)\n  | at /home/vadorovsky/src/pulsar/crates/bpf-common/src/test_runner.rs:122:64\n\n0: failed program load cgroup_skb/egress skb_egress\n1: the BPF_PROG_LOAD syscall failed. Verifier output: 0: R1=ctx() R10=fp0\n   ; int skb_egress(struct __sk_buff *skb) { @ probes.bpf.c:679\n   0: (bf) r7 = r1                       ; R1=ctx() R7_w=ctx()\n   ; return (struct task_struct*)bpf_get_current_task(); @ task.bpf.h:11\n   1: (85) call bpf_get_current_task#35          ; R0_w=scalar()\n   2: (b7) r1 = 2756                     ; R1_w=2756\n   3: (0f) r0 += r1                      ; R0_w=scalar() R1_w=2756\n   4: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0\n   5: (07) r1 += -4                      ; R1_w=fp-4\n   ; pid_t tgid = BPF_CORE_READ(task, tgid); @ probes.bpf.c:488\n   6: (b7) r2 = 4                        ; R2_w=4\n   7: (bf) r3 = r0                       ; R0_w=scalar(id=1) R3_w=scalar(id=1)\n   8: (85) call bpf_probe_read#4\n   program of this type cannot use helper bpf_probe_read#4\n   verification time 424 usec\n   stack depth 0\n   processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\nDiagnostic analysis:\nerror[OBLIGE-E018]: verifier_limit \u2014 established then lost\n  \u250c\u2500 task.bpf.h\n  \u2502\n 11 \u2502     return (struct task_struct*)bpf_get_current_task();\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n    \u2502     R1: ctx\n    \u2502\n 11 \u2502     return (struct task_struct*)bpf_get_current_task();\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n    \u2502     R1: ctx \u2192 scalar(2756)\n    \u2502\n488 \u2502     pid_t tgid = BPF_CORE_READ(task, tgid);\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R0: scalar(unbounded)\n    \u2502\n  = note: Proof existed earlier and was lost at insn 2 (PROVENANCE_LOSS).\n  = help: Split the program with tail calls or reduce branching and loop work",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+220",
+    "manual_label:+120",
+    "curated_fix:+80",
+    "accepted_fix:+25",
+    "expected_from_gt:+40",
+    "specific_fix:+35",
+    "manual_taxonomy:+50",
+    "log_lines:+78",
+    "trace_state_lines:+0"
+  ],
+  "selection_score": 648,
+  "source": "github_issues",
+  "source_code": "struct task_struct *task = get_current_task();\n  pid_t tgid = BPF_CORE_READ(task, tgid);",
+  "source_url": "https://github.com/aya-rs/aya/issues/1233",
+  "symptom_span_text": "",
+  "taxonomy_class": "env_mismatch",
+  "taxonomy_source": "manual_label",
+  "title": "`cgroup_skb` program cannot use `bpf_probe_read` helper",
+  "verifier_log": "Caused by:\n    0: failed program load cgroup_skb/egress skb_egress\n    1: the BPF_PROG_LOAD syscall failed. Verifier output: 0: R1=ctx() R10=fp0\n       ; int skb_egress(struct __sk_buff *skb) { @ probes.bpf.c:679\n       0: (bf) r7 = r1                       ; R1=ctx() R7_w=ctx()\n       ; return (struct task_struct*)bpf_get_current_task(); @ task.bpf.h:11\n       1: (85) call bpf_get_current_task#35          ; R0_w=scalar()\n       2: (b7) r1 = 2756                     ; R1_w=2756\n       3: (0f) r0 += r1                      ; R0_w=scalar() R1_w=2756\n       4: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0\n       5: (07) r1 += -4                      ; R1_w=fp-4\n       ; pid_t tgid = BPF_CORE_READ(task, tgid); @ probes.bpf.c:488\n       6: (b7) r2 = 4                        ; R2_w=4\n       7: (bf) r3 = r0                       ; R0_w=scalar(id=1) R3_w=scalar(id=1)\n       8: (85) call bpf_probe_read#4\n       program of this type cannot use helper bpf_probe_read#4\n       verification time 424 usec\n       stack depth 0\n       processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\n    2: Invalid argument (os error 22)\n  | at /home/vadorovsky/src/pulsar/crates/bpf-common/src/test_runner.rs:122:64\n\n0: failed program load cgroup_skb/egress skb_egress\n1: the BPF_PROG_LOAD syscall failed. Verifier output: 0: R1=ctx() R10=fp0\n   ; int skb_egress(struct __sk_buff *skb) { @ probes.bpf.c:679\n   0: (bf) r7 = r1                       ; R1=ctx() R7_w=ctx()\n   ; return (struct task_struct*)bpf_get_current_task(); @ task.bpf.h:11\n   1: (85) call bpf_get_current_task#35          ; R0_w=scalar()\n   2: (b7) r1 = 2756                     ; R1_w=2756\n   3: (0f) r0 += r1                      ; R0_w=scalar() R1_w=2756\n   4: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0\n   5: (07) r1 += -4                      ; R1_w=fp-4\n   ; pid_t tgid = BPF_CORE_READ(task, tgid); @ probes.bpf.c:488\n   6: (b7) r2 = 4                        ; R2_w=4\n   7: (bf) r3 = r0                       ; R0_w=scalar(id=1) R3_w=scalar(id=1)\n   8: (85) call bpf_probe_read#4\n   program of this type cannot use helper bpf_probe_read#4\n   verification time 424 usec\n   stack depth 0\n   processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0"
+}

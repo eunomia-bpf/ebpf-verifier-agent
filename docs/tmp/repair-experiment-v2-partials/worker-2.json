@@ -1,0 +1,238 @@
+{
+  "cases": [
+    {
+      "case_id": "stackoverflow-70729664",
+      "condition_a": {
+        "predicted_fix": "Tighten the SCTP chunk-walk check so the code revalidates `nh->pos + size + 4` against `data_end` before reading the next chunk type.",
+        "target_location": "SCTP chunk cursor update around `nh->pos += size` / `parse_sctp_chunk_type`",
+        "fix_type_label": "extra packet bounds check",
+        "scores": {
+          "location": 1,
+          "fix_type": 0,
+          "root_cause": 0
+        },
+        "rationale": "The raw log localizes the failing packet read but does not cleanly expose the verifier overflow corner case behind it."
+      },
+      "condition_b": {
+        "predicted_fix": "Clamp the computed chunk advance to a small unsigned max such as `MAX_PACKET_OFF` and keep the offset arithmetic in a separate verified register before dereferencing `nh->pos`.",
+        "target_location": "SCTP chunk cursor update around `nh->pos += size`",
+        "fix_type_label": "unsigned clamp to preserve verifier proof",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic explicitly points to arithmetic widening/proof loss in the cursor update, which matches the accepted clamp-based workaround."
+      },
+      "overall_notes": "Condition B helped; the raw log mostly suggests a reject-site bounds check, while the diagnostic points to the proof-loss site in the chunk-offset arithmetic."
+    },
+    {
+      "case_id": "stackoverflow-76160985",
+      "condition_a": {
+        "predicted_fix": "Mark `find_substring` and, if needed, `mystrlen` as `__always_inline` so the verifier sees the caller's proof in one function.",
+        "target_location": "`find_substring` helper definition",
+        "fix_type_label": "force inlining / keep proof in one function",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The verifier is validating `find_substring()` as a separate subprog, so inlining is the direct repair."
+      },
+      "condition_b": {
+        "predicted_fix": "Mark `find_substring` as `__always_inline` so the string-walk proof stays in the caller instead of being validated as a separate subprogram.",
+        "target_location": "`find_substring` helper definition",
+        "fix_type_label": "force inlining / keep proof in one function",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The raw log still clearly indicates a subprog-boundary issue; the diagnostic's clamp hint is not persuasive here."
+      },
+      "overall_notes": "Condition B tied; the raw log already exposed the separate-subprog validation, and the diagnostic was misleading but not enough to change the repair."
+    },
+    {
+      "case_id": "stackoverflow-60053570",
+      "condition_a": {
+        "predicted_fix": "Change the `bpf_csum_diff` length argument to the actual ICMP header size, such as `sizeof(struct icmphdr)`, unless the code first proves a larger region is in bounds.",
+        "target_location": "`bpf_csum_diff` call in `_xdp_icmp`",
+        "fix_type_label": "fix helper length / bounds at checksum call",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The log says the helper is reading 64 bytes from a packet region where only the ICMP header has been checked."
+      },
+      "condition_b": {
+        "predicted_fix": "Use the correct byte length at `bpf_csum_diff` for the ICMP header instead of the larger unchecked constant, or add a dominating proof for that larger size.",
+        "target_location": "`bpf_csum_diff` call in `_xdp_icmp`",
+        "fix_type_label": "fix helper length / bounds at checksum call",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "Even with the generic diagnostic, the call-site size mismatch remains the obvious root cause."
+      },
+      "overall_notes": "Condition B tied; the raw log already localizes the checksum-size bug at the helper call."
+    },
+    {
+      "case_id": "stackoverflow-70392721",
+      "condition_a": {
+        "predicted_fix": "Rebuild the BPF object with `-O2` and strip incompatible debug/BTF payloads with `llvm-strip -g` instead of changing program logic.",
+        "target_location": "BPF build pipeline / clang invocation",
+        "fix_type_label": "toolchain build-flag fix",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The failure happens in BTF/object loading before meaningful verification, which points to a bad object-file/toolchain setup."
+      },
+      "condition_b": {
+        "predicted_fix": "Compile with `-O2` and strip the object so libbpf sees a clean BPF program/BTF payload; this is a build artifact issue, not a pointer fix in the source.",
+        "target_location": "BPF build pipeline / clang invocation",
+        "fix_type_label": "toolchain build-flag fix",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic's pointer advice conflicts with the loader/BTF error, so the toolchain fix still dominates."
+      },
+      "overall_notes": "Condition B tied; the raw log already screams toolchain/BTF mismatch, and the diagnostic is mostly noise here."
+    },
+    {
+      "case_id": "stackoverflow-72606055",
+      "condition_a": {
+        "predicted_fix": "Fix the custom loader to create the map and apply ELF relocation for `my_map`, or use libbpf/bpftool so the helper sees a real map reference instead of `r1 = 0x0`.",
+        "target_location": "userspace loader and map-relocation path",
+        "fix_type_label": "loader map relocation fix",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The program already declares the map; the log shows the loader failed to substitute the map FD/reference."
+      },
+      "condition_b": {
+        "predicted_fix": "Use a loader path that preserves the loader-generated map reference for `my_map` rather than sending an unrelocated `map_lookup_elem` call to the verifier.",
+        "target_location": "userspace loader and map-relocation path",
+        "fix_type_label": "loader map relocation fix",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic correctly centers the missing map reference, which is still a loader-side issue."
+      },
+      "overall_notes": "Condition B tied; both conditions point to the custom loader/relocation bug, with B only adding verifier wording."
+    },
+    {
+      "case_id": "stackoverflow-76637174",
+      "condition_a": {
+        "predicted_fix": "Rewrite the payload scan to use a checked `tcp_data` pointer, test `tcp_data + i + 1 <= data_end`, and cap the loop with a fixed maximum iteration bound.",
+        "target_location": "TCP payload loop after the `tcph->dest` check",
+        "fix_type_label": "loop rewrite with explicit bound and checked pointer",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The bad read happens in the payload loop, and the current `data + i` walk plus unbounded iteration is verifier-hostile."
+      },
+      "condition_b": {
+        "predicted_fix": "Rewrite the payload walk around a verified `tcp_data` pointer and add an explicit maximum iteration bound so both the packet-access proof and loop complexity stay visible.",
+        "target_location": "TCP payload loop after the `tcph->dest` check",
+        "fix_type_label": "loop rewrite with explicit bound and checked pointer",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic reinforces that proof is lost around pointer arithmetic, but the same bounded loop rewrite remains the right repair."
+      },
+      "overall_notes": "Condition B tied; it nudges toward the same loop/pointer rewrite, but the raw code already makes the bounded-iteration fix apparent."
+    },
+    {
+      "case_id": "stackoverflow-79348306",
+      "condition_a": {
+        "predicted_fix": "Delete `BPF_CORE_READ_INTO(&file_path, file, f_path)` and call `bpf_d_path(&file->f_path, path_buffer, sizeof(path_buffer))` directly.",
+        "target_location": "`bpf_d_path` call and preceding `BPF_CORE_READ_INTO`",
+        "fix_type_label": "use trusted original pointer",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The log explicitly says the helper got a stack pointer where it expects a trusted/BTF pointer."
+      },
+      "condition_b": {
+        "predicted_fix": "Pass `&file->f_path` directly to `bpf_d_path` and stop copying the path object onto the stack before the helper call.",
+        "target_location": "`bpf_d_path` call and preceding `BPF_CORE_READ_INTO`",
+        "fix_type_label": "use trusted original pointer",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic names the same trusted-pointer contract, so the direct `&file->f_path` fix still follows."
+      },
+      "overall_notes": "Condition B tied; the diagnostic agrees with the raw helper-contract error, but the log was already explicit."
+    },
+    {
+      "case_id": "stackoverflow-56872436",
+      "condition_a": {
+        "predicted_fix": "Rewrite the loop into a form the verifier can fully unroll, or manually unroll the 8-iteration walk and inline the helper if needed.",
+        "target_location": "the `for (i = 0; i < 8; i++)` map-lookup loop",
+        "fix_type_label": "fully unroll loop",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The raw log is a direct back-edge rejection, so this is plainly a loop-form/verifier-limit issue."
+      },
+      "condition_b": {
+        "predicted_fix": "Make the loop verifier-visible by fully unrolling it or rewriting it so the bound/invariant is explicit at compile time.",
+        "target_location": "the `for (i = 0; i < 8; i++)` map-lookup loop",
+        "fix_type_label": "fully unroll loop",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic repeats the same loop-bound message already present in the verifier log."
+      },
+      "overall_notes": "Condition B tied; the verifier log alone already states the back-edge problem."
+    },
+    {
+      "case_id": "github-aya-rs-aya-864",
+      "condition_a": {
+        "predicted_fix": "Stop using `ctx.pid()` in `TcContext`; read the PID from `skb`/`TcContext` fields or patch Aya's wrapper so it does not call the unavailable helper.",
+        "target_location": "Aya `TcContext::pid()` usage / wrapper",
+        "fix_type_label": "switch away from unavailable helper",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The log explicitly says `bpf_get_current_pid_tgid` is unknown in this program type."
+      },
+      "condition_b": {
+        "predicted_fix": "Avoid `ctx.pid()` and fetch the PID from classifier context data instead, or fix Aya's `TcContext` helper wrapper so it stops calling `bpf_get_current_pid_tgid` here.",
+        "target_location": "Aya `TcContext::pid()` usage / wrapper",
+        "fix_type_label": "switch away from unavailable helper",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic is off-target, but the raw helper-availability error is unambiguous."
+      },
+      "overall_notes": "Condition B tied; the raw log already pinpoints the unavailable-helper mismatch, and the diagnostic adds no useful signal."
+    }
+  ]
+}

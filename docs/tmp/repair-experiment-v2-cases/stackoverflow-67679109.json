@@ -1,0 +1,120 @@
+{
+  "case_id": "stackoverflow-67679109",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-67679109.yaml",
+  "code_source": "question_body_text",
+  "error_id": "OBLIGE-E011",
+  "expected_fix_tags": [],
+  "expected_fix_type": "bounds_check",
+  "expected_location_kind": "local",
+  "ground_truth_fix": "Why not use a regular variable for current, instead of a pointer?",
+  "ground_truth_fix_source": "selected_answer.fix_description",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "UNKNOWN",
+        "patch_hint": "Re-derive the pointer from a verified base immediately before dereference.",
+        "rationale": "No earlier dominating proof-establishing branch or narrowing was found."
+      }
+    ],
+    "confidence": 0.89,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E011",
+    "evidence": [
+      {
+        "detail": "R8 invalid mem access 'inv'",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "rejected at <source>:49: crc ^= *current++;",
+        "instruction_index": 48,
+        "kind": "source_map"
+      },
+      {
+        "detail": "No earlier dominating proof-establishing branch or narrowing was found.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: R8 invalid mem access 'inv'",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E011 (source_bug)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Symptom insn 48: r3 = *(u8 *)(r8 +0)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "btf_vmlinux is malformed",
+        "kind": "kernel_capability"
+      },
+      {
+        "detail": "Unrecognized arg#0 type PTR",
+        "kind": "heuristic"
+      }
+    ],
+    "failure_class": "source_bug",
+    "message": "required proof never established",
+    "metadata": {
+      "help": "Re-derive the pointer from a verified base immediately before dereference.",
+      "note": "No earlier dominating proof-establishing branch or narrowing was found.",
+      "proof_spans": [
+        {
+          "insn_range": [
+            48,
+            48
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R3",
+          "role": "rejected",
+          "source_text": "crc ^= *current++;",
+          "state_change": null
+        }
+      ],
+      "proof_status": "never_established"
+    },
+    "missing_obligation": "manual analysis required to identify the missing proof obligation",
+    "observed_state": {
+      "notes": [
+        "No earlier dominating proof-establishing branch or narrowing was found.",
+        "R8 invalid mem access 'inv'"
+      ]
+    },
+    "raw_log_excerpt": "R8 invalid mem access 'inv'",
+    "source_span": {
+      "line_end": 49,
+      "line_start": 49,
+      "path": "<source>",
+      "snippet": "crc ^= *current++;"
+    },
+    "verifier_site": {
+      "instruction_index": 48
+    }
+  },
+  "oblige_output": "error[OBLIGE-E011]: source_bug \u2014 required proof never established\n  \u250c\u2500 <source>\n  \u2502\n48 \u2502     crc ^= *current++;\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502\n  = note: No earlier dominating proof-establishing branch or narrowing was found.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <uapi/linux/ptrace.h>\nint crc32(struct pt_regs *ctx) {\nchar str[256] = {};\nbpf_probe_read(&str, sizeof(str), (void *)PT_REGS_RC(ctx));\nconst uint32_t Polynomial = 0xEDB88320;\nu64 startTime = bpf_ktime_get_ns();\nuint32_t previousCrc32 = 0;\nuint32_t crc = ~previousCrc32;\nunsigned char* current = 0;\nint maxVal = sizeof(str);\nwhile (maxVal--) {\ncrc ^= *current++;\nfor (unsigned int j = 0; j < 8; j++) {\ncrc = (crc >> 1) ^ ((0 - (crc & 1)) & Polynomial);\n}\n}\nint result = ~crc;\nu64 totalTime = bpf_ktime_get_ns() - startTime;\nbpf_trace_printk(\">> BCC - CRC of `\\\\\"%s\\\\\" is: 0x%x \\\\n\",str, result);\nbpf_trace_printk(\">> BCC - CRC took: %lu cycles\\\\n\", totalTime);\nbpf_trace_printk(\"BCC - Test Complete.\\\\n\\\\n\\\\n\");\nreturn 0;\n}\n\"\"\"\nHere's a quick look at the error message below aswell.\n> Compiling BPF\nAttaching to uretprobe\nbpf: Failed to load program: Permission denied\nbtf_vmlinux is malformed\nUnrecognized arg#0 type PTR\n; int crc32(struct pt_regs *ctx) {\n\nVerifier log:\n> Compiling BPF\nAttaching to uretprobe\nbpf: Failed to load program: Permission denied\nbtf_vmlinux is malformed\nUnrecognized arg#0 type PTR\n; int crc32(struct pt_regs *ctx) {\n0: (b7) r8 = 0\n; char str[256] = {};\n1: (7b) *(u64 *)(r10 -8) = r8\nlast_idx 1 first_idx 0\nregs=100 stack=0 before 0: (b7) r8 = 0\n2: (7b) *(u64 *)(r10 -16) = r8\n3: (7b) *(u64 *)(r10 -24) = r8\n4: (7b) *(u64 *)(r10 -32) = r8\n5: (7b) *(u64 *)(r10 -40) = r8\n6: (7b) *(u64 *)(r10 -48) = r8\n7: (7b) *(u64 *)(r10 -56) = r8\n8: (7b) *(u64 *)(r10 -64) = r8\n9: (7b) *(u64 *)(r10 -72) = r8\n10: (7b) *(u64 *)(r10 -80) = r8\n11: (7b) *(u64 *)(r10 -88) = r8\n12: (7b) *(u64 *)(r10 -96) = r8\n13: (7b) *(u64 *)(r10 -104) = r8\n14: (7b) *(u64 *)(r10 -112) = r8\n15: (7b) *(u64 *)(r10 -120) = r8\n16: (7b) *(u64 *)(r10 -128) = r8\n17: (7b) *(u64 *)(r10 -136) = r8\n18: (7b) *(u64 *)(r10 -144) = r8\n19: (7b) *(u64 *)(r10 -152) = r8\n20: (7b) *(u64 *)(r10 -160) = r8\n21: (7b) *(u64 *)(r10 -168) = r8\n22: (7b) *(u64 *)(r10 -176) = r8\n23: (7b) *(u64 *)(r10 -184) = r8\n24: (7b) *(u64 *)(r10 -192) = r8\n25: (7b) *(u64 *)(r10 -200) = r8\n26: (7b) *(u64 *)(r10 -208) = r8\n27: (7b) *(u64 *)(r10 -216) = r8\n28: (7b) *(u64 *)(r10 -224) = r8\n29: (7b) *(u64 *)(r10 -232) = r8\n30: (7b) *(u64 *)(r10 -240) = r8\n31: (7b) *(u64 *)(r10 -248) = r8\n32: (7b) *(u64 *)(r10 -256) = r8\n; bpf_probe_read(&str, sizeof(str), (void *)PT_REGS_RC(ctx));\n33: (79) r3 = *(u64 *)(r1 +0)\n34: (bf) r1 = r10\n;\n35: (07) r1 += -256\n; bpf_probe_read(&str, sizeof(str), (void *)PT_REGS_RC(ctx));\n36: (b7) r2 = 256\n37: (85) call bpf_probe_read#4\nlast_idx 37 first_idx 0\nregs=4 stack=0 before 36: (b7) r2 = 256\n38: (18) r7 = 0xffffffff\n40: (18) r9 = 0xffffff00\n; u64 startTime = bpf_ktime_get_ns();\n42: (85) call bpf_ktime_get_ns#5\n43: (7b) *(u64 *)(r10 -304) = r0\n44: (18) r1 = 0xfffffffe\n46: (18) r2 = 0xedb88320\n; crc ^= *current++;\n48: (71) r3 = *(u8 *)(r8 +0)\nR8 invalid mem access 'inv'\nprocessed 45 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n>\n> HINT: The invalid mem access 'inv' error can happen if you try to\n> dereference memory without first using bpf_probe_read() to copy it to\n> the BPF stack. Sometimes the bpf_probe_read is automatic by the bcc\n> rewriter, other times you'll need to be explicit.\n\n; crc ^= *current++;\n48: (71) r3 = *(u8 *)(r8 +0)\nR8 invalid mem access 'inv'",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <uapi/linux/ptrace.h>\nint crc32(struct pt_regs *ctx) {\nchar str[256] = {};\nbpf_probe_read(&str, sizeof(str), (void *)PT_REGS_RC(ctx));\nconst uint32_t Polynomial = 0xEDB88320;\nu64 startTime = bpf_ktime_get_ns();\nuint32_t previousCrc32 = 0;\nuint32_t crc = ~previousCrc32;\nunsigned char* current = 0;\nint maxVal = sizeof(str);\nwhile (maxVal--) {\ncrc ^= *current++;\nfor (unsigned int j = 0; j < 8; j++) {\ncrc = (crc >> 1) ^ ((0 - (crc & 1)) & Polynomial);\n}\n}\nint result = ~crc;\nu64 totalTime = bpf_ktime_get_ns() - startTime;\nbpf_trace_printk(\">> BCC - CRC of `\\\\\"%s\\\\\" is: 0x%x \\\\n\",str, result);\nbpf_trace_printk(\">> BCC - CRC took: %lu cycles\\\\n\", totalTime);\nbpf_trace_printk(\"BCC - Test Complete.\\\\n\\\\n\\\\n\");\nreturn 0;\n}\n\"\"\"\nHere's a quick look at the error message below aswell.\n> Compiling BPF\nAttaching to uretprobe\nbpf: Failed to load program: Permission denied\nbtf_vmlinux is malformed\nUnrecognized arg#0 type PTR\n; int crc32(struct pt_regs *ctx) {\n\nVerifier log:\n> Compiling BPF\nAttaching to uretprobe\nbpf: Failed to load program: Permission denied\nbtf_vmlinux is malformed\nUnrecognized arg#0 type PTR\n; int crc32(struct pt_regs *ctx) {\n0: (b7) r8 = 0\n; char str[256] = {};\n1: (7b) *(u64 *)(r10 -8) = r8\nlast_idx 1 first_idx 0\nregs=100 stack=0 before 0: (b7) r8 = 0\n2: (7b) *(u64 *)(r10 -16) = r8\n3: (7b) *(u64 *)(r10 -24) = r8\n4: (7b) *(u64 *)(r10 -32) = r8\n5: (7b) *(u64 *)(r10 -40) = r8\n6: (7b) *(u64 *)(r10 -48) = r8\n7: (7b) *(u64 *)(r10 -56) = r8\n8: (7b) *(u64 *)(r10 -64) = r8\n9: (7b) *(u64 *)(r10 -72) = r8\n10: (7b) *(u64 *)(r10 -80) = r8\n11: (7b) *(u64 *)(r10 -88) = r8\n12: (7b) *(u64 *)(r10 -96) = r8\n13: (7b) *(u64 *)(r10 -104) = r8\n14: (7b) *(u64 *)(r10 -112) = r8\n15: (7b) *(u64 *)(r10 -120) = r8\n16: (7b) *(u64 *)(r10 -128) = r8\n17: (7b) *(u64 *)(r10 -136) = r8\n18: (7b) *(u64 *)(r10 -144) = r8\n19: (7b) *(u64 *)(r10 -152) = r8\n20: (7b) *(u64 *)(r10 -160) = r8\n21: (7b) *(u64 *)(r10 -168) = r8\n22: (7b) *(u64 *)(r10 -176) = r8\n23: (7b) *(u64 *)(r10 -184) = r8\n24: (7b) *(u64 *)(r10 -192) = r8\n25: (7b) *(u64 *)(r10 -200) = r8\n26: (7b) *(u64 *)(r10 -208) = r8\n27: (7b) *(u64 *)(r10 -216) = r8\n28: (7b) *(u64 *)(r10 -224) = r8\n29: (7b) *(u64 *)(r10 -232) = r8\n30: (7b) *(u64 *)(r10 -240) = r8\n31: (7b) *(u64 *)(r10 -248) = r8\n32: (7b) *(u64 *)(r10 -256) = r8\n; bpf_probe_read(&str, sizeof(str), (void *)PT_REGS_RC(ctx));\n33: (79) r3 = *(u64 *)(r1 +0)\n34: (bf) r1 = r10\n;\n35: (07) r1 += -256\n; bpf_probe_read(&str, sizeof(str), (void *)PT_REGS_RC(ctx));\n36: (b7) r2 = 256\n37: (85) call bpf_probe_read#4\nlast_idx 37 first_idx 0\nregs=4 stack=0 before 36: (b7) r2 = 256\n38: (18) r7 = 0xffffffff\n40: (18) r9 = 0xffffff00\n; u64 startTime = bpf_ktime_get_ns();\n42: (85) call bpf_ktime_get_ns#5\n43: (7b) *(u64 *)(r10 -304) = r0\n44: (18) r1 = 0xfffffffe\n46: (18) r2 = 0xedb88320\n; crc ^= *current++;\n48: (71) r3 = *(u8 *)(r8 +0)\nR8 invalid mem access 'inv'\nprocessed 45 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n>\n> HINT: The invalid mem access 'inv' error can happen if you try to\n> dereference memory without first using bpf_probe_read() to copy it to\n> the BPF stack. Sometimes the bpf_probe_read is automatic by the bcc\n> rewriter, other times you'll need to be explicit.\n\n; crc ^= *current++;\n48: (71) r3 = *(u8 *)(r8 +0)\nR8 invalid mem access 'inv'\n\nDiagnostic analysis:\nerror[OBLIGE-E011]: source_bug \u2014 required proof never established\n  \u250c\u2500 <source>\n  \u2502\n48 \u2502     crc ^= *current++;\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502\n  = note: No earlier dominating proof-establishing branch or narrowing was found.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+320",
+    "raw_fix:+50",
+    "accepted_fix:+25",
+    "specific_fix:+35",
+    "log_lines:+142",
+    "trace_state_lines:+16"
+  ],
+  "selection_score": 588,
+  "source": "stackoverflow",
+  "source_code": "#include <uapi/linux/ptrace.h>\nint crc32(struct pt_regs *ctx) {\nchar str[256] = {};\nbpf_probe_read(&str, sizeof(str), (void *)PT_REGS_RC(ctx));\nconst uint32_t Polynomial = 0xEDB88320;\nu64 startTime = bpf_ktime_get_ns();\nuint32_t previousCrc32 = 0;\nuint32_t crc = ~previousCrc32;\nunsigned char* current = 0;\nint maxVal = sizeof(str);\nwhile (maxVal--) {\ncrc ^= *current++;\nfor (unsigned int j = 0; j < 8; j++) {\ncrc = (crc >> 1) ^ ((0 - (crc & 1)) & Polynomial);\n}\n}\nint result = ~crc;\nu64 totalTime = bpf_ktime_get_ns() - startTime;\nbpf_trace_printk(\">> BCC - CRC of `\\\\\"%s\\\\\" is: 0x%x \\\\n\",str, result);\nbpf_trace_printk(\">> BCC - CRC took: %lu cycles\\\\n\", totalTime);\nbpf_trace_printk(\"BCC - Test Complete.\\\\n\\\\n\\\\n\");\nreturn 0;\n}\n\"\"\"\nHere's a quick look at the error message below aswell.\n> Compiling BPF\nAttaching to uretprobe\nbpf: Failed to load program: Permission denied\nbtf_vmlinux is malformed\nUnrecognized arg#0 type PTR\n; int crc32(struct pt_regs *ctx) {",
+  "source_url": "https://stackoverflow.com/questions/67679109/keep-getting-bpf-failed-to-load-program-permission-denied-when-trying-to-run-e",
+  "symptom_span_text": "",
+  "taxonomy_class": "source_bug",
+  "taxonomy_source": "oblige_diagnosis",
+  "title": "Keep getting bpf: Failed to load program: Permission denied when trying to run eBPF code",
+  "verifier_log": "> Compiling BPF\nAttaching to uretprobe\nbpf: Failed to load program: Permission denied\nbtf_vmlinux is malformed\nUnrecognized arg#0 type PTR\n; int crc32(struct pt_regs *ctx) {\n0: (b7) r8 = 0\n; char str[256] = {};\n1: (7b) *(u64 *)(r10 -8) = r8\nlast_idx 1 first_idx 0\nregs=100 stack=0 before 0: (b7) r8 = 0\n2: (7b) *(u64 *)(r10 -16) = r8\n3: (7b) *(u64 *)(r10 -24) = r8\n4: (7b) *(u64 *)(r10 -32) = r8\n5: (7b) *(u64 *)(r10 -40) = r8\n6: (7b) *(u64 *)(r10 -48) = r8\n7: (7b) *(u64 *)(r10 -56) = r8\n8: (7b) *(u64 *)(r10 -64) = r8\n9: (7b) *(u64 *)(r10 -72) = r8\n10: (7b) *(u64 *)(r10 -80) = r8\n11: (7b) *(u64 *)(r10 -88) = r8\n12: (7b) *(u64 *)(r10 -96) = r8\n13: (7b) *(u64 *)(r10 -104) = r8\n14: (7b) *(u64 *)(r10 -112) = r8\n15: (7b) *(u64 *)(r10 -120) = r8\n16: (7b) *(u64 *)(r10 -128) = r8\n17: (7b) *(u64 *)(r10 -136) = r8\n18: (7b) *(u64 *)(r10 -144) = r8\n19: (7b) *(u64 *)(r10 -152) = r8\n20: (7b) *(u64 *)(r10 -160) = r8\n21: (7b) *(u64 *)(r10 -168) = r8\n22: (7b) *(u64 *)(r10 -176) = r8\n23: (7b) *(u64 *)(r10 -184) = r8\n24: (7b) *(u64 *)(r10 -192) = r8\n25: (7b) *(u64 *)(r10 -200) = r8\n26: (7b) *(u64 *)(r10 -208) = r8\n27: (7b) *(u64 *)(r10 -216) = r8\n28: (7b) *(u64 *)(r10 -224) = r8\n29: (7b) *(u64 *)(r10 -232) = r8\n30: (7b) *(u64 *)(r10 -240) = r8\n31: (7b) *(u64 *)(r10 -248) = r8\n32: (7b) *(u64 *)(r10 -256) = r8\n; bpf_probe_read(&str, sizeof(str), (void *)PT_REGS_RC(ctx));\n33: (79) r3 = *(u64 *)(r1 +0)\n34: (bf) r1 = r10\n;\n35: (07) r1 += -256\n; bpf_probe_read(&str, sizeof(str), (void *)PT_REGS_RC(ctx));\n36: (b7) r2 = 256\n37: (85) call bpf_probe_read#4\nlast_idx 37 first_idx 0\nregs=4 stack=0 before 36: (b7) r2 = 256\n38: (18) r7 = 0xffffffff\n40: (18) r9 = 0xffffff00\n; u64 startTime = bpf_ktime_get_ns();\n42: (85) call bpf_ktime_get_ns#5\n43: (7b) *(u64 *)(r10 -304) = r0\n44: (18) r1 = 0xfffffffe\n46: (18) r2 = 0xedb88320\n; crc ^= *current++;\n48: (71) r3 = *(u8 *)(r8 +0)\nR8 invalid mem access 'inv'\nprocessed 45 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n>\n> HINT: The invalid mem access 'inv' error can happen if you try to\n> dereference memory without first using bpf_probe_read() to copy it to\n> the BPF stack. Sometimes the bpf_probe_read is automatic by the bcc\n> rewriter, other times you'll need to be explicit.\n\n; crc ^= *current++;\n48: (71) r3 = *(u8 *)(r8 +0)\nR8 invalid mem access 'inv'"
+}

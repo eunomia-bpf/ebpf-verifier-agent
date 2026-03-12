@@ -1,0 +1,139 @@
+{
+  "case_id": "stackoverflow-73088287",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-73088287.yaml",
+  "code_source": "question_body_text",
+  "error_id": "OBLIGE-E001",
+  "expected_fix_tags": [
+    "checked_pointer_reuse",
+    "other_refactor"
+  ],
+  "expected_fix_type": "checked_pointer_reuse",
+  "expected_location_kind": "root_cause",
+  "ground_truth_fix": "Use a verifier-friendly loop rewrite that keeps the checked pointer and accessed pointer identical.",
+  "ground_truth_fix_source": "manual_label",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "ADD_BOUNDS_GUARD",
+        "patch_hint": "Add bounds check: if (data + offset + size <= data_end)",
+        "rationale": "The required packet access proof was never established."
+      }
+    ],
+    "confidence": 0.89,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E001",
+    "evidence": [
+      {
+        "detail": "invalid access to packet, off=120 size=1, R4(id=0,off=135,r=120)",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "rejected at <bytecode>:74: r1 = *(u8 *)(r4 -15)",
+        "instruction_index": 73,
+        "kind": "source_map"
+      },
+      {
+        "detail": "The required packet access proof was never established.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: invalid access to packet, off=120 size=1, R4(id=0,off=135,r=120)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E001 (source_bug)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Symptom insn 73: r1 = *(u8 *)(r4 -15)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "No earlier dominating proof-establishing branch or narrowing was found.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "67: (bf) r2 = r5",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "68: (57) r2 &= 4064",
+        "kind": "heuristic"
+      }
+    ],
+    "expected_state": {
+      "notes": [
+        "Expected proof: packet access",
+        "R4.type == pkt; 120 + 1 <= R4.range"
+      ]
+    },
+    "failure_class": "source_bug",
+    "message": "required proof never established",
+    "metadata": {
+      "help": "Add bounds check: if (data + offset + size <= data_end)",
+      "note": "The required packet access proof was never established.",
+      "obligation": {
+        "required": "R4.type == pkt; 120 + 1 <= R4.range",
+        "type": "packet_access"
+      },
+      "proof_spans": [
+        {
+          "insn_range": [
+            73,
+            73
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R4",
+          "role": "rejected",
+          "source_text": "r1 = *(u8 *)(r4 -15)",
+          "state_change": null
+        }
+      ],
+      "proof_status": "never_established"
+    },
+    "missing_obligation": "R4.type == pkt; 120 + 1 <= R4.range",
+    "observed_state": {
+      "notes": [
+        "The required packet access proof was never established.",
+        "invalid access to packet, off=120 size=1, R4(id=0,off=135,r=120)"
+      ]
+    },
+    "raw_log_excerpt": "invalid access to packet, off=120 size=1, R4(id=0,off=135,r=120)",
+    "source_span": {
+      "line_end": 74,
+      "line_start": 74,
+      "path": "<bytecode>",
+      "snippet": "r1 = *(u8 *)(r4 -15)"
+    },
+    "verifier_site": {
+      "instruction_index": 73
+    }
+  },
+  "oblige_output": "error[OBLIGE-E001]: source_bug \u2014 required proof never established\n  \u250c\u2500 <bytecode>\n  \u2502\n73 \u2502     r1 = *(u8 *)(r4 -15)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502\n  = note: The required packet access proof was never established.\n  = help: Add bounds check: if (data + offset + size <= data_end)",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#define BUFFER_SIZE (1<<20)\n#define MTU 1500\nstruct my_buffer {\n__u32 len;\nchar buf[BUFFER_SIZE + 5];\n};\nstruct bpf_map_def SEC(\"maps\") map_my_buffer = {\n.type = BPF_MAP_TYPE_ARRAY,\n.key_size = sizeof(unsigned int),\n.value_size = sizeof(struct my_buffer),\n.max_entries = 1,\n};\nSEC(\"WriteBuffer\")\nint WriteBuffer_main(struct xdp_md *ctx) {\nvoid *data_end = (void *)(long)ctx->data_end;\nvoid *data = (void *)(long)ctx->data;\nchar *payload = data + sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);\nif (payload >= data_end) return XDP_PASS;\nunsigned int zero = 0;\nstruct my_buffer *fd = bpf_map_lookup_elem(&map_my_buffer, &zero);\nif (!fd) return XDP_PASS; // can't find the context...\n__u32 data_len = data_end - (void *)payload;\nif (data_len > MTU) return XDP_PASS;\nfor (__u32 i = 0; i < MTU && payload + i + 1 <= data_end; i++) {\nfd -> buf[i] = payload[i];\n}\nreturn XDP_DROP;\n}\nThe error message is: It tells there is an error when accessing packet's payload, but I did the boundary check...\n\nVerifier log:\n67: (bf) r2 = r5\n68: (57) r2 &= 4064\n69: (0f) r9 += r2\n70: (bf) r5 = r2\n71: (71) r1 = *(u8 *)(r4 -16)\n72: (7b) *(u64 *)(r10 -16) = r1\n73: (71) r1 = *(u8 *)(r4 -15)\ninvalid access to packet, off=120 size=1, R4(id=0,off=135,r=120)\nR4 offset is outside of the packet\nprocessed 60 insns (limit 1000000) max_states_per_insn 0 total_states 5 peak_states 5 mark_read 4",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#define BUFFER_SIZE (1<<20)\n#define MTU 1500\nstruct my_buffer {\n__u32 len;\nchar buf[BUFFER_SIZE + 5];\n};\nstruct bpf_map_def SEC(\"maps\") map_my_buffer = {\n.type = BPF_MAP_TYPE_ARRAY,\n.key_size = sizeof(unsigned int),\n.value_size = sizeof(struct my_buffer),\n.max_entries = 1,\n};\nSEC(\"WriteBuffer\")\nint WriteBuffer_main(struct xdp_md *ctx) {\nvoid *data_end = (void *)(long)ctx->data_end;\nvoid *data = (void *)(long)ctx->data;\nchar *payload = data + sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);\nif (payload >= data_end) return XDP_PASS;\nunsigned int zero = 0;\nstruct my_buffer *fd = bpf_map_lookup_elem(&map_my_buffer, &zero);\nif (!fd) return XDP_PASS; // can't find the context...\n__u32 data_len = data_end - (void *)payload;\nif (data_len > MTU) return XDP_PASS;\nfor (__u32 i = 0; i < MTU && payload + i + 1 <= data_end; i++) {\nfd -> buf[i] = payload[i];\n}\nreturn XDP_DROP;\n}\nThe error message is: It tells there is an error when accessing packet's payload, but I did the boundary check...\n\nVerifier log:\n67: (bf) r2 = r5\n68: (57) r2 &= 4064\n69: (0f) r9 += r2\n70: (bf) r5 = r2\n71: (71) r1 = *(u8 *)(r4 -16)\n72: (7b) *(u64 *)(r10 -16) = r1\n73: (71) r1 = *(u8 *)(r4 -15)\ninvalid access to packet, off=120 size=1, R4(id=0,off=135,r=120)\nR4 offset is outside of the packet\nprocessed 60 insns (limit 1000000) max_states_per_insn 0 total_states 5 peak_states 5 mark_read 4\n\nDiagnostic analysis:\nerror[OBLIGE-E001]: source_bug \u2014 required proof never established\n  \u250c\u2500 <bytecode>\n  \u2502\n73 \u2502     r1 = *(u8 *)(r4 -15)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502\n  = note: The required packet access proof was never established.\n  = help: Add bounds check: if (data + offset + size <= data_end)",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+320",
+    "manual_label:+120",
+    "curated_fix:+80",
+    "expected_from_gt:+40",
+    "specific_fix:+35",
+    "manual_taxonomy:+50",
+    "log_lines:+20",
+    "trace_state_lines:+0"
+  ],
+  "selection_score": 665,
+  "source": "stackoverflow",
+  "source_code": "#define BUFFER_SIZE (1<<20)\n#define MTU 1500\nstruct my_buffer {\n__u32 len;\nchar buf[BUFFER_SIZE + 5];\n};\nstruct bpf_map_def SEC(\"maps\") map_my_buffer = {\n.type = BPF_MAP_TYPE_ARRAY,\n.key_size = sizeof(unsigned int),\n.value_size = sizeof(struct my_buffer),\n.max_entries = 1,\n};\nSEC(\"WriteBuffer\")\nint WriteBuffer_main(struct xdp_md *ctx) {\nvoid *data_end = (void *)(long)ctx->data_end;\nvoid *data = (void *)(long)ctx->data;\nchar *payload = data + sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);\nif (payload >= data_end) return XDP_PASS;\nunsigned int zero = 0;\nstruct my_buffer *fd = bpf_map_lookup_elem(&map_my_buffer, &zero);\nif (!fd) return XDP_PASS; // can't find the context...\n__u32 data_len = data_end - (void *)payload;\nif (data_len > MTU) return XDP_PASS;\nfor (__u32 i = 0; i < MTU && payload + i + 1 <= data_end; i++) {\nfd -> buf[i] = payload[i];\n}\nreturn XDP_DROP;\n}\nThe error message is: It tells there is an error when accessing packet's payload, but I did the boundary check...",
+  "source_url": "https://stackoverflow.com/questions/73088287/how-do-i-copy-data-to-buffer-in-ebpf",
+  "symptom_span_text": "",
+  "taxonomy_class": "lowering_artifact",
+  "taxonomy_source": "manual_label",
+  "title": "How do I copy data to buffer in eBPF?",
+  "verifier_log": "67: (bf) r2 = r5\n68: (57) r2 &= 4064\n69: (0f) r9 += r2\n70: (bf) r5 = r2\n71: (71) r1 = *(u8 *)(r4 -16)\n72: (7b) *(u64 *)(r10 -16) = r1\n73: (71) r1 = *(u8 *)(r4 -15)\ninvalid access to packet, off=120 size=1, R4(id=0,off=135,r=120)\nR4 offset is outside of the packet\nprocessed 60 insns (limit 1000000) max_states_per_insn 0 total_states 5 peak_states 5 mark_read 4"
+}

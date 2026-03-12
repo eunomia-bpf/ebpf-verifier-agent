@@ -1,0 +1,139 @@
+{
+  "case_id": "stackoverflow-61945212",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-61945212.yaml",
+  "code_source": "question_body_text",
+  "error_id": "OBLIGE-E023",
+  "expected_fix_tags": [
+    "queue_map_api"
+  ],
+  "expected_fix_type": "queue_map_api",
+  "expected_location_kind": "local",
+  "ground_truth_fix": "Use `bpf_map_push_elem`/`pull`/`peek` for queue maps instead of `bpf_map_update_elem()`.",
+  "ground_truth_fix_source": "manual_label",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "UNKNOWN",
+        "patch_hint": "Pass a stack-backed key pointer as arg2 instead of NULL or a scalar value. If this map type has no key, use the map API that matches that map type instead of bpf_map_update_elem().",
+        "rationale": "The verifier sees R2 as an untyped scalar value (inv), but this call requires a stack pointer."
+      }
+    ],
+    "confidence": 0.89,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E023",
+    "evidence": [
+      {
+        "detail": "R2 type=inv expected=fp",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "rejected at <bytecode>:9: call bpf_map_update_elem#2",
+        "instruction_index": 8,
+        "kind": "source_map"
+      },
+      {
+        "detail": "The verifier sees R2 as an untyped scalar value (inv), but this call requires a stack pointer.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: R2 type=inv expected=fp",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E023 (source_bug)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Symptom insn 8: call bpf_map_update_elem#2",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "No earlier dominating proof-establishing branch or narrowing was found.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "0: (b7) r1 = 123",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "1: (63) *(u32 *)(r10 -4) = r1",
+        "kind": "heuristic"
+      }
+    ],
+    "expected_state": {
+      "notes": [
+        "Expected proof: helper arg",
+        "R2 type=inv expected=fp"
+      ]
+    },
+    "failure_class": "source_bug",
+    "message": "helper expected a stack pointer",
+    "metadata": {
+      "help": "Pass a stack-backed key pointer as arg2 instead of NULL or a scalar value. If this map type has no key, use the map API that matches that map type instead of bpf_map_update_elem().",
+      "note": "The verifier sees R2 as an untyped scalar value (inv), but this call requires a stack pointer.",
+      "obligation": {
+        "required": "R2 type=inv expected=fp",
+        "type": "helper_arg"
+      },
+      "proof_spans": [
+        {
+          "insn_range": [
+            8,
+            8
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R2",
+          "role": "rejected",
+          "source_text": "call bpf_map_update_elem#2",
+          "state_change": null
+        }
+      ],
+      "proof_status": "never_established"
+    },
+    "missing_obligation": "R2 type=inv expected=fp",
+    "observed_state": {
+      "notes": [
+        "The verifier sees R2 as an untyped scalar value (inv), but this call requires a stack pointer.",
+        "R2 type=inv expected=fp"
+      ]
+    },
+    "raw_log_excerpt": "R2 type=inv expected=fp",
+    "source_span": {
+      "line_end": 9,
+      "line_start": 9,
+      "path": "<bytecode>",
+      "snippet": "call bpf_map_update_elem#2"
+    },
+    "verifier_site": {
+      "instruction_index": 8
+    }
+  },
+  "oblige_output": "error[OBLIGE-E023]: source_bug \u2014 helper expected a stack pointer\n  \u250c\u2500 <bytecode>\n  \u2502\n8 \u2502     call bpf_map_update_elem#2\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502\n  = note: The verifier sees R2 as an untyped scalar value (inv), but this call requires a stack pointer.\n  = help: Pass a stack-backed key pointer as arg2 instead of NULL or a scalar value. If this map type has no key, use the map API that matches that map type instead of bpf_map_update_elem().",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <bpf/bpf.h>\n#include <string.h>\nstruct bpf_map SEC(\"maps\") queue_map = {\n.type = BPF_MAP_TYPE_QUEUE,\n.key_size = 0,\n.value_size = sizeof(int),\n.max_entries = 100,\n.map_flags = 0,\n};\nSEC(\"tracepoint/syscalls/sys_enter_execve\")\nint bpf_prog(void *ctx) {\nint value;\nvalue = 123;\nbpf_map_update_elem(&queue_map, NULL, &value, BPF_ANY);\nreturn 0;\n}\nchar _license[] SEC(\"license\") = \"GPL\";\nHowever, if I switch the queue map to an array map by updating .type = BPF_MAP_TYPE_ARRAY, .key_size = sizeof(int), and provide a valid key to the bpf_map_update_elem function, the bpf program loads and works. I'm loading the program with libbpf.\nint bpf_prog_test_load(const char *file, enum bpf_prog_type type,\nstruct bpf_object **pobj, int *prog_fd)\n{\nstruct bpf_prog_load_attr attr;\nmemset(&attr, 0, sizeof(struct bpf_prog_load_attr));\nattr.file = file;\nattr.prog_type = type;\nattr.expected_attach_type = 0;\nreturn bpf_prog_load_xattr(&attr, pobj, prog_fd);\n}\nWhat is causing the error?\nI'm using header files from /tools/perf. Should I be using different header files?\nDo I need to load queue maps differently than array maps?\nAre there map flags I need to add for a queue map?\n\nVerifier log:\nlibbpf: -- BEGIN DUMP LOG ---\nlibbpf:\n0: (b7) r1 = 123\n1: (63) *(u32 *)(r10 -4) = r1\n2: (bf) r3 = r10\n3: (07) r3 += -4\n4: (18) r1 = 0xffff9df655207800\n6: (b7) r2 = 0\n7: (b7) r4 = 0\n8: (85) call bpf_map_update_elem#2\nR2 type=inv expected=fp\nprocessed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\nlibbpf: -- END LOG --",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <bpf/bpf.h>\n#include <string.h>\nstruct bpf_map SEC(\"maps\") queue_map = {\n.type = BPF_MAP_TYPE_QUEUE,\n.key_size = 0,\n.value_size = sizeof(int),\n.max_entries = 100,\n.map_flags = 0,\n};\nSEC(\"tracepoint/syscalls/sys_enter_execve\")\nint bpf_prog(void *ctx) {\nint value;\nvalue = 123;\nbpf_map_update_elem(&queue_map, NULL, &value, BPF_ANY);\nreturn 0;\n}\nchar _license[] SEC(\"license\") = \"GPL\";\nHowever, if I switch the queue map to an array map by updating .type = BPF_MAP_TYPE_ARRAY, .key_size = sizeof(int), and provide a valid key to the bpf_map_update_elem function, the bpf program loads and works. I'm loading the program with libbpf.\nint bpf_prog_test_load(const char *file, enum bpf_prog_type type,\nstruct bpf_object **pobj, int *prog_fd)\n{\nstruct bpf_prog_load_attr attr;\nmemset(&attr, 0, sizeof(struct bpf_prog_load_attr));\nattr.file = file;\nattr.prog_type = type;\nattr.expected_attach_type = 0;\nreturn bpf_prog_load_xattr(&attr, pobj, prog_fd);\n}\nWhat is causing the error?\nI'm using header files from /tools/perf. Should I be using different header files?\nDo I need to load queue maps differently than array maps?\nAre there map flags I need to add for a queue map?\n\nVerifier log:\nlibbpf: -- BEGIN DUMP LOG ---\nlibbpf:\n0: (b7) r1 = 123\n1: (63) *(u32 *)(r10 -4) = r1\n2: (bf) r3 = r10\n3: (07) r3 += -4\n4: (18) r1 = 0xffff9df655207800\n6: (b7) r2 = 0\n7: (b7) r4 = 0\n8: (85) call bpf_map_update_elem#2\nR2 type=inv expected=fp\nprocessed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\nlibbpf: -- END LOG --\n\nDiagnostic analysis:\nerror[OBLIGE-E023]: source_bug \u2014 helper expected a stack pointer\n  \u250c\u2500 <bytecode>\n  \u2502\n8 \u2502     call bpf_map_update_elem#2\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502\n  = note: The verifier sees R2 as an untyped scalar value (inv), but this call requires a stack pointer.\n  = help: Pass a stack-backed key pointer as arg2 instead of NULL or a scalar value. If this map type has no key, use the map API that matches that map type instead of bpf_map_update_elem().",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+320",
+    "manual_label:+120",
+    "curated_fix:+80",
+    "accepted_fix:+25",
+    "expected_from_gt:+40",
+    "specific_fix:+35",
+    "manual_taxonomy:+50",
+    "log_lines:+26",
+    "trace_state_lines:+0"
+  ],
+  "selection_score": 696,
+  "source": "stackoverflow",
+  "source_code": "#include <bpf/bpf.h>\n#include <string.h>\nstruct bpf_map SEC(\"maps\") queue_map = {\n.type = BPF_MAP_TYPE_QUEUE,\n.key_size = 0,\n.value_size = sizeof(int),\n.max_entries = 100,\n.map_flags = 0,\n};\nSEC(\"tracepoint/syscalls/sys_enter_execve\")\nint bpf_prog(void *ctx) {\nint value;\nvalue = 123;\nbpf_map_update_elem(&queue_map, NULL, &value, BPF_ANY);\nreturn 0;\n}\nchar _license[] SEC(\"license\") = \"GPL\";\nHowever, if I switch the queue map to an array map by updating .type = BPF_MAP_TYPE_ARRAY, .key_size = sizeof(int), and provide a valid key to the bpf_map_update_elem function, the bpf program loads and works. I'm loading the program with libbpf.\nint bpf_prog_test_load(const char *file, enum bpf_prog_type type,\nstruct bpf_object **pobj, int *prog_fd)\n{\nstruct bpf_prog_load_attr attr;\nmemset(&attr, 0, sizeof(struct bpf_prog_load_attr));\nattr.file = file;\nattr.prog_type = type;\nattr.expected_attach_type = 0;\nreturn bpf_prog_load_xattr(&attr, pobj, prog_fd);\n}\nWhat is causing the error?\nI'm using header files from /tools/perf. Should I be using different header files?\nDo I need to load queue maps differently than array maps?\nAre there map flags I need to add for a queue map?",
+  "source_url": "https://stackoverflow.com/questions/61945212/why-does-bpf-verifier-error-with-null-key-when-using-bpf-map-type-queue",
+  "symptom_span_text": "",
+  "taxonomy_class": "source_bug",
+  "taxonomy_source": "manual_label",
+  "title": "Why does BPF verifier error with null key when using BPF_MAP_TYPE_QUEUE?",
+  "verifier_log": "libbpf: -- BEGIN DUMP LOG ---\nlibbpf:\n0: (b7) r1 = 123\n1: (63) *(u32 *)(r10 -4) = r1\n2: (bf) r3 = r10\n3: (07) r3 += -4\n4: (18) r1 = 0xffff9df655207800\n6: (b7) r2 = 0\n7: (b7) r4 = 0\n8: (85) call bpf_map_update_elem#2\nR2 type=inv expected=fp\nprocessed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\nlibbpf: -- END LOG --"
+}

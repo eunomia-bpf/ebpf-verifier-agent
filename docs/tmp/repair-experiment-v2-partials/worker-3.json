@@ -1,0 +1,238 @@
+{
+  "cases": [
+    {
+      "case_id": "stackoverflow-70750259",
+      "condition_a": {
+        "predicted_fix": "Keep ext_len unsigned and clamp it before data += ext_len; avoid the signed or volatile conversion that makes the verifier lose the range proof.",
+        "target_location": "ext_len calculation and the data/i advancement in the extension loop",
+        "fix_type_label": "unsigned clamp",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The raw log already shows packet-pointer arithmetic with an unbounded value created by the ext->len byte-swap path."
+      },
+      "condition_b": {
+        "predicted_fix": "Compute ext_len in a separate verified unsigned register, clamp it to the remaining packet span, then advance data with that checked value.",
+        "target_location": "ext_len calculation and the data/i advancement in the extension loop",
+        "fix_type_label": "unsigned clamp",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "OBLIGE identifies the proof-loss point more explicitly, but it reinforces the same unsigned-clamp repair the raw log already suggests."
+      },
+      "overall_notes": "Condition B tied; the raw log already exposed the unbounded offset arithmetic, and OBLIGE mainly sharpened the proof-loss explanation."
+    },
+    {
+      "case_id": "stackoverflow-79485758",
+      "condition_a": {
+        "predicted_fix": "Add a stronger guard before x = *((uint16_t *)(data + field_offset)), rejecting any case where field_offset or that 2-byte read may run past packet end.",
+        "target_location": "field_offset guard before x = *((uint16_t *)(data + field_offset))",
+        "fix_type_label": "generic bounds check",
+        "scores": {
+          "location": 1,
+          "fix_type": 0,
+          "root_cause": 0
+        },
+        "rationale": "From the raw log alone, the natural repair is just another local packet-bounds check around the failing dereference."
+      },
+      "condition_b": {
+        "predicted_fix": "Clamp field_offset into a verifier-friendly unsigned range and read through a separately checked pkt_ptr before dereferencing it.",
+        "target_location": "field_offset computation and the packet read at x = *((uint16_t *)(data + field_offset))",
+        "fix_type_label": "unsigned clamp",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic points to a proof-loss corner case, so the right fix is not just another generic check but a clamp or checked-pointer rewrite."
+      },
+      "overall_notes": "Condition B helped; the raw log invites a symptom-level bounds tweak, while OBLIGE points to the MAX_PACKET_OFF-style clamp and checked-pointer workaround."
+    },
+    {
+      "case_id": "stackoverflow-61945212",
+      "condition_a": {
+        "predicted_fix": "Fix the helper call site by passing a real stack-backed key to bpf_map_update_elem, or switch to a keyed map if you need keyed updates.",
+        "target_location": "bpf_map_update_elem(&queue_map, NULL, &value, BPF_ANY)",
+        "fix_type_label": "helper argument fix",
+        "scores": {
+          "location": 1,
+          "fix_type": 0,
+          "root_cause": 0
+        },
+        "rationale": "The verifier exposes arg2 as invalid, so a raw-log-only repair naturally focuses on making the key pointer acceptable."
+      },
+      "condition_b": {
+        "predicted_fix": "Replace bpf_map_update_elem with the queue-map API, e.g. bpf_map_push_elem(&queue_map, &value, 0).",
+        "target_location": "queue_map update call in bpf_prog",
+        "fix_type_label": "queue-map API switch",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "OBLIGE explicitly notes that this map type has no key and should use the queue-specific helper API instead."
+      },
+      "overall_notes": "Condition B helped; it turns a symptom-level arg2 repair into the correct queue-map API change."
+    },
+    {
+      "case_id": "stackoverflow-70721661",
+      "condition_a": {
+        "predicted_fix": "Prove the IP header is in bounds before memcpy, either with (void *)ip + sizeof(*ip) <= data_end or by folding that size into the first header check.",
+        "target_location": "packet-length check before memcpy(&me.dest_ip, ip, sizeof(struct iphdr))",
+        "fix_type_label": "bounds check",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The log shows the verifier only knows the Ethernet header is safe, not the full IP header copied by memcpy."
+      },
+      "condition_b": {
+        "predicted_fix": "Add an explicit bounds check that covers the full IP header before memcpy, not just the Ethernet header.",
+        "target_location": "packet-length check before memcpy(&me.dest_ip, ip, sizeof(struct iphdr))",
+        "fix_type_label": "bounds check",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic restates the same missing proof: the program never established that the IP header bytes are within data_end."
+      },
+      "overall_notes": "Condition B tied; the verifier log already localizes the missing header-length proof cleanly."
+    },
+    {
+      "case_id": "stackoverflow-74531552",
+      "condition_a": {
+        "predicted_fix": "Check *curr_state is within [0, 4) before using it to index aut.function, and bail out if it is negative or too large.",
+        "target_location": "aut.function[*curr_state][0] array access",
+        "fix_type_label": "index bounds check",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The unchecked map-derived state value is the only source-level value feeding the fixed-size table index, and the accepted fix is a direct range guard."
+      },
+      "condition_b": {
+        "predicted_fix": "Check *curr_state is within [0, 4) before indexing aut.function so the table access has an explicit verifier-visible bound.",
+        "target_location": "aut.function[*curr_state][0] array access",
+        "fix_type_label": "index bounds check",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic talks about scalar range loss, but the concrete source-level repair is still the missing curr_state bounds check."
+      },
+      "overall_notes": "Condition B tied; OBLIGE was noisy here, but the unchecked table index is obvious from the source and still drives the same repair."
+    },
+    {
+      "case_id": "stackoverflow-76960866",
+      "condition_a": {
+        "predicted_fix": "Do not dereference newsock directly; read the field via bpf_probe_read_kernel(&sk, sizeof(sk), &newsock->sk) and then inspect the resulting sock safely.",
+        "target_location": "extract_sock_key(newsock->sk, &sk_key) and other direct newsock field dereferences",
+        "fix_type_label": "indirect pointer read",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The raw log shows PT_REGS_PARM2 is just an untyped scalar to the verifier, so direct newsock->sk dereference is invalid."
+      },
+      "condition_b": {
+        "predicted_fix": "Re-read the socket field through bpf_probe_read_kernel using &newsock->sk, then pass that verified value to extract_sock_key.",
+        "target_location": "extract_sock_key(newsock->sk, &sk_key) and other direct newsock field dereferences",
+        "fix_type_label": "indirect pointer read",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic is less precise than the accepted answer, but it still points at rebuilding the pointer from a verifier-safe base right before dereference."
+      },
+      "overall_notes": "Condition B tied; the raw log already exposes the bad direct dereference, and OBLIGE does not change the repair direction."
+    },
+    {
+      "case_id": "github-aya-rs-aya-1324",
+      "condition_a": {
+        "predicted_fix": "Keep the logger returned by EbpfLogger::init alive for the lifetime of the program instead of dropping it immediately.",
+        "target_location": "EbpfLogger::init(&mut bpf)? call in main",
+        "fix_type_label": "logger lifetime / map fd retention",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The failure is a load-time invalid map FD, and the only suspicious map-owning initialization in the snippet is the discarded EbpfLogger handle."
+      },
+      "condition_b": {
+        "predicted_fix": "Keep the EbpfLogger handle alive instead of dropping it, so the logging map FD stays valid through program load and attach.",
+        "target_location": "EbpfLogger::init(&mut bpf)? call in main",
+        "fix_type_label": "logger lifetime / map fd retention",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic is off-topic for this case, but the raw code and verifier text still point back to the logger-backed map lifetime issue."
+      },
+      "overall_notes": "Condition B tied; OBLIGE was clearly misclassified here, but the raw code and log were strong enough that the repair stayed the same."
+    },
+    {
+      "case_id": "stackoverflow-70841631",
+      "condition_a": {
+        "predicted_fix": "Reduce verifier state explosion by simplifying or splitting the nested packet-scanning loops, hoisting checks, and keeping the per-packet scan more tightly bounded.",
+        "target_location": "the Host-header scan loop and the server-name extraction loop",
+        "fix_type_label": "reduce branching/state fan-out",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The raw log directly says the verifier hit the 1,000,001-instruction analysis limit, which is a complexity problem rather than a bad memory proof."
+      },
+      "condition_b": {
+        "predicted_fix": "Refactor the nested parsing loops into simpler bounded stages so verifier branching and iteration count stay below the analysis budget.",
+        "target_location": "the Host-header scan loop and the server-name extraction loop",
+        "fix_type_label": "reduce branching/state fan-out",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "OBLIGE matches the raw log here and points to the same complexity-reduction repair."
+      },
+      "overall_notes": "Condition B tied; the verifier log already gives a direct state-explosion signal."
+    },
+    {
+      "case_id": "stackoverflow-69413427",
+      "condition_a": {
+        "predicted_fix": "Materialize the inode-derived key on the BPF stack and pass &key to bpf_map_lookup_elem, ideally using a scalar inode identifier instead of the raw pointer itself.",
+        "target_location": "BPF_CORE_READ(dentry, d_inode) result and bpf_map_lookup_elem(&info, p)",
+        "fix_type_label": "stack-backed key",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The raw log already says arg2 must be a stack or map-key style pointer, not the scalar pointer value produced by BPF_CORE_READ."
+      },
+      "condition_b": {
+        "predicted_fix": "Copy the inode key material into a stack local and pass a pointer to that stack object to bpf_map_lookup_elem.",
+        "target_location": "BPF_CORE_READ(dentry, d_inode) result and bpf_map_lookup_elem(&info, p)",
+        "fix_type_label": "stack-backed key",
+        "scores": {
+          "location": 1,
+          "fix_type": 1,
+          "root_cause": 1
+        },
+        "rationale": "The diagnostic makes the helper contract explicit, but it confirms the same stack-backed key repair visible from the verifier message."
+      },
+      "overall_notes": "Condition B tied; the raw verifier text already points directly to the helper-contract violation and stack-key repair."
+    }
+  ]
+}

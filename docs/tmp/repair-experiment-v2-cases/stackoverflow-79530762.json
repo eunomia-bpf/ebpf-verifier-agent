@@ -1,0 +1,174 @@
+{
+  "case_id": "stackoverflow-79530762",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-79530762.yaml",
+  "code_source": "question_body_text",
+  "error_id": "OBLIGE-E001",
+  "expected_fix_tags": [
+    "checked_pointer_reuse",
+    "other_refactor"
+  ],
+  "expected_fix_type": "checked_pointer_reuse",
+  "expected_location_kind": "root_cause",
+  "ground_truth_fix": "Rewrite the code so the checked pointer/value is reused directly and the proof survives lowering.",
+  "ground_truth_fix_source": "manual_label",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "ADD_BOUNDS_GUARD",
+        "patch_hint": "Add bounds check: if (data + offset + size <= data_end)",
+        "rationale": "Proof existed earlier and was lost at insn 20 (PROVENANCE_LOSS)."
+      }
+    ],
+    "confidence": 0.98,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E001",
+    "evidence": [
+      {
+        "detail": "invalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "proof established at <source>:34: data_bytes[i + option_length] = data_bytes[i];",
+        "instruction_index": 33,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R4: pkt(range=34, off=34)",
+        "instruction_index": 33,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "rejected at <source>:34: data_bytes[i + option_length] = data_bytes[i];",
+        "instruction_index": 33,
+        "kind": "source_map"
+      },
+      {
+        "detail": "Proof existed earlier and was lost at insn 20 (PROVENANCE_LOSS).",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: invalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E001 (source_bug)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Symptom insn 36: *(u8 *)(r4 +33) = r5",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Root cause localized to insn 20, earlier than the reject site.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "R0 lost tracked provenance at insn 20: pkt,id=0,off=38,r=39 -> inv,id=0,umax=14,var_off=(0x0; 0xe)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "R0 downgraded from pointer-like pkt to inv at insn 20",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Loss context inferred as branch.",
+        "kind": "heuristic"
+      }
+    ],
+    "expected_state": {
+      "notes": [
+        "Expected proof: packet access",
+        "R4.type == pkt; 33 + 1 <= R4.range"
+      ],
+      "registers": {
+        "R4": "pkt(range=34, off=34)"
+      }
+    },
+    "failure_class": "source_bug",
+    "message": "proof exists but is insufficient at the reject site",
+    "metadata": {
+      "help": "Add bounds check: if (data + offset + size <= data_end)",
+      "note": "Proof existed earlier and was lost at insn 20 (PROVENANCE_LOSS).",
+      "obligation": {
+        "required": "R4.type == pkt; 33 + 1 <= R4.range",
+        "type": "packet_access"
+      },
+      "proof_spans": [
+        {
+          "insn_range": [
+            33,
+            36
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R4",
+          "role": "proof_established",
+          "source_text": "data_bytes[i + option_length] = data_bytes[i];",
+          "state_change": "R4: pkt(range=34, off=34)"
+        },
+        {
+          "insn_range": [
+            33,
+            36
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R4",
+          "role": "rejected",
+          "source_text": "data_bytes[i + option_length] = data_bytes[i];",
+          "state_change": "R4: pkt(range=34, off=34)"
+        }
+      ],
+      "proof_status": "established_but_insufficient"
+    },
+    "missing_obligation": "R4.type == pkt; 33 + 1 <= R4.range",
+    "observed_state": {
+      "notes": [
+        "Proof existed earlier and was lost at insn 20 (PROVENANCE_LOSS).",
+        "invalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)"
+      ],
+      "registers": {
+        "R4": "pkt(range=34, off=34)"
+      }
+    },
+    "raw_log_excerpt": "invalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)",
+    "source_span": {
+      "line_end": 37,
+      "line_start": 34,
+      "path": "<source>",
+      "snippet": "data_bytes[i + option_length] = data_bytes[i];"
+    },
+    "verifier_site": {
+      "instruction_index": 33
+    }
+  },
+  "oblige_output": "error[OBLIGE-E001]: source_bug \u2014 proof exists but is insufficient at the reject site\n  \u250c\u2500 <source>\n  \u2502\n33 \u2502     data_bytes[i + option_length] = data_bytes[i];\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R4: pkt(range=34, off=34)\n   \u2502\n33 \u2502     data_bytes[i + option_length] = data_bytes[i];\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R4: pkt(range=34, off=34)\n   \u2502\n  = note: Proof existed earlier and was lost at insn 20 (PROVENANCE_LOSS).\n  = help: Add bounds check: if (data + offset + size <= data_end)",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <linux/bpf.h>\n#include <linux/if_ether.h>\n#include <linux/ip.h>\n#include <linux/udp.h>\n#define MY_OPTION_TYPE 31\n#define MAX_CHECKING 4\nstatic inline __u16 iph_csum(struct iphdr *iph, void *data_end)\n{\n__u32 sum = 0;\n__u16 *buf = (__u16 *)iph;\n__u16 ihl = iph->ihl << 2; // Convert IHL to bytes\niph->check = 0;\nfor (__u8 i = 0; i < ihl && i < 60; i += 2)\n{\nif ((void *)(buf + 1) > data_end)\n{\nbreak;\n}\nsum += *buf++;\n}\nfor (__u8 i = 0; sum >> 16 && i < MAX_CHECKING; i += 1)\n{\nsum = (sum & 0xFFFF) + (sum >> 16);\n}\nreturn ~sum;\n}\nint inter_op_ebpf(struct xdp_md *ctx)\n{\nvoid *data = (void *)(long)ctx->data;\nvoid *data_end = (void *)(long)ctx->data_end;\nstruct ethhdr *eth = data;\n// Check if the Ethernet header is within bounds\nif ((void *)eth + sizeof(*eth) > data_end)\nreturn XDP_PASS;\nstruct iphdr *ip = data + sizeof(*eth);\n// Check if the IP header is within bounds\nif ((void *)ip + sizeof(*ip) > data_end)\nreturn XDP_PASS;\nif (ip->version != 4)\n{\nreturn XDP_PASS;\n}\n// Check if the packet has IP options\nint options_len = (ip->ihl * 4) - sizeof(struct iphdr);\n__u8 *options = (__u8 *)(ip + 1);\n__u8 is_register = 1;\n__u8 is_exist_custom_option = 0;\nif (options_len > 0 && (void *)(options + 4) < data_end)\n{\n__u8 option_type = options[0];\nif (option_type == MY_OPTION_TYPE)\n{\nis_exist_custom_option = 1;\n__u8 option_length = options[1];\n__u8 *data_bytes = (__u8 *)data;\nint shift_data_length = sizeof(*eth) + sizeof(struct iphdr);\nif (option_length == 8 || option_length == 12) {\nfor (int i = shift_data_length - 1; i >= 0; i--) {\nif ((void *)(data_bytes + i + option_length + 1) > data_end)\nreturn XDP_PASS;\ndata_bytes[i + option_length] = data_bytes[i];\n}\n}\nint ret = bpf_xdp_adjust_head(ctx, option_length); // Cut option length bytes at the head\nif (ret < 0)\n{\nreturn XDP_PASS; // If adjustment fails, pass the packet\n}\ndata = (void *)(long)ctx->data;\ndata_end = (void *)(long)ctx->data_end;\neth = data;\n// Check if the Ethernet header is within bounds\nif ((void *)eth + sizeof(*eth) > data_end)\nreturn XDP_DROP;\nip = data + sizeof(*eth);\n// Check if the IP header is within bounds\nif ((void *)ip + sizeof(*ip) > data_end)\nreturn XDP_DROP;\nif (ip->version != 4)\n{\nreturn XDP_DROP;\n}\nint new_header_size = sizeof(struct iphdr); // 20 + 8 = 28 bytes\nip->ihl = new_header_size / 4;\nip->tot_len = htons(ntohs(ip->tot_len) - option_length);\n}\nip->check = iph_csum(ip, data_end);\n}\nreturn XDP_PASS;\n}\n\nVerifier log:\nbpf: Failed to load program: Permission denied\nbtf_vmlinux is malformed\n; int inter_op_ebpf(struct xdp_md *ctx)\n0: (bf) r7 = r1\n1: (b7) r6 = 2\n; void *data_end = (void *)(long)ctx->data_end;\n2: (61) r2 = *(u32 *)(r7 +4)\n; void *data = (void *)(long)ctx->data;\n3: (61) r1 = *(u32 *)(r7 +0)\n; if ((void *)eth + sizeof(*eth) > data_end)\n4: (bf) r3 = r1\n5: (07) r3 += 14\n; if ((void *)eth + sizeof(*eth) > data_end)\n6: (2d) if r3 > r2 goto pc+304\n R1_w=pkt(id=0,off=0,r=14,imm=0) R2_w=pkt_end(id=0,off=0,imm=0) R3_w=pkt(id=0,off=14,r=14,imm=0) R6_w=inv2 R7_w=ctx(id=0,off=0,imm=0) R10=fp0\n; if ((void *)ip + sizeof(*ip) > data_end)\n7: (bf) r4 = r1\n8: (07) r4 += 34\n; if ((void *)ip + sizeof(*ip) > data_end)\n9: (2d) if r4 > r2 goto pc+301\n R1_w=pkt(id=0,off=0,r=34,imm=0) R2_w=pkt_end(id=0,off=0,imm=0) R3_w=pkt(id=0,off=14,r=34,imm=0) R4_w=pkt(id=0,off=34,r=34,imm=0) R6_w=inv2 R7_w=ctx(id=0,off=0,imm=0) R10=fp0\n; if (ip->version != 4)\n10: (71) r5 = *(u8 *)(r3 +0)\n; if (ip->version != 4)\n11: (bf) r0 = r5\n12: (57) r0 &= 240\n; if (ip->version != 4)\n13: (55) if r0 != 0x40 goto pc+297\n R0=inv64 R1=pkt(id=0,off=0,r=34,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=34,imm=0) R4=pkt(id=0,off=34,r=34,imm=0) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R10=fp0\n14: (bf) r0 = r1\n15: (07) r0 += 38\n; if (options_len > 0 && (void *)(options + 4) < data_end)\n16: (3d) if r0 >= r2 goto pc+294\n R0_w=pkt(id=0,off=38,r=39,imm=0) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=39,imm=0) R4=pkt(id=0,off=34,r=39,imm=0) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R10=fp0\n17: (bf) r0 = r5\n18: (57) r0 &= 14\n19: (b7) r8 = 6\n20: (2d) if r8 > r0 goto pc+290\n R0_w=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=39,imm=0) R4=pkt(id=0,off=34,r=39,imm=0) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8_w=inv6 R10=fp0\n; __u8 option_type = options[0];\n21: (71) r4 = *(u8 *)(r4 +0)\n; if (option_type == MY_OPTION_TYPE)\n22: (55) if r4 != 0x1f goto pc+258\n R0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=39,imm=0) R4=inv31 R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8=inv6 R10=fp0\n; __u8 option_length = options[1];\n23: (71) r8 = *(u8 *)(r1 +35)\n; if (option_length == 8 || option_length == 12) {\n24: (bf) r3 = r8\n25: (47) r3 |= 4\n26: (15) if r3 == 0xc goto pc+1\n\nfrom 26 to 28: R0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3_w=inv12 R4=inv31 R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8_w=inv(id=2,umax_value=255,var_off=(0x0; 0xff)) R10=fp0\n;\n28: (bf) r3 = r1\n29: (0f) r3 += r8\nlast_idx 29 first_idx 22\nregs=100 stack=0 before 28: (bf) r3 = r1\nregs=100 stack=0 before 26: (15) if r3 == 0xc goto pc+1\nregs=100 stack=0 before 25: (47) r3 |= 4\nregs=100 stack=0 before 24: (bf) r3 = r8\nregs=100 stack=0 before 23: (71) r8 = *(u8 *)(r1 +35)\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n30: (bf) r4 = r3\n31: (07) r4 += 34\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n32: (2d) if r4 > r2 goto pc+278\n R0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3_w=pkt(id=9,off=0,r=34,umax_value=255,var_off=(0x0; 0xff)) R4_w=pkt(id=9,off=34,r=34,umax_value=255,var_off=(0x0; 0xff)) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8_w=invP(id=2,umax_value=255,var_off=(0x0; 0xff)) R10=fp0\n; data_bytes[i + option_length] = data_bytes[i];\n33: (bf) r4 = r8\n34: (0f) r4 += r1\n; data_bytes[i + option_length] = data_bytes[i];\n35: (71) r5 = *(u8 *)(r1 +33)\n; data_bytes[i + option_length] = data_bytes[i];\n36: (73) *(u8 *)(r4 +33) = r5\ninvalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)\nR4 offset is outside of the packet\nprocessed 196 insns (limit 1000000) max_states_per_insn 1 total_states 12 peak_states 12 mark_read 6\n\nTraceback (most recent call last):\n  File \"a.py\", line 9, in <module>\n    fn = b.load_func(\"inter_op_ebpf\", BPF.XDP)\n  File \"/usr/lib/python3/dist-packages/bcc/__init__.py\", line 523, in load_func\n    raise Exception(\"Failed to load BPF program %s: %s\" %\nException: Failed to load BPF program b'inter_op_ebpf': Permission denied\n\n28: (bf) r3 = r1\n29: (0f) r3 += r8\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n30: (bf) r4 = r3\n31: (07) r4 += 34\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n32: (2d) if r4 > r2 goto pc+278\n; data_bytes[i + option_length] = data_bytes[i];\n33: (bf) r4 = r8\n34: (0f) r4 += r1\n; data_bytes[i + option_length] = data_bytes[i];\n35: (71) r5 = *(u8 *)(r1 +33)\n; data_bytes[i + option_length] = data_bytes[i];\n36: (73) *(u8 *)(r4 +33) = r5\ninvalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)\nR4 offset is outside of the packet\n\nR0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe))\n  R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0)\n  R3_w=pkt(id=9,off=0,r=34,umax_value=255,var_off=(0x0; 0xff))\n  R4_w=pkt(id=9,off=34,r=34,umax_value=255,var_off=(0x0; 0xff))\n  R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff))\n  R6=inv2 R7=ctx(id=0,off=0,imm=0)\n  R8_w=invP(id=2,umax_value=255,var_off=(0x0; 0xff)) R10=fp0",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <linux/bpf.h>\n#include <linux/if_ether.h>\n#include <linux/ip.h>\n#include <linux/udp.h>\n#define MY_OPTION_TYPE 31\n#define MAX_CHECKING 4\nstatic inline __u16 iph_csum(struct iphdr *iph, void *data_end)\n{\n__u32 sum = 0;\n__u16 *buf = (__u16 *)iph;\n__u16 ihl = iph->ihl << 2; // Convert IHL to bytes\niph->check = 0;\nfor (__u8 i = 0; i < ihl && i < 60; i += 2)\n{\nif ((void *)(buf + 1) > data_end)\n{\nbreak;\n}\nsum += *buf++;\n}\nfor (__u8 i = 0; sum >> 16 && i < MAX_CHECKING; i += 1)\n{\nsum = (sum & 0xFFFF) + (sum >> 16);\n}\nreturn ~sum;\n}\nint inter_op_ebpf(struct xdp_md *ctx)\n{\nvoid *data = (void *)(long)ctx->data;\nvoid *data_end = (void *)(long)ctx->data_end;\nstruct ethhdr *eth = data;\n// Check if the Ethernet header is within bounds\nif ((void *)eth + sizeof(*eth) > data_end)\nreturn XDP_PASS;\nstruct iphdr *ip = data + sizeof(*eth);\n// Check if the IP header is within bounds\nif ((void *)ip + sizeof(*ip) > data_end)\nreturn XDP_PASS;\nif (ip->version != 4)\n{\nreturn XDP_PASS;\n}\n// Check if the packet has IP options\nint options_len = (ip->ihl * 4) - sizeof(struct iphdr);\n__u8 *options = (__u8 *)(ip + 1);\n__u8 is_register = 1;\n__u8 is_exist_custom_option = 0;\nif (options_len > 0 && (void *)(options + 4) < data_end)\n{\n__u8 option_type = options[0];\nif (option_type == MY_OPTION_TYPE)\n{\nis_exist_custom_option = 1;\n__u8 option_length = options[1];\n__u8 *data_bytes = (__u8 *)data;\nint shift_data_length = sizeof(*eth) + sizeof(struct iphdr);\nif (option_length == 8 || option_length == 12) {\nfor (int i = shift_data_length - 1; i >= 0; i--) {\nif ((void *)(data_bytes + i + option_length + 1) > data_end)\nreturn XDP_PASS;\ndata_bytes[i + option_length] = data_bytes[i];\n}\n}\nint ret = bpf_xdp_adjust_head(ctx, option_length); // Cut option length bytes at the head\nif (ret < 0)\n{\nreturn XDP_PASS; // If adjustment fails, pass the packet\n}\ndata = (void *)(long)ctx->data;\ndata_end = (void *)(long)ctx->data_end;\neth = data;\n// Check if the Ethernet header is within bounds\nif ((void *)eth + sizeof(*eth) > data_end)\nreturn XDP_DROP;\nip = data + sizeof(*eth);\n// Check if the IP header is within bounds\nif ((void *)ip + sizeof(*ip) > data_end)\nreturn XDP_DROP;\nif (ip->version != 4)\n{\nreturn XDP_DROP;\n}\nint new_header_size = sizeof(struct iphdr); // 20 + 8 = 28 bytes\nip->ihl = new_header_size / 4;\nip->tot_len = htons(ntohs(ip->tot_len) - option_length);\n}\nip->check = iph_csum(ip, data_end);\n}\nreturn XDP_PASS;\n}\n\nVerifier log:\nbpf: Failed to load program: Permission denied\nbtf_vmlinux is malformed\n; int inter_op_ebpf(struct xdp_md *ctx)\n0: (bf) r7 = r1\n1: (b7) r6 = 2\n; void *data_end = (void *)(long)ctx->data_end;\n2: (61) r2 = *(u32 *)(r7 +4)\n; void *data = (void *)(long)ctx->data;\n3: (61) r1 = *(u32 *)(r7 +0)\n; if ((void *)eth + sizeof(*eth) > data_end)\n4: (bf) r3 = r1\n5: (07) r3 += 14\n; if ((void *)eth + sizeof(*eth) > data_end)\n6: (2d) if r3 > r2 goto pc+304\n R1_w=pkt(id=0,off=0,r=14,imm=0) R2_w=pkt_end(id=0,off=0,imm=0) R3_w=pkt(id=0,off=14,r=14,imm=0) R6_w=inv2 R7_w=ctx(id=0,off=0,imm=0) R10=fp0\n; if ((void *)ip + sizeof(*ip) > data_end)\n7: (bf) r4 = r1\n8: (07) r4 += 34\n; if ((void *)ip + sizeof(*ip) > data_end)\n9: (2d) if r4 > r2 goto pc+301\n R1_w=pkt(id=0,off=0,r=34,imm=0) R2_w=pkt_end(id=0,off=0,imm=0) R3_w=pkt(id=0,off=14,r=34,imm=0) R4_w=pkt(id=0,off=34,r=34,imm=0) R6_w=inv2 R7_w=ctx(id=0,off=0,imm=0) R10=fp0\n; if (ip->version != 4)\n10: (71) r5 = *(u8 *)(r3 +0)\n; if (ip->version != 4)\n11: (bf) r0 = r5\n12: (57) r0 &= 240\n; if (ip->version != 4)\n13: (55) if r0 != 0x40 goto pc+297\n R0=inv64 R1=pkt(id=0,off=0,r=34,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=34,imm=0) R4=pkt(id=0,off=34,r=34,imm=0) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R10=fp0\n14: (bf) r0 = r1\n15: (07) r0 += 38\n; if (options_len > 0 && (void *)(options + 4) < data_end)\n16: (3d) if r0 >= r2 goto pc+294\n R0_w=pkt(id=0,off=38,r=39,imm=0) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=39,imm=0) R4=pkt(id=0,off=34,r=39,imm=0) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R10=fp0\n17: (bf) r0 = r5\n18: (57) r0 &= 14\n19: (b7) r8 = 6\n20: (2d) if r8 > r0 goto pc+290\n R0_w=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=39,imm=0) R4=pkt(id=0,off=34,r=39,imm=0) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8_w=inv6 R10=fp0\n; __u8 option_type = options[0];\n21: (71) r4 = *(u8 *)(r4 +0)\n; if (option_type == MY_OPTION_TYPE)\n22: (55) if r4 != 0x1f goto pc+258\n R0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=39,imm=0) R4=inv31 R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8=inv6 R10=fp0\n; __u8 option_length = options[1];\n23: (71) r8 = *(u8 *)(r1 +35)\n; if (option_length == 8 || option_length == 12) {\n24: (bf) r3 = r8\n25: (47) r3 |= 4\n26: (15) if r3 == 0xc goto pc+1\n\nfrom 26 to 28: R0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3_w=inv12 R4=inv31 R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8_w=inv(id=2,umax_value=255,var_off=(0x0; 0xff)) R10=fp0\n;\n28: (bf) r3 = r1\n29: (0f) r3 += r8\nlast_idx 29 first_idx 22\nregs=100 stack=0 before 28: (bf) r3 = r1\nregs=100 stack=0 before 26: (15) if r3 == 0xc goto pc+1\nregs=100 stack=0 before 25: (47) r3 |= 4\nregs=100 stack=0 before 24: (bf) r3 = r8\nregs=100 stack=0 before 23: (71) r8 = *(u8 *)(r1 +35)\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n30: (bf) r4 = r3\n31: (07) r4 += 34\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n32: (2d) if r4 > r2 goto pc+278\n R0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3_w=pkt(id=9,off=0,r=34,umax_value=255,var_off=(0x0; 0xff)) R4_w=pkt(id=9,off=34,r=34,umax_value=255,var_off=(0x0; 0xff)) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8_w=invP(id=2,umax_value=255,var_off=(0x0; 0xff)) R10=fp0\n; data_bytes[i + option_length] = data_bytes[i];\n33: (bf) r4 = r8\n34: (0f) r4 += r1\n; data_bytes[i + option_length] = data_bytes[i];\n35: (71) r5 = *(u8 *)(r1 +33)\n; data_bytes[i + option_length] = data_bytes[i];\n36: (73) *(u8 *)(r4 +33) = r5\ninvalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)\nR4 offset is outside of the packet\nprocessed 196 insns (limit 1000000) max_states_per_insn 1 total_states 12 peak_states 12 mark_read 6\n\nTraceback (most recent call last):\n  File \"a.py\", line 9, in <module>\n    fn = b.load_func(\"inter_op_ebpf\", BPF.XDP)\n  File \"/usr/lib/python3/dist-packages/bcc/__init__.py\", line 523, in load_func\n    raise Exception(\"Failed to load BPF program %s: %s\" %\nException: Failed to load BPF program b'inter_op_ebpf': Permission denied\n\n28: (bf) r3 = r1\n29: (0f) r3 += r8\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n30: (bf) r4 = r3\n31: (07) r4 += 34\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n32: (2d) if r4 > r2 goto pc+278\n; data_bytes[i + option_length] = data_bytes[i];\n33: (bf) r4 = r8\n34: (0f) r4 += r1\n; data_bytes[i + option_length] = data_bytes[i];\n35: (71) r5 = *(u8 *)(r1 +33)\n; data_bytes[i + option_length] = data_bytes[i];\n36: (73) *(u8 *)(r4 +33) = r5\ninvalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)\nR4 offset is outside of the packet\n\nR0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe))\n  R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0)\n  R3_w=pkt(id=9,off=0,r=34,umax_value=255,var_off=(0x0; 0xff))\n  R4_w=pkt(id=9,off=34,r=34,umax_value=255,var_off=(0x0; 0xff))\n  R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff))\n  R6=inv2 R7=ctx(id=0,off=0,imm=0)\n  R8_w=invP(id=2,umax_value=255,var_off=(0x0; 0xff)) R10=fp0\n\nDiagnostic analysis:\nerror[OBLIGE-E001]: source_bug \u2014 proof exists but is insufficient at the reject site\n  \u250c\u2500 <source>\n  \u2502\n33 \u2502     data_bytes[i + option_length] = data_bytes[i];\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R4: pkt(range=34, off=34)\n   \u2502\n33 \u2502     data_bytes[i + option_length] = data_bytes[i];\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R4: pkt(range=34, off=34)\n   \u2502\n  = note: Proof existed earlier and was lost at insn 20 (PROVENANCE_LOSS).\n  = help: Add bounds check: if (data + offset + size <= data_end)",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+320",
+    "manual_label:+120",
+    "curated_fix:+80",
+    "accepted_fix:+25",
+    "expected_from_gt:+40",
+    "specific_fix:+35",
+    "manual_taxonomy:+50",
+    "log_lines:+210",
+    "trace_state_lines:+84",
+    "trace_rich:+60"
+  ],
+  "selection_score": 1024,
+  "source": "stackoverflow",
+  "source_code": "#include <linux/bpf.h>\n#include <linux/if_ether.h>\n#include <linux/ip.h>\n#include <linux/udp.h>\n#define MY_OPTION_TYPE 31\n#define MAX_CHECKING 4\nstatic inline __u16 iph_csum(struct iphdr *iph, void *data_end)\n{\n__u32 sum = 0;\n__u16 *buf = (__u16 *)iph;\n__u16 ihl = iph->ihl << 2; // Convert IHL to bytes\niph->check = 0;\nfor (__u8 i = 0; i < ihl && i < 60; i += 2)\n{\nif ((void *)(buf + 1) > data_end)\n{\nbreak;\n}\nsum += *buf++;\n}\nfor (__u8 i = 0; sum >> 16 && i < MAX_CHECKING; i += 1)\n{\nsum = (sum & 0xFFFF) + (sum >> 16);\n}\nreturn ~sum;\n}\nint inter_op_ebpf(struct xdp_md *ctx)\n{\nvoid *data = (void *)(long)ctx->data;\nvoid *data_end = (void *)(long)ctx->data_end;\nstruct ethhdr *eth = data;\n// Check if the Ethernet header is within bounds\nif ((void *)eth + sizeof(*eth) > data_end)\nreturn XDP_PASS;\nstruct iphdr *ip = data + sizeof(*eth);\n// Check if the IP header is within bounds\nif ((void *)ip + sizeof(*ip) > data_end)\nreturn XDP_PASS;\nif (ip->version != 4)\n{\nreturn XDP_PASS;\n}\n// Check if the packet has IP options\nint options_len = (ip->ihl * 4) - sizeof(struct iphdr);\n__u8 *options = (__u8 *)(ip + 1);\n__u8 is_register = 1;\n__u8 is_exist_custom_option = 0;\nif (options_len > 0 && (void *)(options + 4) < data_end)\n{\n__u8 option_type = options[0];\nif (option_type == MY_OPTION_TYPE)\n{\nis_exist_custom_option = 1;\n__u8 option_length = options[1];\n__u8 *data_bytes = (__u8 *)data;\nint shift_data_length = sizeof(*eth) + sizeof(struct iphdr);\nif (option_length == 8 || option_length == 12) {\nfor (int i = shift_data_length - 1; i >= 0; i--) {\nif ((void *)(data_bytes + i + option_length + 1) > data_end)\nreturn XDP_PASS;\ndata_bytes[i + option_length] = data_bytes[i];\n}\n}\nint ret = bpf_xdp_adjust_head(ctx, option_length); // Cut option length bytes at the head\nif (ret < 0)\n{\nreturn XDP_PASS; // If adjustment fails, pass the packet\n}\ndata = (void *)(long)ctx->data;\ndata_end = (void *)(long)ctx->data_end;\neth = data;\n// Check if the Ethernet header is within bounds\nif ((void *)eth + sizeof(*eth) > data_end)\nreturn XDP_DROP;\nip = data + sizeof(*eth);\n// Check if the IP header is within bounds\nif ((void *)ip + sizeof(*ip) > data_end)\nreturn XDP_DROP;\nif (ip->version != 4)\n{\nreturn XDP_DROP;\n}\nint new_header_size = sizeof(struct iphdr); // 20 + 8 = 28 bytes\nip->ihl = new_header_size / 4;\nip->tot_len = htons(ntohs(ip->tot_len) - option_length);\n}\nip->check = iph_csum(ip, data_end);\n}\nreturn XDP_PASS;\n}",
+  "source_url": "https://stackoverflow.com/questions/79530762/question-about-how-the-ebpf-verifier-behaves-in-my-specific-use-case",
+  "symptom_span_text": "",
+  "taxonomy_class": "lowering_artifact",
+  "taxonomy_source": "manual_label",
+  "title": "Question about how the eBPF Verifier behaves in my specific use case",
+  "verifier_log": "bpf: Failed to load program: Permission denied\nbtf_vmlinux is malformed\n; int inter_op_ebpf(struct xdp_md *ctx)\n0: (bf) r7 = r1\n1: (b7) r6 = 2\n; void *data_end = (void *)(long)ctx->data_end;\n2: (61) r2 = *(u32 *)(r7 +4)\n; void *data = (void *)(long)ctx->data;\n3: (61) r1 = *(u32 *)(r7 +0)\n; if ((void *)eth + sizeof(*eth) > data_end)\n4: (bf) r3 = r1\n5: (07) r3 += 14\n; if ((void *)eth + sizeof(*eth) > data_end)\n6: (2d) if r3 > r2 goto pc+304\n R1_w=pkt(id=0,off=0,r=14,imm=0) R2_w=pkt_end(id=0,off=0,imm=0) R3_w=pkt(id=0,off=14,r=14,imm=0) R6_w=inv2 R7_w=ctx(id=0,off=0,imm=0) R10=fp0\n; if ((void *)ip + sizeof(*ip) > data_end)\n7: (bf) r4 = r1\n8: (07) r4 += 34\n; if ((void *)ip + sizeof(*ip) > data_end)\n9: (2d) if r4 > r2 goto pc+301\n R1_w=pkt(id=0,off=0,r=34,imm=0) R2_w=pkt_end(id=0,off=0,imm=0) R3_w=pkt(id=0,off=14,r=34,imm=0) R4_w=pkt(id=0,off=34,r=34,imm=0) R6_w=inv2 R7_w=ctx(id=0,off=0,imm=0) R10=fp0\n; if (ip->version != 4)\n10: (71) r5 = *(u8 *)(r3 +0)\n; if (ip->version != 4)\n11: (bf) r0 = r5\n12: (57) r0 &= 240\n; if (ip->version != 4)\n13: (55) if r0 != 0x40 goto pc+297\n R0=inv64 R1=pkt(id=0,off=0,r=34,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=34,imm=0) R4=pkt(id=0,off=34,r=34,imm=0) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R10=fp0\n14: (bf) r0 = r1\n15: (07) r0 += 38\n; if (options_len > 0 && (void *)(options + 4) < data_end)\n16: (3d) if r0 >= r2 goto pc+294\n R0_w=pkt(id=0,off=38,r=39,imm=0) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=39,imm=0) R4=pkt(id=0,off=34,r=39,imm=0) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R10=fp0\n17: (bf) r0 = r5\n18: (57) r0 &= 14\n19: (b7) r8 = 6\n20: (2d) if r8 > r0 goto pc+290\n R0_w=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=39,imm=0) R4=pkt(id=0,off=34,r=39,imm=0) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8_w=inv6 R10=fp0\n; __u8 option_type = options[0];\n21: (71) r4 = *(u8 *)(r4 +0)\n; if (option_type == MY_OPTION_TYPE)\n22: (55) if r4 != 0x1f goto pc+258\n R0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3=pkt(id=0,off=14,r=39,imm=0) R4=inv31 R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8=inv6 R10=fp0\n; __u8 option_length = options[1];\n23: (71) r8 = *(u8 *)(r1 +35)\n; if (option_length == 8 || option_length == 12) {\n24: (bf) r3 = r8\n25: (47) r3 |= 4\n26: (15) if r3 == 0xc goto pc+1\n\nfrom 26 to 28: R0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3_w=inv12 R4=inv31 R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8_w=inv(id=2,umax_value=255,var_off=(0x0; 0xff)) R10=fp0\n;\n28: (bf) r3 = r1\n29: (0f) r3 += r8\nlast_idx 29 first_idx 22\nregs=100 stack=0 before 28: (bf) r3 = r1\nregs=100 stack=0 before 26: (15) if r3 == 0xc goto pc+1\nregs=100 stack=0 before 25: (47) r3 |= 4\nregs=100 stack=0 before 24: (bf) r3 = r8\nregs=100 stack=0 before 23: (71) r8 = *(u8 *)(r1 +35)\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n30: (bf) r4 = r3\n31: (07) r4 += 34\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n32: (2d) if r4 > r2 goto pc+278\n R0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe)) R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0) R3_w=pkt(id=9,off=0,r=34,umax_value=255,var_off=(0x0; 0xff)) R4_w=pkt(id=9,off=34,r=34,umax_value=255,var_off=(0x0; 0xff)) R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff)) R6=inv2 R7=ctx(id=0,off=0,imm=0) R8_w=invP(id=2,umax_value=255,var_off=(0x0; 0xff)) R10=fp0\n; data_bytes[i + option_length] = data_bytes[i];\n33: (bf) r4 = r8\n34: (0f) r4 += r1\n; data_bytes[i + option_length] = data_bytes[i];\n35: (71) r5 = *(u8 *)(r1 +33)\n; data_bytes[i + option_length] = data_bytes[i];\n36: (73) *(u8 *)(r4 +33) = r5\ninvalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)\nR4 offset is outside of the packet\nprocessed 196 insns (limit 1000000) max_states_per_insn 1 total_states 12 peak_states 12 mark_read 6\n\nTraceback (most recent call last):\n  File \"a.py\", line 9, in <module>\n    fn = b.load_func(\"inter_op_ebpf\", BPF.XDP)\n  File \"/usr/lib/python3/dist-packages/bcc/__init__.py\", line 523, in load_func\n    raise Exception(\"Failed to load BPF program %s: %s\" %\nException: Failed to load BPF program b'inter_op_ebpf': Permission denied\n\n28: (bf) r3 = r1\n29: (0f) r3 += r8\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n30: (bf) r4 = r3\n31: (07) r4 += 34\n; if ((void *)(data_bytes + i + option_length + 1) > data_end)\n32: (2d) if r4 > r2 goto pc+278\n; data_bytes[i + option_length] = data_bytes[i];\n33: (bf) r4 = r8\n34: (0f) r4 += r1\n; data_bytes[i + option_length] = data_bytes[i];\n35: (71) r5 = *(u8 *)(r1 +33)\n; data_bytes[i + option_length] = data_bytes[i];\n36: (73) *(u8 *)(r4 +33) = r5\ninvalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)\nR4 offset is outside of the packet\n\nR0=inv(id=0,umin_value=6,umax_value=14,var_off=(0x0; 0xe))\n  R1=pkt(id=0,off=0,r=39,imm=0) R2=pkt_end(id=0,off=0,imm=0)\n  R3_w=pkt(id=9,off=0,r=34,umax_value=255,var_off=(0x0; 0xff))\n  R4_w=pkt(id=9,off=34,r=34,umax_value=255,var_off=(0x0; 0xff))\n  R5=inv(id=1,umax_value=255,var_off=(0x0; 0xff))\n  R6=inv2 R7=ctx(id=0,off=0,imm=0)\n  R8_w=invP(id=2,umax_value=255,var_off=(0x0; 0xff)) R10=fp0"
+}

@@ -1,0 +1,130 @@
+{
+  "case_id": "stackoverflow-79045875",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-79045875.yaml",
+  "code_source": "question_body_text",
+  "error_id": "OBLIGE-E023",
+  "expected_fix_tags": [
+    "pointer_type_fix"
+  ],
+  "expected_fix_type": "pointer_type_fix",
+  "expected_location_kind": "local",
+  "ground_truth_fix": "arg#0 pointer type UNKNOWN must point to scalar, or struct with scalar This error is thrown because the kernel does strict type checking by default. So lets say your argument was a struct sometype* then the verifier would make sure that this type was indeed passed in and that the pointer points to a valid memory area (no accidental overflow allowed, ect.) In your function signature you already annotate the src_sz which informs the verifier to ignore type checks on src but dst is still being type checked. One way to fix the issue might be to to add a size of destination as well.",
+  "ground_truth_fix_source": "selected_answer.fix_description",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "UNKNOWN",
+        "patch_hint": "Pass data whose pointee is scalar-compatible, or change the kfunc signature to accept the exact BTF-typed object you pass. Casts alone will not satisfy the verifier-visible contract.",
+        "rationale": "The verifier sees arg#0 as UNKNOWN data (UNKNOWN), but this call requires one of: a scalar value, a struct with scalar fields."
+      }
+    ],
+    "confidence": 0.76,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E023",
+    "evidence": [
+      {
+        "detail": "arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "rejected at <bytecode>:1: arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar",
+        "instruction_index": 0,
+        "kind": "source_map"
+      },
+      {
+        "detail": "The verifier sees arg#0 as UNKNOWN data (UNKNOWN), but this call requires one of: a scalar value, a struct with scalar fields.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E023 (source_bug)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom directly names an unsatisfied helper or kfunc argument contract.",
+        "kind": "kernel_capability"
+      },
+      {
+        "detail": "arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar",
+        "kind": "heuristic"
+      }
+    ],
+    "expected_state": {
+      "notes": [
+        "Expected proof: helper arg",
+        "arg#0 pointer type UNKNOWN must point to scalar, or struct with scalar"
+      ]
+    },
+    "failure_class": "source_bug",
+    "message": "kfunc expected a scalar-compatible pointee",
+    "metadata": {
+      "help": "Pass data whose pointee is scalar-compatible, or change the kfunc signature to accept the exact BTF-typed object you pass. Casts alone will not satisfy the verifier-visible contract.",
+      "note": "The verifier sees arg#0 as UNKNOWN data (UNKNOWN), but this call requires one of: a scalar value, a struct with scalar fields.",
+      "obligation": {
+        "required": "arg#0 pointer type UNKNOWN must point to scalar, or struct with scalar",
+        "type": "helper_arg"
+      },
+      "proof_spans": [
+        {
+          "insn_range": [
+            0,
+            0
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": null,
+          "role": "rejected",
+          "source_text": "arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar",
+          "state_change": null
+        }
+      ],
+      "proof_status": "never_established"
+    },
+    "missing_obligation": "arg#0 pointer type UNKNOWN must point to scalar, or struct with scalar",
+    "observed_state": {
+      "notes": [
+        "The verifier sees arg#0 as UNKNOWN data (UNKNOWN), but this call requires one of: a scalar value, a struct with scalar fields.",
+        "arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar"
+      ]
+    },
+    "raw_log_excerpt": "arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar",
+    "source_span": {
+      "line_end": 1,
+      "line_start": 1,
+      "path": "<bytecode>",
+      "snippet": "arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar"
+    },
+    "verifier_site": {
+      "instruction_index": 0
+    }
+  },
+  "oblige_output": "error[OBLIGE-E023]: source_bug \u2014 kfunc expected a scalar-compatible pointee\n  \u250c\u2500 <bytecode>\n  \u2502\n0 \u2502     arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502\n  = note: The verifier sees arg#0 as UNKNOWN data (UNKNOWN), but this call requires one of: a scalar value, a struct with scalar fields.\n  = help: Pass data whose pointee is scalar-compatible, or change the kfunc signature to accept the exact BTF-typed object you pass. Casts alone will not satisfy the verifier-visible contract.",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <linux/module.h>\n#include <linux/printk.h>\n#include <linux/string.h> /* memcpy */\n#include <linux/btf.h>\nMODULE_LICENSE(\"GPL\");\n/* Define a kfunc function */\n__bpf_kfunc_start_defs();\n__bpf_kfunc void *my_kfunc_memcpy(void *dst, void *src, __u32 src__sz)\n{\nreturn memcpy(dst, src, src__sz);\n}\n__bpf_kfunc_end_defs();\n/* Encode the function(s) into BTF */\n/*\n* These will probably be the new API\n* */\n/* BTF_KFUNCS_START(bpf_my_string_set) */\n/* BTF_ID_FLAGS(func, my_kfunc_memcpy, 0) */\n/* BTF_KFUNCS_END(bpf_my_string_set) */\nBTF_SET8_START(bpf_my_string_set)\nBTF_ID_FLAGS(func, my_kfunc_memcpy, 0)\nBTF_SET8_END(bpf_my_string_set)\nstatic const struct btf_kfunc_id_set my_kfunc_memcpy_kfunc_set = {\n.owner = THIS_MODULE,\n.set = &bpf_my_string_set,\n};\nstatic int myinit(void)\n{\n/* Register the BTF */\nregister_btf_kfunc_id_set(BPF_PROG_TYPE_XDP, &my_kfunc_memcpy_kfunc_set);\npr_info(\"Load memcpy kfunc\\n\");\nreturn 0;\n}\nstatic void myexit(void)\n{\npr_info(\"Unloading memcpy kfunc\\n\");\n}\nmodule_init(myinit)\nmodule_exit(myexit)\nBPF Program\n#include \"vmlinux.h\"\n#include <bpf/bpf_helpers.h>\nextern void *my_kfunc_memcpy(void *dst, void *src, __u32 src__sz) __ksym;\n#define MEMCPY(...) my_kfunc_memcpy(__VA_ARGS__)\nstruct item {\nchar data[1000];\n};\nstruct {\n__uint(type, BPF_MAP_TYPE_ARRAY);\n__type(key, __u32);\n__type(value, struct item);\n__uint(max_entries, REPEAT + 1);\n} a_map SEC(\".maps\");\nSEC(\"xdp\")\nint prog(struct xdp_md *xdp)\n{\nint i = 0, ii = 1;\nstruct item *d = bpf_map_lookup_elem(&a_map, &i);\nif (d == NULL) return XDP_PASS;\nstruct item *it = bpf_map_lookup_elem(&a_map, &ii);\nif (it == NULL) return XDP_PASS;\nMEMCPY(it->data, d->data, 1000);\nreturn XDP_PASS;\n}\nchar _license[] SEC(\"license\") = \"GPL\";\n\nVerifier log:\narg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar\nprocessed 66 insns (limit 1000000) max_states_per_insn 1 total_states 6 peak_states 6 mark_read 4\n-- END PROG LOAD LOG --",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#include <linux/module.h>\n#include <linux/printk.h>\n#include <linux/string.h> /* memcpy */\n#include <linux/btf.h>\nMODULE_LICENSE(\"GPL\");\n/* Define a kfunc function */\n__bpf_kfunc_start_defs();\n__bpf_kfunc void *my_kfunc_memcpy(void *dst, void *src, __u32 src__sz)\n{\nreturn memcpy(dst, src, src__sz);\n}\n__bpf_kfunc_end_defs();\n/* Encode the function(s) into BTF */\n/*\n* These will probably be the new API\n* */\n/* BTF_KFUNCS_START(bpf_my_string_set) */\n/* BTF_ID_FLAGS(func, my_kfunc_memcpy, 0) */\n/* BTF_KFUNCS_END(bpf_my_string_set) */\nBTF_SET8_START(bpf_my_string_set)\nBTF_ID_FLAGS(func, my_kfunc_memcpy, 0)\nBTF_SET8_END(bpf_my_string_set)\nstatic const struct btf_kfunc_id_set my_kfunc_memcpy_kfunc_set = {\n.owner = THIS_MODULE,\n.set = &bpf_my_string_set,\n};\nstatic int myinit(void)\n{\n/* Register the BTF */\nregister_btf_kfunc_id_set(BPF_PROG_TYPE_XDP, &my_kfunc_memcpy_kfunc_set);\npr_info(\"Load memcpy kfunc\\n\");\nreturn 0;\n}\nstatic void myexit(void)\n{\npr_info(\"Unloading memcpy kfunc\\n\");\n}\nmodule_init(myinit)\nmodule_exit(myexit)\nBPF Program\n#include \"vmlinux.h\"\n#include <bpf/bpf_helpers.h>\nextern void *my_kfunc_memcpy(void *dst, void *src, __u32 src__sz) __ksym;\n#define MEMCPY(...) my_kfunc_memcpy(__VA_ARGS__)\nstruct item {\nchar data[1000];\n};\nstruct {\n__uint(type, BPF_MAP_TYPE_ARRAY);\n__type(key, __u32);\n__type(value, struct item);\n__uint(max_entries, REPEAT + 1);\n} a_map SEC(\".maps\");\nSEC(\"xdp\")\nint prog(struct xdp_md *xdp)\n{\nint i = 0, ii = 1;\nstruct item *d = bpf_map_lookup_elem(&a_map, &i);\nif (d == NULL) return XDP_PASS;\nstruct item *it = bpf_map_lookup_elem(&a_map, &ii);\nif (it == NULL) return XDP_PASS;\nMEMCPY(it->data, d->data, 1000);\nreturn XDP_PASS;\n}\nchar _license[] SEC(\"license\") = \"GPL\";\n\nVerifier log:\narg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar\nprocessed 66 insns (limit 1000000) max_states_per_insn 1 total_states 6 peak_states 6 mark_read 4\n-- END PROG LOAD LOG --\n\nDiagnostic analysis:\nerror[OBLIGE-E023]: source_bug \u2014 kfunc expected a scalar-compatible pointee\n  \u250c\u2500 <bytecode>\n  \u2502\n0 \u2502     arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502\n  = note: The verifier sees arg#0 as UNKNOWN data (UNKNOWN), but this call requires one of: a scalar value, a struct with scalar fields.\n  = help: Pass data whose pointee is scalar-compatible, or change the kfunc signature to accept the exact BTF-typed object you pass. Casts alone will not satisfy the verifier-visible contract.",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+320",
+    "raw_fix:+50",
+    "accepted_fix:+25",
+    "expected_from_gt:+40",
+    "specific_fix:+35",
+    "tag_taxonomy:+20",
+    "log_lines:+6",
+    "trace_state_lines:+0"
+  ],
+  "selection_score": 496,
+  "source": "stackoverflow",
+  "source_code": "#include <linux/module.h>\n#include <linux/printk.h>\n#include <linux/string.h> /* memcpy */\n#include <linux/btf.h>\nMODULE_LICENSE(\"GPL\");\n/* Define a kfunc function */\n__bpf_kfunc_start_defs();\n__bpf_kfunc void *my_kfunc_memcpy(void *dst, void *src, __u32 src__sz)\n{\nreturn memcpy(dst, src, src__sz);\n}\n__bpf_kfunc_end_defs();\n/* Encode the function(s) into BTF */\n/*\n* These will probably be the new API\n* */\n/* BTF_KFUNCS_START(bpf_my_string_set) */\n/* BTF_ID_FLAGS(func, my_kfunc_memcpy, 0) */\n/* BTF_KFUNCS_END(bpf_my_string_set) */\nBTF_SET8_START(bpf_my_string_set)\nBTF_ID_FLAGS(func, my_kfunc_memcpy, 0)\nBTF_SET8_END(bpf_my_string_set)\nstatic const struct btf_kfunc_id_set my_kfunc_memcpy_kfunc_set = {\n.owner = THIS_MODULE,\n.set = &bpf_my_string_set,\n};\nstatic int myinit(void)\n{\n/* Register the BTF */\nregister_btf_kfunc_id_set(BPF_PROG_TYPE_XDP, &my_kfunc_memcpy_kfunc_set);\npr_info(\"Load memcpy kfunc\\n\");\nreturn 0;\n}\nstatic void myexit(void)\n{\npr_info(\"Unloading memcpy kfunc\\n\");\n}\nmodule_init(myinit)\nmodule_exit(myexit)\nBPF Program\n#include \"vmlinux.h\"\n#include <bpf/bpf_helpers.h>\nextern void *my_kfunc_memcpy(void *dst, void *src, __u32 src__sz) __ksym;\n#define MEMCPY(...) my_kfunc_memcpy(__VA_ARGS__)\nstruct item {\nchar data[1000];\n};\nstruct {\n__uint(type, BPF_MAP_TYPE_ARRAY);\n__type(key, __u32);\n__type(value, struct item);\n__uint(max_entries, REPEAT + 1);\n} a_map SEC(\".maps\");\nSEC(\"xdp\")\nint prog(struct xdp_md *xdp)\n{\nint i = 0, ii = 1;\nstruct item *d = bpf_map_lookup_elem(&a_map, &i);\nif (d == NULL) return XDP_PASS;\nstruct item *it = bpf_map_lookup_elem(&a_map, &ii);\nif (it == NULL) return XDP_PASS;\nMEMCPY(it->data, d->data, 1000);\nreturn XDP_PASS;\n}\nchar _license[] SEC(\"license\") = \"GPL\";",
+  "source_url": "https://stackoverflow.com/questions/79045875/how-to-create-a-new-kfunc-and-pass-an-entry-from-an-ebpf-map-to-it-as-an-argumen",
+  "symptom_span_text": "",
+  "taxonomy_class": "source_bug",
+  "taxonomy_source": "fix_tag_heuristic",
+  "title": "How to create a new kfunc and pass an entry from an eBPF map to it as an argument?",
+  "verifier_log": "arg#0 pointer type UNKNOWN  must point to scalar, or struct with scalar\nprocessed 66 insns (limit 1000000) max_states_per_insn 1 total_states 6 peak_states 6 mark_read 4\n-- END PROG LOAD LOG --"
+}

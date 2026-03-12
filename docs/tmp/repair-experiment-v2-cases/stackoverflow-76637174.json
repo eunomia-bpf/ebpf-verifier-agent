@@ -1,0 +1,188 @@
+{
+  "case_id": "stackoverflow-76637174",
+  "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-76637174.yaml",
+  "code_source": "question_body_text",
+  "error_id": "OBLIGE-E005",
+  "expected_fix_tags": [
+    "bounds_check"
+  ],
+  "expected_fix_type": "bounds_check",
+  "expected_location_kind": "local",
+  "ground_truth_fix": "There are two issues here. First is an off by 1 error in the loop, you need to account for the width of the read in the for loop condition: That is because the verifier has to check for every possible iteration if the body of the loop is valid. But since data_end is a u32 without limits that becomes to much. What we can do to fix that is to set an upper limit for the number of iterations. like: This should be functionally the same. In this case I chose 1500 as the max iteration count since most packets will never reach that size. Though you might need to tune that.",
+  "ground_truth_fix_source": "selected_answer.fix_description",
+  "ground_truth_fixed_code": "",
+  "ground_truth_fixed_code_source": "missing",
+  "oblige_json": {
+    "candidate_repairs": [
+      {
+        "action": "TIGHTEN_RANGE",
+        "patch_hint": "Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+        "rationale": "A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access."
+      }
+    ],
+    "confidence": 0.98,
+    "diagnostic_version": "0.1.0",
+    "error_id": "OBLIGE-E005",
+    "evidence": [
+      {
+        "detail": "invalid access to packet, off=0 size=1, R0(id=3,off=0,r=0)",
+        "kind": "verifier_log"
+      },
+      {
+        "detail": "proof established at <source>:42: if (tcph->dest != 4420)",
+        "instruction_index": 41,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R0: pkt(range=54, off=0) \u2192 pkt(range=0, off=0)",
+        "instruction_index": 41,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "proof lost at <source>:42: if (tcph->dest != 4420)",
+        "instruction_index": 41,
+        "kind": "source_map"
+      },
+      {
+        "detail": "verifier-visible bounds were lost",
+        "instruction_index": 41,
+        "kind": "heuristic"
+      },
+      {
+        "detail": "rejected at <source>:55: if (*((uint8_t*)(data+i)) == 0 && !found) {",
+        "instruction_index": 54,
+        "kind": "source_map"
+      },
+      {
+        "detail": "R0: pkt(range=0, off=0)",
+        "instruction_index": 54,
+        "kind": "abstract_state"
+      },
+      {
+        "detail": "A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access.",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Verifier symptom: invalid access to packet, off=0 size=1, R0(id=3,off=0,r=0)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Catalog seed: OBLIGE-E001 (source_bug)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Symptom insn 54: r0 = *(u8 *)(r0 +0)",
+        "kind": "heuristic"
+      },
+      {
+        "detail": "Proof existed earlier and was lost at insn 33 (PROVENANCE_LOSS).",
+        "kind": "heuristic"
+      }
+    ],
+    "expected_state": {
+      "notes": [
+        "Expected proof: packet access",
+        "R0.type == pkt; 0 + 1 <= R0.range"
+      ],
+      "registers": {
+        "R0": "pkt(range=54, off=0) -> pkt(range=0, off=0)"
+      }
+    },
+    "failure_class": "lowering_artifact",
+    "message": "packet access with lost proof",
+    "metadata": {
+      "help": "Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+      "note": "A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access.",
+      "obligation": {
+        "required": "R0.type == pkt; 0 + 1 <= R0.range",
+        "type": "packet_access"
+      },
+      "proof_spans": [
+        {
+          "insn_range": [
+            41,
+            50
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R0",
+          "role": "proof_established",
+          "source_text": "if (tcph->dest != 4420)",
+          "state_change": "R0: pkt(range=54, off=0) \u2192 pkt(range=0, off=0)"
+        },
+        {
+          "insn_range": [
+            41,
+            50
+          ],
+          "line": null,
+          "path": null,
+          "reason": "verifier-visible bounds were lost",
+          "register": "R0",
+          "role": "proof_lost",
+          "source_text": "if (tcph->dest != 4420)",
+          "state_change": "R0: pkt(range=54, off=0) \u2192 pkt(range=0, off=0)"
+        },
+        {
+          "insn_range": [
+            54,
+            54
+          ],
+          "line": null,
+          "path": null,
+          "reason": null,
+          "register": "R0",
+          "role": "rejected",
+          "source_text": "if (*((uint8_t*)(data+i)) == 0 && !found) {",
+          "state_change": "R0: pkt(range=0, off=0)"
+        }
+      ],
+      "proof_status": "established_then_lost"
+    },
+    "missing_obligation": "R0.type == pkt; 0 + 1 <= R0.range",
+    "observed_state": {
+      "notes": [
+        "verifier-visible bounds were lost",
+        "A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access.",
+        "invalid access to packet, off=0 size=1, R0(id=3,off=0,r=0)"
+      ],
+      "registers": {
+        "R0": "pkt(range=0, off=0)"
+      }
+    },
+    "raw_log_excerpt": "invalid access to packet, off=0 size=1, R0(id=3,off=0,r=0)",
+    "source_span": {
+      "line_end": 55,
+      "line_start": 55,
+      "path": "<source>",
+      "snippet": "if (*((uint8_t*)(data+i)) == 0 && !found) {"
+    },
+    "verifier_site": {
+      "instruction_index": 54
+    }
+  },
+  "oblige_output": "error[OBLIGE-E005]: lowering_artifact \u2014 packet access with lost proof\n  \u250c\u2500 <source>\n  \u2502\n41 \u2502     if (tcph->dest != 4420)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R0: pkt(range=54, off=0) \u2192 pkt(range=0, off=0)\n   \u2502\n41 \u2502     if (tcph->dest != 4420)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n   \u2502     R0: pkt(range=54, off=0) \u2192 pkt(range=0, off=0)\n   \u2502\n54 \u2502     if (*((uint8_t*)(data+i)) == 0 && !found) {\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R0: pkt(range=0, off=0)\n   \u2502\n  = note: A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access.\n  = help: Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+  "prompt_a": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#define KBUILD_MODNAME \"xdp_nvme_drop\"\n#include <linux/bpf.h>\n#include <linux/in.h>\n#include <linux/if_ether.h>\n#include <linux/if_packet.h>\n#include <linux/if_vlan.h>\n#include <linux/ip.h>\n#include <linux/ipv6.h>\n#include <stdint.h>\n#include <stdbool.h>\n#include <bpf/bpf_helpers.h>\n#include <bpf/bpf_endian.h>\n#include \"../common/parsing_helpers.h\"\nstatic inline int parse_ipv4(void *data, uint64_t nh_off, void *data_end) {\nstruct iphdr *iph = data + nh_off;\nif (data + nh_off + sizeof(struct iphdr) > data_end)\nreturn 0;\nreturn iph->protocol;\n}\nstatic inline int parse_ipv6(void *data, uint64_t nh_off, void *data_end) {\nstruct ipv6hdr *ip6h = data + nh_off;\nif (data + nh_off + sizeof(struct ipv6hdr) > data_end)\nreturn 0;\nreturn ip6h->nexthdr;\n}\n//static uint64_t zeroes[1024];\nSEC(\"xdp\")\nint nvme_drop(struct xdp_md *ctx) {\nvoid* data_end = (void*)(long)ctx->data_end;\nvoid* data = (void*)(long)ctx->data;\nuint64_t total = data_end-data;\nstruct ethhdr *eth = data;\nuint16_t h_proto;\nuint32_t cur = 0;\nstruct tcphdr *tcph;\nuint32_t i;\nint nbzeros = 0;\nbool found = 0;\ncur = sizeof(*eth);\nif (data + cur > data_end)\nreturn XDP_PASS;\nh_proto = eth->h_proto;\nif (h_proto == bpf_htons(ETH_P_IP)) {\nh_proto = parse_ipv4(data, cur, data_end);\ncur += sizeof(struct iphdr);\n} else if (h_proto == bpf_htons(ETH_P_IPV6)) {\nh_proto = parse_ipv6(data, cur, data_end);\ncur += sizeof(struct ipv6hdr);\n} else {\nreturn XDP_PASS;\n}\nif (cur > 100)\nreturn XDP_PASS;\nif (h_proto != IPPROTO_TCP)\nreturn XDP_PASS;\nif (data + cur + sizeof(*tcph) > data_end)\nreturn XDP_PASS;\ntcph = data + cur;\nif (tcph->doff > 10)\nreturn XDP_PASS;\nif (data + cur + tcph->doff * 4 > data_end)\nreturn XDP_PASS;\ncur += tcph->doff * 4;\nif (tcph->dest != 4420)\nreturn XDP_PASS;\nif (cur > total || cur > 100)\nreturn XDP_PASS;\nnbzeros = 0;\nfor (i = cur; data+i < data_end; i++) {\nif (*((uint8_t*)(data+i)) == 0 && !found) {\nnbzeros++;\n} else {\nfound = true;\nbreak;\n}\n}\nif (found && nbzeros > 50) {\nbpf_printk(\"found nvme pdu tail seq=%u\\n\", bpf_ntohs(tcph->seq));\n}\nreturn XDP_PASS;\n}\nchar _license[] SEC(\"license\") = \"GPL\";\n\nVerifier log:\nValidating nvme_drop() func#0...\n0: R1=ctx(off=0,imm=0) R10=fp0\n; void* data = (void*)(long)ctx->data;\n0: (61) r2 = *(u32 *)(r1 +0)          ; R1=ctx(off=0,imm=0) R2_w=pkt(off=0,r=0,imm=0)\n; void* data_end = (void*)(long)ctx->data_end;\n1: (61) r1 = *(u32 *)(r1 +4)          ; R1_w=pkt_end(off=0,imm=0)\n; if (data + cur  > data_end)\n2: (bf) r3 = r2                       ; R2_w=pkt(off=0,r=0,imm=0) R3_w=pkt(off=0,r=0,imm=0)\n3: (07) r3 += 14                      ; R3_w=pkt(off=14,r=0,imm=0)\n; if (data + cur  > data_end)\n4: (2d) if r3 > r1 goto pc+12         ; R1_w=pkt_end(off=0,imm=0) R3_w=pkt(off=14,r=14,imm=0)\n; h_proto = eth->h_proto;\n5: (71) r4 = *(u8 *)(r2 +12)          ; R2_w=pkt(off=0,r=14,imm=0) R4_w=scalar(umax=255,var_off=(0x0; 0xff))\n6: (71) r3 = *(u8 *)(r2 +13)          ; R2_w=pkt(off=0,r=14,imm=0) R3_w=scalar(umax=255,var_off=(0x0; 0xff))\n7: (67) r3 <<= 8                      ; R3_w=scalar(umax=65280,var_off=(0x0; 0xff00))\n8: (4f) r3 |= r4                      ; R3_w=scalar() R4_w=scalar(umax=255,var_off=(0x0; 0xff))\n; if (h_proto == bpf_htons(ETH_P_IP)) {\n9: (15) if r3 == 0xdd86 goto pc+9     ; R3_w=scalar()\n10: (55) if r3 != 0x8 goto pc+6       ; R3=8\n11: (b7) r3 = 34                      ; R3_w=34\n12: (b7) r4 = 23                      ; R4_w=23\n; if (data + nh_off + sizeof(struct iphdr) > data_end)\n13: (bf) r5 = r2                      ; R2=pkt(off=0,r=14,imm=0) R5_w=pkt(off=0,r=14,imm=0)\n14: (07) r5 += 34                     ; R5_w=pkt(off=34,r=14,imm=0)\n; if (data + nh_off + sizeof(struct iphdr) > data_end)\n15: (2d) if r5 > r1 goto pc+1         ; R1=pkt_end(off=0,imm=0) R5_w=pkt(off=34,r=34,imm=0)\n16: (05) goto pc+7\n;\n24: (bf) r5 = r2                      ; R2=pkt(off=0,r=34,imm=0) R5_w=pkt(off=0,r=34,imm=0)\n25: (0f) r5 += r4                     ; R4_w=P23 R5_w=pkt(off=23,r=34,imm=0)\n26: (71) r4 = *(u8 *)(r5 +0)          ; R4=scalar(umax=255,var_off=(0x0; 0xff)) R5=pkt(off=23,r=34,imm=0)\n; if (h_proto != IPPROTO_TCP)\n27: (55) if r4 != 0x6 goto pc-11      ; R4=6\n; if (data + cur + sizeof(*tcph) > data_end)\n28: (bf) r4 = r2                      ; R2=pkt(off=0,r=34,imm=0) R4_w=pkt(off=0,r=34,imm=0)\n29: (0f) r4 += r3                     ; R3=P34 R4_w=pkt(off=34,r=34,imm=0)\n; if (data + cur + sizeof(*tcph) > data_end)\n30: (bf) r5 = r4                      ; R4_w=pkt(off=34,r=34,imm=0) R5_w=pkt(off=34,r=34,imm=0)\n31: (07) r5 += 20                     ; R5_w=pkt(off=54,r=34,imm=0)\n; if (data + cur + sizeof(*tcph) > data_end)\n32: (2d) if r5 > r1 goto pc-16        ; R1=pkt_end(off=0,imm=0) R5_w=pkt(off=54,r=54,imm=0)\n; if (tcph->doff > 10)\n33: (69) r5 = *(u16 *)(r4 +12)        ; R4_w=pkt(off=34,r=54,imm=0) R5_w=scalar(umax=65535,var_off=(0x0; 0xffff))\n34: (77) r5 >>= 4                     ; R5_w=scalar(umax=4095,var_off=(0x0; 0xfff))\n35: (57) r5 &= 15                     ; R5=scalar(umax=15,var_off=(0x0; 0xf))\n; if (tcph->doff > 10)\n36: (25) if r5 > 0xa goto pc-20       ; R5=scalar(umax=10,var_off=(0x0; 0xf))\n; if (data + cur + tcph->doff * 4 > data_end)\n37: (67) r5 <<= 2                     ; R5_w=scalar(umax=40,var_off=(0x0; 0x3c))\n; if (data + cur + tcph->doff * 4 > data_end)\n38: (bf) r0 = r4                      ; R0_w=pkt(off=34,r=54,imm=0) R4=pkt(off=34,r=54,imm=0)\n39: (0f) r0 += r5                     ; R0_w=pkt(id=1,off=34,r=0,umax=40,var_off=(0x0; 0x3c),s32_max=60,u32_max=60) R5_w=Pscalar(umax=40,var_off=(0x0; 0x3c))\n; if (data + cur + tcph->doff * 4 > data_end)\n40: (2d) if r0 > r1 goto pc-24        ; R0_w=pkt(id=1,off=34,r=34,umax=40,var_off=(0x0; 0x3c),s32_max=60,u32_max=60) R1=pkt_end(off=0,imm=0)\n; if (tcph->dest != 4420)\n41: (69) r0 = *(u16 *)(r4 +2)         ; R0_w=scalar(umax=65535,var_off=(0x0; 0xffff)) R4=pkt(off=34,r=54,imm=0)\n; if (tcph->dest != 4420)\n42: (55) if r0 != 0x1144 goto pc-26   ; R0_w=4420\n43: (bf) r0 = r1                      ; R0_w=pkt_end(off=0,imm=0) R1=pkt_end(off=0,imm=0)\n44: (1f) r0 -= r2                     ; R0_w=scalar() R2=pkt(off=0,r=54,imm=0)\n45: (bf) r6 = r3                      ; R3=P34 R6_w=P34\n46: (0f) r6 += r5                     ; R5=Pscalar(umax=40,var_off=(0x0; 0x3c)) R6=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c))\n47: (2d) if r6 > r0 goto pc-31        ; R0=scalar() R6=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c))\n48: (bf) r0 = r2                      ; R0_w=pkt(off=0,r=54,imm=0) R2=pkt(off=0,r=54,imm=0)\n49: (0f) r0 += r6                     ; R0_w=pkt(id=3,off=0,r=0,umin=34,umax=74,var_off=(0x2; 0x7c),s32_min=2,s32_max=126,u32_min=2,u32_max=126) R6=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c))\n50: (3d) if r0 >= r1 goto pc-34       ; R0_w=pkt(id=3,off=0,r=0,umin=34,umax=74,var_off=(0x2; 0x7c),s32_min=2,s32_max=126,u32_min=2,u32_max=126) R1=pkt_end(off=0,imm=0)\n; for (i = cur; data+i < data_end; i++) {\n51: (0f) r3 += r5                     ; R3_w=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c)) R5=Pscalar(umax=40,var_off=(0x0; 0x3c))\n52: (b7) r5 = 0                       ; R5_w=0\n53: (07) r3 += 1                      ; R3_w=Pscalar(umin=35,umax=75,var_off=(0x3; 0x7c))\n; if (*((uint8_t*)(data+i)) == 0 && !found) {\n54: (71) r0 = *(u8 *)(r0 +0)\ninvalid access to packet, off=0 size=1, R0(id=3,off=0,r=0)\nR0 offset is outside of the packet\nprocessed 48 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 1",
+  "prompt_b": "Here is eBPF code that fails verification. Fix it.\n\nCode:\n#define KBUILD_MODNAME \"xdp_nvme_drop\"\n#include <linux/bpf.h>\n#include <linux/in.h>\n#include <linux/if_ether.h>\n#include <linux/if_packet.h>\n#include <linux/if_vlan.h>\n#include <linux/ip.h>\n#include <linux/ipv6.h>\n#include <stdint.h>\n#include <stdbool.h>\n#include <bpf/bpf_helpers.h>\n#include <bpf/bpf_endian.h>\n#include \"../common/parsing_helpers.h\"\nstatic inline int parse_ipv4(void *data, uint64_t nh_off, void *data_end) {\nstruct iphdr *iph = data + nh_off;\nif (data + nh_off + sizeof(struct iphdr) > data_end)\nreturn 0;\nreturn iph->protocol;\n}\nstatic inline int parse_ipv6(void *data, uint64_t nh_off, void *data_end) {\nstruct ipv6hdr *ip6h = data + nh_off;\nif (data + nh_off + sizeof(struct ipv6hdr) > data_end)\nreturn 0;\nreturn ip6h->nexthdr;\n}\n//static uint64_t zeroes[1024];\nSEC(\"xdp\")\nint nvme_drop(struct xdp_md *ctx) {\nvoid* data_end = (void*)(long)ctx->data_end;\nvoid* data = (void*)(long)ctx->data;\nuint64_t total = data_end-data;\nstruct ethhdr *eth = data;\nuint16_t h_proto;\nuint32_t cur = 0;\nstruct tcphdr *tcph;\nuint32_t i;\nint nbzeros = 0;\nbool found = 0;\ncur = sizeof(*eth);\nif (data + cur > data_end)\nreturn XDP_PASS;\nh_proto = eth->h_proto;\nif (h_proto == bpf_htons(ETH_P_IP)) {\nh_proto = parse_ipv4(data, cur, data_end);\ncur += sizeof(struct iphdr);\n} else if (h_proto == bpf_htons(ETH_P_IPV6)) {\nh_proto = parse_ipv6(data, cur, data_end);\ncur += sizeof(struct ipv6hdr);\n} else {\nreturn XDP_PASS;\n}\nif (cur > 100)\nreturn XDP_PASS;\nif (h_proto != IPPROTO_TCP)\nreturn XDP_PASS;\nif (data + cur + sizeof(*tcph) > data_end)\nreturn XDP_PASS;\ntcph = data + cur;\nif (tcph->doff > 10)\nreturn XDP_PASS;\nif (data + cur + tcph->doff * 4 > data_end)\nreturn XDP_PASS;\ncur += tcph->doff * 4;\nif (tcph->dest != 4420)\nreturn XDP_PASS;\nif (cur > total || cur > 100)\nreturn XDP_PASS;\nnbzeros = 0;\nfor (i = cur; data+i < data_end; i++) {\nif (*((uint8_t*)(data+i)) == 0 && !found) {\nnbzeros++;\n} else {\nfound = true;\nbreak;\n}\n}\nif (found && nbzeros > 50) {\nbpf_printk(\"found nvme pdu tail seq=%u\\n\", bpf_ntohs(tcph->seq));\n}\nreturn XDP_PASS;\n}\nchar _license[] SEC(\"license\") = \"GPL\";\n\nVerifier log:\nValidating nvme_drop() func#0...\n0: R1=ctx(off=0,imm=0) R10=fp0\n; void* data = (void*)(long)ctx->data;\n0: (61) r2 = *(u32 *)(r1 +0)          ; R1=ctx(off=0,imm=0) R2_w=pkt(off=0,r=0,imm=0)\n; void* data_end = (void*)(long)ctx->data_end;\n1: (61) r1 = *(u32 *)(r1 +4)          ; R1_w=pkt_end(off=0,imm=0)\n; if (data + cur  > data_end)\n2: (bf) r3 = r2                       ; R2_w=pkt(off=0,r=0,imm=0) R3_w=pkt(off=0,r=0,imm=0)\n3: (07) r3 += 14                      ; R3_w=pkt(off=14,r=0,imm=0)\n; if (data + cur  > data_end)\n4: (2d) if r3 > r1 goto pc+12         ; R1_w=pkt_end(off=0,imm=0) R3_w=pkt(off=14,r=14,imm=0)\n; h_proto = eth->h_proto;\n5: (71) r4 = *(u8 *)(r2 +12)          ; R2_w=pkt(off=0,r=14,imm=0) R4_w=scalar(umax=255,var_off=(0x0; 0xff))\n6: (71) r3 = *(u8 *)(r2 +13)          ; R2_w=pkt(off=0,r=14,imm=0) R3_w=scalar(umax=255,var_off=(0x0; 0xff))\n7: (67) r3 <<= 8                      ; R3_w=scalar(umax=65280,var_off=(0x0; 0xff00))\n8: (4f) r3 |= r4                      ; R3_w=scalar() R4_w=scalar(umax=255,var_off=(0x0; 0xff))\n; if (h_proto == bpf_htons(ETH_P_IP)) {\n9: (15) if r3 == 0xdd86 goto pc+9     ; R3_w=scalar()\n10: (55) if r3 != 0x8 goto pc+6       ; R3=8\n11: (b7) r3 = 34                      ; R3_w=34\n12: (b7) r4 = 23                      ; R4_w=23\n; if (data + nh_off + sizeof(struct iphdr) > data_end)\n13: (bf) r5 = r2                      ; R2=pkt(off=0,r=14,imm=0) R5_w=pkt(off=0,r=14,imm=0)\n14: (07) r5 += 34                     ; R5_w=pkt(off=34,r=14,imm=0)\n; if (data + nh_off + sizeof(struct iphdr) > data_end)\n15: (2d) if r5 > r1 goto pc+1         ; R1=pkt_end(off=0,imm=0) R5_w=pkt(off=34,r=34,imm=0)\n16: (05) goto pc+7\n;\n24: (bf) r5 = r2                      ; R2=pkt(off=0,r=34,imm=0) R5_w=pkt(off=0,r=34,imm=0)\n25: (0f) r5 += r4                     ; R4_w=P23 R5_w=pkt(off=23,r=34,imm=0)\n26: (71) r4 = *(u8 *)(r5 +0)          ; R4=scalar(umax=255,var_off=(0x0; 0xff)) R5=pkt(off=23,r=34,imm=0)\n; if (h_proto != IPPROTO_TCP)\n27: (55) if r4 != 0x6 goto pc-11      ; R4=6\n; if (data + cur + sizeof(*tcph) > data_end)\n28: (bf) r4 = r2                      ; R2=pkt(off=0,r=34,imm=0) R4_w=pkt(off=0,r=34,imm=0)\n29: (0f) r4 += r3                     ; R3=P34 R4_w=pkt(off=34,r=34,imm=0)\n; if (data + cur + sizeof(*tcph) > data_end)\n30: (bf) r5 = r4                      ; R4_w=pkt(off=34,r=34,imm=0) R5_w=pkt(off=34,r=34,imm=0)\n31: (07) r5 += 20                     ; R5_w=pkt(off=54,r=34,imm=0)\n; if (data + cur + sizeof(*tcph) > data_end)\n32: (2d) if r5 > r1 goto pc-16        ; R1=pkt_end(off=0,imm=0) R5_w=pkt(off=54,r=54,imm=0)\n; if (tcph->doff > 10)\n33: (69) r5 = *(u16 *)(r4 +12)        ; R4_w=pkt(off=34,r=54,imm=0) R5_w=scalar(umax=65535,var_off=(0x0; 0xffff))\n34: (77) r5 >>= 4                     ; R5_w=scalar(umax=4095,var_off=(0x0; 0xfff))\n35: (57) r5 &= 15                     ; R5=scalar(umax=15,var_off=(0x0; 0xf))\n; if (tcph->doff > 10)\n36: (25) if r5 > 0xa goto pc-20       ; R5=scalar(umax=10,var_off=(0x0; 0xf))\n; if (data + cur + tcph->doff * 4 > data_end)\n37: (67) r5 <<= 2                     ; R5_w=scalar(umax=40,var_off=(0x0; 0x3c))\n; if (data + cur + tcph->doff * 4 > data_end)\n38: (bf) r0 = r4                      ; R0_w=pkt(off=34,r=54,imm=0) R4=pkt(off=34,r=54,imm=0)\n39: (0f) r0 += r5                     ; R0_w=pkt(id=1,off=34,r=0,umax=40,var_off=(0x0; 0x3c),s32_max=60,u32_max=60) R5_w=Pscalar(umax=40,var_off=(0x0; 0x3c))\n; if (data + cur + tcph->doff * 4 > data_end)\n40: (2d) if r0 > r1 goto pc-24        ; R0_w=pkt(id=1,off=34,r=34,umax=40,var_off=(0x0; 0x3c),s32_max=60,u32_max=60) R1=pkt_end(off=0,imm=0)\n; if (tcph->dest != 4420)\n41: (69) r0 = *(u16 *)(r4 +2)         ; R0_w=scalar(umax=65535,var_off=(0x0; 0xffff)) R4=pkt(off=34,r=54,imm=0)\n; if (tcph->dest != 4420)\n42: (55) if r0 != 0x1144 goto pc-26   ; R0_w=4420\n43: (bf) r0 = r1                      ; R0_w=pkt_end(off=0,imm=0) R1=pkt_end(off=0,imm=0)\n44: (1f) r0 -= r2                     ; R0_w=scalar() R2=pkt(off=0,r=54,imm=0)\n45: (bf) r6 = r3                      ; R3=P34 R6_w=P34\n46: (0f) r6 += r5                     ; R5=Pscalar(umax=40,var_off=(0x0; 0x3c)) R6=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c))\n47: (2d) if r6 > r0 goto pc-31        ; R0=scalar() R6=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c))\n48: (bf) r0 = r2                      ; R0_w=pkt(off=0,r=54,imm=0) R2=pkt(off=0,r=54,imm=0)\n49: (0f) r0 += r6                     ; R0_w=pkt(id=3,off=0,r=0,umin=34,umax=74,var_off=(0x2; 0x7c),s32_min=2,s32_max=126,u32_min=2,u32_max=126) R6=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c))\n50: (3d) if r0 >= r1 goto pc-34       ; R0_w=pkt(id=3,off=0,r=0,umin=34,umax=74,var_off=(0x2; 0x7c),s32_min=2,s32_max=126,u32_min=2,u32_max=126) R1=pkt_end(off=0,imm=0)\n; for (i = cur; data+i < data_end; i++) {\n51: (0f) r3 += r5                     ; R3_w=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c)) R5=Pscalar(umax=40,var_off=(0x0; 0x3c))\n52: (b7) r5 = 0                       ; R5_w=0\n53: (07) r3 += 1                      ; R3_w=Pscalar(umin=35,umax=75,var_off=(0x3; 0x7c))\n; if (*((uint8_t*)(data+i)) == 0 && !found) {\n54: (71) r0 = *(u8 *)(r0 +0)\ninvalid access to packet, off=0 size=1, R0(id=3,off=0,r=0)\nR0 offset is outside of the packet\nprocessed 48 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 1\n\nDiagnostic analysis:\nerror[OBLIGE-E005]: lowering_artifact \u2014 packet access with lost proof\n  \u250c\u2500 <source>\n  \u2502\n41 \u2502     if (tcph->dest != 4420)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R0: pkt(range=54, off=0) \u2192 pkt(range=0, off=0)\n   \u2502\n41 \u2502     if (tcph->dest != 4420)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n   \u2502     R0: pkt(range=54, off=0) \u2192 pkt(range=0, off=0)\n   \u2502\n54 \u2502     if (*((uint8_t*)(data+i)) == 0 && !found) {\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R0: pkt(range=0, off=0)\n   \u2502\n  = note: A verifier-visible proof existed earlier, but arithmetic lowering widened the offset before the rejected access.\n  = help: Add an explicit unsigned clamp and keep the offset calculation in a separate verified register",
+  "root_span_text": "",
+  "selection_notes": [
+    "source:+320",
+    "raw_fix:+50",
+    "accepted_fix:+25",
+    "expected_from_gt:+40",
+    "specific_fix:+35",
+    "tag_taxonomy:+20",
+    "log_lines:+150",
+    "trace_state_lines:+4"
+  ],
+  "selection_score": 644,
+  "source": "stackoverflow",
+  "source_code": "#define KBUILD_MODNAME \"xdp_nvme_drop\"\n#include <linux/bpf.h>\n#include <linux/in.h>\n#include <linux/if_ether.h>\n#include <linux/if_packet.h>\n#include <linux/if_vlan.h>\n#include <linux/ip.h>\n#include <linux/ipv6.h>\n#include <stdint.h>\n#include <stdbool.h>\n#include <bpf/bpf_helpers.h>\n#include <bpf/bpf_endian.h>\n#include \"../common/parsing_helpers.h\"\nstatic inline int parse_ipv4(void *data, uint64_t nh_off, void *data_end) {\nstruct iphdr *iph = data + nh_off;\nif (data + nh_off + sizeof(struct iphdr) > data_end)\nreturn 0;\nreturn iph->protocol;\n}\nstatic inline int parse_ipv6(void *data, uint64_t nh_off, void *data_end) {\nstruct ipv6hdr *ip6h = data + nh_off;\nif (data + nh_off + sizeof(struct ipv6hdr) > data_end)\nreturn 0;\nreturn ip6h->nexthdr;\n}\n//static uint64_t zeroes[1024];\nSEC(\"xdp\")\nint nvme_drop(struct xdp_md *ctx) {\nvoid* data_end = (void*)(long)ctx->data_end;\nvoid* data = (void*)(long)ctx->data;\nuint64_t total = data_end-data;\nstruct ethhdr *eth = data;\nuint16_t h_proto;\nuint32_t cur = 0;\nstruct tcphdr *tcph;\nuint32_t i;\nint nbzeros = 0;\nbool found = 0;\ncur = sizeof(*eth);\nif (data + cur > data_end)\nreturn XDP_PASS;\nh_proto = eth->h_proto;\nif (h_proto == bpf_htons(ETH_P_IP)) {\nh_proto = parse_ipv4(data, cur, data_end);\ncur += sizeof(struct iphdr);\n} else if (h_proto == bpf_htons(ETH_P_IPV6)) {\nh_proto = parse_ipv6(data, cur, data_end);\ncur += sizeof(struct ipv6hdr);\n} else {\nreturn XDP_PASS;\n}\nif (cur > 100)\nreturn XDP_PASS;\nif (h_proto != IPPROTO_TCP)\nreturn XDP_PASS;\nif (data + cur + sizeof(*tcph) > data_end)\nreturn XDP_PASS;\ntcph = data + cur;\nif (tcph->doff > 10)\nreturn XDP_PASS;\nif (data + cur + tcph->doff * 4 > data_end)\nreturn XDP_PASS;\ncur += tcph->doff * 4;\nif (tcph->dest != 4420)\nreturn XDP_PASS;\nif (cur > total || cur > 100)\nreturn XDP_PASS;\nnbzeros = 0;\nfor (i = cur; data+i < data_end; i++) {\nif (*((uint8_t*)(data+i)) == 0 && !found) {\nnbzeros++;\n} else {\nfound = true;\nbreak;\n}\n}\nif (found && nbzeros > 50) {\nbpf_printk(\"found nvme pdu tail seq=%u\\n\", bpf_ntohs(tcph->seq));\n}\nreturn XDP_PASS;\n}\nchar _license[] SEC(\"license\") = \"GPL\";",
+  "source_url": "https://stackoverflow.com/questions/76637174/how-to-write-an-ebpf-xdp-program-to-drop-tcp-packets-containing-a-certain-byte-p",
+  "symptom_span_text": "",
+  "taxonomy_class": "source_bug",
+  "taxonomy_source": "fix_tag_heuristic",
+  "title": "How to write an ebpf/xdp program to drop TCP packets containing a certain byte pattern?",
+  "verifier_log": "Validating nvme_drop() func#0...\n0: R1=ctx(off=0,imm=0) R10=fp0\n; void* data = (void*)(long)ctx->data;\n0: (61) r2 = *(u32 *)(r1 +0)          ; R1=ctx(off=0,imm=0) R2_w=pkt(off=0,r=0,imm=0)\n; void* data_end = (void*)(long)ctx->data_end;\n1: (61) r1 = *(u32 *)(r1 +4)          ; R1_w=pkt_end(off=0,imm=0)\n; if (data + cur  > data_end)\n2: (bf) r3 = r2                       ; R2_w=pkt(off=0,r=0,imm=0) R3_w=pkt(off=0,r=0,imm=0)\n3: (07) r3 += 14                      ; R3_w=pkt(off=14,r=0,imm=0)\n; if (data + cur  > data_end)\n4: (2d) if r3 > r1 goto pc+12         ; R1_w=pkt_end(off=0,imm=0) R3_w=pkt(off=14,r=14,imm=0)\n; h_proto = eth->h_proto;\n5: (71) r4 = *(u8 *)(r2 +12)          ; R2_w=pkt(off=0,r=14,imm=0) R4_w=scalar(umax=255,var_off=(0x0; 0xff))\n6: (71) r3 = *(u8 *)(r2 +13)          ; R2_w=pkt(off=0,r=14,imm=0) R3_w=scalar(umax=255,var_off=(0x0; 0xff))\n7: (67) r3 <<= 8                      ; R3_w=scalar(umax=65280,var_off=(0x0; 0xff00))\n8: (4f) r3 |= r4                      ; R3_w=scalar() R4_w=scalar(umax=255,var_off=(0x0; 0xff))\n; if (h_proto == bpf_htons(ETH_P_IP)) {\n9: (15) if r3 == 0xdd86 goto pc+9     ; R3_w=scalar()\n10: (55) if r3 != 0x8 goto pc+6       ; R3=8\n11: (b7) r3 = 34                      ; R3_w=34\n12: (b7) r4 = 23                      ; R4_w=23\n; if (data + nh_off + sizeof(struct iphdr) > data_end)\n13: (bf) r5 = r2                      ; R2=pkt(off=0,r=14,imm=0) R5_w=pkt(off=0,r=14,imm=0)\n14: (07) r5 += 34                     ; R5_w=pkt(off=34,r=14,imm=0)\n; if (data + nh_off + sizeof(struct iphdr) > data_end)\n15: (2d) if r5 > r1 goto pc+1         ; R1=pkt_end(off=0,imm=0) R5_w=pkt(off=34,r=34,imm=0)\n16: (05) goto pc+7\n;\n24: (bf) r5 = r2                      ; R2=pkt(off=0,r=34,imm=0) R5_w=pkt(off=0,r=34,imm=0)\n25: (0f) r5 += r4                     ; R4_w=P23 R5_w=pkt(off=23,r=34,imm=0)\n26: (71) r4 = *(u8 *)(r5 +0)          ; R4=scalar(umax=255,var_off=(0x0; 0xff)) R5=pkt(off=23,r=34,imm=0)\n; if (h_proto != IPPROTO_TCP)\n27: (55) if r4 != 0x6 goto pc-11      ; R4=6\n; if (data + cur + sizeof(*tcph) > data_end)\n28: (bf) r4 = r2                      ; R2=pkt(off=0,r=34,imm=0) R4_w=pkt(off=0,r=34,imm=0)\n29: (0f) r4 += r3                     ; R3=P34 R4_w=pkt(off=34,r=34,imm=0)\n; if (data + cur + sizeof(*tcph) > data_end)\n30: (bf) r5 = r4                      ; R4_w=pkt(off=34,r=34,imm=0) R5_w=pkt(off=34,r=34,imm=0)\n31: (07) r5 += 20                     ; R5_w=pkt(off=54,r=34,imm=0)\n; if (data + cur + sizeof(*tcph) > data_end)\n32: (2d) if r5 > r1 goto pc-16        ; R1=pkt_end(off=0,imm=0) R5_w=pkt(off=54,r=54,imm=0)\n; if (tcph->doff > 10)\n33: (69) r5 = *(u16 *)(r4 +12)        ; R4_w=pkt(off=34,r=54,imm=0) R5_w=scalar(umax=65535,var_off=(0x0; 0xffff))\n34: (77) r5 >>= 4                     ; R5_w=scalar(umax=4095,var_off=(0x0; 0xfff))\n35: (57) r5 &= 15                     ; R5=scalar(umax=15,var_off=(0x0; 0xf))\n; if (tcph->doff > 10)\n36: (25) if r5 > 0xa goto pc-20       ; R5=scalar(umax=10,var_off=(0x0; 0xf))\n; if (data + cur + tcph->doff * 4 > data_end)\n37: (67) r5 <<= 2                     ; R5_w=scalar(umax=40,var_off=(0x0; 0x3c))\n; if (data + cur + tcph->doff * 4 > data_end)\n38: (bf) r0 = r4                      ; R0_w=pkt(off=34,r=54,imm=0) R4=pkt(off=34,r=54,imm=0)\n39: (0f) r0 += r5                     ; R0_w=pkt(id=1,off=34,r=0,umax=40,var_off=(0x0; 0x3c),s32_max=60,u32_max=60) R5_w=Pscalar(umax=40,var_off=(0x0; 0x3c))\n; if (data + cur + tcph->doff * 4 > data_end)\n40: (2d) if r0 > r1 goto pc-24        ; R0_w=pkt(id=1,off=34,r=34,umax=40,var_off=(0x0; 0x3c),s32_max=60,u32_max=60) R1=pkt_end(off=0,imm=0)\n; if (tcph->dest != 4420)\n41: (69) r0 = *(u16 *)(r4 +2)         ; R0_w=scalar(umax=65535,var_off=(0x0; 0xffff)) R4=pkt(off=34,r=54,imm=0)\n; if (tcph->dest != 4420)\n42: (55) if r0 != 0x1144 goto pc-26   ; R0_w=4420\n43: (bf) r0 = r1                      ; R0_w=pkt_end(off=0,imm=0) R1=pkt_end(off=0,imm=0)\n44: (1f) r0 -= r2                     ; R0_w=scalar() R2=pkt(off=0,r=54,imm=0)\n45: (bf) r6 = r3                      ; R3=P34 R6_w=P34\n46: (0f) r6 += r5                     ; R5=Pscalar(umax=40,var_off=(0x0; 0x3c)) R6=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c))\n47: (2d) if r6 > r0 goto pc-31        ; R0=scalar() R6=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c))\n48: (bf) r0 = r2                      ; R0_w=pkt(off=0,r=54,imm=0) R2=pkt(off=0,r=54,imm=0)\n49: (0f) r0 += r6                     ; R0_w=pkt(id=3,off=0,r=0,umin=34,umax=74,var_off=(0x2; 0x7c),s32_min=2,s32_max=126,u32_min=2,u32_max=126) R6=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c))\n50: (3d) if r0 >= r1 goto pc-34       ; R0_w=pkt(id=3,off=0,r=0,umin=34,umax=74,var_off=(0x2; 0x7c),s32_min=2,s32_max=126,u32_min=2,u32_max=126) R1=pkt_end(off=0,imm=0)\n; for (i = cur; data+i < data_end; i++) {\n51: (0f) r3 += r5                     ; R3_w=Pscalar(umin=34,umax=74,var_off=(0x2; 0x7c)) R5=Pscalar(umax=40,var_off=(0x0; 0x3c))\n52: (b7) r5 = 0                       ; R5_w=0\n53: (07) r3 += 1                      ; R3_w=Pscalar(umin=35,umax=75,var_off=(0x3; 0x7c))\n; if (*((uint8_t*)(data+i)) == 0 && !found) {\n54: (71) r0 = *(u8 *)(r0 +0)\ninvalid access to packet, off=0 size=1, R0(id=3,off=0,r=0)\nR0 offset is outside of the packet\nprocessed 48 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 1"
+}

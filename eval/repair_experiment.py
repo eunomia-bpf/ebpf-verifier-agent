@@ -36,20 +36,22 @@ CASE_DIRS = (
 DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "repair_experiment_results.json"
 DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "repair-experiment-report.md"
 DEFAULT_MANUAL_LABELS = ROOT / "docs" / "tmp" / "manual-labeling-30cases.md"
-TOTAL_CASES = 30
+TARGET_CASE_COUNTS = {
+    "lowering_artifact": 18,
+    "source_bug": 20,
+    "verifier_limit": 8,
+    "env_mismatch": 8,
+}
+TOTAL_CASES = sum(TARGET_CASE_COUNTS.values())
 MODEL_CANDIDATES = ("gpt-4.1-mini", "gpt-4.1-nano")
 SOURCE_PRIORITY = {
     "stackoverflow": 0,
     "github_issues": 1,
     "kernel_selftests": 2,
 }
-TARGET_MINIMUMS = {
-    "lowering_artifact": 8,
-    "source_bug": 8,
-    "verifier_limit": 4,
-    "env_mismatch": 4,
-}
-ALLOWED_TAXONOMIES = tuple(TARGET_MINIMUMS.keys())
+TRACE_RICH_LOG_LINES = 80
+TRACE_RICH_STATE_LINES = 20
+ALLOWED_TAXONOMIES = tuple(TARGET_CASE_COUNTS.keys())
 TAXONOMY_ORDER = (
     "lowering_artifact",
     "source_bug",
@@ -166,6 +168,7 @@ class CaseCandidate:
     error_id: str | None
     verifier_log: str
     log_lines: int
+    trace_state_lines: int
     source_code: str
     code_source: str
     raw_fix_text: str
@@ -949,6 +952,33 @@ def extract_root_and_symptom_spans(diagnostic_json: dict[str, Any]) -> tuple[str
     return root_text, symptom_text
 
 
+def count_trace_state_lines(verifier_log: str) -> int:
+    count = 0
+    for line in verifier_log.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if re.match(r"^\d+:\s+R\d+(?:_[A-Za-z]+)?=", stripped):
+            count += 1
+            continue
+        if re.match(r"^R\d+(?:_[A-Za-z]+)?=", stripped):
+            count += 1
+            continue
+        if re.match(r"^from \d+ to \d+:\s+R\d+(?:_[A-Za-z]+)?=", stripped):
+            count += 1
+            continue
+        if stripped.startswith(("last_idx", "regs=", "parent didn't have regs")):
+            count += 1
+    return count
+
+
+def is_trace_rich(candidate: CaseCandidate) -> bool:
+    return (
+        candidate.log_lines >= TRACE_RICH_LOG_LINES
+        or candidate.trace_state_lines >= TRACE_RICH_STATE_LINES
+    )
+
+
 def selection_score(candidate: CaseCandidate) -> tuple[int, list[str]]:
     score = 0
     notes: list[str] = []
@@ -1003,9 +1033,17 @@ def selection_score(candidate: CaseCandidate) -> tuple[int, list[str]]:
         score -= 120
         notes.append("selftest_without_manual_gt:-120")
 
-    line_bonus = min(candidate.log_lines, 80)
+    line_bonus = min(candidate.log_lines, 220) * 2
     score += line_bonus
     notes.append(f"log_lines:+{line_bonus}")
+
+    trace_bonus = min(candidate.trace_state_lines, 80) * 4
+    score += trace_bonus
+    notes.append(f"trace_state_lines:+{trace_bonus}")
+
+    if is_trace_rich(candidate):
+        score += 60
+        notes.append("trace_rich:+60")
 
     return score, notes
 
@@ -1047,6 +1085,8 @@ def build_candidate(path: Path, manual_labels: dict[str, ManualLabel]) -> CaseCa
     else:
         ground_truth_fix = ""
         ground_truth_fix_source = "missing"
+    if not ground_truth_fix.strip():
+        return None
 
     expected_fix_tags = classify_fix_tags([ground_truth_fix])
     expected_fix_type_source = "ground_truth" if expected_fix_tags else "missing"
@@ -1079,6 +1119,7 @@ def build_candidate(path: Path, manual_labels: dict[str, ManualLabel]) -> CaseCa
         error_id=diagnosis.error_id,
         verifier_log=verifier_log,
         log_lines=len([line for line in verifier_log.splitlines() if line.strip()]),
+        trace_state_lines=count_trace_state_lines(verifier_log),
         source_code=source_code,
         code_source=code_source,
         raw_fix_text=raw_fix_text,
@@ -1144,13 +1185,29 @@ def select_cases(
     selected_ids: set[str] = set()
     bucket_seen_tags: dict[str, set[str]] = {taxonomy: set() for taxonomy in ALLOWED_TAXONOMIES}
     bucket_seen_sources: dict[str, set[str]] = {taxonomy: set() for taxonomy in ALLOWED_TAXONOMIES}
+    pool_counts = Counter(candidate.taxonomy_class for candidate in candidates)
+    effective_targets = {
+        taxonomy: min(TARGET_CASE_COUNTS[taxonomy], pool_counts.get(taxonomy, 0))
+        for taxonomy in TAXONOMY_ORDER
+    }
+    minimum_case_count = sum(effective_targets.values())
+    effective_case_count = max(case_count, minimum_case_count)
+    effective_case_count = min(effective_case_count, len(candidates))
+    if effective_case_count < minimum_case_count:
+        raise RuntimeError(
+            "Unable to satisfy requested taxonomy mix with the eligible fix-backed pool: "
+            f"need at least {minimum_case_count} cases, found {len(candidates)}"
+        )
     summary: dict[str, Any] = {
-        "targets": dict(TARGET_MINIMUMS),
-        "pool_counts": Counter(candidate.taxonomy_class for candidate in candidates),
+        "requested_case_count": case_count,
+        "effective_case_count": effective_case_count,
+        "requested_targets": dict(TARGET_CASE_COUNTS),
+        "effective_targets": effective_targets,
+        "pool_counts": pool_counts,
         "selected_by_taxonomy": {},
     }
 
-    for taxonomy, target in TARGET_MINIMUMS.items():
+    for taxonomy, target in effective_targets.items():
         selected_for_taxonomy = 0
         while selected_for_taxonomy < target:
             eligible = [
@@ -1173,14 +1230,14 @@ def select_cases(
 
     overall_seen_tags = {candidate.expected_fix_type for candidate in selected}
     overall_seen_sources = {candidate.source for candidate in selected}
-    while len(selected) < case_count:
+    while len(selected) < effective_case_count:
         eligible = [
             candidate for candidate in candidates if candidate.case_id not in selected_ids
         ]
         pick = choose_next_candidate(eligible, overall_seen_tags, overall_seen_sources)
         if pick is None:
             raise RuntimeError(
-                f"Only selected {len(selected)} cases, but requested {case_count}"
+                f"Only selected {len(selected)} cases, but requested {effective_case_count}"
             )
         selected.append(pick)
         selected_ids.add(pick.case_id)
@@ -1197,6 +1254,9 @@ def select_cases(
     summary["selected_case_ids"] = [candidate.case_id for candidate in selected]
     summary["selected_taxonomy_counts"] = Counter(candidate.taxonomy_class for candidate in selected)
     summary["selected_source_counts"] = Counter(candidate.source for candidate in selected)
+    summary["selected_trace_rich_count"] = sum(1 for candidate in selected if is_trace_rich(candidate))
+    summary["selected_trace_state_lines"] = sum(candidate.trace_state_lines for candidate in selected)
+    summary["selected_log_lines_total"] = sum(candidate.log_lines for candidate in selected)
     summary["selected_by_taxonomy"] = {
         taxonomy: [candidate.case_id for candidate in selected if candidate.taxonomy_class == taxonomy]
         for taxonomy in TAXONOMY_ORDER
@@ -1689,8 +1749,27 @@ def main() -> int:
         raise RuntimeError("No eligible cases with verifier logs and source code were found.")
 
     selected_cases, selection_summary = select_cases(candidates, case_count=args.case_count)
+    print("Requested taxonomy counts:", selection_summary["requested_targets"])
+    print("Effective taxonomy counts:", selection_summary["effective_targets"])
+    print("Eligible pool counts:", dict(selection_summary["pool_counts"]))
+    print(
+        "Requested total cases:",
+        selection_summary["requested_case_count"],
+        "Selected total cases:",
+        selection_summary["effective_case_count"],
+    )
     print("Selected case counts:", dict(selection_summary["selected_taxonomy_counts"]))
     print("Selected source counts:", dict(selection_summary["selected_source_counts"]))
+    print(
+        "Selected trace stats:",
+        {
+            "trace_rich_cases": (
+                f"{selection_summary['selected_trace_rich_count']}/{len(selected_cases)}"
+            ),
+            "total_log_lines": selection_summary["selected_log_lines_total"],
+            "total_state_dump_lines": selection_summary["selected_trace_state_lines"],
+        },
+    )
     for candidate in selected_cases:
         print(
             f"  - {candidate.case_id} [{candidate.taxonomy_class}] "

@@ -123,3 +123,16 @@ def test_diagnose_fallback_classifies_round2_uncatalogued_symptoms(tmp_path: Pat
     assert comparison.taxonomy_class == "source_bug"
     assert kernel_btf.error_id == "OBLIGE-E021"
     assert kernel_btf.taxonomy_class == "env_mismatch"
+
+
+def test_diagnose_keeps_scalar_mem_access_as_source_bug_without_same_register_loss() -> None:
+    diagnosis = diagnose(
+        _load_verifier_log(
+            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
+            "kernel-selftest-dynptr-fail-clone-invalidate4.yaml"
+        )
+    )
+
+    assert diagnosis.error_id == "OBLIGE-E011"
+    assert diagnosis.taxonomy_class == "source_bug"
+    assert diagnosis.proof_status == "established_then_lost"

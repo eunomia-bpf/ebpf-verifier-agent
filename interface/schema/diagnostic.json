@@ -22,7 +22,7 @@
     "error_id": {
       "type": "string",
       "description": "Stable diagnostic identifier intended to remain more durable than raw verifier text.",
-      "pattern": "^[a-z0-9_.:-]+$"
+      "pattern": "^[A-Za-z0-9_.:-]+$"
     },
     "case_id": {
       "type": "string",

@@ -1,6 +1,6 @@
 # Repair Experiment: Raw Logs vs Raw Logs + OBLIGE
 
-- Generated: `2026-03-12T01:17:16+00:00`
+- Generated: `2026-03-12T03:49:10+00:00`
 - Model: `gpt-4.1-mini` with fallback `gpt-4.1-nano`
 - Cases: `30`
 - API delay: `1.0` seconds between calls

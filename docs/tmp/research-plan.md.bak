@@ -1,0 +1,465 @@
+s | 23 | "unbounded min value" |
+| E006 | provenance_lost_across_spill | lowering_artifact | 0 | "expected pointer type, got scalar" |
+| E007 | verifier_state_explosion | verifier_limit | 1 | "too many states" |
+| E008 | bounded_loop_not_proved | verifier_limit | 1 | "loop is not bounded" |
+| E009 | helper_or_kfunc_unavailable | env_mismatch | 3 | "unknown func" |
+| E010 | verifier_regression_or_internal_bug | verifier_bug | 1 | "kernel BUG at" |
+| E011 | scalar_pointer_dereference | source_bug | 38 | "invalid mem access 'scalar'" |
+| E012 | dynptr_protocol_violation | source_bug | 22 | "Expected an initialized dynptr" |
+| E013 | execution_context_discipline | source_bug | 19 | "cannot restore irq state" |
+| E014 | iterator_state_protocol | source_bug | 10 | "expected an initialized iter_num" |
+| E015 | trusted_arg_nullability | source_bug | 8 | "Possibly NULL pointer passed" |
+| E016 | helper_kfunc_context_restriction | env_mismatch | 12 | "cannot be called from callback" |
+| E017 | map_value_bounds_violation | source_bug | 1 | "invalid access to map value" |
+| E018 | verifier_analysis_budget_limit | verifier_limit | 2 | "combined stack size" |
+| E019-E023 | (round 2 expansion) | mixed | 59 | various |
+
+**完整定义**：`taxonomy/error_catalog.yaml`
+
+---
+
+## 4. Proof Trace Analysis（新核心）
+
+### 4.1 Verifier state trace 包含什么
+
+每条指令的 register state dump：
+```
+R0=pkt(id=0,off=2,r=6,imm=0)    → type=pkt, offset=2, range=6
+R1=inv(id=0,umax=255,var_off=(0x0;0xff))  → type=scalar, bounds=[0,255]
+fp-8=map_value(off=0,ks=4,vs=8)  → stack slot, map value pointer
+```
+
+Control flow annotations：
+```
+from 67 to 109: R0=inv0 R1_w=inv0 ...   → branch merge
+last_idx 39 first_idx 36                  → backtracking
+regs=1 stack=0 before 38: (c7) r0 s>>= 32  → which earlier insn affected current state
+```
+
+BTF source lines：
+```
+; if (data_end < (data + ext_len)) {      → source annotation
+42: (bf) r3 = r1
+```
+
+### 4.2 OBLIGE Rust-Style Diagnostic Engine（实现中）
+
+**Pipeline**：raw verifier log → 5 步 → Rust-style multi-span output
+
+#### Step 1: Enhanced Backtracking Extraction
+利用 verifier 自己的 `mark_precise` backtracking（已在 LOG_LEVEL2 中输出）：
+```
+last_idx 24 first_idx 12           ← 反向追踪范围
+regs=1 stack=0 before 23: (dc) r0 = be16 r0    ← R0 (bit 0)
+regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
+```
+提取为结构化 `BacktrackChain`，替代我们的启发式 causal chain。
+
+#### Step 2: Proof Obligation Inference + Propagation
+**义务推断**：从 error message + register state 推导 verifier 的 proof requirement：
+- Packet: `reg.type==pkt && reg.off+size <= reg.range`
+- Map value: `0 <= reg.off && reg.off+size <= value_size`
+- Stack: `reg.off` within frame bounds
+- Helper arg: `reg.type == expected_type`
+- Null check: `reg.type != *_or_null`
+
+**证明传播分析**：从 proof-establishing branch 正向追踪：
+- 找到 narrowing branch（`if r5 > r2 goto` → R0.range 变窄）
+- 追踪 proof 是否通过 copy/move 传播到实际被访问的 register
+- 没有传播 → lowering artifact（compiler 用了不同 register）
+- 没有建立 → source bug
+
+#### Step 3: Source Correlation via BTF
+- 从 trace 的 `; source_text @ file:line` 提取 BTF source mapping
+- 每个 proof event（建立/传播/丢失/拒绝）映射到源码位置
+- 连续 bytecode 指令合并为单个 source-level span
+
+#### Step 4: Multi-Span Diagnostic Renderer
+**Human-readable（Rust-style）**：多个源码位置 + 角色标签 + register state 变化 + note/help
+**Structured JSON**（供 LLM/CI 消费）：
+```json
+{
+  "error_id": "OBLIGE-E005",
+  "taxonomy_class": "lowering_artifact",
+  "proof_status": "established_then_lost",
+  "spans": [
+    {"role": "proof_established", "source": {"file": "xdp_prog.c", "line": 38},
+     "insn_idx": 8, "source_text": "if (data + ext_len <= data_end)",
+     "state_change": "R3: pkt(range=0) → pkt(range=14)"},
+    {"role": "proof_lost", "source": {"file": "xdp_prog.c", "line": 42},
+     "insn_idx": 22, "source_text": "__bpf_htons(ext->len)",
+     "state_change": "R0: scalar(umax=255) → scalar(unbounded)",
+     "reason": "OR operation merges byte values, destroying bounds"},
+    {"role": "rejected", "source": {"file": "xdp_prog.c", "line": 45},
+     "insn_idx": 24, "source_text": "void *next = data + ext_len",
+     "state_change": "R5: pkt_ptr + unbounded scalar"}
+  ],
+  "obligation": {"type": "packet_access", "required": "reg.off+size <= reg.range"},
+  "note": "Source has valid bounds check but LLVM lowering breaks it",
+  "help": "Add explicit clamp: if (ext_len > 1500) return XDP_DROP;"
+}
+```
+
+### 4.3 技术挑战
+
+1. **Meta-analysis of abstract interpretation** — 对 verifier 输出的 per-instruction abstract state 做二阶分析（backward slicing + proof propagation）
+2. **Leveraging `mark_precise`** — verifier 自己的 precision tracking 是最精确的根因链，但只以 debug text 暴露
+3. **Proof obligation inference** — 从 error message pattern 推导形式化的 proof requirement，不是 pattern matching
+4. **Source correlation** — BTF annotation 并非总是存在；需要 fallback 到 bytecode-level spans
+5. **Information compression** — 500 行 → 3-5 个 spans，选择标准：proof lifecycle 的关键节点
+
+---
+
+## 5. Case Corpus 摘要
+
+| 来源 | Cases | 特点 | 文档 |
+|------|:---:|------|------|
+| Kernel selftests | 200 (可扩展到 1026) | `__msg()` 标注 expected error；66 memory/bounds, 53 dynptr/iterator, 34 control-flow/locking, 25 ref lifetime, 12 nullability | `docs/tmp/selftests-collection-report.md` |
+| Stack Overflow | 76 | 66 有 verifier log, 59 有源码, 66 有 fix description | `docs/tmp/stackoverflow-collection-report.md` |
+| GitHub issues | 26 | Cilium 7, Aya 18, Katran 1；含 verifier regression case | `docs/tmp/github-collection-report.md` |
+| **Total** | **302** | 目标 ≥80 labeled，实际远超 | — |
+
+**注意**：302 cases 中有完整 verbose log（含 state trace）的主要是 SO 和 GitHub 来源。Kernel selftests 只有 expected error message，没有完整 state dump。后续需要补充 selftests 的完整 verbose log。
+
+### 5b. Synthetic Cases from eval_commits（2026-03-12）
+
+从 591 个 eval_commits 中提取 C 代码，生成 535 个 synthetic case（`case_study/cases/eval_commits_synthetic/`）。每个保留完整 provenance（original_case_id, original_commit, original_repository, original_commit_message）。
+
+| Taxonomy | Count |
+|----------|:---:|
+| lowering_artifact | 249 |
+| source_bug | 220 |
+| verifier_limit | 50 |
+| env_mismatch | 16 |
+
+**Total eval corpus**: 241 有 log + 535 synthetic = **776 cases**。`docs/tmp/synthetic-cases-report.md`
+
+---
+
+## 6. 评估计划（2026-03-11 再更新）
+
+### 6.1 Required Baselines
+
+1. `raw_verbose_log` — 原始 verifier LOG_LEVEL2 verbose output（500-1000+ 行）
+2. `pretty_verifier` — PV 的 1 行 error + 1 条 suggestion（作为 existing tool baseline）
+3. `oblige_diagnostic` — OBLIGE Rust-style multi-span output（structured JSON + text）
+
+### 6.2 Required Questions（按优先级）
+
+1. **Span coverage**: OBLIGE 输出的 source spans 是否覆盖了实际 fix 的位置？（vs PV: 1 span only）❌
+2. **Information compression**: 500 行 → 3-5 个 labeled spans，expert 评估是否 sufficient？ ❌
+3. **Repair guidance (A/B experiment)**: OBLIGE 输出 + LLM vs raw log + LLM，修复质量差异？ ❌
+4. **Classification**: OBLIGE 分类准确率？（sanity check，不是主要贡献）✅ 23/30 (77%)
+5. 跨 kernel 版本稳定性？ ❌（暂缓，先做 6.1-6.4）
+
+### 6.3 A/B Repair Experiment Design（核心评估）
+
+| | Condition A | Condition B |
+|---|---|---|
+| 输入 | buggy code + raw verifier log | buggy code + raw log + OBLIGE Rust-style output |
+| LLM 任务 | 生成修复代码 | 生成修复代码 |
+| 测量 1 | 修复是否通过 verifier？ | 修复是否通过 verifier？ |
+| 测量 2 | 修复类型是否正确？（inline vs bounds check） | 修复类型是否正确？ |
+| 测量 3 | 修复位置是否正确？（root cause vs symptom site） | 修复位置是否正确？ |
+
+**关键预测**：在 lowering_artifact 上，Condition A 的 LLM 会在 symptom site 加 bounds check（错），Condition B 会在 root cause site 做 inline/rewrite（对）。
+
+**Case selection**: 20-30 个有已知修复的 case（eval_commits），聚焦 lowering_artifact。
+
+### 6.4 Required Metrics
+
+- **Span coverage** — OBLIGE spans 覆盖 fix location 的比例
+- **Information compression ratio** — 500 lines → N spans
+- **Repair success rate** — A/B 条件下 fix 通过 verifier 的比例
+- **Repair type accuracy** — fix 类型是否正确（inline vs bounds check vs loop rewrite）
+- **Root cause localization** — root_cause span 指向修复发生的位置比例
+- Trace analysis latency（overhead）
+
+### 6.5 已完成的实验
+
+| 实验 | 结果 | 文档 |
+|------|------|------|
+| PV comparison (30 cases) | OBLIGE 25/30 vs PV 19/30; root-cause 12/30 vs 0/30 | `docs/tmp/pretty-verifier-comparison.md` |
+| LLM classification (22 cases) | 所有条件 95%+，confirms classification is NOT the contribution | `docs/tmp/llm-multi-model-experiment.md` |
+| Diagnoser 30-case eval | 23/30 (77%), source_bug 9/13, lowering 5/6 | `docs/tmp/diagnoser-30case-evaluation.md` |
+| Cross-log stability (33 cases) | 20/33 stable, 12/33 text-varies-but-id-stable | `docs/tmp/cross-log-stability-analysis.md` |
+| Cross-kernel feasibility | QEMU/KVM feasible, Docker won't work, deferred | `docs/tmp/cross-kernel-feasibility-report.md` |
+| **Batch diagnostic eval (241 cases)** | **241/241 成功; BTF 62.7%; rejected 100%; established 45.6%; lost 40.2%; 0 crashes** | `docs/tmp/batch-diagnostic-eval.md` |
+| **Synthetic case generation** | **535 cases from eval_commits (249 lowering, 220 source_bug, 50 limit, 16 env)** | `docs/tmp/synthetic-cases-report.md` |
+| **Span coverage eval (263 cases)** | **101/263 covered (38%), manual 12/14 (86%), KS rejected 85/102 (83%); 535 synthetic fix-pattern 分析** | `docs/tmp/span-coverage-eval.md` |
+| **Deep quality analysis** | **119 单 span 正确; 14→~2 unknown taxonomy; 3 false satisfied; SO BTF 是数据问题; 5 级 priority 修复建议** | `docs/tmp/output-quality-analysis.md` |
+| **Synthetic compilation pilot** | **0/20 编译成功; snippets 缺完整上下文; 需从原始 repo checkout** | `docs/tmp/synthetic-compilation-report.md` |
+| **A/B repair experiment (30 cases)** | **整体持平 10/30; lowering_artifact +25pp (0→25%); source_bug -23pp; root-cause +7pp; semantic +7pp** | `docs/tmp/repair-experiment-report.md` |
+| **Quality fix round 2** | **unknown taxonomy 14→2; false satisfied 3→0; 44/44 tests pass; 12 new catalog patterns** | `docs/tmp/quality-fix-round2-report.md` |
+| **Full code review** | **7 阶段 pipeline; 双重 parse; JSON schema 不匹配; 109/241 catalog override; 116/241 obligation=null** | `docs/tmp/full-code-review.md` |
+| **Novelty gap analysis** | **4 个 claim 全部过度声称; 需 formal predicate + real backward slice; MVP ~3 周** | `docs/tmp/novelty-gap-analysis.md` |
+
+---
+
+## 7. 文档索引
+
+| 文档 | 路径 | 维护者 |
+|------|------|:---:|
+| **本文档（唯一 hub）** | `docs/research-plan.md` | Claude |
+| 论文 outline | `docs/paper-outline.md` | Claude（需更新） |
+| 文献综述 | `docs/tmp/literature-survey.md` | Codex |
+| Selftests 收集报告 | `docs/tmp/selftests-collection-report.md` | Codex |
+| SO 收集报告 | `docs/tmp/stackoverflow-collection-report.md` | Codex |
+| GitHub 收集报告 | `docs/tmp/github-collection-report.md` | Codex |
+| Taxonomy 覆盖分析 | `docs/tmp/taxonomy-coverage-report.md` | Codex |
+| Catalog 扩展 R2 报告 | `docs/tmp/catalog-expansion-round2-report.md` | Codex |
+| 人工标注 30 cases | `docs/tmp/manual-labeling-30cases.md` | Codex |
+| Verifier source 分析 | `docs/tmp/verifier-source-analysis.md` | Codex |
+| PV comparison 报告 | `docs/tmp/pretty-verifier-comparison.md` | Codex |
+| LLM 实验报告 | `docs/tmp/llm-multi-model-experiment.md` | Codex |
+| Diagnoser 30-case 评估 | `docs/tmp/diagnoser-30case-evaluation.md` | Codex |
+| Cross-log 稳定性分析 | `docs/tmp/cross-log-stability-analysis.md` | Codex |
+| Cross-kernel 可行性 | `docs/tmp/cross-kernel-feasibility-report.md` | Codex |
+| Diagnoser 实现报告 | `docs/tmp/diagnoser-report.md` | Codex |
+| Batch diagnostic 评估 | `docs/tmp/batch-diagnostic-eval.md` | Codex |
+| Synthetic cases 报告 | `docs/tmp/synthetic-cases-report.md` | Codex |
+| Span coverage 评估 | `docs/tmp/span-coverage-eval.md` | Codex |
+| Output quality 分析 | `docs/tmp/output-quality-analysis.md` | Codex |
+| Span coverage 结果 JSON | `eval/results/span_coverage_results.json` | Codex |
+| Span coverage 评估脚本 | `eval/span_coverage_eval.py` | Codex |
+| Synthetic compilation 报告 | `docs/tmp/synthetic-compilation-report.md` | Codex |
+| Synthetic compilation 脚本 | `eval/compile_synthetic_cases.py` | Codex |
+| A/B repair 实验报告 | `docs/tmp/repair-experiment-report.md` | Codex |
+| A/B repair 实验脚本 | `eval/repair_experiment.py` | Codex |
+| A/B repair 结果 JSON | `eval/results/repair_experiment_results.json` | Codex |
+| Quality fix round 2 报告 | `docs/tmp/quality-fix-round2-report.md` | Codex |
+| Full code review | `docs/tmp/full-code-review.md` | Codex |
+| Novelty gap analysis | `docs/tmp/novelty-gap-analysis.md` | Codex |
+| Taxonomy 定义 | `taxonomy/taxonomy.yaml` | Codex |
+| Error catalog | `taxonomy/error_catalog.yaml` | Codex |
+| Obligation catalog | `taxonomy/obligation_catalog.yaml` | Codex |
+| 诊断 JSON schema | `interface/schema/diagnostic.json` | Codex |
+
+---
+
+## 8. 任务追踪
+
+> **规则**：
+> - 所有重要数据和文档路径只在本列表维护，不在别处重复。
+> - 每次执行 codex 都必须输出文档到 `docs/tmp/` 或 `eval/results/`，并在对应条目记录路径和关键数据。
+> - 条目被取代时保留一行标注状态，不得删除。
+
+### Phase 1: Case Collection ✅
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 1 | Repo scaffold + CLAUDE.md | ✅ | 34 files, ~4200 LOC。`CLAUDE.md` |
+| 2 | 文献综述 | ✅ | 418 行，12 works，精确引用。`docs/tmp/literature-survey.md` |
+| 3 | Taxonomy 定义（5 classes） | ✅ | 186 行 YAML，含 decision order、inclusion/exclusion signals。`taxonomy/taxonomy.yaml` |
+| 4 | Error catalog（10 IDs） | ✅ | OBLIGE-E001~E010，覆盖 5 classes。`taxonomy/error_catalog.yaml` |
+| 5 | Obligation catalog | ✅ | OBLIGE-O001~O023。`taxonomy/obligation_catalog.yaml` |
+| 6 | 诊断 JSON schema | ✅ | 183 行，含 sourceSpan/abstractState/missingObligation/$defs。`interface/schema/diagnostic.json` |
+| 7 | Log parser skeleton | ✅ | catalog-backed pattern matching + evidence collection。`interface/extractor/log_parser.py` |
+| 8 | Benchmark collectors（3 scripts） | ✅ | ~1500 LOC total。`case_study/collect_{stackoverflow,kernel_selftests,github_issues}.py` + `case_study/collector_utils.py` |
+| 9 | Kernel selftests collection | ✅ | **200 cases**。`docs/tmp/selftests-collection-report.md` |
+| 10 | Stack Overflow collection | ✅ | **76 cases**。`docs/tmp/stackoverflow-collection-report.md` |
+| 11 | GitHub issues collection | ✅ | **26 cases**。`docs/tmp/github-collection-report.md` |
+| 12 | Taxonomy 覆盖分析 | ✅ | 14.6% → 87.1%（263/302）。`docs/tmp/taxonomy-coverage-report.md` |
+| 13 | 人工标注 30 个高质量 case | ✅ | 76.7% agreement（κ=0.652）。`docs/tmp/manual-labeling-30cases.md` |
+| 14 | Error catalog 扩展（两轮） | ✅ | 10→23 IDs。`docs/tmp/catalog-expansion-round2-report.md` |
+| 15 | Rex 72 commits 手动收集 20-30 个 | ❌ | 暂缓，优先做 proof trace analysis |
+
+### Phase 2: Proof Trace Analysis
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 20 | Verifier source analysis（kernel/bpf/verifier.c） | ✅ | 90 check_\* 函数，547 verbose() calls。`docs/tmp/verifier-source-analysis.md` |
+| 21 | Check function → failure class mapping | ✅ | 77 个 check_\* crosswalk。`docs/tmp/verifier-source-analysis.md` |
+| 22 | ~~Stable error_id namespace 设计~~ | ✅ | 23 error IDs (E001-E023), 87.1% coverage. `taxonomy/error_catalog.yaml` |
+| 23 | ~~Diagnostic information loss 分析~~ | 替换为 #25 | |
+| 25 | **Verbose log 信息量分析** | ❌ | 量化：case corpus 中有多少有完整 state trace？trace 平均多长？有 BTF source line 的比例？ |
+| 26 | State trace parser prototype | ✅ | `interface/extractor/trace_parser.py` (977 lines), 4 transition types, causal chains, 5/5 tests passing |
+| 27 | Critical transition detector | ✅ | BOUNDS_COLLAPSE, TYPE_DOWNGRADE, PROVENANCE_LOSS, RANGE_LOSS. In trace_parser.py |
+| 28 | Causal chain extractor | ✅ | Register dependency chain from error → root. In trace_parser.py |
+| 29 | Diagnoser v1 (end-to-end) | ✅ | `interface/extractor/diagnoser.py` (730 lines), 23/30 (77%). `docs/tmp/diagnoser-30case-evaluation.md` |
+
+### Phase 2b: Rust-Style Diagnostic Engine（当前核心，2026-03-11 开始）
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 35 | Enhanced backtracking extraction (`mark_precise` chains) | ✅ | `BacktrackLink`/`BacktrackChain` in trace_parser.py; `extract_backtrack_chains()` handles cross-state splits; 9/9 tests pass |
+| 36 | Proof obligation inference + proof propagation analysis（旧 heuristic 版） | ✅→被 #50 取代 | `interface/extractor/proof_analysis.py`; heuristic event labeling，novelty 不够 |
+| 37 | BTF source correlation | ✅ | `interface/extractor/source_correlator.py` (374 lines); maps proof events to source spans via BTF annotation; fallback to bytecode spans |
+| 38 | Multi-span diagnostic renderer (Rust-style text + JSON) | ✅ | `interface/extractor/renderer.py` (167 lines); Rust-style text + structured JSON |
+| 39 | Top-level entry point | ✅ | `interface/extractor/rust_diagnostic.py` (539 lines); `generate_diagnostic()` end-to-end pipeline; 27/27 tests pass |
+| 50 | **Real proof engine (formal predicate tracking)** | ✅ R3+集成 | `interface/extractor/proof_engine.py` (61KB); **73 tests, 25 real cases; batch: 102/241 obligation, 0 crashes; lineage-aware, offset-aware, subprog-aware**。已集成到 `rust_diagnostic.py`（first-pass，fallback to old diagnoser）。集成后: proof_status 分布变化（est_then_lost 97→72, est_but_insuf 8→40）; 6/30 A/B cases status 变更（4/6 正确改进）。`docs/tmp/proof-engine-review-round{1,2,3}.md`, `docs/tmp/proof-engine-integration-report.md` |
+
+### Phase 3: Evaluation（原 Phase 5 合并）
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 40 | Span coverage evaluation | ✅ | **101/263 covered (38%), manual 12/14 (86%), KS rejected match 85/102 (83%)**; 152 unknown（fix 不可定位）。`docs/tmp/span-coverage-eval.md`, `eval/results/span_coverage_results.json` |
+| 41 | Deep output quality analysis | ✅ | 119 单 span 是正确行为（95 never_established）; 14 unknown taxonomy→~2 可修; 3 false satisfied 可修; SO BTF 是数据问题不是 parser 问题。`docs/tmp/output-quality-analysis.md` |
+| 42 | **A/B repair experiment** | ✅ v1; 需 v2 重跑 | **v1: A=B 10/30 (33%); lowering_artifact +25pp; source_bug -23pp; root-cause +7pp; semantic +6pp**。proof_engine 集成后 rescore 不变（缓存 LLM 响应），需 OPENAI_API_KEY 重新生成 condition B prompts。`docs/tmp/repair-experiment-report.md`, `docs/tmp/proof-engine-integration-report.md` |
+| 43 | Quality fix round 2 | ✅ | **unknown taxonomy 14→2; false satisfied 3→0; 44/44 tests; 241/241 batch; 12 新 catalog patterns**。`docs/tmp/quality-fix-round2-report.md` |
+| 44 | Compile synthetic cases | ✅ 失败 | **0/20 pilot 编译成功**（snippets 是 diff 片段，缺完整上下文）。需从原始 repo checkout 完整源文件才可行。`docs/tmp/synthetic-compilation-report.md` |
+| 45 | PV comparison on Rust-style output | ❌ | 扩展现有 PV comparison |
+| 46 | Cross-kernel stability evaluation | ❌ 暂缓 | QEMU/KVM, ≥3 kernel versions |
+| 47 | Overhead measurement | ❌ | Trace analysis latency |
+
+### Phase 4: Paper
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 60 | Paper outline | ✅→需更新 | `docs/paper-outline.md`（需按 Rust-style 方向重写） |
+| 61 | Motivating example | ❌ | stackoverflow-70750259: 500 行 log → 3 个 labeled spans → 1 行 fix |
+| 62 | Paper draft | ❌ | LaTeX |
+| 63 | Figures | ❌ | pipeline 图 + Rust-style 输出示例 + span coverage 图 |
+
+---
+
+## 9. 关键决策记录
+
+| 决策 | 结论 | 原因 |
+|------|------|------|
+| 题目不写 "LLM + eBPF" | ✅ | Reviewer 会当 prompt engineering |
+| Agent 是 application 不是 contribution | ✅ | 论文核心是 diagnostic output quality |
+| 纯 userspace | ✅ | Verifier 已输出足够信息，不需要 kernel patch |
+| Passes verifier ≠ 成功 | ✅ | 必须有 semantic oracle |
+| 不删旧条目 | ✅ | 对齐 JIT 论文的 hub 规则 |
+| Codex 做所有代码/分析 | ✅ | Claude 只做调度/文档/review |
+| 放弃 "obligation extraction" framing | ✅ | 本质是 lookup table，不是真正的 extraction |
+| 采用 "proof trace analysis" framing | ✅ | 分析完整 state trace 而非 error message |
+| Pretty Verifier 未发表 | 确认 | 只是 GitHub 项目，不构成 peer-reviewed prior art |
+| Verifier LOG_LEVEL2 已有完整 abstract state | 确认 | 不需要 kernel-side hooks 暴露新信息 |
+| **分类准确率不是贡献** | ✅（新） | LLM 已做到 95%+。OBLIGE 贡献是 diagnostic output quality，不是 classifier |
+| **Rust-style multi-span 是目标输出** | ✅（新） | 类比 Rust borrow checker：多个源码位置 + 因果标签。没有人对 eBPF 做过 |
+| **Meta-analysis of abstract interpretation** | ✅（新） | 对 verifier 的 abstract interpretation 输出做二阶分析（backward slicing + proof propagation）|
+| **利用 verifier 的 mark_precise** | ✅（新） | verifier 自己的 precision tracking 是最精确的根因链，只需提取和结构化 |
+| **A/B repair experiment 是核心评估** | ✅（新） | 不是测分类，是测"OBLIGE 输出是否帮 LLM 生成更好的修复" |
+| **Cross-kernel 暂缓** | ✅（新） | 先做 Rust-style engine + repair experiment，再做跨版本稳定性 |
+sidocs/tmp/selftests-collection-report.md` | Codex |
+| SO 收集报告 | `docs/tmp/stackoverflow-collection-report.md` | Codex |
+| GitHub 收集报告 | `docs/tmp/github-collection-report.md` | Codex |
+| Taxonomy 覆盖分析 | `docs/tmp/taxonomy-coverage-report.md` | Codex |
+| Catalog 扩展 R2 报告 | `docs/tmp/catalog-expansion-round2-report.md` | Codex |
+| 人工标注 30 cases | `docs/tmp/manual-labeling-30cases.md` | Codex |
+| Verifier source 分析 | `docs/tmp/verifier-source-analysis.md` | Codex |
+| PV comparison 报告 | `docs/tmp/pretty-verifier-comparison.md` | Codex |
+| LLM 实验报告 | `docs/tmp/llm-multi-model-experiment.md` | Codex |
+| Diagnoser 30-case 评估 | `docs/tmp/diagnoser-30case-evaluation.md` | Codex |
+| Cross-log 稳定性分析 | `docs/tmp/cross-log-stability-analysis.md` | Codex |
+| Cross-kernel 可行性 | `docs/tmp/cross-kernel-feasibility-report.md` | Codex |
+| Diagnoser 实现报告 | `docs/tmp/diagnoser-report.md` | Codex |
+| Batch diagnostic 评估 | `docs/tmp/batch-diagnostic-eval.md` | Codex |
+| Synthetic cases 报告 | `docs/tmp/synthetic-cases-report.md` | Codex |
+| Span coverage 评估 | `docs/tmp/span-coverage-eval.md` | Codex |
+| Output quality 分析 | `docs/tmp/output-quality-analysis.md` | Codex |
+| Span coverage 结果 JSON | `eval/results/span_coverage_results.json` | Codex |
+| Span coverage 评估脚本 | `eval/span_coverage_eval.py` | Codex |
+| Synthetic compilation 报告 | `docs/tmp/synthetic-compilation-report.md` | Codex |
+| Synthetic compilation 脚本 | `eval/compile_synthetic_cases.py` | Codex |
+| A/B repair 实验报告 | `docs/tmp/repair-experiment-report.md` | Codex |
+| A/B repair 实验脚本 | `eval/repair_experiment.py` | Codex |
+| A/B repair 结果 JSON | `eval/results/repair_experiment_results.json` | Codex |
+| Quality fix round 2 报告 | `docs/tmp/quality-fix-round2-report.md` | Codex |
+| Full code review | `docs/tmp/full-code-review.md` | Codex |
+| Novelty gap analysis | `docs/tmp/novelty-gap-analysis.md` | Codex |
+| Taxonomy 定义 | `taxonomy/taxonomy.yaml` | Codex |
+| Error catalog | `taxonomy/error_catalog.yaml` | Codex |
+| Obligation catalog | `taxonomy/obligation_catalog.yaml` | Codex |
+| 诊断 JSON schema | `interface/schema/diagnostic.json` | Codex |
+
+---
+
+## 8. 任务追踪
+
+> **规则**：
+> - 所有重要数据和文档路径只在本列表维护，不在别处重复。
+> - 每次执行 codex 都必须输出文档到 `docs/tmp/` 或 `eval/results/`，并在对应条目记录路径和关键数据。
+> - 条目被取代时保留一行标注状态，不得删除。
+
+### Phase 1: Case Collection ✅
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 1 | Repo scaffold + CLAUDE.md | ✅ | 34 files, ~4200 LOC。`CLAUDE.md` |
+| 2 | 文献综述 | ✅ | 418 行，12 works，精确引用。`docs/tmp/literature-survey.md` |
+| 3 | Taxonomy 定义（5 classes） | ✅ | 186 行 YAML，含 decision order、inclusion/exclusion signals。`taxonomy/taxonomy.yaml` |
+| 4 | Error catalog（10 IDs） | ✅ | OBLIGE-E001~E010，覆盖 5 classes。`taxonomy/error_catalog.yaml` |
+| 5 | Obligation catalog | ✅ | OBLIGE-O001~O023。`taxonomy/obligation_catalog.yaml` |
+| 6 | 诊断 JSON schema | ✅ | 183 行，含 sourceSpan/abstractState/missingObligation/$defs。`interface/schema/diagnostic.json` |
+| 7 | Log parser skeleton | ✅ | catalog-backed pattern matching + evidence collection。`interface/extractor/log_parser.py` |
+| 8 | Benchmark collectors（3 scripts） | ✅ | ~1500 LOC total。`case_study/collect_{stackoverflow,kernel_selftests,github_issues}.py` + `case_study/collector_utils.py` |
+| 9 | Kernel selftests collection | ✅ | **200 cases**。`docs/tmp/selftests-collection-report.md` |
+| 10 | Stack Overflow collection | ✅ | **76 cases**。`docs/tmp/stackoverflow-collection-report.md` |
+| 11 | GitHub issues collection | ✅ | **26 cases**。`docs/tmp/github-collection-report.md` |
+| 12 | Taxonomy 覆盖分析 | ✅ | 14.6% → 87.1%（263/302）。`docs/tmp/taxonomy-coverage-report.md` |
+| 13 | 人工标注 30 个高质量 case | ✅ | 76.7% agreement（κ=0.652）。`docs/tmp/manual-labeling-30cases.md` |
+| 14 | Error catalog 扩展（两轮） | ✅ | 10→23 IDs。`docs/tmp/catalog-expansion-round2-report.md` |
+| 15 | Rex 72 commits 手动收集 20-30 个 | ❌ | 暂缓，优先做 proof trace analysis |
+
+### Phase 2: Proof Trace Analysis
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 20 | Verifier source analysis（kernel/bpf/verifier.c） | ✅ | 90 check_\* 函数，547 verbose() calls。`docs/tmp/verifier-source-analysis.md` |
+| 21 | Check function → failure class mapping | ✅ | 77 个 check_\* crosswalk。`docs/tmp/verifier-source-analysis.md` |
+| 22 | ~~Stable error_id namespace 设计~~ | ✅ | 23 error IDs (E001-E023), 87.1% coverage. `taxonomy/error_catalog.yaml` |
+| 23 | ~~Diagnostic information loss 分析~~ | 替换为 #25 | |
+| 25 | **Verbose log 信息量分析** | ❌ | 量化：case corpus 中有多少有完整 state trace？trace 平均多长？有 BTF source line 的比例？ |
+| 26 | State trace parser prototype | ✅ | `interface/extractor/trace_parser.py` (977 lines), 4 transition types, causal chains, 5/5 tests passing |
+| 27 | Critical transition detector | ✅ | BOUNDS_COLLAPSE, TYPE_DOWNGRADE, PROVENANCE_LOSS, RANGE_LOSS. In trace_parser.py |
+| 28 | Causal chain extractor | ✅ | Register dependency chain from error → root. In trace_parser.py |
+| 29 | Diagnoser v1 (end-to-end) | ✅ | `interface/extractor/diagnoser.py` (730 lines), 23/30 (77%). `docs/tmp/diagnoser-30case-evaluation.md` |
+
+### Phase 2b: Rust-Style Diagnostic Engine（当前核心，2026-03-11 开始）
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 35 | Enhanced backtracking extraction (`mark_precise` chains) | ✅ | `BacktrackLink`/`BacktrackChain` in trace_parser.py; `extract_backtrack_chains()` handles cross-state splits; 9/9 tests pass |
+| 36 | Proof obligation inference + proof propagation analysis（旧 heuristic 版） | ✅→被 #50 取代 | `interface/extractor/proof_analysis.py`; heuristic event labeling，novelty 不够 |
+| 37 | BTF source correlation | ✅ | `interface/extractor/source_correlator.py` (374 lines); maps proof events to source spans via BTF annotation; fallback to bytecode spans |
+| 38 | Multi-span diagnostic renderer (Rust-style text + JSON) | ✅ | `interface/extractor/renderer.py` (167 lines); Rust-style text + structured JSON |
+| 39 | Top-level entry point | ✅ | `interface/extractor/rust_diagnostic.py` (539 lines); `generate_diagnostic()` end-to-end pipeline; 27/27 tests pass |
+| 50 | **Real proof engine (formal predicate tracking)** | ✅ R3+集成 | `interface/extractor/proof_engine.py` (61KB); **73 tests, 25 real cases; batch: 102/241 obligation, 0 crashes; lineage-aware, offset-aware, subprog-aware**。已集成到 `rust_diagnostic.py`（first-pass，fallback to old diagnoser）。集成后: proof_status 分布变化（est_then_lost 97→72, est_but_insuf 8→40）; 6/30 A/B cases status 变更（4/6 正确改进）。`docs/tmp/proof-engine-review-round{1,2,3}.md`, `docs/tmp/proof-engine-integration-report.md` |
+
+### Phase 3: Evaluation（原 Phase 5 合并）
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 40 | Span coverage evaluation | ✅ | **101/263 covered (38%), manual 12/14 (86%), KS rejected match 85/102 (83%)**; 152 unknown（fix 不可定位）。`docs/tmp/span-coverage-eval.md`, `eval/results/span_coverage_results.json` |
+| 41 | Deep output quality analysis | ✅ | 119 单 span 是正确行为（95 never_established）; 14 unknown taxonomy→~2 可修; 3 false satisfied 可修; SO BTF 是数据问题不是 parser 问题。`docs/tmp/output-quality-analysis.md` |
+| 42 | **A/B repair experiment** | ✅ v1; 需 v2 重跑 | **v1: A=B 10/30 (33%); lowering_artifact +25pp; source_bug -23pp; root-cause +7pp; semantic +6pp**。proof_engine 集成后 rescore 不变（缓存 LLM 响应），需 OPENAI_API_KEY 重新生成 condition B prompts。`docs/tmp/repair-experiment-report.md`, `docs/tmp/proof-engine-integration-report.md` |
+| 43 | Quality fix round 2 | ✅ | **unknown taxonomy 14→2; false satisfied 3→0; 44/44 tests; 241/241 batch; 12 新 catalog patterns**。`docs/tmp/quality-fix-round2-report.md` |
+| 44 | Compile synthetic cases | ✅ 失败 | **0/20 pilot 编译成功**（snippets 是 diff 片段，缺完整上下文）。需从原始 repo checkout 完整源文件才可行。`docs/tmp/synthetic-compilation-report.md` |
+| 45 | PV comparison on Rust-style output | ❌ | 扩展现有 PV comparison |
+| 46 | Cross-kernel stability evaluation | ❌ 暂缓 | QEMU/KVM, ≥3 kernel versions |
+| 47 | Overhead measurement | ❌ | Trace analysis latency |
+
+### Phase 4: Paper
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 60 | Paper outline | ✅→需更新 | `docs/paper-outline.md`（需按 Rust-style 方向重写） |
+| 61 | Motivating example | ❌ | stackoverflow-70750259: 500 行 log → 3 个 labeled spans → 1 行 fix |
+| 62 | Paper draft | ❌ | LaTeX |
+| 63 | Figures | ❌ | pipeline 图 + Rust-style 输出示例 + span coverage 图 |
+
+---
+
+## 9. 关键决策记录
+
+| 决策 | 结论 | 原因 |
+|------|------|------|
+| 题目不写 "LLM + eBPF" | ✅ | Reviewer 会当 prompt engineering |
+| Agent 是 application 不是 contribution | ✅ | 论文核心是 diagnostic output quality |
+| 纯 userspace | ✅ | Verifier 已输出足够信息，不需要 kernel patch |
+| Passes verifier ≠ 成功 | ✅ | 必须有 semantic oracle |
+| 不删旧条目 | ✅ | 对齐 JIT 论文的 hub 规则 |
+| Codex 做所有代码/分析 | ✅ | Claude 只做调度/文档/review |
+| 放弃 "obligation extraction" framing | ✅ | 本质是 lookup table，不是真正的 extraction |
+| 采用 "proof trace analysis" framing | ✅ | 分析完整 state trace 而非 error message |
+| Pretty Verifier 未发表 | 确认 | 只是 GitHub 项目，不构成 peer-reviewed prior art |
+| Verifier LOG_LEVEL2 已有完整 abstract state | 确认 | 不需要 kernel-side hooks 暴露新信息 |
+| **分类准确率不是贡献** | ✅（新） | LLM 已做到 95%+。OBLIGE 贡献是 diagnostic output quality，不是 classifier |
+| **Rust-style multi-span 是目标输出** | ✅（新） | 类比 Rust borrow checker：多个源码位置 + 因果标签。没有人对 eBPF 做过 |
+| **Meta-analysis of abstract interpretation** | ✅（新） | 对 verifier 的 abstract interpretation 输出做二阶分析（backward slicing + proof propagation）|
+| **利用 verifier 的 mark_precise** | ✅（新） | verifier 自己的 precision tracking 是最精确的根因链，只需提取和结构化 |
+| **A/B repair experiment 是核心评估** | ✅（新） | 不是测分类，是测"OBLIGE 输出是否帮 LLM 生成更好的修复" |
+| **Cross-kernel 暂缓** | ✅（新） | 先做 Rust-style engine + repair experiment，再做跨版本稳定性 |
