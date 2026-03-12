@@ -284,6 +284,19 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 
 **注意**：302 cases 中有完整 verbose log（含 state trace）的主要是 SO 和 GitHub 来源。Kernel selftests 只有 expected error message，没有完整 state dump。后续需要补充 selftests 的完整 verbose log。
 
+### 5b. Synthetic Cases from eval_commits（2026-03-12）
+
+从 591 个 eval_commits 中提取 C 代码，生成 535 个 synthetic case（`case_study/cases/eval_commits_synthetic/`）。每个保留完整 provenance（original_case_id, original_commit, original_repository, original_commit_message）。
+
+| Taxonomy | Count |
+|----------|:---:|
+| lowering_artifact | 249 |
+| source_bug | 220 |
+| verifier_limit | 50 |
+| env_mismatch | 16 |
+
+**Total eval corpus**: 241 有 log + 535 synthetic = **776 cases**。`docs/tmp/synthetic-cases-report.md`
+
 ---
 
 ## 6. 评估计划（2026-03-11 再更新）
@@ -334,6 +347,8 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | Diagnoser 30-case eval | 23/30 (77%), source_bug 9/13, lowering 5/6 | `docs/tmp/diagnoser-30case-evaluation.md` |
 | Cross-log stability (33 cases) | 20/33 stable, 12/33 text-varies-but-id-stable | `docs/tmp/cross-log-stability-analysis.md` |
 | Cross-kernel feasibility | QEMU/KVM feasible, Docker won't work, deferred | `docs/tmp/cross-kernel-feasibility-report.md` |
+| **Batch diagnostic eval (241 cases)** | **241/241 成功; BTF 62.7%; rejected 100%; established 45.6%; lost 40.2%; 0 crashes** | `docs/tmp/batch-diagnostic-eval.md` |
+| **Synthetic case generation** | **535 cases from eval_commits (249 lowering, 220 source_bug, 50 limit, 16 env)** | `docs/tmp/synthetic-cases-report.md` |
 
 ---
 
@@ -357,6 +372,8 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | Cross-log 稳定性分析 | `docs/tmp/cross-log-stability-analysis.md` | Codex |
 | Cross-kernel 可行性 | `docs/tmp/cross-kernel-feasibility-report.md` | Codex |
 | Diagnoser 实现报告 | `docs/tmp/diagnoser-report.md` | Codex |
+| Batch diagnostic 评估 | `docs/tmp/batch-diagnostic-eval.md` | Codex |
+| Synthetic cases 报告 | `docs/tmp/synthetic-cases-report.md` | Codex |
 | Taxonomy 定义 | `taxonomy/taxonomy.yaml` | Codex |
 | Error catalog | `taxonomy/error_catalog.yaml` | Codex |
 | Obligation catalog | `taxonomy/obligation_catalog.yaml` | Codex |

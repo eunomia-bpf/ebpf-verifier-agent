@@ -17,7 +17,9 @@ except ImportError:  # pragma: no cover - Step 2 lands in parallel.
         register: str | None = None
         before: RegisterState | None = None
         after: RegisterState | None = None
+        source_line: str | None = None
         reason: str | None = None
+        description: str | None = None
         state_change: str | None = None
 
     @dataclass(slots=True)
@@ -26,9 +28,8 @@ except ImportError:  # pragma: no cover - Step 2 lands in parallel.
         required: str
 
 
-SOURCE_LOCATION_RE = re.compile(
-    r"^(?P<text>.*?)(?:\s*@\s*(?P<file>[^:]+):(?P<line>\d+))?\s*$"
-)
+SOURCE_LOCATION_SUFFIX_RE = re.compile(r"@\s*([\w./+-]+):(\d+)\s*$")
+MAX_SOURCE_SPANS = 5
 ROLE_PRIORITY = {
     "proof_propagated": 0,
     "proof_established": 1,
@@ -69,7 +70,10 @@ def correlate_to_source(
         if instruction is None:
             continue
 
-        source_text, file_name, line_number = _extract_source_fields(instruction)
+        source_text, file_name, line_number = _extract_source_fields(
+            source_line=_event_source_line(event) or instruction.source_line,
+            fallback_text=instruction.bytecode,
+        )
         start_insn, end_insn = _expand_source_range(
             parsed_trace.instructions,
             positions[event.insn_idx],
@@ -103,17 +107,17 @@ def correlate_to_source(
             )
         )
 
-    return group_by_source_line(spans)
+    return prune_redundant_spans(group_by_source_line(spans))
 
 
 def group_by_source_line(spans: list[SourceSpan]) -> list[SourceSpan]:
     """Merge spans that point at the same logical source location."""
 
-    merged_by_key: dict[tuple[str | None, int | None, str], SourceSpan] = {}
-    order: list[tuple[str | None, int | None, str]] = []
+    merged_by_key: dict[tuple[str | None, int | None, str, str], SourceSpan] = {}
+    order: list[tuple[str | None, int | None, str, str]] = []
 
     for span in spans:
-        key = (span.file, span.line, span.source_text)
+        key = (span.file, span.line, span.source_text, span.role)
         existing = merged_by_key.get(key)
         if existing is None:
             merged_by_key[key] = span
@@ -138,6 +142,47 @@ def group_by_source_line(spans: list[SourceSpan]) -> list[SourceSpan]:
     return [merged_by_key[key] for key in order]
 
 
+def prune_redundant_spans(spans: list[SourceSpan]) -> list[SourceSpan]:
+    """Limit verbose span streams while preserving the core proof story."""
+
+    if not spans:
+        return []
+
+    ordered = sorted(spans, key=lambda span: (span.insn_range[0], span.insn_range[1]))
+    merged = _merge_consecutive_propagated_spans(ordered)
+    if len(merged) <= MAX_SOURCE_SPANS:
+        return merged
+
+    keep_indexes: set[int] = set()
+
+    first_established = next(
+        (idx for idx, span in enumerate(merged) if span.role == "proof_established"),
+        None,
+    )
+    last_lost = next(
+        (idx for idx in range(len(merged) - 1, -1, -1) if merged[idx].role == "proof_lost"),
+        None,
+    )
+    last_rejected = next(
+        (idx for idx in range(len(merged) - 1, -1, -1) if merged[idx].role == "rejected"),
+        None,
+    )
+
+    for index in (first_established, last_lost, last_rejected):
+        if index is not None:
+            keep_indexes.add(index)
+
+    for role in ("proof_established", "proof_lost", "rejected", "proof_propagated"):
+        for idx, span in enumerate(merged):
+            if idx in keep_indexes or span.role != role:
+                continue
+            keep_indexes.add(idx)
+            if len(keep_indexes) >= MAX_SOURCE_SPANS:
+                return [span for idx, span in enumerate(merged) if idx in keep_indexes]
+
+    return [span for idx, span in enumerate(merged) if idx in keep_indexes]
+
+
 def format_state_change(
     before: RegisterState | None,
     after: RegisterState | None,
@@ -157,16 +202,18 @@ def format_state_change(
 
 
 def _extract_source_fields(
-    instruction: TracedInstruction,
+    source_line: str | None,
+    fallback_text: str,
 ) -> tuple[str, str | None, int | None]:
-    if instruction.source_line:
-        match = SOURCE_LOCATION_RE.match(instruction.source_line.strip())
+    if source_line:
+        stripped = source_line.strip()
+        match = SOURCE_LOCATION_SUFFIX_RE.search(stripped)
         if match:
-            source_text = (match.group("text") or "").strip() or instruction.bytecode
-            file_name = match.group("file")
-            line_number = int(match.group("line")) if match.group("line") else None
-            return source_text, file_name, line_number
-    return instruction.bytecode, None, None
+            source_text = stripped[: match.start()].strip() or fallback_text
+            return source_text, match.group(1), int(match.group(2))
+        if stripped:
+            return stripped, None, None
+    return fallback_text, None, None
 
 
 def _event_before(event: ProofEvent) -> RegisterState | None:
@@ -179,6 +226,10 @@ def _event_after(event: ProofEvent) -> RegisterState | None:
 
 def _event_reason(event: ProofEvent) -> str | None:
     return getattr(event, "reason", None)
+
+
+def _event_source_line(event: ProofEvent) -> str | None:
+    return getattr(event, "source_line", None)
 
 
 def _event_state_change(event: ProofEvent) -> str | None:
@@ -214,6 +265,7 @@ def _normalize_role(event_type: str) -> str:
     mapping = {
         "proof_established": "proof_established",
         "established": "proof_established",
+        "narrowed": "proof_established",
         "proof_propagated": "proof_propagated",
         "propagated": "proof_propagated",
         "proof_lost": "proof_lost",
@@ -238,6 +290,47 @@ def _prefer_span(left: SourceSpan, right: SourceSpan) -> SourceSpan:
     if right.state_change and not left.state_change:
         return right
     return left
+
+
+def _merge_consecutive_propagated_spans(spans: list[SourceSpan]) -> list[SourceSpan]:
+    merged: list[SourceSpan] = []
+    for span in spans:
+        if merged and _can_merge_propagated(merged[-1], span):
+            merged[-1] = _merge_span_pair(merged[-1], span)
+            continue
+        merged.append(span)
+    return merged
+
+
+def _can_merge_propagated(left: SourceSpan, right: SourceSpan) -> bool:
+    if left.role != "proof_propagated" or right.role != "proof_propagated":
+        return False
+    return (
+        left.file,
+        left.line,
+        left.source_text,
+    ) == (
+        right.file,
+        right.line,
+        right.source_text,
+    )
+
+
+def _merge_span_pair(left: SourceSpan, right: SourceSpan) -> SourceSpan:
+    preferred = _prefer_span(left, right)
+    return SourceSpan(
+        file=preferred.file,
+        line=preferred.line,
+        source_text=preferred.source_text,
+        insn_range=(
+            min(left.insn_range[0], right.insn_range[0]),
+            max(left.insn_range[1], right.insn_range[1]),
+        ),
+        role=preferred.role,
+        register=preferred.register or left.register or right.register,
+        state_change=preferred.state_change or left.state_change or right.state_change,
+        reason=preferred.reason or left.reason or right.reason,
+    )
 
 
 def _format_register_snapshot(state: RegisterState, register: str) -> str:

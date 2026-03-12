@@ -357,7 +357,7 @@ def extract_backtrack_chains(log_text: str) -> list[BacktrackChain]:
 
 def _aggregate_instructions(raw_lines: list[str]) -> list[TracedInstruction]:
     instructions: list[TracedInstruction] = []
-    pending_source: str | None = None
+    active_source: str | None = None
     pending_state_by_idx: dict[int, dict[str, RegisterState]] = {}
     pending_state: dict[str, RegisterState] | None = None
     pending_state_idx: int | None = None
@@ -369,7 +369,9 @@ def _aggregate_instructions(raw_lines: list[str]) -> list[TracedInstruction]:
 
         match parsed:
             case SourceAnnotation(source_line=source_line):
-                pending_source = source_line
+                # BTF annotations describe the current source statement and may cover
+                # multiple subsequent instructions until the next annotation appears.
+                active_source = source_line
             case RegisterStateLine(registers=registers):
                 explicit_idx = _extract_state_idx(normalized)
                 target_idx = explicit_idx if explicit_idx is not None else pending_state_idx
@@ -397,8 +399,7 @@ def _aggregate_instructions(raw_lines: list[str]) -> list[TracedInstruction]:
                     if effective_state:
                         pre_state = effective_state
 
-                source_line = pending_source
-                pending_source = None
+                source_line = active_source
 
                 instruction = TracedInstruction(
                     insn_idx=insn_idx,

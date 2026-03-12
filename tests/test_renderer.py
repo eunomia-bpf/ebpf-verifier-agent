@@ -75,6 +75,55 @@ def test_generate_rust_style_source_bug_with_btf() -> None:
     )
 
 
+def test_generate_rust_style_reuses_btf_location_for_multi_insn_call_site() -> None:
+    output = generate_diagnostic(
+        _load_verifier_log(
+            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
+            "kernel-selftest-dynptr-fail-bpf-prog.yaml"
+        )
+    )
+
+    assert any(
+        span["role"] == "rejected"
+        and span["source"]["file"] == "dynptr_fail.c"
+        and span["source"]["line"] == 1265
+        and "bpf_dynptr_from_skb" in span["source_text"]
+        for span in output.json_data["spans"]
+    )
+
+
+def test_renderer_emits_rejected_span_when_trace_has_no_instructions() -> None:
+    output = generate_diagnostic(
+        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-48267671.yaml")
+    )
+
+    assert output.json_data["spans"]
+    assert output.json_data["spans"][0]["role"] == "rejected"
+    assert "EINVAL For BPF_PROG_LOAD" in output.json_data["spans"][0]["source_text"]
+
+
+def test_renderer_synthesizes_missing_established_then_lost_roles() -> None:
+    output = generate_diagnostic(
+        _load_verifier_log(
+            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
+            "kernel-selftest-crypto-basic-crypto-acquire.yaml"
+        )
+    )
+
+    roles = {span["role"] for span in output.json_data["spans"]}
+    assert {"proof_established", "proof_lost", "rejected"} <= roles
+
+
+def test_renderer_caps_redundant_spans_at_five() -> None:
+    output = generate_diagnostic(
+        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+    )
+
+    assert len(output.json_data["spans"]) <= 5
+    roles = {span["role"] for span in output.json_data["spans"]}
+    assert {"proof_established", "proof_lost", "rejected"} <= roles
+
+
 def test_renderer_json_output_structure() -> None:
     output = generate_diagnostic(
         _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")

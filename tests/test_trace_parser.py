@@ -31,6 +31,17 @@ def _block(case_path: str, index: int) -> str:
     return payload["verifier_log"]["blocks"][index]
 
 
+def _verifier_log(case_path: str) -> str:
+    payload = _load_case(case_path)
+    verifier_log = payload["verifier_log"]
+    if isinstance(verifier_log, str):
+        return verifier_log
+    combined = verifier_log.get("combined")
+    if isinstance(combined, str) and combined.strip():
+        return combined
+    return "\n".join(block for block in verifier_log.get("blocks", []) if isinstance(block, str))
+
+
 def _find_line(block: str, needle: str) -> str:
     for line in block.splitlines():
         if needle in line:
@@ -172,3 +183,17 @@ def test_full_pipeline_handles_backtracking_packet_case() -> None:
     )
     assert parsed.causal_chain is not None
     assert parsed.causal_chain.chain[0].insn_idx == 2940
+
+
+def test_parse_trace_keeps_btf_annotations_across_multi_instruction_statement() -> None:
+    parsed = parse_trace(
+        _verifier_log(
+            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
+            "kernel-selftest-dynptr-fail-bpf-prog.yaml"
+        )
+    )
+
+    call_instruction = next(
+        instruction for instruction in parsed.instructions if instruction.insn_idx == 4
+    )
+    assert call_instruction.source_line == "bpf_dynptr_from_skb(skb, 0, &ptr); @ dynptr_fail.c:1265"
