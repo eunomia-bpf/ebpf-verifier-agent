@@ -197,3 +197,31 @@ def test_parse_trace_keeps_btf_annotations_across_multi_instruction_statement() 
         instruction for instruction in parsed.instructions if instruction.insn_idx == 4
     )
     assert call_instruction.source_line == "bpf_dynptr_from_skb(skb, 0, &ptr); @ dynptr_fail.c:1265"
+
+
+def test_parse_trace_recovers_loader_prefixed_instruction_snippet() -> None:
+    parsed = parse_trace(
+        _verifier_log("case_study/cases/stackoverflow/stackoverflow-77568308.yaml")
+    )
+
+    assert parsed.total_instructions == 1
+    assert parsed.error_line == "R1 invalid mem access 'scalar' (16 line(s) omitted)"
+    instruction = parsed.instructions[0]
+    assert instruction.insn_idx == 9
+    assert instruction.bytecode == "r3 = *(u64 *)(r1 +96)"
+    assert instruction.is_error is True
+    assert instruction.error_text == "R1 invalid mem access 'scalar' (16 line(s) omitted)"
+
+
+def test_parse_trace_recovers_colon_prefixed_instructions() -> None:
+    parsed = parse_trace(
+        _verifier_log("case_study/cases/stackoverflow/stackoverflow-77713434.yaml")
+    )
+
+    assert parsed.total_instructions == 11
+    assert parsed.error_line == "invalid access to map value, value_size=70 off=0 size=16383"
+    assert parsed.instructions[0].insn_idx == 599
+    assert parsed.instructions[0].source_line is not None
+    assert "overrided_bytes" in parsed.instructions[0].source_line
+    assert parsed.instructions[-1].insn_idx == 609
+    assert parsed.instructions[-1].is_error is True

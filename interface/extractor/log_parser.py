@@ -10,7 +10,7 @@ from typing import Any
 ERROR_LINE_PATTERNS: tuple[tuple[re.Pattern[str], int], ...] = (
     (
         re.compile(
-            r"invalid|unknown|unreleased|too many|warning|bug|loop is not bounded|back-edge|complexity limit",
+            r"\binvalid\b|\bunknown\b|unreleased|too many|\bwarning\b|\bbug\b|loop is not bounded|back-edge|complexity limit",
             flags=re.IGNORECASE,
         ),
         5,
@@ -47,6 +47,36 @@ ERROR_LINE_PATTERNS: tuple[tuple[re.Pattern[str], int], ...] = (
         ),
         4,
     ),
+)
+INSTRUCTION_LINE_RE = re.compile(r"^\d+: \([0-9a-f]{2}\)", flags=re.IGNORECASE)
+EXACT_VERIFIER_SYMPTOM_RE = re.compile(
+    "|".join(
+        (
+            r"invalid access to (?:packet|map value)",
+            r"invalid mem access",
+            r"invalid bpf_context access",
+            r"offset is outside of the packet",
+            r"pointer comparison prohibited",
+            r"pointer arithmetic on .* prohibited",
+            r"expected (?:an )?initialized irq flag as arg#0",
+            r"expected uninitialized irq flag as arg#0",
+            r"arg#\d+\s+arg#\d+\s+memory,\s+len pair leads to invalid memory access",
+            r"unbounded memory access",
+            r"the prog does not allow writes to packet data",
+            r"number of funcs in func_info doesn't match(?: number of subprogs)?",
+            r"failed to find kernel BTF type ID",
+            r"\bInvalid name\b",
+            r"pointer type .* must point",
+        )
+    ),
+    flags=re.IGNORECASE,
+)
+SUMMARY_PREFIXES = (
+    "processed ",
+    "max_states",
+    "peak_states",
+    "mark_read",
+    "verification time",
 )
 
 
@@ -105,8 +135,10 @@ class VerifierLogParser:
         best_line = ""
         best_score = -1
 
-        for line in lines:
+        for idx, line in enumerate(lines):
             normalized = line.strip()
+            while normalized.startswith(":"):
+                normalized = normalized[1:].lstrip()
             if not normalized:
                 continue
 
@@ -116,10 +148,20 @@ class VerifierLogParser:
                 if pattern.search(normalized):
                     score += weight
 
-            if re.match(r"^\d+: \([0-9a-f]{2}\)", lowered):
+            if _is_specific_verifier_symptom(normalized):
+                score += 7
+            if INSTRUCTION_LINE_RE.match(normalized):
                 score -= 4
-            if lowered.startswith(("processed ", "max_states", "peak_states", "mark_read", "verification time")):
-                score -= 4
+            if normalized.startswith(";"):
+                score -= 6
+            if lowered.startswith(SUMMARY_PREFIXES):
+                score -= 8
+            if lowered.startswith("libbpf:") and any(
+                _is_specific_verifier_symptom(later.strip())
+                for later in lines[idx + 1 :]
+                if later.strip()
+            ):
+                score -= 5
             if normalized.startswith(("R", "arg#")):
                 score += 1
 
@@ -185,3 +227,10 @@ def parse_log(raw_log: str, catalog_path: str | Path | None = None) -> ParsedLog
         catalog_path=Path(catalog_path) if catalog_path is not None else None
     )
     return parser.parse(raw_log)
+
+
+def _is_specific_verifier_symptom(line: str) -> bool:
+    lowered = line.lower()
+    if not line or line.startswith(";") or lowered.startswith(SUMMARY_PREFIXES):
+        return False
+    return EXACT_VERIFIER_SYMPTOM_RE.search(line) is not None

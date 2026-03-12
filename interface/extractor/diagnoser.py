@@ -19,6 +19,24 @@ from .trace_parser import (
 INSTRUCTION_RE = re.compile(r"^\s*(?P<idx>\d+):\s*\([0-9a-fA-F]{2}\)")
 REGISTER_RE = re.compile(r"\b([RrWw]\d+)\b")
 PROCESSED_INSNS_RE = re.compile(r"processed\s+(?P<count>\d+)\s+insns?", re.IGNORECASE)
+DIRECT_ERROR_MARKERS = (
+    "invalid access",
+    "invalid mem access",
+    "invalid bpf_context access",
+    "pointer comparison prohibited",
+    "failed to find kernel btf type id",
+    "number of funcs in func_info doesn't match",
+    "invalid name",
+    "not allowed",
+    "prohibited",
+    "must point",
+)
+GENERIC_ERROR_PREFIXES = (
+    "permission denied",
+    "prog section ",
+    "processed ",
+    "libbpf: load bpf program failed",
+)
 
 LOOP_LIMIT_MARKERS = ("back-edge", "loop is not bounded")
 STATE_EXPLOSION_MARKERS = ("too many states", "too complex", "complexity limit")
@@ -186,6 +204,12 @@ def diagnose(verifier_log: str, catalog_path: str | None = None) -> Diagnosis:
 
 
 def _preferred_error_line(parsed_log: ParsedLog, parsed_trace: ParsedTrace) -> str:
+    if parsed_trace.error_line and parsed_log.error_line:
+        if _error_line_specificity(parsed_log.error_line) >= _error_line_specificity(
+            parsed_trace.error_line
+        ):
+            return parsed_log.error_line
+        return parsed_trace.error_line
     if parsed_trace.error_line:
         return parsed_trace.error_line
     return parsed_log.error_line
@@ -523,6 +547,8 @@ def _classify(
 ) -> tuple[str | None, str | None]:
     lowered = verifier_log.lower()
     error_lowered = error_line.lower() if error_line else ""
+    parsed_error_lowered = parsed_log.error_line.lower() if parsed_log.error_line else ""
+    error_candidates = [text for text in (error_lowered, parsed_error_lowered) if text]
 
     # --- Priority 1: catalog-based classification (most precise) ---
     # The catalog has per-error-pattern matching that is more specific than
@@ -569,6 +595,12 @@ def _classify(
         return "OBLIGE-E021", "env_mismatch"
     if "only read from bpf_array is supported" in error_lowered:
         return "OBLIGE-E022", "env_mismatch"
+    if any("failed to find kernel btf type id" in text for text in error_candidates):
+        return "OBLIGE-E021", "env_mismatch"
+    if any("invalid bpf_context access" in text for text in error_candidates):
+        return "OBLIGE-E023", "source_bug"
+    if any("pointer comparison prohibited" in text for text in error_candidates):
+        return "OBLIGE-E023", "source_bug"
 
     # --- Priority 4: proof-loss → lowering artifact ---
     if proof_status == "established_then_lost":
@@ -754,3 +786,18 @@ def _estimate_confidence(
     if taxonomy_class in {"verifier_limit", "env_mismatch"}:
         score += 0.07
     return min(round(score, 2), 0.98)
+
+
+def _error_line_specificity(line: str | None) -> int:
+    if not line:
+        return -10
+
+    lowered = line.lower()
+    score = 0
+    if any(marker in lowered for marker in DIRECT_ERROR_MARKERS):
+        score += 6
+    if any(token in lowered for token in ("off=", "size=", "arg#", "r0", "r1", "r2", "r3")):
+        score += 1
+    if lowered.startswith(GENERIC_ERROR_PREFIXES):
+        score -= 5
+    return score

@@ -24,6 +24,12 @@ def _load_verifier_log(relative_path: str) -> str:
     return "\n\n".join(block for block in blocks if isinstance(block, str))
 
 
+def _write_empty_catalog(tmp_path: Path) -> str:
+    path = tmp_path / "empty_catalog.yaml"
+    path.write_text("version: 0.1.0\nerror_types: []\n", encoding="utf-8")
+    return str(path)
+
+
 def test_diagnose_source_bug_packet_access() -> None:
     diagnosis = diagnose(
         _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-60053570.yaml")
@@ -93,3 +99,27 @@ def test_differential_diagnosis_same_packet_symptom_different_root_cause() -> No
     assert lowering_artifact.root_cause_insn is not None
     assert lowering_artifact.symptom_insn is not None
     assert lowering_artifact.root_cause_insn < lowering_artifact.symptom_insn
+
+
+def test_diagnose_fallback_classifies_round2_uncatalogued_symptoms(tmp_path: Path) -> None:
+    empty_catalog = _write_empty_catalog(tmp_path)
+
+    ctx = diagnose(
+        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-67402772.yaml"),
+        catalog_path=empty_catalog,
+    )
+    comparison = diagnose(
+        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-71351495.yaml"),
+        catalog_path=empty_catalog,
+    )
+    kernel_btf = diagnose(
+        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-77462271.yaml"),
+        catalog_path=empty_catalog,
+    )
+
+    assert ctx.error_id == "OBLIGE-E023"
+    assert ctx.taxonomy_class == "source_bug"
+    assert comparison.error_id == "OBLIGE-E023"
+    assert comparison.taxonomy_class == "source_bug"
+    assert kernel_btf.error_id == "OBLIGE-E021"
+    assert kernel_btf.taxonomy_class == "env_mismatch"

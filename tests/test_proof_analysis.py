@@ -10,6 +10,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from interface.extractor.proof_analysis import (
+    ProofObligation,
     analyze_proof_lifecycle,
     infer_obligation,
 )
@@ -92,3 +93,39 @@ def test_analyze_proof_lifecycle_finds_loss_at_or_instruction() -> None:
         event.insn_idx == 24 and event.event_type == "rejected"
         for event in lifecycle.events
     )
+
+
+def test_analyze_proof_lifecycle_zero_trace_direct_rejection_is_never_established() -> None:
+    parsed = parse_trace(_block("case_study/cases/stackoverflow/stackoverflow-76994829.yaml", 0))
+    obligation = infer_obligation(parsed.error_line or "", "R5", None)
+
+    assert obligation is not None
+    lifecycle = analyze_proof_lifecycle(
+        parsed_trace=parsed,
+        obligation=obligation,
+        backtrack_chains=parsed.backtrack_chains,
+        error_insn=None,
+    )
+
+    assert lifecycle.status == "never_established"
+    assert lifecycle.events == []
+
+
+def test_analyze_proof_lifecycle_zero_trace_loader_failure_is_unknown() -> None:
+    parsed = parse_trace(_block("case_study/cases/stackoverflow/stackoverflow-69192685.yaml", 0))
+    obligation = ProofObligation(
+        obligation_type="helper_arg",
+        register="R1",
+        required_condition="register type matches the helper argument contract",
+        description="Synthetic obligation for loader-only failure coverage.",
+    )
+
+    lifecycle = analyze_proof_lifecycle(
+        parsed_trace=parsed,
+        obligation=obligation,
+        backtrack_chains=parsed.backtrack_chains,
+        error_insn=None,
+    )
+
+    assert lifecycle.status == "unknown"
+    assert lifecycle.events == []

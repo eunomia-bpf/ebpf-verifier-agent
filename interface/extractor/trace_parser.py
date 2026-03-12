@@ -10,6 +10,9 @@ from typing import TypeAlias
 INSTRUCTION_RE = re.compile(
     r"^\s*(?P<idx>\d+):\s*\((?P<opcode>[0-9a-fA-F]{2})\)\s*(?P<body>.*)$"
 )
+INSTRUCTION_FRAGMENT_RE = re.compile(
+    r"(?<!\d)(?P<idx>\d+):\s*\((?P<opcode>[0-9a-fA-F]{2})\)\s*(?P<body>.*)$"
+)
 STATE_WITH_IDX_RE = re.compile(
     r"^\s*(?P<idx>\d+):\s*(?P<body>(?:frame\d+:\s*)?(?:[Rr]\d+|fp-?\d+).*)$"
 )
@@ -38,15 +41,24 @@ STATE_TOKEN_RE = re.compile(
 )
 ATTR_RE = re.compile(r"(?P<key>[a-zA-Z0-9_]+)=(?P<value>\([^)]*\)|[^,]+)")
 REGISTER_REF_RE = re.compile(r"\b([rw])(\d+)\b")
+INLINE_INSTRUCTION_ERROR_RE = re.compile(
+    r":\s*(?P<error>(?:[Rr]\d+\s+)?(?:invalid|unbounded|offset is outside|pointer comparison prohibited|expected|must point|the prog does not allow).*)$",
+    re.IGNORECASE,
+)
 
 ERROR_MARKERS = (
     "invalid access",
     "invalid mem access",
+    "invalid bpf_context access",
     "offset is outside",
     "out of bounds",
     "not allowed",
     "unsupported",
     "unbounded",
+    "pointer comparison prohibited",
+    "failed to find kernel btf type id",
+    "doesn't match number of subprogs",
+    "invalid name",
     "permission denied",
     "math between",
     "reg type",
@@ -89,6 +101,7 @@ class InstructionLine:
     insn_idx: int
     opcode: str
     bytecode_text: str
+    inline_error_text: str | None = None
 
 
 @dataclass(slots=True)
@@ -215,18 +228,15 @@ def parse_line(line: str) -> TraceLine:
     stripped = raw.strip()
     if not stripped:
         return OtherLine(text="")
+    error_candidate = stripped
+    while error_candidate.startswith(":"):
+        error_candidate = error_candidate[1:].lstrip()
 
-    instruction_match = INSTRUCTION_RE.match(raw)
-    if instruction_match:
-        bytecode = _strip_inline_comment(instruction_match.group("body")).strip()
-        return InstructionLine(
-            insn_idx=int(instruction_match.group("idx")),
-            opcode=instruction_match.group("opcode").lower(),
-            bytecode_text=bytecode,
-        )
-
-    if raw.lstrip().startswith(";"):
-        return SourceAnnotation(source_line=raw.lstrip()[1:].strip())
+    source_candidate = raw.lstrip()
+    if source_candidate.startswith(":;"):
+        source_candidate = source_candidate[1:].lstrip()
+    if source_candidate.startswith(";"):
+        return SourceAnnotation(source_line=source_candidate[1:].strip())
 
     backtrack_summary = BACKTRACK_SUMMARY_RE.match(raw)
     if backtrack_summary:
@@ -244,12 +254,26 @@ def parse_line(line: str) -> TraceLine:
             before_insn=(backtrack_detail.group("before_insn") or "").strip() or None,
         )
 
+    instruction_text = _strip_instruction_wrapper(raw)
+    instruction_match = INSTRUCTION_RE.match(instruction_text)
+    if instruction_match:
+        body_text, inline_error_text = _split_instruction_error_text(
+            instruction_match.group("body")
+        )
+        bytecode = _strip_inline_comment(body_text).strip()
+        return InstructionLine(
+            insn_idx=int(instruction_match.group("idx")),
+            opcode=instruction_match.group("opcode").lower(),
+            bytecode_text=bytecode,
+            inline_error_text=inline_error_text,
+        )
+
     registers = _extract_registers_from_line(raw)
     if registers:
         return RegisterStateLine(registers=registers)
 
-    if _looks_like_error(stripped):
-        return ErrorLine(error_text=stripped)
+    if _looks_like_error(error_candidate):
+        return ErrorLine(error_text=error_candidate)
 
     return OtherLine(text=stripped)
 
@@ -389,7 +413,12 @@ def _aggregate_instructions(raw_lines: list[str]) -> list[TracedInstruction]:
                         current.post_state = _merge_states(current.post_state, registers)
 
                 pending_state_idx = None
-            case InstructionLine(insn_idx=insn_idx, opcode=opcode, bytecode_text=bytecode_text):
+            case InstructionLine(
+                insn_idx=insn_idx,
+                opcode=opcode,
+                bytecode_text=bytecode_text,
+                inline_error_text=inline_error_text,
+            ):
                 pre_state = pending_state_by_idx.pop(insn_idx, {})
                 if pending_state:
                     pre_state = _merge_states(pending_state, pre_state)
@@ -421,6 +450,9 @@ def _aggregate_instructions(raw_lines: list[str]) -> list[TracedInstruction]:
                     instruction.post_state = _merge_states(instruction.post_state, inline_registers)
                 elif inline_comment and not instruction.source_line and not _looks_like_error(inline_comment):
                     instruction.source_line = inline_comment
+                if inline_error_text:
+                    instruction.is_error = True
+                    instruction.error_text = inline_error_text
 
                 instructions.append(instruction)
                 current = instruction
@@ -819,7 +851,7 @@ def _extract_registers_from_text(text: str | None) -> dict[str, RegisterState]:
 
 
 def _extract_state_body(line: str) -> str | None:
-    if INSTRUCTION_RE.match(line):
+    if INSTRUCTION_RE.match(_strip_instruction_wrapper(line)):
         return None
 
     for pattern in (STATE_FROM_TO_RE, STATE_WITH_IDX_RE, STATE_PLAIN_RE):
@@ -1019,6 +1051,10 @@ def _select_error_line(error_texts: list[str]) -> str | None:
         score = 0
         if "invalid" in lowered:
             score += 5
+        if "invalid bpf_context access" in lowered or "pointer comparison prohibited" in lowered:
+            score += 5
+        if "failed to find kernel btf type id" in lowered or "invalid name" in lowered:
+            score += 5
         if "outside of the packet" in lowered or "out of bounds" in lowered:
             score += 4
         if "not allowed" in lowered or "unsupported" in lowered:
@@ -1027,8 +1063,10 @@ def _select_error_line(error_texts: list[str]) -> str | None:
             score += 3
         if "off=" in lowered or "size=" in lowered:
             score += 2
-        if lowered.startswith(("verifier error:", "permission denied")):
-            score -= 2
+        if lowered.startswith(("verifier error:", "permission denied", "prog section ")):
+            score -= 4
+        if lowered.startswith("processed "):
+            score -= 6
         if score >= best_score:
             best_score = score
             best_line = line
@@ -1078,3 +1116,20 @@ def _dedupe_chain_links(links: list[ChainLink]) -> list[ChainLink]:
         seen.add(key)
         deduped.append(link)
     return deduped
+
+
+def _strip_instruction_wrapper(line: str) -> str:
+    match = INSTRUCTION_FRAGMENT_RE.search(line)
+    if match is None or match.start() == 0:
+        return line
+    return line[match.start() :]
+
+
+def _split_instruction_error_text(body: str) -> tuple[str, str | None]:
+    match = INLINE_INSTRUCTION_ERROR_RE.search(body)
+    if match is None:
+        return body, None
+
+    bytecode = body[: match.start()].rstrip()
+    error_text = match.group("error").strip()
+    return bytecode, error_text or None

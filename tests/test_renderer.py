@@ -160,3 +160,16 @@ def test_renderer_falls_back_to_bytecode_without_btf_annotations() -> None:
         span["source"]["file"] is None and span["source"]["line"] is None
         for span in output.json_data["spans"]
     )
+
+
+def test_renderer_drops_false_satisfied_status_for_round2_zero_trace_cases() -> None:
+    cases = (
+        "case_study/cases/stackoverflow/stackoverflow-76994829.yaml",
+        "case_study/cases/stackoverflow/stackoverflow-77713434.yaml",
+        "case_study/cases/stackoverflow/stackoverflow-78591601.yaml",
+    )
+
+    for case_path in cases:
+        output = generate_diagnostic(_load_verifier_log(case_path))
+        assert output.json_data["proof_status"] in {"never_established", "unknown"}
+        assert any(span["role"] == "rejected" for span in output.json_data["spans"])

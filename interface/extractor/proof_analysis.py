@@ -17,6 +17,20 @@ from .trace_parser import (
 REGISTER_RE = re.compile(r"\b([RrWw]\d+)\b")
 POINTER_TYPE_MARKERS = ("pkt", "map_", "ptr", "sock", "ctx", "fp")
 LOSS_TRANSITIONS = {"BOUNDS_COLLAPSE", "RANGE_LOSS"}
+DIRECT_REJECTION_RE = re.compile(
+    "|".join(
+        (
+            r"invalid access to (?:packet|map value)",
+            r"invalid mem access",
+            r"invalid bpf_context access",
+            r"offset is outside of the packet",
+            r"unbounded memory access",
+            r"pointer comparison prohibited",
+            r"pointer type .* must point",
+        )
+    ),
+    flags=re.IGNORECASE,
+)
 
 
 @dataclass(slots=True)
@@ -109,13 +123,25 @@ def analyze_proof_lifecycle(
     establish_site = next((event for event in events if _event_counts_as_established(event)), None)
     loss_site = next((event for event in events if event.event_type == "lost"), None)
     rejected = next((event for event in events if event.event_type == "rejected"), None)
+    zero_trace_direct_rejection = (
+        not parsed_trace.instructions
+        and _is_direct_rejection_line(parsed_trace.error_line)
+    )
+    failing_without_rejected = rejected is None and parsed_trace.error_line is not None
 
     if establish_site is None:
-        status = "never_established" if rejected is not None else "satisfied"
+        if rejected is not None or zero_trace_direct_rejection:
+            status = "never_established"
+        elif failing_without_rejected:
+            status = "unknown"
+        else:
+            status = "satisfied"
     elif loss_site is not None:
         status = "established_then_lost"
     elif rejected is not None:
         status = "established_but_insufficient"
+    elif failing_without_rejected:
+        status = "unknown"
     else:
         status = "satisfied"
 
@@ -259,6 +285,12 @@ def _instruction_has_type(
         if any(marker in lowered for marker in type_markers):
             return True
     return False
+
+
+def _is_direct_rejection_line(error_line: str | None) -> bool:
+    if not error_line:
+        return False
+    return DIRECT_REJECTION_RE.search(error_line) is not None
 
 
 def _first_register_with_type(

@@ -58,9 +58,11 @@ error_types:
     title: Scalar range widened by lowering and no longer proves safety
     verifier_messages:
       - "unbounded min value"
+      - "unbounded memory access"
       - "min value is negative, either use unsigned or 'var &= const'"
       - "math between .* pointer and register with unbounded.*"
       - "(?:R[0-9]+ )?(?:(?:min|max) )?value is outside of the allowed memory range"
+      - "arg#\\d+\\s+arg#\\d+\\s+memory,\\s+len pair leads to invalid memory access"
     likely_obligation: OBLIGE-O005
     example_fix_actions:
       - INSERT_RANGE_CLAMP
@@ -72,6 +74,7 @@ error_types:
     title: Pointer provenance lost across spill, reload, or helper boundary
     verifier_messages:
       - "pointer arithmetic on pkt_end"
+      - "pointer arithmetic on (?:pkt_end|PTR_TO_PACKET_END) prohibited"
       - "expected pointer type, got scalar"
     likely_obligation: OBLIGE-O006
     example_fix_actions:
@@ -253,10 +256,11 @@ error_types:
       - "arg#[0-9]+ expected pointer to stack or const struct bpf_dynptr"
       - "cannot pass in dynptr at an offset"
       - "dynptr has to be at a constant offset"
-      - "(?:^|\\n)must be a known constant(?:\\n|$)"
+      - "(?:R[0-9]+\\s+)?must be a known constant"
       - "Unsupported reg type fp for bpf_dynptr_from_mem data"
       - "type=mem expected=ringbuf_mem"
       - "cannot write into rdonly_mem"
+      - "the prog does not allow writes to packet data"
     likely_obligation: OBLIGE-O019
     example_fix_actions:
       - KEEP_DYNPTR_AT_FIXED_STACK_OFFSET
@@ -267,8 +271,8 @@ error_types:
     taxonomy_class: source_bug
     title: IRQ flag state or stack-slot protocol violated
     verifier_messages:
-      - "(?:^|\\n)expected an initialized(?:\\n|$)"
-      - "(?:^|\\n)expected uninitialized(?:\\n|$)"
+      - "expected (?:an )?initialized irq flag as arg#0"
+      - "expected uninitialized irq flag as arg#0"
       - "arg#0 doesn't point to an irq flag on stack"
       - "(?:^|\\n)function calls are not allowed(?:\\n|$)"
     likely_obligation: OBLIGE-O020
@@ -284,6 +288,9 @@ error_types:
       - "arg#[0-9]+ reference type\\('UNKNOWN '\\) size cannot be determined(?:: -?[0-9]+)?"
       - "invalid btf[_ ]id"
       - "missing btf func_info"
+      - "number of funcs in func_info doesn't match(?: number of subprogs)?"
+      - "failed to find kernel BTF type ID(?: of .*?)?"
+      - "\\[[0-9]+\\]\\s+.*\\s+Invalid name"
     likely_obligation: OBLIGE-O021
     example_fix_actions:
       - REGENERATE_BTF_ARTIFACTS
@@ -307,6 +314,8 @@ error_types:
     verifier_messages:
       - "must be referenced(?: or trusted)?"
       - "arg#[0-9]+ pointer type .* must point"
+      - "invalid bpf_context access(?: off=-?[0-9]+ size=[0-9]+)?"
+      - "R[0-9]+ pointer comparison prohibited"
       - "bpf_cpumask_set_cpu args#[0-9]+ expected pointer to STRUCT bpf_cpumask"
       - "release kernel function .* expects"
       - "has no valid kptr"
