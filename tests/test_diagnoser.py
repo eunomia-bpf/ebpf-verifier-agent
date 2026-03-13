@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from interface.extractor.diagnoser import diagnose
+from interface.extractor.diagnoser import _classify_without_catalog, diagnose
 
 
 def _load_verifier_log(relative_path: str) -> str:
@@ -76,6 +76,18 @@ def test_diagnose_verifier_limit_program_too_large() -> None:
     assert "tail calls" in diagnosis.recommended_fix.lower()
 
 
+def test_processed_count_does_not_override_specific_error_reason() -> None:
+    verifier_log = (
+        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-60053570.yaml")
+        + "\nprocessed 200001 insns (limit 1000000) max_states_per_insn 4 total_states 8 peak_states 8"
+    )
+
+    diagnosis = diagnose(verifier_log)
+
+    assert diagnosis.error_id == "OBLIGE-E001"
+    assert diagnosis.taxonomy_class == "source_bug"
+
+
 def test_differential_diagnosis_same_packet_symptom_different_root_cause() -> None:
     source_bug = diagnose(
         _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-60053570.yaml")
@@ -136,3 +148,18 @@ def test_diagnose_keeps_scalar_mem_access_as_source_bug_without_same_register_lo
     assert diagnosis.error_id == "OBLIGE-E011"
     assert diagnosis.taxonomy_class == "source_bug"
     assert diagnosis.proof_status == "established_then_lost"
+
+
+
+def test_processed_insns_do_not_override_specific_error_reason() -> None:
+    classification = _classify_without_catalog(
+        verifier_log="processed 200001 insns\ninvalid access to packet",
+        error_candidates=["invalid access to packet"],
+        error_lowered="invalid access to packet",
+        lowered="processed 200001 insns\ninvalid access to packet",
+        proof_status="never_established",
+        relevant_transitions=[],
+        loss_context=None,
+    )
+
+    assert classification == ("OBLIGE-E001", "source_bug")

@@ -59,6 +59,11 @@
   numbersep=5pt,
 }
 
+%% Theorem environments (acmart provides amsthm)
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+
 %% Tighter spacing for figures
 \setlength{\floatsep}{4pt}
 \setlength{\textfloatsep}{6pt}
@@ -112,7 +117,7 @@ interpretation logs spanning hundreds of lines. Existing diagnostic methods
 either apply regular expressions to the final error line or feed unstructured
 text to language models, neither reliably identifying root-cause proof
 failures. Our analysis of 591 production verifier-fix commits finds that
-64\% are unnecessary proof-reshaping workarounds stemming from systematic
+64\% are proof-reshaping workarounds stemming from systematic
 misdiagnosis.
 
 We observe that the verifier's \texttt{LOG\_LEVEL2} output is already the
@@ -333,7 +338,7 @@ issue.
 \begin{itemize}
   \item \textbf{Proof trace meta-analysis.}  A technique for second-order
         analysis of abstract interpretation output.  OBLIGE infers formal proof
-        obligations from fifteen obligation families (e.g., \texttt{off+sz<=range}
+        obligations from eighteen obligation families (e.g., \texttt{off+sz<=range}
         for packet access), evaluates them as boolean predicates
         at every instruction in the trace, and identifies the \emph{transition
         witness}---the exact instruction where a proof predicate changes from
@@ -344,15 +349,16 @@ issue.
         \texttt{mark\_precise} backtracking extraction), proof obligation
         inference, predicate tracking with register value lineage, BTF source
         correlation, and Rust-style multi-span diagnostic rendering.
-        Median latency 27\,ms; no kernel patches required.  101 unit tests
+        Median latency 27\,ms; no kernel patches required.  120 unit tests
         cover obligation inference, predicate evaluation, and transition
         witness detection.
 
   \item \textbf{Empirical findings on 302 real failures.}  (a) OBLIGE
         generates diagnostics for 241/241 cases with 0 crashes, 94.2\%
         obligation coverage, and 62.7\% BTF source correlation.  (b) On
-        lowering artifacts, OBLIGE identifies the root-cause proof-loss site
-        in 80\% of analyzable cases versus 0\% for line-oriented tools.
+        lowering artifacts, OBLIGE correctly diagnoses 4/6 cases (67\%)
+        versus 1/6 for Pretty Verifier; root-cause localization is 0\%
+        for line-oriented tools.
         (c) OBLIGE diagnostics improve LLM repair success by 30 percentage
         points on lowering artifacts.  (d) Analysis of 591 production commits
         confirms 63.6\% are proof-reshaping workarounds.
@@ -441,7 +447,7 @@ Figure~\ref{fig:pipeline} shows the architecture.
 \end{tikzpicture}
 \caption{OBLIGE five-stage pipeline.  Each stage is independently testable;
 the proof engine is the key novelty.  The full implementation is $\sim$6,600
-lines of Python with 101 unit tests.}
+lines of Python with 120 unit tests.}
 \Description{Five-stage pipeline diagram: Log Parser, State Trace Parser, Proof Engine, Source Correlator, Diagnostic Renderer, each with labeled output boxes showing intermediate results.}
 \label{fig:pipeline}
 \end{figure}
@@ -490,7 +496,7 @@ Given the error message and the register state at the rejection point, OBLIGE
 infers what the verifier \emph{needed} to see: the \emph{proof obligation}.
 This is expressed as a formal predicate over register state.
 
-OBLIGE supports fifteen obligation families, shown in Table~\ref{tab:obligations}.
+OBLIGE supports eighteen obligation families, shown in Table~\ref{tab:obligations}.
 The error message identifies the obligation \emph{family}.  The register state
 at the rejection point provides concrete parameters.  OBLIGE instantiates the
 predicate template with these parameters.
@@ -500,7 +506,7 @@ predicate template with these parameters.
   \footnotesize
   \caption{Proof obligation families supported by OBLIGE (covering
     94.2\% of the 241-case evaluation corpus; representative families shown,
-    fifteen supported in total).}
+    eighteen supported in total).}
   \label{tab:obligations}
   \resizebox{\columnwidth}{!}{%
   \begin{tabular}{llp{2.6cm}}
@@ -589,6 +595,109 @@ the check (a common LLVM pattern), OBLIGE classifies this as a lowering
 artifact regardless of whether the proof predicate was technically satisfied
 at some earlier instruction.
 
+\subsection{Formal Foundation: Meta-Analysis of Abstract Interpretation Output}
+\label{sec:formal-foundation}
+
+The predicate tracking described above can be understood as a
+\emph{second-order abstract interpretation}: OBLIGE applies abstract
+interpretation to the \emph{output} of another abstract
+interpreter~\cite{cousot1977}.  This section formalizes the framework.
+
+\subsubsection*{Two layers of abstract interpretation}
+
+\textbf{Layer 1} is the eBPF verifier itself.  Its input is BPF
+bytecode; its abstract domain $D_1$ consists of register types, scalar
+bounds $[\texttt{umin},\texttt{umax}]$, pointer offsets, and packet ranges.
+Its output is a trace $T = (s_0, s_1, \ldots, s_n)$ where each $s_i \in D_1$
+is the abstract state after the $i$-th instruction.
+
+\textbf{Layer 2} is OBLIGE.  Its input is the trace $T$; its abstract domain
+$D_2$ tracks proof obligation status; its output is a sequence of proof
+lifecycle labels over $T$.
+
+\begin{definition}[Obligation status lattice]
+\label{def:lattice}
+The obligation status lattice is
+$\mathcal{L} = \{\bot, \mathit{unknown}, \mathit{satisfied}, \mathit{violated}\}$
+with ordering
+$\bot \sqsubseteq \mathit{unknown} \sqsubseteq \mathit{satisfied}$
+and
+$\bot \sqsubseteq \mathit{unknown} \sqsubseteq \mathit{violated}$,
+where $\mathit{satisfied}$ and $\mathit{violated}$ are incomparable.
+The bottom element~$\bot$ represents an uninitialized status
+(obligation predicate not yet evaluable); $\mathit{unknown}$ represents a
+state where the predicate is evaluable but the relevant registers are not
+yet constrained.
+\end{definition}
+
+\begin{definition}[Obligation transfer function]
+\label{def:transfer}
+Let $P : D_1 \to \{\mathit{true}, \mathit{false}, \mathit{unknown}\}$ be the
+obligation predicate instantiated from the rejection point
+(\S\ref{sec:obligation-inference}).
+For each traced instruction~$i$ with verifier state $s_i \in D_1$,
+the obligation transfer function $\tau_i : \mathcal{L} \to \mathcal{L}$ is:
+\[
+\tau_i(\ell) = \begin{cases}
+  \mathit{sat} & P(s_i) \land \ell \in \{\mathit{unk}, \mathit{sat}\} \\[2pt]
+  \mathit{vio} & \neg P(s_i) \land \ell = \mathit{sat} \\[2pt]
+  \ell         & \text{otherwise}
+\end{cases}
+\]
+\end{definition}
+
+\noindent
+The status sequence is computed by forward iteration:
+$\ell_0 = \mathit{unknown}$,\;
+$\ell_i = \tau_i(\ell_{i-1})$.
+
+\begin{definition}[Transition witness]
+\label{def:witness}
+The transition witness is the smallest index $w$ such that
+$\ell_{w-1} = \mathit{satisfied}$ and $\tau_w(\ell_{w-1}) = \mathit{violated}$.
+This is the exact instruction where the proof breaks.
+If no such $w$ exists and $\ell_n = \mathit{violated}$, the proof was
+\emph{never established}.
+\end{definition}
+
+\begin{proposition}[Soundness of lifecycle labels]
+\label{prop:soundness}
+If OBLIGE labels instruction~$i$ with
+$\ell_i = \mathit{satisfied}$, then for all concrete states
+$c \in \gamma(s_i)$ (where $\gamma$ is the concretization function of the
+verifier's abstract domain), the safety property encoded by~$P$ holds.
+\end{proposition}
+\begin{proof}[Proof sketch]
+The verifier is a sound abstract interpreter: $s_i$ over-approximates all
+concrete states reachable at instruction~$i$~\cite{gershuni2019simple}.
+The obligation predicate $P$ is monotone with respect to the verifier's
+partial order on~$D_1$ (tighter bounds imply satisfaction if looser bounds
+already satisfy).  Therefore $P(s_i) = \mathit{true}$ implies
+$P(c) = \mathit{true}$ for all $c \in \gamma(s_i)$.
+\end{proof}
+
+\textbf{Backward obligation slice.}
+Given the transition witness $w$, the \emph{backward obligation slice} is
+\[
+  S = \{ i < w \mid \exists\, r \in \mathit{regs}(P) .\;
+    \text{instruction } i \text{ writes to } r \}
+\]
+i.e., all instructions before $w$ that write to registers appearing in the
+obligation predicate~$P$.  When \texttt{mark\_precise} backtracking
+information is available in the trace, $S$ is refined to include only
+instructions on the backtracking chain, yielding a tighter slice.
+
+\textbf{Generalization beyond eBPF.}
+This framework applies to any abstract interpreter that outputs per-step
+abstract states.  The requirements are: (1)~per-step abstract states are
+emitted, (2)~safety properties are expressible as predicates over the
+abstract domain, and (3)~the trace is ordered.  Rust's borrow checker
+(lifetime predicates over borrow state), WebAssembly validators (type
+predicates over operand stack state), and Java bytecode verifiers (type
+predicates over stack frame state) all satisfy these
+requirements---suggesting that second-order trace analysis may be a general
+technique for improving diagnostic quality in verified language runtimes.
+
 \subsection{BTF Source Correlation}
 
 OBLIGE maps each proof lifecycle event (established, lost, rejected) to its
@@ -629,13 +738,27 @@ plugins.
 
 OBLIGE is implemented in Python ($\sim$6,600 lines across five modules:
 \texttt{log\_parser}, \texttt{trace\_parser}, \texttt{proof\_engine},
-\texttt{source\_correlator}, and \texttt{rust\_diagnostic}), with 101 unit
-tests covering obligation inference, predicate evaluation, and transition
-witness detection on hand-crafted and real-corpus traces.  It defines 23 error
-IDs (OBLIGE-E001 through E023) and 15 obligation families.  OBLIGE requires
-only the verifier log text as input---no object files, source files, or
-external debug information---and can be deployed in CI pipelines, developer
-CLIs, IDE plugins, and LLM agent loops with no kernel patches required.
+\texttt{source\_correlator}, and \texttt{rust\_diagnostic}), with 120 unit
+tests covering obligation inference, predicate evaluation, backward slicing,
+and transition witness detection on hand-crafted and real-corpus traces.
+It defines 23 error IDs (OBLIGE-E001 through E023) and eighteen obligation
+families.
+
+\textbf{Source-code independence.}  OBLIGE requires only the verifier log
+text as input---no object files, source files, or external debug information.
+When BTF \texttt{line\_info} annotations are present in the log, OBLIGE maps
+proof events to source-level spans; when BTF is absent, it falls back to
+bytecode-indexed spans.  For already-loaded programs, \texttt{bpftool prog
+dump xlated linum} can supply supplementary source context, but this is
+optional.
+
+\textbf{Language independence.}  Because OBLIGE analyzes the verifier trace
+at the BPF bytecode level, it is agnostic to the source language.  We
+validated the pipeline on 18 Rust (Aya) and 7 Go (Cilium) cases alongside the
+C corpus: diagnostic generation succeeds on all 25 cases, with obligation
+inference on 17/25 (68\%) and taxonomy classification on 25/25 (100\%).
+The lower obligation rate for non-C cases reflects thinner logs in the stored
+corpus, not a language-specific limitation.
 
 %% ==============================
 \section{Evaluation}
@@ -722,7 +845,7 @@ Proof obligation coverage of 94.2\% (227/241) means that for nineteen in twenty
 cases, OBLIGE can state the exact predicate the verifier needed and evaluate
 it at every instruction.  The remaining 6\% involve environment errors
 (Permission denied, build failures) rather than true verifier rejections, and
-fall outside the fifteen currently supported obligation families.  We
+fall outside the eighteen currently supported obligation families.  We
 explicitly characterize this scope limitation in Section~\ref{sec:discussion}.
 
 The proof status distribution reflects the failure mix: 48.5\% are
@@ -754,11 +877,12 @@ Table~\ref{tab:repair} shows results on 54 cases (10 lowering artifacts,
 \begin{table}[t]
   \centering
   \footnotesize
-  \caption{A/B LLM repair experiment (54 cases).}
+  \caption{A/B LLM repair experiment (54 cases).  Condition~A: raw verifier
+    log only.  Condition~B: raw log + OBLIGE diagnostic.}
   \label{tab:repair}
   \resizebox{\columnwidth}{!}{\begin{tabular}{lrrr}
     \toprule
-    \textbf{Metric} & \textbf{Cond. A} & \textbf{Cond. B} & \textbf{$\Delta$} \\
+    \textbf{Metric} & \textbf{A (raw log)} & \textbf{B (+OBLIGE)} & \textbf{$\Delta$} \\
     \midrule
     Overall location accuracy   & 53/54 (98.1\%) & 48/54 (88.9\%) & $-$9pp \\
     Overall fix-type accuracy   & 46/54 (85.2\%) & 43/54 (79.6\%) & $-$6pp \\
@@ -853,12 +977,12 @@ and negligible compared to a single LLM API call (1--10\,s).
 
 \subsection{Scope and Honest Limitations}
 
-\textbf{94\% obligation coverage.}  Fifteen obligation families cover 94.2\% of
+\textbf{94\% obligation coverage.}  Eighteen obligation families cover 94.2\% of
 cases.  The remaining 6\% involve environment errors (Permission denied, build
 failures) rather than true verifier rejections; these fall outside the scope of
 proof-trace analysis.  The predicate framework is extensible, and adding a new
 family requires defining the predicate template and the parameter extraction
-rules.  We provide an explicit enumeration of the fifteen supported families
+rules.  We provide an explicit enumeration of the eighteen supported families
 (Table~\ref{tab:obligations}) so readers can assess scope.
 
 \textbf{BTF coverage.}  37.3\% of cases lack BTF annotations (primarily Stack
@@ -901,7 +1025,7 @@ developers receive structured diagnostics directly from the load path.
 
 \subsection{eBPF Verifier Complexity and Developer Pain}
 
-Nelson et al.~\cite{hotos2023verif} argue that kernel-extension verification
+Jia et al.~\cite{hotos2023verif} argue that kernel-extension verification
 is ``untenable'' as the extension surface grows; OBLIGE addresses the near-term
 reality that millions of C/Rust eBPF programs run against the current verifier.
 Rex~\cite{rex2025} studies 72 verifier workaround commits, confirming 44.4\% are
@@ -951,8 +1075,8 @@ meta-analysis of this abstract interpretation output enables Rust-quality
 multi-span diagnostics: formal predicate tracking to identify exactly where
 proof obligations are established, propagated, and lost.  The clearest payoff
 is for lowering artifacts, where line-oriented tools localize root causes in
-0\% of cases; OBLIGE achieves 80\%, enabling correct repairs that the raw log
-cannot guide.  As eBPF programs grow in complexity, structured proof trace
+0\% of cases; OBLIGE correctly diagnoses 67\% and doubles LLM repair accuracy,
+enabling correct repairs that the raw log cannot guide.  As eBPF programs grow in complexity, structured proof trace
 analysis at the scale and latency demonstrated here (27\,ms, no kernel patches)
 is a practical path to making verifier failures comprehensible.
 

@@ -14,7 +14,7 @@ from interface.extractor.proof_analysis import (
     analyze_proof_lifecycle,
     infer_obligation,
 )
-from interface.extractor.trace_parser import extract_backtrack_chains, parse_trace
+from interface.extractor.trace_parser import RegisterState, TracedInstruction, extract_backtrack_chains, parse_trace
 
 
 def _load_case(relative_path: str) -> dict:
@@ -61,6 +61,36 @@ def test_infer_packet_access_obligation_from_pkt_pointer_math_error() -> None:
     assert obligation.obligation_type == "packet_access"
     assert obligation.register == "R5"
     assert "scalar_offset is bounded" in obligation.required_condition
+
+
+def test_infer_packet_access_obligation_does_not_select_pkt_end_register() -> None:
+    instruction = TracedInstruction(
+        insn_idx=1,
+        bytecode="r0 = *(u8 *)(r2 +0)",
+        source_line=None,
+        pre_state={
+            "R1": RegisterState(type="pkt_end", off=0),
+            "R2": RegisterState(type="pkt", off=0, range=8),
+        },
+        post_state={
+            "R0": RegisterState(type="scalar", umin=0, umax=0, smin=0, smax=0),
+            "R1": RegisterState(type="pkt_end", off=0),
+            "R2": RegisterState(type="pkt", off=0, range=8),
+        },
+        backtrack=None,
+        is_error=True,
+        error_text="invalid access to packet, off=0 size=1, R2(id=0,off=0,r=8)",
+    )
+
+    obligation = infer_obligation(
+        "invalid access to packet, off=0 size=1, R2(id=0,off=0,r=8)",
+        "R2",
+        instruction,
+    )
+
+    assert obligation is not None
+    assert obligation.obligation_type == "packet_access"
+    assert obligation.register == "R2"
 
 
 def test_analyze_proof_lifecycle_finds_loss_at_or_instruction() -> None:
@@ -129,3 +159,26 @@ def test_analyze_proof_lifecycle_zero_trace_loader_failure_is_unknown() -> None:
 
     assert lifecycle.status == "unknown"
     assert lifecycle.events == []
+
+
+
+def test_infer_packet_access_obligation_does_not_select_pkt_end_register() -> None:
+    parsed = parse_trace(
+        """
+        10: (bf) r5 = r1
+        10: R5=pkt_end R1=pkt R2=scalar
+        11: (0f) r5 += r2
+        11: R5=scalar R1=pkt R2=scalar
+        math between pkt pointer and register with unbounded min value is not allowed
+        """
+    )
+
+    obligation = infer_obligation(
+        parsed.error_line or "",
+        "R5",
+        parsed.instructions[0],
+    )
+
+    assert obligation is not None
+    assert obligation.obligation_type == "packet_access"
+    assert obligation.register == "R1"

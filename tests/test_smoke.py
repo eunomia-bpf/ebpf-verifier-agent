@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_expected_files_exist() -> None:
     expected = [
+        ROOT / "pyproject.toml",
         ROOT / "case_study" / "schema.yaml",
         ROOT / "taxonomy" / "taxonomy.yaml",
         ROOT / "interface" / "schema" / "diagnostic.json",
@@ -97,3 +98,13 @@ def test_cli_help_commands_work() -> None:
         )
         assert result.returncode == 0, result.stderr
         assert "usage" in result.stdout.lower()
+
+    oblige_result = subprocess.run(
+        [sys.executable, "-m", "oblige", "--help"],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+    )
+    assert oblige_result.returncode == 0, oblige_result.stderr
+    assert "usage" in oblige_result.stdout.lower()

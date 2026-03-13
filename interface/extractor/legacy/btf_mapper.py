@@ -80,4 +80,3 @@ class BTFMapper:
         if verifier_line is not None and verifier_line in self.line_index:
             return self.line_index[verifier_line]
         return SourceSpan(path=source_path or "<unknown>", line=verifier_line or 1, column=1)
-

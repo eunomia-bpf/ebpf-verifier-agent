@@ -8,6 +8,10 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from .log_parser import ParsedLog, parse_log
+from .shared_utils import (
+    extract_registers as _shared_extract_registers,
+    normalize_register as _shared_normalize_register,
+)
 from .trace_parser import (
     CriticalTransition,
     ParsedTrace,
@@ -322,14 +326,11 @@ def _collect_registers_of_interest(
 
 
 def _extract_registers(text: str) -> list[str]:
-    return [_normalize_register(match.group(1)) for match in REGISTER_RE.finditer(text)]
+    return _shared_extract_registers(text)
 
 
 def _normalize_register(register: str) -> str:
-    lowered = register.lower()
-    if lowered.startswith(("r", "w")):
-        return f"R{lowered[1:]}"
-    return register
+    return _shared_normalize_register(register)
 
 
 def _select_relevant_transitions(
@@ -618,9 +619,7 @@ def _classify_without_catalog(
         return "OBLIGE-E008", "verifier_limit"
     if any(marker in lowered for marker in STATE_EXPLOSION_MARKERS):
         return "OBLIGE-E007", "verifier_limit"
-    if any(marker in lowered for marker in ANALYSIS_LIMIT_MARKERS) or (
-        processed is not None and processed > 100000
-    ):
+    if any(marker in lowered for marker in ANALYSIS_LIMIT_MARKERS):
         return "OBLIGE-E018", "verifier_limit"
 
     # --- Priority 2: env_mismatch (check ERROR LINE, not full log) ---
@@ -652,7 +651,23 @@ def _classify_without_catalog(
     # --- Priority 4: fallback from error line ---
     if "invalid access to packet" in error_lowered:
         return "OBLIGE-E001", "source_bug"
+    if (
+        processed is not None
+        and processed > 100000
+        and _looks_like_verifier_limit_error(error_candidates)
+    ):
+        return "OBLIGE-E018", "verifier_limit"
     return None, None
+
+
+def _looks_like_verifier_limit_error(error_candidates: Sequence[str]) -> bool:
+    if not error_candidates:
+        return False
+    return any(
+        any(marker in text for marker in (*LOOP_LIMIT_MARKERS, *STATE_EXPLOSION_MARKERS, *ANALYSIS_LIMIT_MARKERS))
+        or "processed " in text
+        for text in error_candidates
+    )
 
 
 def _classify_lowering_artifact(

@@ -10,18 +10,22 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from interface.extractor.proof_engine import (
+    CompositeObligation,
     InstructionNode,
     OBLIGATION_FAMILIES,
     ObligationSpec,
     PredicateAtom,
     TraceIR,
+    TransitionWitness,
     analyze_proof,
+    backward_obligation_slice,
     backward_slice,
     build_trace_ir,
     evaluate_obligation,
     find_loss_transition,
     infer_formal_obligation,
     infer_obligation,
+    track_composite,
 )
 from interface.extractor.log_parser import parse_verifier_log
 from interface.extractor.trace_parser import (
@@ -853,6 +857,180 @@ def test_backward_slice_produces_expected_edges_for_real_loss_site() -> None:
     assert ((21, "R0"), (22, "R0"), "def_use") in edge_set
     assert ((19, "R6"), (22, "R0"), "def_use") in edge_set
     assert ((21, "R0"), (22, "R0"), "backtrack_hint") in edge_set
+
+
+def test_backward_slice_decodes_textual_backtrack_register_masks() -> None:
+    parsed = _parsed_trace(
+        [
+            _instruction(
+                21,
+                "r0 = r0",
+                pre_state={"R0": RegisterState(type="pkt", range=4)},
+                post_state={"R0": RegisterState(type="pkt", range=4)},
+            ),
+            _instruction(
+                22,
+                "r1 = *(u8 *)(r0 +0)",
+                pre_state={"R0": RegisterState(type="pkt", range=0)},
+                post_state={
+                    "R0": RegisterState(type="pkt", range=0),
+                    "R1": RegisterState(type="scalar", umin=0, umax=0, smin=0, smax=0),
+                },
+                is_error=True,
+                error_text="invalid access to packet, off=0 size=1, R0(id=0,off=0,r=0)",
+            ),
+        ],
+        error_line="invalid access to packet, off=0 size=1, R0(id=0,off=0,r=0)",
+        backtrack_chains=[
+            BacktrackChain(
+                error_insn=22,
+                first_insn=21,
+                links=[
+                    BacktrackLink(insn_idx=22, bytecode="(71) r1 = *(u8 *)(r0 +0)", regs="r0", stack="0"),
+                    BacktrackLink(insn_idx=21, bytecode="(bf) r0 = r0", regs="r0", stack="0"),
+                ],
+                regs_mask="r0",
+                stack_mask="0",
+            )
+        ],
+    )
+    trace_ir = build_trace_ir(parsed)
+    obligation = ObligationSpec(
+        kind="packet_access",
+        failing_insn=22,
+        base_reg="R0",
+        index_reg=None,
+        const_off=0,
+        access_size=1,
+        atoms=[
+            PredicateAtom(
+                atom_id="range_at_least",
+                registers=("R0",),
+                expression="0 + 1 <= R0.range",
+            )
+        ],
+        failing_trace_pos=1,
+    )
+    transition = TransitionWitness(
+        atom_id="range_at_least",
+        insn_idx=22,
+        before_result="satisfied",
+        after_result="violated",
+        witness="R0.range collapsed",
+        carrier_register="R0",
+        trace_pos=1,
+    )
+
+    edges = backward_slice(trace_ir, obligation, transition)
+    edge_set = {(edge.src, edge.dst, edge.kind) for edge in edges}
+
+    assert ((21, "R0"), (22, "R0"), "backtrack_hint") in edge_set
+
+
+def test_backward_obligation_slice_real_case_tracks_mark_precise_chain() -> None:
+    parsed = parse_trace(_block("case_study/cases/stackoverflow/stackoverflow-70750259.yaml", 0))
+    trace_ir = build_trace_ir(parsed)
+    failing = next(instruction for instruction in trace_ir.instructions if instruction.insn_idx == 24)
+    obligation = infer_formal_obligation(trace_ir, failing, parsed.error_line or "")
+
+    assert obligation is not None
+
+    chain = backward_obligation_slice(parsed, 22, obligation)
+    chain_map = dict(chain)
+
+    assert [insn_idx for insn_idx, _ in chain] == [19, 20, 21, 22]
+    assert "writes to R0 (obligation index register)" in chain_map[22]
+    assert "mark_precise backtrack target" in chain_map[21]
+    assert "mark_precise backtrack target" in chain_map[20]
+    assert "mark_precise backtrack target" in chain_map[19]
+
+
+def test_analyze_proof_real_loss_site_includes_instruction_level_causal_chain() -> None:
+    parsed = parse_trace(_block("case_study/cases/stackoverflow/stackoverflow-70750259.yaml", 0))
+
+    result = analyze_proof(
+        parsed_trace=parsed,
+        error_line=parsed.error_line or "",
+        error_insn=24,
+    )
+
+    assert result.proof_status == "established_then_lost"
+    assert result.causal_chain
+    assert [insn_idx for insn_idx, _ in result.causal_chain] == [19, 20, 21, 22]
+    assert any("mark_precise backtrack target" in reason for _, reason in result.causal_chain)
+
+
+def test_track_composite_reports_first_failed_sub_obligation() -> None:
+    parsed = _parsed_trace(
+        [
+            _instruction(
+                0,
+                "r0 = r0",
+                pre_state={
+                    "R0": RegisterState(type="inv", umin=0, umax=4, smin=0, smax=4),
+                    "R5": RegisterState(type="pkt", off=0, range=8),
+                },
+                post_state={
+                    "R0": RegisterState(type="inv", umin=0, umax=4, smin=0, smax=4),
+                    "R5": RegisterState(type="pkt", off=0, range=8),
+                },
+            ),
+            _instruction(
+                1,
+                "r0 += -8",
+                pre_state={
+                    "R0": RegisterState(type="inv", umin=0, umax=4, smin=0, smax=4),
+                    "R5": RegisterState(type="pkt", off=0, range=8),
+                },
+                post_state={
+                    "R0": RegisterState(type="inv", smin=-8, smax=-4),
+                    "R5": RegisterState(type="pkt", off=0, range=8),
+                },
+            ),
+            _instruction(
+                2,
+                "r5 += r0",
+                pre_state={
+                    "R0": RegisterState(type="inv", smin=-8, smax=-4),
+                    "R5": RegisterState(type="pkt", off=0, range=8),
+                },
+                post_state={},
+                is_error=True,
+                error_text="math between pkt pointer and register with unbounded min value is not allowed",
+            ),
+        ],
+        error_line="math between pkt pointer and register with unbounded min value is not allowed",
+    )
+    composite = CompositeObligation(
+        sub_obligations=[
+            ObligationSpec(
+                kind="packet_ptr_add",
+                failing_insn=2,
+                base_reg="R5",
+                index_reg="R0",
+                const_off=0,
+                access_size=0,
+                atoms=[PredicateAtom("base_is_pkt", ("R5",), "R5.type == pkt")],
+            ),
+            ObligationSpec(
+                kind="packet_ptr_add",
+                failing_insn=2,
+                base_reg="R5",
+                index_reg="R0",
+                const_off=0,
+                access_size=0,
+                atoms=[PredicateAtom("offset_non_negative", ("R0",), "R0.smin >= 0")],
+            ),
+        ]
+    )
+
+    result = track_composite(parsed, composite)
+
+    assert len(result["sub_results"]) == 2
+    assert result["first_failed_index"] == 1
+    assert result["first_failed_obligation"] == composite.sub_obligations[1]
+    assert result["first_failure_site"] == 1
+    assert result["first_failure_status"] == "established_then_lost"
 
 
 def _verifier_text(case_path: str, block_index: int | None = None) -> tuple[dict, str]:

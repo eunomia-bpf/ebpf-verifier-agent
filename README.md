@@ -2,101 +2,102 @@
 
 OBLIGE stands for Obligation-Oriented Diagnostics for eBPF Verifier Failures. The project treats verifier feedback as a systems interface problem: instead of relying on unstable free-text logs, it aims to build a stable, structured diagnostic layer that exposes what proof obligation failed, where it failed, and what kind of repair is appropriate.
 
-This repository is an early scaffold for that workflow. It defines the benchmark case schema, the five-class failure taxonomy, the structured diagnostic schema, and lightweight script skeletons for collection, reproduction, repair-loop planning, and evaluation.
+The repository contains the current extractor pipeline, taxonomy/catalog data, case-study corpus utilities, and evaluation scripts used to analyze verifier failures.
 
-## Goals
+## Install
 
-- Build a reproducible benchmark of real verifier failure cases.
-- Label each case with a compact taxonomy that reflects root cause, not just symptom.
-- Emit structured diagnostics that are consumable by humans, tools, and repair agents.
-- Evaluate repair performance under different feedback conditions while checking semantic correctness, not just verifier acceptance.
-
-## Repository Layout
-
-```text
-benchmark/
-  schema.yaml        Benchmark case schema
-  collect.py         Collector skeleton for case acquisition
-  reproduce.py       Reproduction skeleton for per-case reruns
-taxonomy/
-  taxonomy.yaml      Five-class failure taxonomy
-interface/schema/
-  diagnostic.json    Structured diagnostic output schema
-agent/
-  repair_loop.py     Planning-only repair loop skeleton
-eval/
-  metrics.py         Aggregate metric utilities
-tests/
-  test_smoke.py      Basic repository smoke tests
-```
-
-## Core Data Models
-
-### Benchmark cases
-
-Each benchmark case represents one verifier failure instance and records:
-
-- provenance and a stable `case_id`
-- failing source path and exact compile flags
-- canonical target-kernel assumptions
-- raw verifier output
-- root-cause explanation and reference fix
-- semantic oracle for validating that the repaired program is still correct
-
-The canonical schema lives in [benchmark/schema.yaml](/home/yunwei37/workspace/ebpf-verifier-agent/benchmark/schema.yaml).
-
-### Failure taxonomy
-
-OBLIGE uses a deliberately small five-class taxonomy:
-
-1. `source_bug`
-2. `lowering_artifact`
-3. `verifier_limit`
-4. `env_mismatch`
-5. `verifier_bug`
-
-The detailed class definitions, inclusion rules, and ambiguity notes live in [taxonomy/taxonomy.yaml](/home/yunwei37/workspace/ebpf-verifier-agent/taxonomy/taxonomy.yaml).
-
-### Structured diagnostics
-
-The structured interface is centered on a few stable fields:
-
-- `error_id`
-- `source_span`
-- `expected_state`
-- `observed_state`
-- `missing_obligation`
-
-The JSON schema for these records lives in [diagnostic.json](/home/yunwei37/workspace/ebpf-verifier-agent/interface/schema/diagnostic.json).
-
-## Quick Start
-
-Create a virtual environment, install dependencies, and run the smoke tests:
+Create a virtual environment and install OBLIGE in editable mode:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-pytest
+pip install -e .[dev]
 ```
 
-You can inspect the current script skeletons with `--help`:
+If you only want the raw dependencies without packaging metadata, `pip install -r requirements.txt` still works.
+
+## Repository Layout
+
+```text
+case_study/
+  schema.yaml        Benchmark case schema
+  collect.py         Case acquisition utilities
+  reproduce.py       Per-case rerun helpers
+taxonomy/
+  taxonomy.yaml      Five-class failure taxonomy
+  error_catalog.yaml Stable verifier error catalog
+  obligation_catalog.yaml Repair-oriented obligation templates
+interface/extractor/
+  rust_diagnostic.py End-to-end diagnostic pipeline
+  proof_engine.py    Formal proof analysis engine
+  trace_parser.py    LOG_LEVEL2 trace parser
+interface/schema/
+  diagnostic.json    Structured diagnostic output schema
+oblige/
+  cli.py             `python -m oblige` / `oblige` entry point
+tests/
+  test_*.py          Extractor, renderer, schema, and CLI coverage
+docs/
+  research-plan.md   Longer-lived project notes
+  tmp/               Ephemeral review and experiment reports
+```
+
+## CLI Usage
+
+Generate a human-readable diagnostic from a raw verifier log:
 
 ```bash
-python benchmark/collect.py --help
-python benchmark/reproduce.py --help
-python agent/repair_loop.py --help
-python eval/metrics.py --help
+python -m oblige path/to/verifier.log
 ```
 
-## Current Status
+Generate JSON instead:
 
-The current repository state is intentionally lightweight. The Python entry points are planning-oriented skeletons rather than full integrations with LLVM, bpftool, libbpf, or kernel instrumentation. They are meant to lock down interfaces early so collection, extraction, and evaluation work can proceed against stable artifacts.
+```bash
+python -m oblige path/to/verifier.log --format json
+```
 
-## Near-Term Next Steps
+The CLI also accepts a case-study YAML manifest and extracts its `verifier_log` automatically:
 
-- add concrete case manifests under `benchmark/cases/`
-- implement source-specific collectors for selftests, public bug reports, and project fix commits
-- connect reproduction to real loaders and captured verifier logs
-- populate the structured extractor that maps raw logs to stable `error_id` records
-- add semantic oracles and end-to-end evaluation harnesses
+```bash
+python -m oblige case_study/cases/stackoverflow/stackoverflow-60053570.yaml --format both
+```
+
+You can also pipe a log over stdin:
+
+```bash
+cat verifier.log | python -m oblige --format json
+```
+
+## Python Usage
+
+```python
+from pathlib import Path
+
+from oblige import build_diagnostic, generate_diagnostic
+
+raw_log = Path("verifier.log").read_text()
+
+schema_valid_payload = build_diagnostic(raw_log, case_id="demo-case")
+rich_output = generate_diagnostic(raw_log)
+print(rich_output.text)
+```
+
+The JSON schema for emitted diagnostics lives in [diagnostic.json](/home/yunwei37/workspace/ebpf-verifier-agent/interface/schema/diagnostic.json).
+
+## Quick Start
+
+Run the test suite:
+
+```bash
+python -m pytest tests/ -q
+```
+
+Inspect the CLI:
+
+```bash
+python -m oblige --help
+```
+
+## Project Scope
+
+The current focus is the Python-based diagnostic/extraction pipeline plus the corpus and evaluation tooling around it. Some surrounding directories still contain research scripts and experiment harnesses; `docs/tmp/` is intentionally reserved for temporary reports rather than permanent documentation.

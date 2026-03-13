@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from interface.extractor.bpftool_parser import parse_bpftool_xlated_linum
 from interface.extractor.proof_analysis import ProofEvent
 from interface.extractor.source_correlator import correlate_to_source
 from interface.extractor.trace_parser import ParsedTrace, RegisterState, TracedInstruction
@@ -38,11 +39,17 @@ def _parsed_trace(instructions: list[TracedInstruction]) -> ParsedTrace:
     )
 
 
-def _event(insn_idx: int, event_type: str, source_line: str | None = None) -> ProofEvent:
+def _event(
+    insn_idx: int,
+    event_type: str,
+    source_line: str | None = None,
+    *,
+    register: str = "R0",
+) -> ProofEvent:
     return ProofEvent(
         insn_idx=insn_idx,
         event_type=event_type,
-        register='R0',
+        register=register,
         state_before=None,
         state_after=None,
         source_line=source_line,
@@ -99,6 +106,29 @@ def test_correlate_to_source_preserves_multiple_roles_on_same_source_line() -> N
     assert all(span.line == 22 for span in spans)
 
 
+def test_correlate_to_source_keeps_distinct_registers_on_same_source_line() -> None:
+    parsed_trace = _parsed_trace(
+        [
+            _instruction(
+                12,
+                'r0 = r1',
+                'volatile int ext_len = __bpf_htons(ext->len); @ stackoverflow.c:22',
+            )
+        ]
+    )
+
+    spans = correlate_to_source(
+        parsed_trace,
+        [
+            _event(12, 'propagated', register='R0'),
+            _event(12, 'propagated', register='R1'),
+        ],
+    )
+
+    assert len(spans) == 2
+    assert {span.register for span in spans} == {'R0', 'R1'}
+
+
 def test_correlate_to_source_prunes_propagated_spans_first() -> None:
     instructions = [
         _instruction(1, 'r1 = r1', 'line1; @ test.c:1'),
@@ -129,3 +159,62 @@ def test_correlate_to_source_prunes_propagated_spans_first() -> None:
     assert any(span.role == 'proof_lost' for span in spans)
     assert any(span.role == 'rejected' for span in spans)
     assert sum(1 for span in spans if span.role == 'proof_propagated') == 2
+
+
+def test_correlate_to_source_uses_bpftool_mapping_when_trace_lacks_btf() -> None:
+    parsed_trace = _parsed_trace(
+        [
+            _instruction(1, 'r7 = *(u64 *)(r6 +0)', None),
+            _instruction(2, 'r8 = *(u64 *)(r6 +8)', None),
+            _instruction(3, 'if r7 == 0x0 goto pc+2', None, is_error=True, error_text='reject'),
+        ]
+    )
+    bpftool_source_map = parse_bpftool_xlated_linum(
+        """
+        int __sys_bpf(int cmd, ...) {
+           ; int __sys_bpf(int cmd, union bpf_attr __user *uattr, unsigned int size) @ bpf/syscall.c:5765:12
+           1: (79) r7 = *(u64 *)(r6 +0)
+           2: (79) r8 = *(u64 *)(r6 +8)
+           ; if (cmd == BPF_MAP_CREATE) @ bpf/syscall.c:5768:6
+           3: (15) if r7 == 0x0 goto pc+2
+        }
+        """
+    )
+
+    spans = correlate_to_source(
+        parsed_trace,
+        [_event(2, 'propagated'), _event(3, 'rejected')],
+        bpftool_source_map=bpftool_source_map,
+    )
+
+    assert len(spans) == 2
+    assert spans[0].file == 'bpf/syscall.c'
+    assert spans[0].line == 5765
+    assert spans[0].source_text == (
+        'int __sys_bpf(int cmd, union bpf_attr __user *uattr, unsigned int size)'
+    )
+    assert spans[0].insn_range == (1, 2)
+    assert spans[1].file == 'bpf/syscall.c'
+    assert spans[1].line == 5768
+    assert spans[1].source_text == 'if (cmd == BPF_MAP_CREATE)'
+
+
+
+def test_correlate_to_source_keeps_distinct_registers_on_same_line() -> None:
+    parsed_trace = _parsed_trace(
+        [
+            _instruction(5, "r1 = r1", "x += y; @ test.c:9"),
+            _instruction(6, "r2 = r2", "x += y; @ test.c:9"),
+        ]
+    )
+
+    spans = correlate_to_source(
+        parsed_trace,
+        [
+            _event(5, "propagated", register="R1"),
+            _event(6, "propagated", register="R2"),
+        ],
+    )
+
+    assert len(spans) == 2
+    assert {span.register for span in spans} == {"R1", "R2"}

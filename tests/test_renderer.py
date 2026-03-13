@@ -11,6 +11,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from interface.extractor.rust_diagnostic import generate_diagnostic
+from interface.extractor.renderer import render_diagnostic
+from interface.extractor.source_correlator import SourceSpan
 
 
 def _load_verifier_log(relative_path: str) -> str:
@@ -59,6 +61,17 @@ def test_generate_rust_style_lowering_artifact_with_btf_and_backtracking() -> No
         span["role"] == "rejected" and "ext_len" in span["source_text"]
         for span in _proof_spans(output)
     )
+
+
+def test_renderer_serializes_engine_causal_chain_in_metadata() -> None:
+    output = generate_diagnostic(
+        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+    )
+
+    causal_chain = output.json_data["metadata"]["causal_chain"]
+    assert causal_chain
+    assert any(entry[0] == 22 for entry in causal_chain)
+    assert all(isinstance(entry[1], str) and entry[1] for entry in causal_chain)
 
 
 def test_generate_rust_style_source_bug_with_btf() -> None:
@@ -111,6 +124,33 @@ def test_renderer_emits_rejected_span_when_trace_has_no_instructions() -> None:
     assert spans
     assert spans[0]["role"] == "rejected"
     assert "EINVAL For BPF_PROG_LOAD" in spans[0]["source_text"]
+
+
+def test_renderer_uses_structured_state_fields_without_reparsing_state_change() -> None:
+    output = render_diagnostic(
+        error_id="OBLIGE-TEST",
+        taxonomy_class="lowering_artifact",
+        proof_status="established_then_lost",
+        spans=[
+            SourceSpan(
+                file="test.c",
+                line=7,
+                source_text="x = *ptr;",
+                insn_range=(7, 7),
+                role="proof_lost",
+                register="R1",
+                state_change="R1: pkt -> scalar",
+                reason="pointer provenance was degraded to a scalar",
+                state_before="pkt(range=8)",
+                state_after="scalar(unbounded)",
+            )
+        ],
+        obligation=None,
+        note=None,
+        help_text=None,
+    )
+
+    assert output.json_data["observed_state"]["registers"]["R1"] == "scalar(unbounded)"
 
 
 def test_renderer_synthesizes_missing_established_then_lost_roles() -> None:
@@ -171,6 +211,14 @@ def test_renderer_json_output_structure() -> None:
     } <= first_span.keys()
 
 
+def test_renderer_keeps_dict_like_get_for_json_compatibility() -> None:
+    output = generate_diagnostic(
+        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+    )
+
+    assert output.get("metadata") == output.json_data["metadata"]
+
+
 def test_renderer_falls_back_to_bytecode_without_btf_annotations() -> None:
     verifier_log = _strip_btf_annotations(
         _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
@@ -184,6 +232,35 @@ def test_renderer_falls_back_to_bytecode_without_btf_annotations() -> None:
     assert any(span["source_text"] == "r0 |= r6" for span in _proof_spans(output))
     assert all(
         span["path"] is None and span["line"] is None for span in _proof_spans(output)
+    )
+
+
+def test_renderer_uses_bpftool_xlated_fallback_without_verifier_btf() -> None:
+    verifier_log = _strip_btf_annotations(
+        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+    )
+    bpftool_xlated = """
+    int parse_packet(void *data, void *data_end) {
+       ; __u16 ext_len = __bpf_htons(ext->len); @ stackoverflow.c:22:9
+       19: (71) r6 = *(u8 *)(r0 +2)
+       20: (71) r0 = *(u8 *)(r0 +3)
+       21: (67) r0 <<= 8
+       22: (4f) r0 |= r6
+       23: (dc) r0 = be16 r0
+       ; if (data_end < (data + ext_len)) { @ stackoverflow.c:24:2
+       24: (0f) r5 += r0
+    }
+    """
+    output = generate_diagnostic(verifier_log, bpftool_xlated=bpftool_xlated)
+
+    assert output.json_data["source_span"]["path"] == "stackoverflow.c"
+    assert output.json_data["source_span"]["line_start"] == 24
+    assert "data_end" in output.json_data["source_span"]["snippet"]
+    assert any(
+        span["path"] == "stackoverflow.c" and span["line"] == 22 for span in _proof_spans(output)
+    )
+    assert any(
+        span["path"] == "stackoverflow.c" and span["line"] == 24 for span in _proof_spans(output)
     )
 
 

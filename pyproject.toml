@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oblige"
+version = "0.1.0"
+description = "OBLIGE diagnostics for eBPF verifier failures."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "PyYAML>=6.0",
+  "jsonschema>=4.22",
+]
+
+[project.optional-dependencies]
+btf = ["pyelftools>=0.32"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+oblige = "oblige.cli:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["oblige*", "interface*", "taxonomy*"]
+
+[tool.setuptools.package-data]
+"interface.schema" = ["diagnostic.json"]
+"taxonomy" = ["*.yaml"]

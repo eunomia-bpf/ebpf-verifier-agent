@@ -1,4 +1,4 @@
-"""Public helpers for producing structured diagnostics from raw verifier logs."""
+"""Public helpers for producing schema-valid diagnostics from raw verifier logs."""
 
 from __future__ import annotations
 
@@ -6,9 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from interface.extractor.btf_mapper import BTFMapper
-from interface.extractor.log_parser import VerifierLogParser
-from interface.extractor.obligation import ObligationExtractor
+from interface.extractor.rust_diagnostic import generate_diagnostic
 
 
 SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schema" / "diagnostic.json"
@@ -27,43 +25,45 @@ def build_diagnostic(
     case_id: str | None = None,
     source_path: str | None = None,
     kernel_release: str | None = None,
+    catalog_path: str | Path | None = None,
+    bpftool_xlated: str | None = None,
 ) -> dict[str, Any]:
-    """Create an initial structured diagnostic record from a raw verifier log."""
+    """Create a schema-valid structured diagnostic record from a raw verifier log."""
 
-    parser = VerifierLogParser()
-    parsed = parser.parse(raw_log)
-    mapper = BTFMapper()
-    span = mapper.lookup(parsed.source_line, source_path=source_path)
-    obligation = ObligationExtractor().extract(parsed)
+    output = generate_diagnostic(
+        raw_log,
+        catalog_path=str(catalog_path) if catalog_path is not None else None,
+        bpftool_xlated=bpftool_xlated,
+    )
+    diagnostic: dict[str, Any] = dict(output.json_data)
 
-    summary = parsed.error_line or "Verifier failure without a parsed headline"
-    diagnostic = {
-        "schema_version": "0.1.0",
-        "case_id": case_id,
-        "kernel_release": kernel_release,
-        "error_id": parsed.error_id or "OBLIGE-E999",
-        "taxonomy_class": parsed.taxonomy_class or "source_bug",
-        "source_span": span.to_dict(),
-        "expected_state": {
-            "summary": "Verifier expects a proof obligation to hold at the failing instruction.",
-            "predicates": [],
-            "registers": [],
-        },
-        "observed_state": {
-            "summary": summary,
-            "predicates": parsed.evidence,
-            "registers": [],
-        },
-        "missing_obligation": obligation.to_dict(),
-        "verifier_excerpt": parsed.lines[-5:],
-        "evidence": [
-            {"kind": "verifier_log", "message": line, "raw": line}
-            for line in parsed.evidence
-        ],
-        "confidence": 0.4 if parsed.error_id is None else 0.8,
-    }
-    return {key: value for key, value in diagnostic.items() if value is not None}
+    if case_id is not None:
+        diagnostic["case_id"] = case_id
+    if kernel_release is not None:
+        diagnostic["kernel_release"] = kernel_release
+
+    if source_path:
+        source_span = dict(diagnostic.get("source_span") or {})
+        current_path = str(source_span.get("path") or "")
+        if current_path in {"", "<unknown>", "<source>", "<bytecode>"}:
+            source_span["path"] = source_path
+            diagnostic["source_span"] = source_span
+
+        metadata = dict(diagnostic.get("metadata") or {})
+        proof_spans = metadata.get("proof_spans")
+        if isinstance(proof_spans, list):
+            metadata["proof_spans"] = [
+                {
+                    **span,
+                    "path": span.get("path") or source_path,
+                }
+                if isinstance(span, dict)
+                else span
+                for span in proof_spans
+            ]
+            diagnostic["metadata"] = metadata
+
+    return diagnostic
 
 
 __all__ = ["build_diagnostic", "load_schema", "SCHEMA_PATH"]
-

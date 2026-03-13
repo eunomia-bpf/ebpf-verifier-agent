@@ -5,30 +5,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from .bpftool_parser import BpftoolInstructionMapping
+from .proof_analysis import ProofEvent, ProofObligation
 from .trace_parser import ParsedTrace, RegisterState, TracedInstruction
 
-try:
-    from .proof_analysis import ProofEvent, ProofObligation
-except ImportError:  # pragma: no cover - Step 2 lands in parallel.
-    @dataclass(slots=True)
-    class ProofEvent:
-        event_type: str
-        insn_idx: int
-        register: str | None = None
-        before: RegisterState | None = None
-        after: RegisterState | None = None
-        source_line: str | None = None
-        reason: str | None = None
-        description: str | None = None
-        state_change: str | None = None
 
-    @dataclass(slots=True)
-    class ProofObligation:
-        type: str
-        required: str
-
-
-SOURCE_LOCATION_SUFFIX_RE = re.compile(r"@\s*([\w./+-]+):(\d+)\s*$")
+SOURCE_LOCATION_SUFFIX_RE = re.compile(
+    r"@\s*(?P<file>.+?):(?P<line>\d+)(?::(?P<column>\d+))?\s*$"
+)
 MAX_SOURCE_SPANS = 5
 ROLE_PRIORITY = {
     "proof_propagated": 0,
@@ -48,11 +32,14 @@ class SourceSpan:
     register: str | None
     state_change: str | None
     reason: str | None
+    state_before: str | None = None
+    state_after: str | None = None
 
 
 def correlate_to_source(
     parsed_trace: ParsedTrace,
     proof_events: list[ProofEvent],
+    bpftool_source_map: dict[int, BpftoolInstructionMapping] | None = None,
 ) -> list[SourceSpan]:
     """Map proof events onto source or bytecode spans."""
 
@@ -70,18 +57,24 @@ def correlate_to_source(
         if instruction is None:
             continue
 
-        source_text, file_name, line_number = _extract_source_fields(
+        source_text, file_name, line_number = _resolve_source_fields(
             source_line=_event_source_line(event) or instruction.source_line,
             fallback_text=instruction.bytecode,
+            bpftool_mapping=(
+                bpftool_source_map.get(event.insn_idx) if bpftool_source_map is not None else None
+            ),
         )
         start_insn, end_insn = _expand_source_range(
             parsed_trace.instructions,
             positions[event.insn_idx],
+            bpftool_source_map=bpftool_source_map,
         )
         role = _normalize_role(event.event_type)
         register = event.register or _guess_relevant_register(instruction)
         before = _event_before(event)
         after = _event_after(event)
+        state_before = _format_state(before) if before is not None else None
+        state_after = _format_state(after) if after is not None else None
         state_change = _event_state_change(event) or (
             format_state_change(before, after, register)
             if register is not None
@@ -93,6 +86,10 @@ def correlate_to_source(
                 state_change = _format_register_snapshot(snapshot, register)
         if state_change is None and role == "rejected":
             state_change = _format_rejected_state_change(instruction, register)
+            if register is not None and state_before is None and state_after is None:
+                snapshot = instruction.pre_state.get(register) or instruction.post_state.get(register)
+                if snapshot is not None:
+                    state_before = _format_state(snapshot)
 
         spans.append(
             SourceSpan(
@@ -104,6 +101,8 @@ def correlate_to_source(
                 register=register,
                 state_change=state_change,
                 reason=_event_reason(event) or _infer_reason(role, instruction, before, after),
+                state_before=state_before,
+                state_after=state_after,
             )
         )
 
@@ -113,11 +112,11 @@ def correlate_to_source(
 def group_by_source_line(spans: list[SourceSpan]) -> list[SourceSpan]:
     """Merge spans that point at the same logical source location."""
 
-    merged_by_key: dict[tuple[str | None, int | None, str, str], SourceSpan] = {}
-    order: list[tuple[str | None, int | None, str, str]] = []
+    merged_by_key: dict[tuple[str | None, int | None, str, str, str | None], SourceSpan] = {}
+    order: list[tuple[str | None, int | None, str, str, str | None]] = []
 
     for span in spans:
-        key = (span.file, span.line, span.source_text, span.role)
+        key = (span.file, span.line, span.source_text, span.role, span.register)
         existing = merged_by_key.get(key)
         if existing is None:
             merged_by_key[key] = span
@@ -137,6 +136,8 @@ def group_by_source_line(spans: list[SourceSpan]) -> list[SourceSpan]:
             register=preferred.register or existing.register or span.register,
             state_change=preferred.state_change or existing.state_change or span.state_change,
             reason=preferred.reason or existing.reason or span.reason,
+            state_before=preferred.state_before or existing.state_before or span.state_before,
+            state_after=preferred.state_after or existing.state_after or span.state_after,
         )
 
     return [merged_by_key[key] for key in order]
@@ -210,10 +211,28 @@ def _extract_source_fields(
         match = SOURCE_LOCATION_SUFFIX_RE.search(stripped)
         if match:
             source_text = stripped[: match.start()].strip() or fallback_text
-            return source_text, match.group(1), int(match.group(2))
+            return source_text, match.group("file"), int(match.group("line"))
         if stripped:
             return stripped, None, None
     return fallback_text, None, None
+
+
+def _resolve_source_fields(
+    source_line: str | None,
+    fallback_text: str,
+    bpftool_mapping: BpftoolInstructionMapping | None,
+) -> tuple[str, str | None, int | None]:
+    source_text, file_name, line_number = _extract_source_fields(source_line, fallback_text)
+    if bpftool_mapping is None:
+        return source_text, file_name, line_number
+
+    if (source_line is None or source_text == fallback_text) and bpftool_mapping.source_text:
+        source_text = bpftool_mapping.source_text
+    if file_name is None:
+        file_name = bpftool_mapping.source_file
+    if line_number is None:
+        line_number = bpftool_mapping.source_line
+    return source_text, file_name, line_number
 
 
 def _event_before(event: ProofEvent) -> RegisterState | None:
@@ -239,24 +258,45 @@ def _event_state_change(event: ProofEvent) -> str | None:
 def _expand_source_range(
     instructions: list[TracedInstruction],
     position: int,
+    bpftool_source_map: dict[int, BpftoolInstructionMapping] | None = None,
 ) -> tuple[int, int]:
     anchor = instructions[position]
-    anchor_key = _grouping_key(anchor)
+    anchor_key = _grouping_key(anchor, bpftool_source_map)
 
     start = position
-    while start > 0 and _grouping_key(instructions[start - 1]) == anchor_key:
+    while start > 0 and _grouping_key(instructions[start - 1], bpftool_source_map) == anchor_key:
         start -= 1
 
     end = position
-    while end + 1 < len(instructions) and _grouping_key(instructions[end + 1]) == anchor_key:
+    while (
+        end + 1 < len(instructions)
+        and _grouping_key(instructions[end + 1], bpftool_source_map) == anchor_key
+    ):
         end += 1
 
     return instructions[start].insn_idx, instructions[end].insn_idx
 
 
-def _grouping_key(instruction: TracedInstruction) -> tuple[str, str | None]:
+def _grouping_key(
+    instruction: TracedInstruction,
+    bpftool_source_map: dict[int, BpftoolInstructionMapping] | None = None,
+) -> tuple[object, ...]:
     if instruction.source_line:
         return ("source", instruction.source_line.strip())
+    if bpftool_source_map is not None:
+        mapping = bpftool_source_map.get(instruction.insn_idx)
+        if mapping is not None and (
+            mapping.source_text is not None
+            or mapping.source_file is not None
+            or mapping.source_line is not None
+        ):
+            return (
+                "source",
+                mapping.source_text,
+                mapping.source_file,
+                mapping.source_line,
+                mapping.source_column,
+            )
     return ("bytecode", instruction.bytecode.strip())
 
 
@@ -309,10 +349,12 @@ def _can_merge_propagated(left: SourceSpan, right: SourceSpan) -> bool:
         left.file,
         left.line,
         left.source_text,
+        left.register,
     ) == (
         right.file,
         right.line,
         right.source_text,
+        right.register,
     )
 
 
@@ -330,6 +372,8 @@ def _merge_span_pair(left: SourceSpan, right: SourceSpan) -> SourceSpan:
         register=preferred.register or left.register or right.register,
         state_change=preferred.state_change or left.state_change or right.state_change,
         reason=preferred.reason or left.reason or right.reason,
+        state_before=preferred.state_before or left.state_before or right.state_before,
+        state_after=preferred.state_after or left.state_after or right.state_after,
     )
 
 

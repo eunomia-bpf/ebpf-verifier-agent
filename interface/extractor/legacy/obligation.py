@@ -32,7 +32,7 @@ class ObligationExtractor:
 
     def __init__(self, catalog_path: Path | None = None) -> None:
         self.catalog_path = catalog_path or (
-            Path(__file__).resolve().parents[2] / "taxonomy" / "obligation_catalog.yaml"
+            Path(__file__).resolve().parents[3] / "taxonomy" / "obligation_catalog.yaml"
         )
         self._templates = self._load_templates()
 
@@ -69,4 +69,3 @@ class ObligationExtractor:
             title=template["title"],
             repair_hints=list(template.get("repair_hints", [])),
         )
-

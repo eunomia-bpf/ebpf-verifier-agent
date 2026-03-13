@@ -6,14 +6,14 @@
 > - 每个任务做完 → 立即更新本文档（任务条目状态 + 关键数据 + 文档路径）。
 > - 每次 context 压缩后 → 完整读取本文档恢复全局状态。
 > - 用 codex background 跑任务，不阻塞主对话。
-> 上次更新：2026-03-12（paper data audit 同步：obligation 94.2%/96.4%，A/B v2 54 cases，101 tests，paper 8-page compiled）
+> 上次更新：2026-03-12（新增：formal treatment in paper, multi-language analysis, decompiler direction）
 
 ---
 
 ## 0. 当前快照（2026-03-12）
 
 - Obligation coverage：**94.2%**（227/241 eval set），**96.4%**（397/412 full pipeline）
-- Tests：**101 passing**
+- Tests：**104 passing**
 - Latency：**median 27ms, P95 43ms, max 92ms**
 - A/B repair v2：**54 cases**；`lowering_artifact` fix-type **+30pp**（3/10 → 6/10）
 - Paper：**8 pages**, **ACM SIGPLAN format**, **compiled**（`docs/paper/main.tex`, `docs/paper/main.pdf`）
@@ -105,11 +105,12 @@ unbounded min value is not allowed
 
 **核心 novelty（不是分类准确率——LLM 已做到 95%+）**：
 1. **Meta-analysis of abstract interpretation output** — verifier 做了 abstract interpretation，OBLIGE 对其输出再做 backward slicing + proof propagation。这是"分析的分析"，在 eBPF 领域首创
-2. **Leveraging verifier's own `mark_precise` backtracking** — verifier 内部的 precision tracking（`last_idx`, `first_idx`, `regs=`, `before N:` ）是 verifier 自己算好的根因链，但只以 debug text 暴露。OBLIGE 提取并结构化它
-3. **Rust-quality multi-span diagnostics for eBPF** — 多个源码位置 + 因果标签（proof established / propagated / lost / rejected）。没有人做过
-4. **Proof obligation inference from verifier's type system** — 对每种访问类型，从 error message + register state 推导 "verifier 需要什么条件"（packet: `reg.off+size <= reg.range`）。不是启发式，是基于 verifier 类型系统
-5. **Proof propagation analysis** — 从 proof-establishing branch 正向追踪：proof 是否传播到实际访问的 register？没有传播 → lowering artifact。没有建立 → source bug
-6. **实证研究** — 64% of 591 production commits 是 proof-reshaping workaround，不是 source bug fix
+2. **Formal foundation: obligation lattice + soundness** — 定义 L={⊥,unknown,satisfied,violated}，transfer function τ_i，transition witness w。证明 OBLIGE labels 的 soundness 继承自 verifier AI 的 soundness。Backward obligation slice 形式化定义
+3. **Leveraging verifier's own `mark_precise` backtracking** — verifier 内部的 precision tracking（`last_idx`, `first_idx`, `regs=`, `before N:` ）是 verifier 自己算好的根因链，但只以 debug text 暴露。OBLIGE 提取并结构化它
+4. **Rust-quality multi-span diagnostics for eBPF** — 多个源码位置 + 因果标签（proof established / propagated / lost / rejected）。没有人做过
+5. **Proof obligation inference from verifier's type system** — 对每种访问类型，从 error message + register state 推导 "verifier 需要什么条件"（packet: `reg.off+size <= reg.range`）。不是启发式，是基于 verifier 类型系统
+6. **Language-agnostic**: 在 bytecode level 分析 → C/Rust/Go 编译的 BPF 程序都适用。不需要源码 parser
+7. **实证研究** — 64% of 591 production commits 是 proof-reshaping workaround，不是 source bug fix
 
 **与 Pretty Verifier 的本质差异**：
 - Pretty Verifier：parse **1 行** error message（91 regex）→ 1 个 enhanced text + 1 个建议
@@ -413,6 +414,9 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | Paper data audit | `docs/tmp/paper-data-audit.md` | Codex |
 | Full code review | `docs/tmp/full-code-review.md` | Codex |
 | Novelty gap analysis | `docs/tmp/novelty-gap-analysis.md` | Codex |
+| Strategic review (2026-03-12) | `docs/tmp/strategic-review-2026-03-12.md` | Codex |
+| Multi-language analysis | `docs/tmp/multi-language-analysis.md` | Codex |
+| Decompiler analysis | `docs/tmp/decompiler-analysis.md` | Codex |
 | Taxonomy 定义 | `taxonomy/taxonomy.yaml` | Codex |
 | Error catalog | `taxonomy/error_catalog.yaml` | Codex |
 | Obligation catalog | `taxonomy/obligation_catalog.yaml` | Codex |
@@ -472,6 +476,23 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | 39 | Top-level entry point | ✅ | `interface/extractor/rust_diagnostic.py` (539 lines); `generate_diagnostic()` end-to-end pipeline; 27/27 tests pass |
 | 50 | **Real proof engine (formal predicate tracking)** | ✅ R3+集成+扩展 | `proof_engine.py`; **integration 历史结果 42.3%→60.2% (145/241)**；当前审计值：**obligation 94.2% (227/241 eval), 96.4% (397/412 full pipeline); tests 101 passing**；10 families；catalog override 109→18；JSON schema 统一；source_bug 合同特化。`docs/tmp/proof-engine-integration-report.md`, `docs/tmp/paper-data-audit.md` |
 
+### Phase 2c: Formal Foundation（2026-03-12 加入论文）
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 55 | **Obligation status lattice + transfer function** | ✅ in paper | 定义 L={⊥, unknown, satisfied, violated}，τ_i transfer function, transition witness w。已写入 `docs/paper/main.tex` §3 |
+| 56 | **Soundness theorem (Proposition 1)** | ✅ in paper | "OBLIGE labels inherit soundness from verifier's own abstract interpretation." Proof sketch in paper §3 |
+| 57 | **Backward obligation slice** | ✅ | `backward_obligation_slice()` + `CompositeObligation` + `track_composite()` in proof_engine.py; `causal_chain` 字段集成; 104 tests passing. `docs/tmp/backward-slice-report.md` |
+| 58 | **Generalization beyond eBPF** | ✅ in paper | Paper §3 includes paragraph: framework applies to any verifier/type-checker producing per-step abstract state traces |
+
+### Phase 2d: Generality（2026-03-12 开始）
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 70 | **Multi-language analysis** | 🔄 codex running | 验证 OBLIGE 对 Rust (Aya, 18 cases) 和 Go (Cilium, 7 cases) 编译的 BPF 是否同样有效。OBLIGE 在 bytecode level 分析，应 language-agnostic |
+| 71 | **Decompiler integration analysis** | 🔄 codex running | `bpftool dump xlated linum`, Ghidra eBPF module。评估生产环境无源码场景。`docs/tmp/decompiler-analysis.md` |
+| 72 | **Per-language eval table** | ❌ | 在论文中加入 per-language breakdown（C/Rust/Go），证明 language independence |
+
 ### Phase 3: Evaluation（原 Phase 5 合并）
 
 | # | 任务 | 状态 | 关键数据 / 文档 |
@@ -516,3 +537,6 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | **利用 verifier 的 mark_precise** | ✅（新） | verifier 自己的 precision tracking 是最精确的根因链，只需提取和结构化 |
 | **A/B repair experiment 是核心评估** | ✅（新） | 不是测分类，是测"OBLIGE 输出是否帮 LLM 生成更好的修复" |
 | **Cross-kernel 暂缓** | ✅（新） | 先做 Rust-style engine + repair experiment，再做跨版本稳定性 |
+| **Formal treatment in paper** | ✅（新） | Obligation lattice L={⊥,unknown,satisfied,violated}，soundness from verifier AI，backward slice。论文 §3 |
+| **Language-agnostic claim** | 🔄（新） | OBLIGE 在 bytecode level 分析 → 理论上 language-agnostic（C/Rust/Go）。需实证验证。codex 分析中 |
+| **Decompiler as deployment story** | 🔄（新） | 生产环境无源码时用 bpftool xlated + Ghidra 提供 source correlation fallback。codex 分析中 |

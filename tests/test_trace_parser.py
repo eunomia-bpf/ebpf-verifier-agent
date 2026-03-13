@@ -15,6 +15,7 @@ from interface.extractor.trace_parser import (
     InstructionLine,
     RegisterStateLine,
     SourceAnnotation,
+    _is_pointer_type,
     extract_backtrack_chains,
     parse_line,
     parse_trace,
@@ -225,3 +226,10 @@ def test_parse_trace_recovers_colon_prefixed_instructions() -> None:
     assert "overrided_bytes" in parsed.instructions[0].source_line
     assert parsed.instructions[-1].insn_idx == 609
     assert parsed.instructions[-1].is_error is True
+
+
+
+def test_pointer_family_recognizes_typed_verifier_pointers() -> None:
+    assert _is_pointer_type("ptr_sock") is True
+    assert _is_pointer_type("trusted_ptr_task_struct") is True
+    assert _is_pointer_type("rcu_ptr_task_struct") is True

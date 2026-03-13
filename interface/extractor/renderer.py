@@ -22,6 +22,10 @@ class DiagnosticOutput:
     text: str
     json_data: dict[str, Any]
 
+    def get(self, key: str, default: Any = None) -> Any:
+        """Preserve the pre-refactor dict-like access pattern for JSON callers."""
+        return self.json_data.get(key, default)
+
 
 def render_diagnostic(
     error_id: str,
@@ -288,14 +292,33 @@ def _collect_register_states(
 ) -> dict[str, str]:
     registers: dict[str, str] = {}
     for span in spans:
-        if span.role not in roles or not span.state_change:
+        if span.role not in roles:
             continue
-        parsed = _parse_state_change(span.state_change)
-        if parsed is None:
+        state = _structured_state_value(span, prefer_after=prefer_after)
+        if state is None or span.register is None:
             continue
-        register, before, after = parsed
-        registers[register] = after if prefer_after and after is not None else before
+        registers[span.register] = state
     return registers
+
+
+def _structured_state_value(
+    span: SourceSpan,
+    *,
+    prefer_after: bool,
+) -> str | None:
+    if prefer_after and span.state_after is not None:
+        return span.state_after
+    if span.state_before is not None:
+        return span.state_before
+    if span.state_after is not None:
+        return span.state_after
+    if span.state_change is None:
+        return None
+    parsed = _parse_state_change(span.state_change)
+    if parsed is None:
+        return None
+    _register, before, after = parsed
+    return after if prefer_after and after is not None else before
 
 
 def _render_abstract_state(
@@ -317,9 +340,10 @@ def _parse_state_change(state_change: str) -> tuple[str, str, str | None] | None
     register = register.strip()
     if not register:
         return None
-    if " → " in payload:
-        before, after = payload.split(" → ", 1)
-        return register, before.strip(), after.strip()
+    for separator in (" → ", " -> "):
+        if separator in payload:
+            before, after = payload.split(separator, 1)
+            return register, before.strip(), after.strip()
     return register, payload.strip(), None
 
 

@@ -5,6 +5,15 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from .shared_utils import (
+    decode_regs_mask as _shared_decode_regs_mask,
+    extract_registers as _shared_extract_registers,
+    is_map_value_type_name,
+    is_nullable_pointer_type,
+    is_packet_pointer_type,
+    is_pointer_type_name,
+    normalize_register as _shared_normalize_register,
+)
 from .trace_parser import (
     BacktrackChain,
     CriticalTransition,
@@ -15,7 +24,6 @@ from .trace_parser import (
 
 
 REGISTER_RE = re.compile(r"\b([RrWw]\d+)\b")
-POINTER_TYPE_MARKERS = ("pkt", "map_", "ptr", "sock", "ctx", "fp")
 LOSS_TRANSITIONS = {"BOUNDS_COLLAPSE", "RANGE_LOSS"}
 DIRECT_REJECTION_RE = re.compile(
     "|".join(
@@ -281,8 +289,7 @@ def _instruction_has_type(
     if instruction is None:
         return False
     for state in list(instruction.pre_state.values()) + list(instruction.post_state.values()):
-        lowered = state.type.lower()
-        if any(marker in lowered for marker in type_markers):
+        if any(_state_matches_type_marker(state.type, marker) for marker in type_markers):
             return True
     return False
 
@@ -301,10 +308,22 @@ def _first_register_with_type(
         state = instruction.pre_state.get(register) or instruction.post_state.get(register)
         if state is None:
             continue
-        lowered = state.type.lower()
-        if any(marker in lowered for marker in type_markers):
+        if any(_state_matches_type_marker(state.type, marker) for marker in type_markers):
             return register
     return None
+
+
+def _state_matches_type_marker(state_type: str, marker: str) -> bool:
+    lowered = state_type.lower()
+    if marker == "pkt":
+        return is_packet_pointer_type(lowered)
+    if marker == "map_value":
+        return is_map_value_type_name(lowered)
+    if marker == "_or_null":
+        return is_nullable_pointer_type(lowered)
+    if marker.endswith("_"):
+        return lowered.startswith(marker)
+    return lowered == marker
 
 
 def _select_relevant_chain(
@@ -587,55 +606,21 @@ def _select_primary_register(
 
 
 def _decode_regs_mask(mask: str | None) -> list[str]:
-    if not mask:
-        return []
-
-    text = mask.strip().lower()
-    if text in {"0", "0x0"}:
-        return []
-
-    try:
-        value = int(text, 16)
-    except ValueError:
-        try:
-            value = int(text, 0)
-        except ValueError:
-            return []
-
-    registers: list[str] = []
-    bit = 0
-    while value:
-        if value & 1:
-            registers.append(f"R{bit}")
-        value >>= 1
-        bit += 1
-    return registers
+    return _shared_decode_regs_mask(mask)
 
 
 def _extract_registers(text: str | None) -> list[str]:
-    if not text:
-        return []
-
-    registers: list[str] = []
-    for match in REGISTER_RE.finditer(text):
-        normalized = _normalize_register(match.group(1))
-        if normalized not in registers:
-            registers.append(normalized)
-    return registers
+    return _shared_extract_registers(text)
 
 
 def _normalize_register(register: str) -> str:
-    lowered = register.lower()
-    if lowered.startswith(("r", "w")):
-        return f"R{lowered[1:]}"
-    return register
+    return _shared_normalize_register(register)
 
 
 def _state_has_useful_proof(state: RegisterState | None) -> bool:
     if state is None:
         return False
-    lowered = state.type.lower()
-    if any(marker in lowered for marker in POINTER_TYPE_MARKERS):
+    if is_pointer_type_name(state.type):
         return not state.type.lower().endswith("_or_null") and (
             state.range is None or state.range > 0 or state.id is not None or state.off is not None
         )
