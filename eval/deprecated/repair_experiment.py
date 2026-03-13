@@ -31,7 +31,7 @@ from interface.extractor.rust_diagnostic import generate_diagnostic
 CASE_DIRS = (
     ROOT / "case_study" / "cases" / "stackoverflow",
     ROOT / "case_study" / "cases" / "github_issues",
-    ROOT / "case_study" / "cases" / "kernel_selftests.pre_unique_ids_20260311T0903",
+    ROOT / "case_study" / "cases" / "kernel_selftests",
 )
 DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "repair_experiment_results.json"
 DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "repair-experiment-report.md"

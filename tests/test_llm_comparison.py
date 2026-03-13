@@ -1,14 +1,8 @@
 from __future__ import annotations
 
 from collections import Counter
-from pathlib import Path
-import sys
 
 import yaml
-
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
 from eval.llm_comparison import (
     DEFAULT_MANUAL_LABELS_PATH,

@@ -1,17 +1,12 @@
-# Repair Experiment V3: Raw Verifier Log vs Current OBLIGE Diagnostic
+# Repair Experiment V3: Raw Verifier Log vs OBLIGE Diagnostic (Local 20B Model)
 
-- This rerun regenerates `generate_diagnostic(verifier_log)` on all 54 bundled cases using the current pipeline.
-- Condition A prompts are identical to v2 (`code + raw log`), so the A-side judgments are held fixed to isolate pipeline changes rather than model drift.
-- Condition B diagnostics changed semantically on `17/54` cases when compared against the stored v2 bundle outputs (`failure_class`, `message`, `raw_log_excerpt`, `note`, `help`).
-- Only `3/54` cases changed B-side scores after manual rerun: `kernel-selftest-iters-state-safety-leak-iter-from-subprog-fail-raw-tp-65737a09`, `stackoverflow-77205912`, `kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993`.
-- Net result: Condition B now ties Condition A on overall `fix_type` and `root_cause` (`46/54` each), but still trails on `location` (`50/54` vs `53/54`).
-- Generated: `2026-03-12T22:23:41+00:00`
-- Selected cases: `54`
-- Desired taxonomy targets: `{"env_mismatch": 8, "lowering_artifact": 15, "source_bug": 23, "verifier_limit": 8}`
-- Effective taxonomy targets: `{"env_mismatch": 8, "lowering_artifact": 10, "source_bug": 23, "verifier_limit": 8}`
-- Selected taxonomy counts: `{"env_mismatch": 8, "lowering_artifact": 10, "source_bug": 28, "verifier_limit": 8}`
-
-Only 10 `lowering_artifact` cases were eligible in the requested source buckets with usable code, verifier log, and ground-truth fix text, so the remaining slots were backfilled with `source_bug` cases.
+- Generated: `2026-03-13T04:13:09+00:00`
+- Model: local llama.cpp GPT-OSS 20B
+- Selected cases: `56`
+- Desired taxonomy targets: `{'lowering_artifact': 20, 'source_bug': 20, 'verifier_limit': 8, 'env_mismatch': 8}`
+- Effective taxonomy targets: `{'lowering_artifact': 11, 'source_bug': 20, 'verifier_limit': 8, 'env_mismatch': 8}`
+- Selected taxonomy counts: `{'lowering_artifact': 11, 'source_bug': 29, 'verifier_limit': 8, 'env_mismatch': 8}`
+- BTF-misleading diagnostics suppressed in Condition B: `1`
 
 Scoring rubric per condition: `location/fix_type/root_cause`, each binary in `{0,1}`.
 
@@ -19,266 +14,163 @@ Scoring rubric per condition: `location/fix_type/root_cause`, each binary in `{0
 
 | Condition | Location | Fix type | Root cause |
 | --- | ---: | ---: | ---: |
-| A (raw verifier log only) | 53/54 (98.1%) | 46/54 (85.2%) | 46/54 (85.2%) |
-| B (raw log + OBLIGE diagnostic) | 50/54 (92.6%) | 46/54 (85.2%) | 46/54 (85.2%) |
+| A (raw verifier log only) | 21/56 (37.5%) | 12/56 (21.4%) | 45/56 (80.4%) |
+| B (raw log + OBLIGE diagnostic) | 22/56 (39.3%) | 16/56 (28.6%) | 47/56 (83.9%) |
 
 ## Summary By Taxonomy
 
 | Taxonomy | Cases | A location | B location | A fix type | B fix type | A root cause | B root cause |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `lowering_artifact` | 10 | 9/10 (90.0%) | 9/10 (90.0%) | 3/10 (30.0%) | 6/10 (60.0%) | 3/10 (30.0%) | 6/10 (60.0%) |
-| `source_bug` | 28 | 28/28 (100.0%) | 27/28 (96.4%) | 27/28 (96.4%) | 26/28 (92.9%) | 27/28 (96.4%) | 26/28 (92.9%) |
-| `verifier_limit` | 8 | 8/8 (100.0%) | 7/8 (87.5%) | 8/8 (100.0%) | 7/8 (87.5%) | 8/8 (100.0%) | 7/8 (87.5%) |
-| `env_mismatch` | 8 | 8/8 (100.0%) | 7/8 (87.5%) | 8/8 (100.0%) | 7/8 (87.5%) | 8/8 (100.0%) | 7/8 (87.5%) |
+| `lowering_artifact` | 11 | 5/11 (45.5%) | 4/11 (36.4%) | 1/11 (9.1%) | 2/11 (18.2%) | 8/11 (72.7%) | 9/11 (81.8%) |
+| `source_bug` | 29 | 10/29 (34.5%) | 13/29 (44.8%) | 9/29 (31.0%) | 11/29 (37.9%) | 25/29 (86.2%) | 26/29 (89.7%) |
+| `verifier_limit` | 8 | 4/8 (50.0%) | 4/8 (50.0%) | 2/8 (25.0%) | 3/8 (37.5%) | 6/8 (75.0%) | 6/8 (75.0%) |
+| `env_mismatch` | 8 | 2/8 (25.0%) | 1/8 (12.5%) | 0/8 (0.0%) | 0/8 (0.0%) | 6/8 (75.0%) | 6/8 (75.0%) |
+
+## BTF-Suppression Analysis
+
+- Cases where OBLIGE diagnostic was BTF-misleading → suppressed: `1`
+- Cases with clean proof-analysis diagnostic: `55`
+
+| Subset | Condition | Fix type | Location |
+| --- | --- | ---: | ---: |
+| BTF-suppressed (1) | A | 0/1 (0.0%) | 1/1 (100.0%) |
+| BTF-suppressed (1) | B | 0/1 (0.0%) | 1/1 (100.0%) |
+| Clean diagnostic (55) | A | 12/55 (21.8%) | 20/55 (36.4%) |
+| Clean diagnostic (55) | B | 16/55 (29.1%) | 21/55 (38.2%) |
+
+## Statistical Comparison
+
+- Condition A fix-type accuracy: `12/56` (21.4%)
+- Condition B fix-type accuracy: `16/56` (28.6%)
+- McNemar exact test on paired fix-type: A-only=1, B-only=5, p=0.2188
 
 ## Per-Case Results
 
 | Case | Taxonomy | A score | B score | A fix | B fix | Ground truth |
 | --- | --- | ---: | ---: | --- | --- | --- |
-| `github-aya-rs-aya-1062` | `lowering_artifact` | `1/0/0` | `1/1/1` | Add or tighten the bounds check immediately before the failing access. | Replace 'ctx.ret().unwrap()' with explicit error handling and clamp the resulting length before the read. | Avoid 'unwrap'/panic paths in eBPF and rewrite to explicit error handling or unsigned/clamped arithmetic. |
-| `stackoverflow-70729664` | `lowering_artifact` | `1/0/0` | `1/1/1` | Tighten the SCTP chunk-walk check so the code revalidates 'nh->pos + size + 4' against 'data_end' before reading the next chunk type. | Clamp the computed chunk advance to a small unsigned max such as 'MAX_PACKET_OFF' and keep the offset arithmetic in a separate verified r... | The verifier errors because it thinks R7 is outside the packet's known bounds. It tells us you're trying to make an access of size 1B at... |
-| `stackoverflow-70750259` | `lowering_artifact` | `1/1/1` | `1/1/1` | Keep ext_len unsigned and clamp it before data += ext_len; avoid the signed or volatile conversion that makes the verifier lose the range... | Compute ext_len in a separate verified unsigned register, clamp it to the remaining packet span, then advance data with that checked value. | Add an explicit non-negative/upper-bound clamp or rewrite the arithmetic in an unsigned form. |
-| `stackoverflow-72575736` | `lowering_artifact` | `0/0/0` | `0/0/0` | Add an explicit unsigned clamp on 'off'/'i' and dereference the same checked 'address' register inside the loop. | Clamp the offset to a small unsigned range and keep the offset calculation in a separate verified register before dereference. | TL;DR. You are missing bug fix 2fa7d94afc1a for the BPF verifier. It was backported to the v5.13 kernel you are using as commit e7a61f15b... |
-| `stackoverflow-73088287` | `lowering_artifact` | `1/0/0` | `1/0/0` | Add or tighten the bounds check immediately before the failing access. | Add or tighten the bounds check immediately before the failing access. | Use a verifier-friendly loop rewrite that keeps the checked pointer and accessed pointer identical. |
-| `stackoverflow-74178703` | `lowering_artifact` | `1/0/0` | `1/1/1` | Add or tighten the bounds check immediately before the failing access. | Recompute and dereference through the same checked 'b + offset + i' expression inside the loop body. | Recompute and access through the same checked pointer expression inside the loop body. |
-| `stackoverflow-75058008` | `lowering_artifact` | `1/0/0` | `1/0/0` | Add a null check in the same function right before the dereference. | Add a null check in the same function right before the dereference. | TL;DR. Making your matchPrefix function a static inline one should work around the verifier issue. I believe this is happening because th... |
-| `stackoverflow-76160985` | `lowering_artifact` | `1/1/1` | `1/1/1` | Mark 'find_substring' and, if needed, 'mystrlen' as '__always_inline' so the verifier sees the caller's proof in one function. | Mark 'find_substring' as '__always_inline' so the string-walk proof stays in the caller instead of being validated as a separate subprogram. | Mark the helper '__always_inline' or otherwise keep the proof within one function. |
-| `stackoverflow-79485758` | `lowering_artifact` | `1/0/0` | `1/1/1` | Add a stronger guard before x = *((uint16_t *)(data + field_offset)), rejecting any case where field_offset or that 2-byte read may run p... | Clamp field_offset into a verifier-friendly unsigned range and read through a separately checked pkt_ptr before dereferencing it. | The verifier complains on the packet access because the access seems to be out of the known packet bounds. The access is at offset 0, wit... |
-| `stackoverflow-79530762` | `lowering_artifact` | `1/1/1` | `1/0/0` | Introduce a temporary checked pointer and read/write through that exact pointer instead of recomputing 'data_bytes + i + option_length' a... | Add a stronger 'data_bytes + i + option_length + 1 <= data_end' guard immediately before the write. | Rewrite the code so the checked pointer/value is reused directly and the proof survives lowering. |
-| `github-aya-rs-aya-407` | `source_bug` | `1/1/1` | `1/1/1` | Pass the scalar value expected by the call rather than an unsupported pointer wrapper. | Pass the scalar value expected by the call rather than an unsupported pointer wrapper. | It is just a minor thing (for me) as I have a workaround, but I wonder if it is intended to work only with u32/i32 for PerfEventArray, if... |
-| `kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993` | `source_bug` | `1/1/1` | `1/1/1` | Pass the dynptr from its exact stack slot/base address instead of an offset or forged pointer. | Pass the dynptr object at its exact stack slot and call bpf_dynptr_read with '&ptr', not '(void *)&ptr + 1' or any shifted address. | Pass the dynptr object at its exact stack slot / constant base address. |
-| `kernel-selftest-iters-state-safety-leak-iter-from-subprog-fail-raw-tp-65737a09` | `source_bug` | `1/1/1` | `1/1/1` | Destroy the iterator on every exit path, including the callee path that currently leaks it. | Release or destroy the iterator on every exit path, including the callee-return path that currently reaches 'return 0' with a live refere... | Destroy or release the iterator on every exit path, including the callee path. |
-| `stackoverflow-60053570` | `source_bug` | `1/1/1` | `1/1/1` | Change the 'bpf_csum_diff' length argument to the actual ICMP header size, such as 'sizeof(struct icmphdr)', unless the code first proves... | Use the correct byte length at 'bpf_csum_diff' for the ICMP header instead of the larger unchecked constant, or add a dominating proof fo... | The to_size passed as third argument should be a number of bytes. Assuming that you copied ICMP_ECHO_LEN from kernel selftests, I suspect... |
-| `stackoverflow-61945212` | `source_bug` | `1/0/0` | `1/1/1` | Fix the helper call site by passing a real stack-backed key to bpf_map_update_elem, or switch to a keyed map if you need keyed updates. | Replace bpf_map_update_elem with the queue-map API, e.g. bpf_map_push_elem(&queue_map, &value, 0). | Use 'bpf_map_push_elem'/'pull'/'peek' for queue maps instead of 'bpf_map_update_elem()'. |
-| `stackoverflow-67402772` | `source_bug` | `1/1/1` | `1/1/1` | Stop reading 'skb->local_ip4' and 'skb->remote_ip4' in this 'lwt_out' program; use an allowed context field/API or move the logic to a pr... | Replace the forbidden 'skb' member reads with a verifier-allowed field or helper, or run this logic in a program type that permits those... | The error is not caused by bpf_trace_prink(), but by the skb accesses that are present in your bytecode only when you call bpf_trace_prin... |
-| `stackoverflow-67679109` | `source_bug` | `1/1/1` | `1/1/1` | Use a plain value/current variable instead of pointer arithmetic that the verifier cannot prove safe. | Use a plain value/current variable instead of pointer arithmetic that the verifier cannot prove safe. | Why not use a regular variable for current, instead of a pointer? |
-| `stackoverflow-69767533` | `source_bug` | `1/1/1` | `1/1/1` | Zero-initialize 'tmp_buffer' before 'bpf_probe_read' and keep the copy length explicitly bounded. | Zero-initialize 'tmp_buffer' before 'bpf_probe_read' and keep the copy length explicitly bounded. | Initialize 'tmp_buffer' before the helper call and keep the copy length explicitly bounded. |
-| `stackoverflow-70091221` | `source_bug` | `1/1/1` | `1/1/1` | Declare the map with 'SEC("maps")' so helper arg 1 is the actual map object. | Declare the map with 'SEC("maps")' so helper arg 1 is the actual map object. | Declare the map in 'SEC("maps")' and preserve the loader-generated map pointer relocation. |
-| `stackoverflow-70392721` | `source_bug` | `1/1/1` | `1/1/1` | Rebuild the BPF object with '-O2' and strip incompatible debug/BTF payloads with 'llvm-strip -g' instead of changing program logic. | Compile with '-O2' and strip the object so libbpf sees a clean BPF program/BTF payload; this is a build artifact issue, not a pointer fix... | I also encountered the same problem, and the solution is as follows，Add the compile option -O2 and use LLVM_STRIP |
-| `stackoverflow-70721661` | `source_bug` | `1/1/1` | `1/1/1` | Prove the IP header is in bounds before memcpy, either with (void *)ip + sizeof(*ip) <= data_end or by folding that size into the first h... | Add an explicit bounds check that covers the full IP header before memcpy, not just the Ethernet header. | TL;DR. The issue is that you're making an out-of-bound access to the packet from the verifier's point of view. You need to check the pack... |
-| `stackoverflow-70760516` | `source_bug` | `1/1/1` | `1/0/0` | Cap the number of parsed extensions and tighten per-extension and server-name lengths so the cumulative packet offset cannot grow past 64K. | Insert an explicit 'data + sizeof(struct extension) <= data_end' check right before reading 'ext->type'. | Now, to fix this we need to change the code so data can't exceed 65536. We do this by specifying a maximum amount of iterations(extension... |
-| `stackoverflow-70873332` | `source_bug` | `1/1/1` | `1/1/1` | Restructure the access so the verifier can see the same bounded expression at check and dereference time. | Restructure the access so the verifier can see the same bounded expression at check and dereference time. | TL;DR. You are hitting a corner-case of the verifier. See https://stackoverflow.com/a/70731589/6884590. Adding a bounds check on pkt_ctx-... |
-| `stackoverflow-71946593` | `source_bug` | `1/1/1` | `1/1/1` | Use 'bpf_probe_read*' to read the 'sk_buff' member instead of direct field dereference. | Use 'bpf_probe_read*' to read the 'sk_buff' member instead of direct field dereference. | I fixed it. Looks like have to use bpf_probe_read to read any memeber in sk_buff. |
-| `stackoverflow-72074115` | `source_bug` | `1/1/1` | `1/1/1` | Add a dominating bounds check that proves the buffer access is within range on every path. | Add a dominating bounds check that proves the buffer access is within range on every path. | A friend of mine told me that I should verify it by: He told me that I should judge whether the corresponding position of the array exist... |
-| `stackoverflow-72606055` | `source_bug` | `1/1/1` | `1/1/1` | Fix the custom loader to create the map and apply ELF relocation for 'my_map', or use libbpf/bpftool so the helper sees a real map refere... | Use a loader path that preserves the loader-generated map reference for 'my_map' rather than sending an unrelocated 'map_lookup_elem' cal... | Your loader is not creating maps (or retrieving FDs for existing, compatible maps), and does not update the bytecode accordingly. So the... |
-| `stackoverflow-74531552` | `source_bug` | `1/1/1` | `1/1/1` | Check *curr_state is within [0, 4) before using it to index aut.function, and bail out if it is negative or too large. | Check *curr_state is within [0, 4) before indexing aut.function so the table access has an explicit verifier-visible bound. | So, I've found the solution. It seems that I didn't properly check for the bounds of *curr_state. So the solution is to simply add the fo... |
-| `stackoverflow-75294010` | `source_bug` | `1/1/1` | `0/0/0` | Pass 'event' to 'bpf_perf_event_output' instead of '&event', so the helper receives the record buffer rather than a pointer to the pointer. | Re-derive the 'event' pointer from the verified map lookup before each dereference and write. | Root Cause The fourth argument to bpf_perf_event_output should be a pointer to the data to post on the ring buffer. Hence, you want to pa... |
-| `stackoverflow-75515263` | `source_bug` | `1/1/1` | `1/1/1` | Declare the map value as 'struct sock_info' rather than a pointer so reads of 'sport' and 'dport' stay in-bounds. | Declare the map value as 'struct sock_info' rather than a pointer so reads of 'sport' and 'dport' stay in-bounds. | If you want to store object of type struct sock_info in your BPF map, then its declaration should be: Note how the value type is not a po... |
-| `stackoverflow-75643912` | `source_bug` | `1/1/1` | `1/1/1` | Fix the off-by-one and width check so the loop only reads bytes that are proven in-bounds. | Fix the off-by-one and width check so the loop only reads bytes that are proven in-bounds. | I am not 100% certain if this is due to a off by one error in the condition or due to the way clang does the guard generation. In any cas... |
-| `stackoverflow-76277872` | `source_bug` | `1/1/1` | `1/1/1` | Check bounds against the actual header/payload size you read, not just 'sizeof(struct ethhdr)'. | Check bounds against the actual header/payload size you read, not just 'sizeof(struct ethhdr)'. | The bounds check here is not correct. You are checking if you can access up to struct ethhdr of bytes, but you should check for struct et... |
-| `stackoverflow-76637174` | `source_bug` | `1/1/1` | `1/1/1` | Rewrite the payload scan to use a checked 'tcp_data' pointer, test 'tcp_data + i + 1 <= data_end', and cap the loop with a fixed maximum... | Rewrite the payload walk around a verified 'tcp_data' pointer and add an explicit maximum iteration bound so both the packet-access proof... | There are two issues here. First is an off by 1 error in the loop, you need to account for the width of the read in the for loop conditio... |
-| `stackoverflow-76960866` | `source_bug` | `1/1/1` | `1/1/1` | Do not dereference newsock directly; read the field via bpf_probe_read_kernel(&sk, sizeof(sk), &newsock->sk) and then inspect the resulti... | Re-read the socket field through bpf_probe_read_kernel using &newsock->sk, then pass that verified value to extract_sock_key. | In the C world you are casting the pointer in PARAM2 to a (struct socket *) but the verifier does not see that. It only sees that you too... |
-| `stackoverflow-77205912` | `source_bug` | `1/1/1` | `1/1/1` | After 'skb_store_bytes' and the checksum helpers, reload 'data', 'data_end', and the IP/TCP pointers from 'skb', or compute both checksum... | Re-read 'data', 'data_end', 'ip4', and 'tcph' from 'skb' after 'skb_store_bytes'/checksum helpers, or compute both checksum diffs before... | Re-read packet pointers from 'skb' after the helper calls, or compute the checksum work before mutating the packet. |
-| `stackoverflow-77762365` | `source_bug` | `1/1/1` | `1/1/1` | Make the read length explicitly bounded before combining it with 'event->len' for the copy. | Make the read length explicitly bounded before combining it with 'event->len' for the copy. | TL;DR. The verifier is not yet smart enough to use event->len + read < MAX_READ_CONTENT_LENGTH. For the verifier to confirm that bpf_prob... |
-| `stackoverflow-78958420` | `source_bug` | `1/1/1` | `1/1/1` | Track the parsed domain length, zero-init a fixed buffer, and bounds-check/copy only that many bytes. | Track the parsed domain length, zero-init a fixed buffer, and bounds-check/copy only that many bytes. | It asserts that there must at least be 254 bytes bytes in the packet after offset 62. So if you encounter a packet that is smaller than 3... |
-| `stackoverflow-79045875` | `source_bug` | `1/1/1` | `1/1/1` | Pass data whose pointee type matches the kfunc contract instead of an 'UNKNOWN' pointer shape. | Pass data whose pointee type matches the kfunc contract instead of an 'UNKNOWN' pointer shape. | arg#0 pointer type UNKNOWN must point to scalar, or struct with scalar This error is thrown because the kernel does strict type checking... |
-| `stackoverflow-79348306` | `source_bug` | `1/1/1` | `1/1/1` | Delete 'BPF_CORE_READ_INTO(&file_path, file, f_path)' and call 'bpf_d_path(&file->f_path, path_buffer, sizeof(path_buffer))' directly. | Pass '&file->f_path' directly to 'bpf_d_path' and stop copying the path object onto the stack before the helper call. | Root Cause Solution |
-| `github-aya-rs-aya-1324` | `verifier_limit` | `1/1/1` | `1/1/1` | Keep the logger returned by EbpfLogger::init alive for the lifetime of the program instead of dropping it immediately. | Keep the EbpfLogger handle alive instead of dropping it, so the logging map FD stays valid through program load and attach. | Also your code has the same problem as OP's. You are not actually consuming the logs. For posterity your init call is here: https://githu... |
-| `github-aya-rs-aya-521` | `verifier_limit` | `1/1/1` | `0/0/0` | Reduce branching inside the 'bpf_loop' callback or replace it with a smaller bounded/unrolled loop so the verifier does not explode states. | Regenerate matching BTF and 'func_info' metadata for the 'bpf_loop' callback so the kernel can load it. | I was of the impression that loops aren't allowed at all by the verifier. Are there any examples of clever ways to get around the verifie... |
-| `kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda` | `verifier_limit` | `1/1/1` | `1/1/1` | Reduce aggregate stack use across async calls or shrink the involved frames. | Reduce aggregate stack use across async calls or shrink the involved frames. | Reduce combined stack use, split call structure, or shrink frame sizes. |
-| `kernel-selftest-async-stack-depth-pseudo-call-check-tc-320d654d` | `verifier_limit` | `1/1/1` | `1/1/1` | Refactor the call tree or shrink per-frame stack use so combined stack depth stays within limits. | Refactor the call tree or shrink per-frame stack use so combined stack depth stays within limits. | Refactor the call tree or reduce per-frame stack use so the aggregate depth stays within limits. |
-| `stackoverflow-47591176` | `verifier_limit` | `1/1/1` | `1/1/1` | Load the tc program with the direct-action ('da') flag so 'TC_ACT_SHOT' is interpreted as an action result. | Load the tc program with the direct-action ('da') flag so 'TC_ACT_SHOT' is interpreted as an action result. | TL;DR: You should add direct-action flag to the tc filter command, as in Because eBPF is kind of more flexible than the traditional actio... |
-| `stackoverflow-56872436` | `verifier_limit` | `1/1/1` | `1/1/1` | Rewrite the loop into a form the verifier can fully unroll, or manually unroll the 8-iteration walk and inline the helper if needed. | Make the loop verifier-visible by fully unrolling it or rewriting it so the bound/invariant is explicit at compile time. | Use a loop form the verifier can fully unroll or otherwise make the bound/invariant explicit. |
-| `stackoverflow-70841631` | `verifier_limit` | `1/1/1` | `1/1/1` | Reduce verifier state explosion by simplifying or splitting the nested packet-scanning loops, hoisting checks, and keeping the per-packet... | Refactor the nested parsing loops into simpler bounded stages so verifier branching and iteration count stay below the analysis budget. | TL;DR. Your program is too complex for the verifier to analyze, as it must iterate over more than 1 million instructions to verify the fu... |
-| `stackoverflow-78753911` | `verifier_limit` | `1/1/1` | `1/1/1` | Split the parser into simpler stages and hoist common checks so the bounded loop has fewer branches and state splits. | Split the program with tail calls or otherwise reduce branching and loop work so the verifier tracks fewer states. | Reduce branching/state fan-out, hoist common checks, or split the logic into simpler stages. |
-| `github-aya-rs-aya-1002` | `env_mismatch` | `1/1/1` | `1/1/1` | Move mutable global state into a BPF map instead of writing static data directly. | Move mutable global state into a BPF map instead of writing static data directly. | only read from bpf_array is supported You are trying to access a static item, which is not supported in BPF. You will need to maintain st... |
-| `github-aya-rs-aya-1104` | `env_mismatch` | `1/1/1` | `1/1/1` | Build the eBPF object in release mode instead of the debug/dev profile. | Build the eBPF object in release mode instead of the debug/dev profile. | The template and book have been updated to only build ebpf in release mode. Please file an issue against those if you continue to be able... |
-| `github-aya-rs-aya-1233` | `env_mismatch` | `1/1/1` | `1/1/1` | Replace 'bpf_probe_read' with a helper allowed in 'cgroup_skb', or move the logic to a compatible program type. | Replace 'bpf_probe_read' with a helper allowed in 'cgroup_skb', or move the logic to a compatible program type. | Use a helper allowed in 'cgroup_skb', or move the logic to a program type that permits the read helper. |
-| `github-aya-rs-aya-864` | `env_mismatch` | `1/1/1` | `1/1/1` | Stop using 'ctx.pid()' in 'TcContext'; read the PID from 'skb'/'TcContext' fields or patch Aya's wrapper so it does not call the unavaila... | Avoid 'ctx.pid()' and fetch the PID from classifier context data instead, or fix Aya's 'TcContext' helper wrapper so it stops calling 'bp... | Read the PID from 'TcContext'/'skb' instead of calling the unavailable helper. |
-| `stackoverflow-69413427` | `env_mismatch` | `1/1/1` | `1/1/1` | Materialize the inode-derived key on the BPF stack and pass &key to bpf_map_lookup_elem, ideally using a scalar inode identifier instead... | Copy the inode key material into a stack local and pass a pointer to that stack object to bpf_map_lookup_elem. | In your case, BPF_CORE_READ() returns a scalar (inv), and dir to a BTF id (ptr_), and neither is suitable. You could try copying the data... |
-| `stackoverflow-76441958` | `env_mismatch` | `1/1/1` | `1/1/1` | Ensure 'state_ptr' points to 8-byte aligned storage, for example an aligned struct or map value slot, before using 'atomic64_cmpxchg'. | Move the atomic state into an 8-byte aligned map value or padded struct field so the compare-and-swap target is naturally aligned. | Align the user-space data/struct layout or target an architecture/context that satisfies the atomic access requirements. |
-| `stackoverflow-78236201` | `env_mismatch` | `1/1/1` | `0/0/0` | Use 'bpf_printk' or a stack-allocated format string with the correct size instead of the current printk call shape. | Re-derive the pointer immediately before the failing use instead of reusing the current value. | You are using bpf_trace_printk incorrectly, you typically stack allocate the fmt, then take the sizeof the char array and pass it as the... |
-| `stackoverflow-79812509` | `env_mismatch` | `1/1/1` | `1/1/1` | Use 'bpf_get_current_task_btf()' so the task pointer stays trusted for 'bpf_task_storage_get'. | Use 'bpf_get_current_task_btf()' so the task pointer stays trusted for 'bpf_task_storage_get'. | TL;DR. This is happening because the bpf_get_current_task helper doesn't preserve the type of the returned pointer. Instead, you'll want... |
+| `stackoverflow-70729664` | `lowering_artifact` | `0/0/1` | `0/0/1` | other_refactor | bounds_check | The verifier errors because it thinks R7 is outside the packet's known bounds. I |
+| `stackoverflow-70750259` | `lowering_artifact` | `1/1/1` | `1/1/1` | unsigned_clamp | unsigned_clamp | Add an explicit non-negative/upper-bound clamp or rewrite the arithmetic in an u |
+| `stackoverflow-72575736` | `lowering_artifact` | `0/0/1` | `0/0/1` | bounds_check | bounds_check | TL;DR. You are missing bug fix 2fa7d94afc1a for the BPF verifier. It was backpor |
+| `stackoverflow-73088287` | `lowering_artifact` | `1/0/1` | `1/0/1` | unsigned_clamp | unsigned_clamp | Use a verifier-friendly loop rewrite that keeps the checked pointer and accessed |
+| `stackoverflow-74178703` | `lowering_artifact` | `1/0/1` | `0/0/1` | unsigned_clamp | bounds_check | Recompute and access through the same checked pointer expression inside the loop |
+| `stackoverflow-74531552` | `lowering_artifact` | `0/0/1` | `1/1/1` | queue_map_api | unsigned_clamp | So, I've found the solution. It seems that I didn't properly check for the bound |
+| `stackoverflow-75058008` | `lowering_artifact` | `1/0/1` | `0/0/1` | unsigned_clamp | null_check | TL;DR. Making your matchPrefix function a static inline one should work around t |
+| `stackoverflow-76160985` | `lowering_artifact` | `1/0/0` | `1/0/1` | unsigned_clamp | unsigned_clamp | Mark the helper '__always_inline' or otherwise keep the proof within one functio |
+| `stackoverflow-79485758` | `lowering_artifact` | `0/0/0` | `0/0/0` | other_refactor | other_refactor | The verifier complains on the packet access because the access seems to be out o |
+| `stackoverflow-79530762` | `lowering_artifact` | `0/0/1` | `0/0/1` | bounds_check | bounds_check | Rewrite the code so the checked pointer/value is reused directly and the proof s |
+| `github-aya-rs-aya-1062` | `lowering_artifact` | `0/0/0` | `0/0/0` | other_refactor | other_refactor | Avoid 'unwrap'/panic paths in eBPF and rewrite to explicit error handling or uns |
+| `stackoverflow-53136145` | `source_bug` | `1/1/1` | `0/0/1` | inline_hint | other_refactor | So, why it breaks at that point? I think it's because the verifier assumes ipv6_ |
+| `stackoverflow-60053570` | `source_bug` | `1/1/1` | `1/1/1` | bounds_check | bounds_check | The to_size passed as third argument should be a number of bytes. Assuming that  |
+| `stackoverflow-61945212` | `source_bug` | `1/1/1` | `1/1/1` | queue_map_api | queue_map_api | Use 'bpf_map_push_elem'/'pull'/'peek' for queue maps instead of 'bpf_map_update_ |
+| `stackoverflow-67402772` | `source_bug` | `0/0/1` | `1/1/1` | other_refactor | bounds_check | The error is not caused by bpf_trace_prink(), but by the skb accesses that are p |
+| `stackoverflow-67679109` | `source_bug` | `0/0/1` | `0/0/1` | unsigned_clamp | The verifier failed because the loop dereferenced a null pointer ('current' was  | Why not use a regular variable for current, instead of a pointer? |
+| `stackoverflow-69767533` | `source_bug` | `0/0/1` | `0/0/1` | other_refactor | other_refactor | Initialize 'tmp_buffer' before the helper call and keep the copy length explicit |
+| `stackoverflow-70091221` | `source_bug` | `1/1/1` | `1/1/1` | map_declaration | map_declaration | Declare the map in 'SEC("maps")' and preserve the loader-generated map pointer r |
+| `stackoverflow-70392721` | `source_bug` | `0/0/1` | `1/0/0` | alignment_fix | The BPF program failed verification because the first argument to bpf_perf_event | I also encountered the same problem, and the solution is as follows，Add the comp |
+| `stackoverflow-70760516` | `source_bug` | `0/0/0` | `0/0/0` | other_refactor | other_refactor | Now, to fix this we need to change the code so data can't exceed 65536. We do th |
+| `stackoverflow-70873332` | `source_bug` | `1/1/1` | `1/1/1` | bounds_check | bounds_check | TL;DR. You are hitting a corner-case of the verifier. See https://stackoverflow. |
+| `stackoverflow-71946593` | `source_bug` | `0/0/1` | `0/0/1` | unsigned_clamp | other_refactor | I fixed it. Looks like have to use bpf_probe_read to read any memeber in sk_buff |
+| `stackoverflow-72074115` | `source_bug` | `1/1/1` | `1/1/1` | bounds_check | bounds_check | A friend of mine told me that I should verify it by: He told me that I should ju |
+| `stackoverflow-72606055` | `source_bug` | `0/0/1` | `0/0/1` | other_refactor | other_refactor | Your loader is not creating maps (or retrieving FDs for existing, compatible map |
+| `stackoverflow-75294010` | `source_bug` | `0/0/1` | `0/0/1` | alignment_fix | alignment_fix | Root Cause The fourth argument to bpf_perf_event_output should be a pointer to t |
+| `stackoverflow-75515263` | `source_bug` | `0/0/1` | `1/0/1` | other_refactor | map_declaration | If you want to store object of type struct sock_info in your BPF map, then its d |
+| `stackoverflow-75643912` | `source_bug` | `1/1/1` | `1/1/1` | bounds_check | unsigned_clamp | I am not 100% certain if this is due to a off by one error in the condition or d |
+| `stackoverflow-76277872` | `source_bug` | `0/0/1` | `1/1/1` | other_refactor | unsigned_clamp | The bounds check here is not correct. You are checking if you can access up to s |
+| `stackoverflow-76637174` | `source_bug` | `1/1/1` | `1/1/1` | bounds_check | unsigned_clamp | There are two issues here. First is an off by 1 error in the loop, you need to a |
+| `stackoverflow-76960866` | `source_bug` | `1/0/1` | `0/0/1` | context_member_read | other_refactor | In the C world you are casting the pointer in PARAM2 to a (struct socket *) but  |
+| `stackoverflow-76994829` | `source_bug` | `0/0/1` | `0/0/1` | unsigned_clamp | unsigned_clamp | how about change struct { __uint(type, BPF_MAP_TYPE_ARRAY); |
+| `stackoverflow-77205912` | `source_bug` | `0/0/0` | `0/0/1` | other_refactor | pointer_type_fix | Re-read packet pointers from 'skb' after the helper calls, or compute the checks |
+| `stackoverflow-77762365` | `source_bug` | `0/0/1` | `0/0/1` | other_refactor | other_refactor | TL;DR. The verifier is not yet smart enough to use event->len + read < MAX_READ_ |
+| `stackoverflow-78958420` | `source_bug` | `0/0/1` | `0/0/1` | other_refactor | other_refactor | It asserts that there must at least be 254 bytes bytes in the packet after offse |
+| `stackoverflow-79045875` | `source_bug` | `1/1/1` | `1/1/1` | btf_regen | pointer_type_fix | arg#0 pointer type UNKNOWN must point to scalar, or struct with scalar This erro |
+| `stackoverflow-79348306` | `source_bug` | `0/0/0` | `0/0/0` | other_refactor | other_refactor | Root Cause Solution |
+| `github-aya-rs-aya-407` | `source_bug` | `0/0/1` | `0/0/1` | reduce_stack_depth | other_refactor | It is just a minor thing (for me) as I have a workaround, but I wonder if it is  |
+| `github-cilium-cilium-41522` | `source_bug` | `0/0/0` | `1/1/1` | other_refactor | bounds_check | The sysdump is missing all node-specific information. I suspect it's because the |
+| `kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993` | `source_bug` | `0/0/1` | `0/0/1` | other_refactor | The verifier rejects the program because 'bpf_dynptr_read' is called with an inv | Pass the dynptr object at its exact stack slot / constant base address. |
+| `kernel-selftest-iters-state-safety-leak-iter-from-subprog-fail-raw-tp-65737a09` | `source_bug` | `0/0/1` | `0/0/1` | other_refactor | other_refactor | Destroy or release the iterator on every exit path, including the callee path. |
+| `stackoverflow-47591176` | `verifier_limit` | `0/0/1` | `1/1/1` | other_refactor | reduce_branching | TL;DR: You should add direct-action flag to the tc filter command, as in Because |
+| `stackoverflow-56872436` | `verifier_limit` | `1/1/1` | `1/1/1` | inline_hint | inline_hint | Use a loop form the verifier can fully unroll or otherwise make the bound/invari |
+| `stackoverflow-70841631` | `verifier_limit` | `1/0/1` | `0/0/1` | loop_unroll | bounds_check | TL;DR. Your program is too complex for the verifier to analyze, as it must itera |
+| `stackoverflow-78753911` | `verifier_limit` | `1/1/1` | `1/1/1` | <one short paragraph> | loop_unroll | Reduce branching/state fan-out, hoist common checks, or split the logic into sim |
+| `github-aya-rs-aya-1324` | `verifier_limit` | `0/0/1` | `0/0/1` | other_refactor | other_refactor | Also your code has the same problem as OP's. You are not actually consuming the  |
+| `github-aya-rs-aya-521` [BTF-supp] | `verifier_limit` | `1/0/1` | `1/0/1` | inline_hint | inline_hint | I was of the impression that loops aren't allowed at all by the verifier. Are th |
+| `kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda` | `verifier_limit` | `0/0/0` | `0/0/0` | other_refactor | other_refactor | Reduce combined stack use, split call structure, or shrink frame sizes. |
+| `kernel-selftest-async-stack-depth-pseudo-call-check-tc-320d654d` | `verifier_limit` | `0/0/0` | `0/0/0` | other_refactor | other_refactor | Refactor the call tree or reduce per-frame stack use so the aggregate depth stay |
+| `stackoverflow-69413427` | `env_mismatch` | `1/0/1` | `0/0/1` | unsigned_clamp | other_refactor | In your case, BPF_CORE_READ() returns a scalar (inv), and dir to a BTF id (ptr_) |
+| `stackoverflow-76441958` | `env_mismatch` | `0/0/1` | `0/0/1` | other_refactor | other_refactor | Align the user-space data/struct layout or target an architecture/context that s |
+| `stackoverflow-78236201` | `env_mismatch` | `0/0/0` | `1/0/0` | bounds_check | inline_hint | You are using bpf_trace_printk incorrectly, you typically stack allocate the fmt |
+| `stackoverflow-79812509` | `env_mismatch` | `0/0/1` | `0/0/1` | The verifier rejects the program because the cast to 'void *' turns the result o | pointer_type_fix | TL;DR. This is happening because the bpf_get_current_task helper doesn't preserv |
+| `github-aya-rs-aya-1002` | `env_mismatch` | `0/0/1` | `0/0/1` | other_refactor | other_refactor | only read from bpf_array is supported You are trying to access a static item, wh |
+| `github-aya-rs-aya-1104` | `env_mismatch` | `0/0/0` | `0/0/0` | other_refactor | other_refactor | The template and book have been updated to only build ebpf in release mode. Plea |
+| `github-aya-rs-aya-1233` | `env_mismatch` | `0/0/1` | `0/0/1` | Replace the disallowed use of 'bpf_probe_read' (via 'BPF_CORE_READ') with the al | Replace the disallowed BPF_CORE_READ helper with the allowed bpf_get_current_pid | Use a helper allowed in 'cgroup_skb', or move the logic to a program type that p |
+| `github-aya-rs-aya-864` | `env_mismatch` | `1/0/1` | `0/0/1` | alignment_fix | other_refactor | Read the PID from 'TcContext'/'skb' instead of calling the unavailable helper. |
 
 ## Cases Where Condition B Does Better
 
-### `github-aya-rs-aya-1062`
+### `stackoverflow-74531552`
 
 - Taxonomy: `lowering_artifact`
-- Condition A score: `1/0/0`
+- Condition A score: `0/0/1`
 - Condition B score: `1/1/1`
-- Ground truth: Avoid 'unwrap'/panic paths in eBPF and rewrite to explicit error handling or unsigned/clamped arithmetic.
-- A fix: Add or tighten the bounds check immediately before the failing access.
-- B fix: Replace 'ctx.ret().unwrap()' with explicit error handling and clamp the resulting length before the read.
-- Notes: Condition B helped: the proof-oriented diagnostic pulled the repair from a reject-site patch toward the underlying lowering/proof-loss cause.
+- Ground truth: So, I've found the solution. It seems that I didn't properly check for the bounds of *curr_state. So the solution is to simply add the following snippet, prior to indexing aut.function.
+- A fix: <|channel|>analysis<|message|>We need to fix BPF program. The error: "math between fp pointer and re
+- B fix: <|channel|>analysis<|message|>We need to fix BPF program. The verifier error: math between fp pointe
+- Notes: Condition B helped.
 
-### `stackoverflow-70729664`
-
-- Taxonomy: `lowering_artifact`
-- Condition A score: `1/0/0`
-- Condition B score: `1/1/1`
-- Ground truth: The verifier errors because it thinks R7 is outside the packet's known bounds. It tells us you're trying to make an access of size 1B at offset 26 into the packet pointer, but the packet has a known size of 0 (r=0, fo...
-- A fix: Tighten the SCTP chunk-walk check so the code revalidates 'nh->pos + size + 4' against 'data_end' before reading the next chunk type.
-- B fix: Clamp the computed chunk advance to a small unsigned max such as 'MAX_PACKET_OFF' and keep the offset arithmetic in a separate verified register before dereferencing 'nh->pos'.
-- Notes: Condition B helped; the raw log mostly suggests a reject-site bounds check, while the diagnostic points to the proof-loss site in the chunk-offset arithmetic.
-
-### `stackoverflow-74178703`
-
-- Taxonomy: `lowering_artifact`
-- Condition A score: `1/0/0`
-- Condition B score: `1/1/1`
-- Ground truth: Recompute and access through the same checked pointer expression inside the loop body.
-- A fix: Add or tighten the bounds check immediately before the failing access.
-- B fix: Recompute and dereference through the same checked 'b + offset + i' expression inside the loop body.
-- Notes: Condition B helped: the additional diagnostic context disambiguated the root cause and improved the repair.
-
-### `stackoverflow-79485758`
-
-- Taxonomy: `lowering_artifact`
-- Condition A score: `1/0/0`
-- Condition B score: `1/1/1`
-- Ground truth: The verifier complains on the packet access because the access seems to be out of the known packet bounds. The access is at offset 0, with a size of 2 bytes. The known packet length is 0 (r=0). Hence the program is re...
-- A fix: Add a stronger guard before x = *((uint16_t *)(data + field_offset)), rejecting any case where field_offset or that 2-byte read may run past packet end.
-- B fix: Clamp field_offset into a verifier-friendly unsigned range and read through a separately checked pkt_ptr before dereferencing it.
-- Notes: Condition B helped; the raw log invites a symptom-level bounds tweak, while OBLIGE points to the MAX_PACKET_OFF-style clamp and checked-pointer workaround.
-
-### `stackoverflow-61945212`
+### `stackoverflow-67402772`
 
 - Taxonomy: `source_bug`
-- Condition A score: `1/0/0`
+- Condition A score: `0/0/1`
 - Condition B score: `1/1/1`
-- Ground truth: Use 'bpf_map_push_elem'/'pull'/'peek' for queue maps instead of 'bpf_map_update_elem()'.
-- A fix: Fix the helper call site by passing a real stack-backed key to bpf_map_update_elem, or switch to a keyed map if you need keyed updates.
-- B fix: Replace bpf_map_update_elem with the queue-map API, e.g. bpf_map_push_elem(&queue_map, &value, 0).
-- Notes: Condition B helped; it turns a symptom-level arg2 repair into the correct queue-map API change.
+- Ground truth: The error is not caused by bpf_trace_prink(), but by the skb accesses that are present in your bytecode only when you call bpf_trace_printk(). Accessing skb->local_ip4 and skb->remote_ip4 is not allow
+- A fix: <|channel|>analysis<|message|>We need to fix BPF program. The verifier error: "invalid bpf_context a
+- B fix: <|channel|>analysis<|message|>We need to fix BPF program. The verifier error: "invalid bpf_context a
+- Notes: Condition B helped.
+
+### `stackoverflow-76277872`
+
+- Taxonomy: `source_bug`
+- Condition A score: `0/0/1`
+- Condition B score: `1/1/1`
+- Ground truth: The bounds check here is not correct. You are checking if you can access up to struct ethhdr of bytes, but you should check for struct ethhdr + struct iphdr since you will be reading from the iphdr ne
+- A fix: <|channel|>analysis<|message|>We need to analyze the verifier error. The error shows:  ''' 0: (b7) r
+- B fix: <|channel|>analysis<|message|>We need to fix the verifier error: invalid access to packet at offset
+- Notes: Condition B helped.
+
+### `github-cilium-cilium-41522`
+
+- Taxonomy: `source_bug`
+- Condition A score: `0/0/0`
+- Condition B score: `1/1/1`
+- Ground truth: The sysdump is missing all node-specific information. I suspect it's because the node you tried to collect from (10.200.0.8) doesn't exist. At least, there are no references to that IP address in the 
+- A fix: <|channel|>analysis<|message|>We need to analyze the verifier error. The error: "invalid access to p
+- B fix: <|channel|>analysis<|message|>We need to analyze the verifier error. The error occurs at instruction
+- Notes: Condition B helped.
+
+### `stackoverflow-47591176`
+
+- Taxonomy: `verifier_limit`
+- Condition A score: `0/0/1`
+- Condition B score: `1/1/1`
+- Ground truth: TL;DR: You should add direct-action flag to the tc filter command, as in Because eBPF is kind of more flexible than the traditional actions and filters of tc, you can actually do both at once, filter 
+- A fix: <|channel|>analysis<|message|>We need to fix BPF program. The program is:  ''' SEC("simple") int han
+- B fix: <|channel|>analysis<|message|>We need to fix BPF program that fails verification due to verifier_lim
+- Notes: Condition B helped.
 
 ## Cases Where Condition B Does Worse
 
-### `stackoverflow-79530762`
-
-- Taxonomy: `lowering_artifact`
-- Condition A score: `1/1/1`
-- Condition B score: `1/0/0`
-- Ground truth: Rewrite the code so the checked pointer/value is reused directly and the proof survives lowering.
-- A fix: Introduce a temporary checked pointer and read/write through that exact pointer instead of recomputing 'data_bytes + i + option_length' after the bounds check.
-- B fix: Add a stronger 'data_bytes + i + option_length + 1 <= data_end' guard immediately before the write.
-- Notes: Condition B hurt. Raw log plus source already suggested a lowering-induced pointer-reuse bug, while the diagnostic pushed toward another surface bounds check.
-
-### `github-aya-rs-aya-521`
-
-- Taxonomy: `verifier_limit`
-- Condition A score: `1/1/1`
-- Condition B score: `0/0/0`
-- Ground truth: I was of the impression that loops aren't allowed at all by the verifier. Are there any examples of clever ways to get around the verifier for this? (bounded small for i in 0..5 has no issues for me though, I guess they're being unrolled). My use case for a loop at this point is to walk over each fixed chunk of a packet and do some parsing. Yeah I've done this many times. Loops are not unrolled, but you need to minimize the branching factor of the loop body in order not to run out of instructions.
-- A fix: Reduce branching inside the 'bpf_loop' callback or replace it with a smaller bounded/unrolled loop so the verifier does not explode states.
-- B fix: Regenerate matching BTF and 'func_info' metadata for the 'bpf_loop' callback so the kernel can load it.
-- Notes: Condition B hurt. The raw packet context still points to verifier complexity in the loop body, while the diagnostic diverts entirely to BTF metadata.
-
-### `stackoverflow-75294010`
+### `stackoverflow-53136145`
 
 - Taxonomy: `source_bug`
 - Condition A score: `1/1/1`
-- Condition B score: `0/0/0`
-- Ground truth: Root Cause The fourth argument to bpf_perf_event_output should be a pointer to the data to post on the ring buffer. Hence, you want to pass event as the argument, not &event.
-- A fix: Pass 'event' to 'bpf_perf_event_output' instead of '&event', so the helper receives the record buffer rather than a pointer to the pointer.
-- B fix: Re-derive the 'event' pointer from the verified map lookup before each dereference and write.
-- Notes: Condition B hurt. The raw source exposes the pointer-to-pointer bug in 'bpf_perf_event_output', while the diagnostic redirects attention to an earlier symptom.
-
-### `stackoverflow-78236201`
-
-- Taxonomy: `env_mismatch`
-- Condition A score: `1/1/1`
-- Condition B score: `0/0/0`
-- Ground truth: You are using bpf_trace_printk incorrectly, you typically stack allocate the fmt, then take the sizeof the char array and pass it as the second argument. I recommend you switch all usages to bpf_printk from bpf/bpf_helpers.h, since it does work exactly like you are invoking it right now. This macro does all of the heavy lifting for you.
-- A fix: Use 'bpf_printk' or a stack-allocated format string with the correct size instead of the current printk call shape.
-- B fix: Re-derive the pointer immediately before the failing use instead of reusing the current value.
-- Notes: Condition B hurt: the diagnostic pulled attention toward a misleading proof/BTF story instead of the actual fix.
-
-### `stackoverflow-70760516`
-
-- Taxonomy: `source_bug`
-- Condition A score: `1/1/1`
-- Condition B score: `1/0/0`
-- Ground truth: Now, to fix this we need to change the code so data can't exceed 65536. We do this by specifying a maximum amount of iterations(extensions) and setting the max size of each extension. I modified the program to add these constrains, I chose max 32 extensions and max 2048 bytes per extension which seems sane values (32 * 2048 = 65536), these can be changed.
-- A fix: Cap the number of parsed extensions and tighten per-extension and server-name lengths so the cumulative packet offset cannot grow past 64K.
-- B fix: Insert an explicit 'data + sizeof(struct extension) <= data_end' check right before reading 'ext->type'.
-- Notes: Condition B hurt. The accepted fix constrains loop growth and total offset, while the diagnostic steers toward a redundant local bounds check.
-
-## Cases Where Both Conditions Are Equal
-
-### `stackoverflow-70750259`
-
-- Taxonomy: `lowering_artifact`
-- Shared score: `1/1/1`
-- Ground truth: Add an explicit non-negative/upper-bound clamp or rewrite the arithmetic in an unsigned form.
-- A fix: Keep ext_len unsigned and clamp it before data += ext_len; avoid the signed or volatile conversion that makes the verifier lose the range proof.
-- B fix: Compute ext_len in a separate verified unsigned register, clamp it to the remaining packet span, then advance data with that checked value.
-- Notes: Condition B tied; the raw log already exposed the unbounded offset arithmetic, and OBLIGE mainly sharpened the proof-loss explanation.
-
-### `stackoverflow-72575736`
-
-- Taxonomy: `lowering_artifact`
-- Shared score: `0/0/0`
-- Ground truth: TL;DR. You are missing bug fix 2fa7d94afc1a for the BPF verifier. It was backported to the v5.13 kernel you are using as commit e7a61f15beea, but not to the v5.10 kernel. You might want to try a newer Android kernel i...
-- A fix: Add an explicit unsigned clamp on 'off'/'i' and dereference the same checked 'address' register inside the loop.
-- B fix: Clamp the offset to a small unsigned range and keep the offset calculation in a separate verified register before dereference.
-- Notes: Condition B tied A. Both conditions chase a source rewrite, while the accepted fix is upgrading/backporting the kernel verifier fix.
-
-### `stackoverflow-73088287`
-
-- Taxonomy: `lowering_artifact`
-- Shared score: `1/0/0`
-- Ground truth: Use a verifier-friendly loop rewrite that keeps the checked pointer and accessed pointer identical.
-- A fix: Add or tighten the bounds check immediately before the failing access.
-- B fix: Add or tighten the bounds check immediately before the failing access.
-- Notes: Condition B tied: both conditions stayed anchored on the reject site and missed the deeper cause.
-
-### `stackoverflow-75058008`
-
-- Taxonomy: `lowering_artifact`
-- Shared score: `1/0/0`
-- Ground truth: TL;DR. Making your matchPrefix function a static inline one should work around the verifier issue. I believe this is happening because the BPF verifier recognizes your function as a global one (vs. inlined) and theref...
-- A fix: Add a null check in the same function right before the dereference.
-- B fix: Add a null check in the same function right before the dereference.
-- Notes: Condition B tied: both conditions stayed anchored on the reject site and missed the deeper cause.
-
-### `stackoverflow-76160985`
-
-- Taxonomy: `lowering_artifact`
-- Shared score: `1/1/1`
-- Ground truth: Mark the helper '__always_inline' or otherwise keep the proof within one function.
-- A fix: Mark 'find_substring' and, if needed, 'mystrlen' as '__always_inline' so the verifier sees the caller's proof in one function.
-- B fix: Mark 'find_substring' as '__always_inline' so the string-walk proof stays in the caller instead of being validated as a separate subprogram.
-- Notes: Condition B tied; the raw log already exposed the separate-subprog validation, and the diagnostic was misleading but not enough to change the repair.
-
-### `github-aya-rs-aya-407`
-
-- Taxonomy: `source_bug`
-- Shared score: `1/1/1`
-- Ground truth: It is just a minor thing (for me) as I have a workaround, but I wonder if it is intended to work only with u32/i32 for PerfEventArray, if this is a missing feature or some limitation in the Linux Kernel itself? The eB...
-- A fix: Pass the scalar value expected by the call rather than an unsupported pointer wrapper.
-- B fix: Pass the scalar value expected by the call rather than an unsupported pointer wrapper.
-- Notes: Condition B tied: the raw verifier log already gave enough information, so the diagnostic did not materially change the repair.
-
-### `kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993`
-
-- Taxonomy: `source_bug`
-- Shared score: `1/1/1`
-- Ground truth: Pass the dynptr object at its exact stack slot / constant base address.
-- A fix: Pass the dynptr from its exact stack slot/base address instead of an offset or forged pointer.
-- B fix: Pass the dynptr object at its exact stack slot and call bpf_dynptr_read with '&ptr', not '(void *)&ptr + 1' or any shifted address.
-- Notes: Condition B now ties A: the updated diagnostic no longer derails the repair into generic BTF advice, so the prompt is sufficient to recover the exact-stack-slot dynptr fix.
-
-### `kernel-selftest-iters-state-safety-leak-iter-from-subprog-fail-raw-tp-65737a09`
-
-- Taxonomy: `source_bug`
-- Shared score: `1/1/1`
-- Ground truth: Destroy or release the iterator on every exit path, including the callee path.
-- A fix: Destroy the iterator on every exit path, including the callee path that currently leaks it.
-- B fix: Release or destroy the iterator on every exit path, including the callee-return path that currently reaches 'return 0' with a live reference.
-- Notes: Condition B now ties A: the fixed pipeline directly identifies the leaked reference and points to the correct release-on-all-paths repair.
+- Condition B score: `0/0/1`
+- Ground truth: So, why it breaks at that point? I think it's because the verifier assumes ipv6_hdr could potentially be NULL, which is utterly WRONG because if the execution ever gets to that point, that's only beca
+- A fix: <|channel|>analysis<|message|>We need to analyze the verifier error. The error occurs at line 109: r
+- B fix: <|channel|>analysis<|message|>We need to fix BPF program. The verifier error occurs at line 109: r3
+- Notes: Condition B hurt.
 
 ## Overall Conclusion
 
-Condition B matched Condition A on root-cause targeting overall; the diagnostic was useful mainly as corroboration rather than changing the repair direction.
-
-## What Changed vs V2
-
-- `kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993`: fixed pipeline no longer steers B toward generic BTF regeneration; current B now recovers the exact-stack-slot dynptr repair.
-- `kernel-selftest-iters-state-safety-leak-iter-from-subprog-fail-raw-tp-65737a09`: current B now identifies the reference leak directly and ties A on the accepted destroy/release-on-all-paths repair.
-- `stackoverflow-77205912`: the current diagnostic exposes the helper-argument/pointer invalidation failure at the second `bpf_csum_diff`, which is enough to recover the accepted “reload packet pointers or reorder checksum work” fix.
-- No previously-correct B-side cases regressed in this rerun; the fixed pipeline mainly removes three v2 false negatives.
-
-## Bottom Line
-
-The current pipeline closes the v2 overall gap: Condition B no longer underperforms Condition A on fix type or root cause. But it still does not beat Condition A overall, because the remaining B misses on cases like `github-aya-rs-aya-521`, `stackoverflow-75294010`, `stackoverflow-78236201`, `stackoverflow-79530762`, and `stackoverflow-70760516` keep B below A on localization and still slightly behind A inside `source_bug` and `env_mismatch` per taxonomy.
+Condition B (OBLIGE) improved fix-type accuracy by +7.1pp (+4 cases).
+For lowering_artifact (11 cases): A=1/11, B=2/11 (delta +9.1pp).
+BTF-suppression affected 1 cases: A=0/1 (0.0%), B=0/1 (0.0%).

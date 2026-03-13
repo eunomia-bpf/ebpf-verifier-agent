@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Benchmark end-to-end and per-stage OBLIGE diagnostic latency."""
+"""Benchmark end-to-end OBLIGE diagnostic latency."""
 
 from __future__ import annotations
 
@@ -8,12 +8,11 @@ import json
 import math
 import statistics
 import sys
-from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter_ns
-from typing import Any, Iterator
+from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,16 +26,10 @@ from batch_diagnostic_eval import MIN_LOG_CHARS, extract_verifier_log, iter_case
 from interface.extractor import rust_diagnostic
 
 
-DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "latency_benchmark.json"
-EXPECTED_ELIGIBLE_CASES = 241
+DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "latency_benchmark_v3.json"
+EXPECTED_ELIGIBLE_CASES = 262
 TOTAL_STAGE = "generate_diagnostic"
-STAGE_PATCHES: tuple[tuple[str, str], ...] = (
-    ("parse_log", "parse_log"),
-    ("parse_trace", "parse_trace"),
-    ("diagnose", "diagnose"),
-    ("proof_engine.analyze_proof", "_analyze_proof_engine"),
-)
-STAGE_ORDER: tuple[str, ...] = (TOTAL_STAGE,) + tuple(name for name, _ in STAGE_PATCHES)
+STAGE_ORDER: tuple[str, ...] = (TOTAL_STAGE,)
 
 
 @dataclass(slots=True)
@@ -119,33 +112,6 @@ def compute_stage_stats(values: list[float]) -> dict[str, float | int | None]:
     }
 
 
-@contextmanager
-def instrument_pipeline_stages() -> Iterator[tuple[dict[str, int], dict[str, int]]]:
-    stage_totals_ns: dict[str, int] = {name: 0 for name, _ in STAGE_PATCHES}
-    stage_call_counts: dict[str, int] = {name: 0 for name, _ in STAGE_PATCHES}
-    originals = {attribute: getattr(rust_diagnostic, attribute) for _, attribute in STAGE_PATCHES}
-
-    def make_wrapper(stage_name: str, func: Any) -> Any:
-        def wrapped(*args: Any, **kwargs: Any) -> Any:
-            start_ns = perf_counter_ns()
-            try:
-                return func(*args, **kwargs)
-            finally:
-                stage_totals_ns[stage_name] += perf_counter_ns() - start_ns
-                stage_call_counts[stage_name] += 1
-
-        return wrapped
-
-    for stage_name, attribute in STAGE_PATCHES:
-        setattr(rust_diagnostic, attribute, make_wrapper(stage_name, originals[attribute]))
-
-    try:
-        yield stage_totals_ns, stage_call_counts
-    finally:
-        for _, attribute in STAGE_PATCHES:
-            setattr(rust_diagnostic, attribute, originals[attribute])
-
-
 def benchmark_case(
     source: str,
     source_dir: str,
@@ -161,19 +127,14 @@ def benchmark_case(
     if verifier_log_chars < min_log_chars:
         return None
 
-    stage_totals_ns: dict[str, int] = {name: 0 for name, _ in STAGE_PATCHES}
-    stage_call_counts: dict[str, int] = {name: 0 for name, _ in STAGE_PATCHES}
+    stage_call_counts: dict[str, int] = {TOTAL_STAGE: 1}
     start_ns = perf_counter_ns()
 
     try:
-        with instrument_pipeline_stages() as (stage_totals_ns, stage_call_counts):
-            rust_diagnostic.generate_diagnostic(verifier_log)
+        rust_diagnostic.generate_diagnostic(verifier_log)
     except Exception as exc:  # pragma: no cover - benchmark should continue on failures.
         total_elapsed_ns = perf_counter_ns() - start_ns
-        timings_ms = {
-            TOTAL_STAGE: ns_to_ms(total_elapsed_ns),
-            **{stage: ns_to_ms(stage_totals_ns.get(stage)) for stage, _ in STAGE_PATCHES},
-        }
+        timings_ms = {TOTAL_STAGE: ns_to_ms(total_elapsed_ns)}
         return CaseLatency(
             case_id=case_id,
             case_path=str(path),
@@ -188,10 +149,7 @@ def benchmark_case(
         )
 
     total_elapsed_ns = perf_counter_ns() - start_ns
-    timings_ms = {
-        TOTAL_STAGE: ns_to_ms(total_elapsed_ns),
-        **{stage: ns_to_ms(stage_totals_ns.get(stage)) for stage, _ in STAGE_PATCHES},
-    }
+    timings_ms = {TOTAL_STAGE: ns_to_ms(total_elapsed_ns)}
     return CaseLatency(
         case_id=case_id,
         case_path=str(path),

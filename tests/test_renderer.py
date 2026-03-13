@@ -2,13 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
-import sys
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
 from interface.extractor.rust_diagnostic import generate_diagnostic
 from interface.extractor.renderer import render_diagnostic
@@ -70,15 +67,16 @@ def test_renderer_serializes_engine_causal_chain_in_metadata() -> None:
 
     causal_chain = output.json_data["metadata"]["causal_chain"]
     assert causal_chain
-    assert any(entry[0] == 22 for entry in causal_chain)
-    assert all(isinstance(entry[1], str) and entry[1] for entry in causal_chain)
+    assert all(isinstance(entry, dict) and "insn_idx" in entry and "reason" in entry for entry in causal_chain)
+    assert any(entry["insn_idx"] == 22 for entry in causal_chain)
+    assert all(isinstance(entry["reason"], str) and entry["reason"] for entry in causal_chain)
 
 
 def test_generate_rust_style_source_bug_with_btf() -> None:
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
-            "kernel-selftest-dynptr-fail-data-slice-missing-null-check2.yaml"
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-dynptr-fail-data-slice-missing-null-check2-raw-tp-8e533162.yaml"
         )
     )
 
@@ -101,8 +99,8 @@ def test_generate_rust_style_source_bug_with_btf() -> None:
 def test_generate_rust_style_reuses_btf_location_for_multi_insn_call_site() -> None:
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
-            "kernel-selftest-dynptr-fail-bpf-prog.yaml"
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403.yaml"
         )
     )
 
@@ -156,8 +154,8 @@ def test_renderer_uses_structured_state_fields_without_reparsing_state_change() 
 def test_renderer_synthesizes_missing_established_then_lost_roles() -> None:
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
-            "kernel-selftest-crypto-basic-crypto-acquire.yaml"
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-crypto-basic-crypto-acquire-syscall-b8afbe98.yaml"
         )
     )
 
@@ -293,8 +291,8 @@ def test_renderer_preserves_engine_inferred_obligation_when_formal_analysis_retu
 def test_renderer_keeps_engine_obligation_when_unknown_engine_status_is_ignored() -> None:
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
-            "kernel-selftest-dynptr-fail-add-dynptr-to-map1.yaml"
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-dynptr-fail-add-dynptr-to-map1-raw-tp-2b5ac898.yaml"
         )
     )
 

@@ -1,6 +1,6 @@
 # Batch Diagnostic Evaluation
 
-- Generated at: `2026-03-13T04:45:56.744053+00:00`
+- Generated at: `2026-03-13T04:36:28.447621+00:00`
 - Minimum verifier log length: `50` chars
 - Case files scanned: `302`
 - Eligible for evaluation: `262`
@@ -12,7 +12,7 @@
 
 - Success rate: `262/262 (100.0%)`
 - BTF source correlation: `172/262 (65.6%)`
-- Span role coverage: established `115/262 (43.9%)`, lost `99/262 (37.8%)`, rejected `262/262 (100.0%)`
+- Span role coverage: established `113/262 (43.1%)`, lost `97/262 (37.0%)`, rejected `262/262 (100.0%)`
 
 ## Distribution of taxonomy_class
 
@@ -27,8 +27,8 @@
 
 | Value | Count | Share |
 | --- | ---: | ---: |
-| `established_then_lost` | 99 | 37.8% |
-| `never_established` | 126 | 48.1% |
+| `established_then_lost` | 97 | 37.0% |
+| `never_established` | 128 | 48.9% |
 | `established_but_insufficient` | 16 | 6.1% |
 | `unknown` | 21 | 8.0% |
 
@@ -36,15 +36,15 @@
 
 | Value | Count | Share |
 | --- | ---: | ---: |
-| `1` | 146 | 55.7% |
+| `1` | 148 | 56.5% |
 | `2` | 17 | 6.5% |
-| `3` | 99 | 37.8% |
+| `3` | 97 | 37.0% |
 
 ## Per-Source Breakdown
 
 | Source | Total | Eligible | Success | Failure | Skipped | Success Rate | BTF Rate | Avg Spans |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Selftests | 200 | 171 | 171 | 0 | 29 | 100.0% | 98.8% | 2.02 |
+| Selftests | 200 | 171 | 171 | 0 | 29 | 100.0% | 98.8% | 1.99 |
 | Stack Overflow | 76 | 65 | 65 | 0 | 11 | 100.0% | 1.5% | 1.46 |
 | GitHub | 26 | 26 | 26 | 0 | 0 | 100.0% | 7.7% | 1.42 |
 
@@ -80,7 +80,7 @@ _Ranking heuristic penalizes sparse spans, missing roles, missing BTF, and bloat
 
 - `0` successful cases emitted `6+` spans; these outputs risk becoming noisy.
 - `0` successful cases emitted zero correlated spans.
-- `146` successful cases emitted only one span, which often reduces causal context.
+- `148` successful cases emitted only one span, which often reduces causal context.
 - `0` successful cases had source markers in the verifier log but no `file:line` in emitted spans.
 - `0` successful cases were missing role(s) expected by their `proof_status`.
 - `0` successful cases were missing an explicit rejected span.
@@ -92,4 +92,4 @@ Examples:
 
 ## Recommendations
 
-- Strengthen fallback proof-event synthesis for sparse outputs; 146 successful cases render at most one span.
+- Strengthen fallback proof-event synthesis for sparse outputs; 148 successful cases render at most one span.

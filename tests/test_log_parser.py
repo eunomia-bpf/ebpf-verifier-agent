@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-import sys
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
 from interface.extractor.log_parser import parse_log
 
@@ -27,14 +24,14 @@ def _load_verifier_log(relative_path: str) -> str:
 def test_parse_log_prefers_specific_rejection_over_source_comment() -> None:
     dynptr = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
-            "kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly.yaml"
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly-cgroup-skb-ingress-61688196.yaml"
         )
     )
     irq = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
-            "kernel-selftest-irq-irq-save-invalid.yaml"
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-irq-irq-save-invalid-tc-86a07a3f.yaml"
         )
     )
 
@@ -61,14 +58,14 @@ def test_parse_log_prefers_specific_libbpf_reason_over_wrapper_and_summary() -> 
 def test_parse_log_catalog_covers_round2_unknown_taxonomy_patterns() -> None:
     dynptr_slice = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
-            "kernel-selftest-dynptr-fail-dynptr-slice-var-len1.yaml"
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-dynptr-fail-dynptr-slice-var-len1-tc-76a0b3fb.yaml"
         )
     )
     dynptr_const = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
-            "kernel-selftest-dynptr-fail-dynptr-slice-var-len2.yaml"
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-dynptr-fail-dynptr-slice-var-len2-tc-673ab9e7.yaml"
         )
     )
     pkt_end = parse_log(
@@ -95,8 +92,8 @@ def test_parse_log_catalog_covers_round2_unknown_taxonomy_patterns() -> None:
 def test_parse_log_prefers_selected_error_line_for_catalog_seed() -> None:
     dynptr_unknown = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
-            "kernel-selftest-dynptr-fail-clone-invalid1.yaml"
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-dynptr-fail-clone-invalid1-raw-tp-b7206632.yaml"
         )
     )
 

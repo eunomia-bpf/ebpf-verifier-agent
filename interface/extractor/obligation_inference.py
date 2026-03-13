@@ -7,6 +7,12 @@ from bisect import bisect_right
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 
+from .abstract_domain import (
+    eval_atom_abstract,
+    scalar_bounds_from_register_state,
+    pointer_state_from_register_state,
+)
+from .obligation_catalog_formal import match_error_message as _catalog_match_error_message
 from .shared_utils import (
     decode_regs_mask as _shared_decode_regs_mask,
     extract_registers as _shared_extract_registers,
@@ -17,6 +23,7 @@ from .shared_utils import (
     register_index as _shared_register_index,
 )
 from .trace_parser import BacktrackChain, ParsedTrace, RegisterState, TracedInstruction
+from .value_lineage import ValueLineage, build_value_lineage
 
 
 REGISTER_RE = re.compile(r"\b([RrWw]\d+)\b")
@@ -182,6 +189,9 @@ class TraceIR:
     point_order: dict[tuple[int, str], int] = field(default_factory=dict)
     trace_edges: list[tuple[int, int]] = field(default_factory=list)
     positions_by_insn: dict[int, list[int]] = field(default_factory=dict)
+    # Value lineage graph — built once at TraceIR construction time and used for
+    # alias resolution in predicate evaluation and backward slicing.
+    value_lineage: ValueLineage | None = field(default=None)
 
 
 @dataclass(slots=True)
@@ -374,6 +384,13 @@ def build_trace_ir(parsed_trace: ParsedTrace) -> TraceIR:
     point_versions, value_versions = _build_value_versions(traced_instructions, parsed_ops)
     point_order = _build_point_order(traced_instructions)
 
+    # Build the value lineage graph once here so that predicate evaluation and
+    # backward slicing can use it for alias resolution across spills/fills.
+    try:
+        lineage = build_value_lineage(traced_instructions)
+    except Exception:
+        lineage = None
+
     return TraceIR(
         instructions=nodes,
         cfg_edges=sorted(cfg_edges),
@@ -384,6 +401,7 @@ def build_trace_ir(parsed_trace: ParsedTrace) -> TraceIR:
         point_order=point_order,
         trace_edges=sorted(trace_edges),
         positions_by_insn={insn_idx: list(positions) for insn_idx, positions in positions_by_insn.items()},
+        value_lineage=lineage,
     )
 
 
@@ -471,26 +489,436 @@ def _next_occurrence_position(positions: list[int], trace_pos: int) -> int | Non
     return positions[next_index]
 
 
+# ---------------------------------------------------------------------------
+# Formal catalog integration helper
+# ---------------------------------------------------------------------------
+
+
+def _try_formal_catalog_obligation(
+    fail_insn: InstructionNode,
+    op: "_ParsedOperation",
+    error_line: str,
+    details: dict,
+    lowered: str,
+) -> "ObligationSpec | None":
+    """Try to build an ObligationSpec from the formal obligation catalog.
+
+    Returns an ObligationSpec when the catalog has a match for the error
+    message AND we know how to build the ObligationSpec for that family.
+    Returns None only when no family handler exists.
+
+    For most families, the catalog's evaluable flag indicates whether the
+    precondition can be checked purely from LOG_LEVEL2 trace state.
+    We extend coverage to a few families whose preconditions can be partially
+    recovered from error-message text (e.g. map_value_access recovers
+    value_size from "value_size=%d" in the error line).
+    """
+    formal_matches = _catalog_match_error_message(error_line)
+    if not formal_matches:
+        return None
+
+    # Prefer evaluable matches; also accept non-evaluable matches for families
+    # where we can supplement the missing info from the error message text.
+    _RECOVERABLE_NON_EVALUABLE = frozenset({
+        "map_value_access",   # value_size is in the error message text
+        "memory_access",      # mem_size is in the error message text
+    })
+    evaluable_matches = [m for m in formal_matches if m.evaluable]
+    recoverable_matches = [
+        m for m in formal_matches
+        if not m.evaluable and m.family in _RECOVERABLE_NON_EVALUABLE
+    ]
+    candidate_matches = evaluable_matches or recoverable_matches
+    if not candidate_matches:
+        return None
+
+    formal = candidate_matches[0]
+    family = formal.family
+
+    # Map formal families to ObligationSpec kinds and build atoms from the
+    # formal precondition / fields_needed.  We only handle the families
+    # that have clear, evaluable structure in LOG_LEVEL2 data; the rest
+    # fall through to old code.
+
+    # Shared helpers
+    base_reg = op.base_reg
+    access_size = op.size or details.get("size") or 0
+
+    # -------------------------------------------------------------------
+    # null_check: reg.type != NOT_INIT  /  frame pointer read-only
+    # -------------------------------------------------------------------
+    if family == "null_check":
+        target_reg = (
+            base_reg
+            or _extract_error_register(error_line)
+            or _first_nullable_register(fail_insn)
+        )
+        if target_reg is None:
+            return None
+        return ObligationSpec(
+            kind="null_check",
+            failing_insn=fail_insn.insn_idx,
+            base_reg=target_reg,
+            index_reg=None,
+            const_off=op.offset,
+            access_size=access_size,
+            atoms=[
+                PredicateAtom(
+                    atom_id="non_null",
+                    registers=(target_reg,),
+                    expression=f"{target_reg}.type not nullable ({formal.precondition})",
+                )
+            ],
+        )
+
+    # -------------------------------------------------------------------
+    # packet_access: smin >= 0  /  off + size <= range
+    # -------------------------------------------------------------------
+    if family == "packet_access":
+        target_reg = (
+            base_reg
+            or _extract_error_register(error_line)
+            or _select_access_register(fail_insn, error_line, _is_packet_ptr)
+        )
+        if target_reg is None:
+            return None
+        access_off = details.get("off", op.offset)
+        return ObligationSpec(
+            kind="packet_access",
+            failing_insn=fail_insn.insn_idx,
+            base_reg=target_reg,
+            index_reg=None,
+            const_off=access_off,
+            access_size=access_size,
+            atoms=[
+                PredicateAtom(
+                    atom_id="base_is_pkt",
+                    registers=(target_reg,),
+                    expression=f"{target_reg}.type == pkt",
+                ),
+                PredicateAtom(
+                    atom_id="range_at_least",
+                    registers=(target_reg,),
+                    expression=f"{access_off} + {access_size} <= {target_reg}.range",
+                ),
+            ],
+        )
+
+    # -------------------------------------------------------------------
+    # map_value_access: smin + off >= 0 AND umax + off + size <= value_size
+    # -------------------------------------------------------------------
+    if family == "map_value_access":
+        target_reg = (
+            base_reg
+            or _extract_error_register(error_line)
+            or _select_access_register(fail_insn, error_line, _is_map_value)
+        )
+        if target_reg is None:
+            return None
+        value_size = details.get("value_size")
+        range_expr = (
+            f"{op.offset} + {access_size} <= {value_size}"
+            if value_size is not None
+            else f"{op.offset} + {access_size} <= {target_reg}.range"
+        )
+        return ObligationSpec(
+            kind="map_value_access",
+            failing_insn=fail_insn.insn_idx,
+            base_reg=target_reg,
+            index_reg=None,
+            const_off=op.offset,
+            access_size=access_size,
+            atoms=[
+                PredicateAtom(
+                    atom_id="type_matches",
+                    registers=(target_reg,),
+                    expression=f"{target_reg}.type matches map_value",
+                ),
+                PredicateAtom(
+                    atom_id="range_at_least",
+                    registers=(target_reg,),
+                    expression=range_expr,
+                ),
+            ],
+        )
+
+    # -------------------------------------------------------------------
+    # stack_access: min_off >= -512 AND max_off <= 0
+    # -------------------------------------------------------------------
+    if family == "stack_access":
+        target_reg = base_reg or _extract_error_register(error_line)
+        if target_reg is None:
+            return None
+        return ObligationSpec(
+            kind="stack_access",
+            failing_insn=fail_insn.insn_idx,
+            base_reg=target_reg,
+            index_reg=None,
+            const_off=op.offset,
+            access_size=access_size,
+            atoms=[
+                PredicateAtom(
+                    atom_id="type_matches",
+                    registers=(target_reg,),
+                    expression=f"{target_reg}.type matches fp",
+                ),
+                PredicateAtom(
+                    atom_id="range_at_least",
+                    registers=(target_reg,),
+                    expression=f"{abs(op.offset)} + {access_size} <= 512",
+                ),
+            ],
+        )
+
+    # -------------------------------------------------------------------
+    # scalar_bounds: pointer arithmetic / shift / div-by-zero errors
+    # -------------------------------------------------------------------
+    if family == "scalar_bounds":
+        target_reg = _extract_error_register(error_line) or base_reg
+        if target_reg is None:
+            return None
+        return ObligationSpec(
+            kind="scalar_deref",
+            failing_insn=fail_insn.insn_idx,
+            base_reg=target_reg,
+            index_reg=None,
+            const_off=op.offset,
+            access_size=access_size,
+            atoms=[
+                PredicateAtom(
+                    atom_id="type_is_pointer",
+                    registers=(target_reg,),
+                    expression=f"{target_reg}.type is pointer-compatible",
+                )
+            ],
+        )
+
+    # -------------------------------------------------------------------
+    # helper_arg / trusted_null_check
+    # -------------------------------------------------------------------
+    if family in {"helper_arg", "trusted_null_check"}:
+        # "unbounded memory access" errors on call instructions have
+        # context-specific handling in the old code (e.g. dynptr_slice ->
+        # buffer_length_pair).  Let old code decide.
+        if "unbounded memory access" in lowered and op.kind == "call":
+            return None
+
+        # trusted_null_check vs null_check distinction is subtle: the old
+        # code decides between the two based on register state and call
+        # context (e.g. "Possibly NULL pointer passed to helper argN" can
+        # be either null_check or trusted_null_check depending on the
+        # full state).  Let old code handle trusted_null_check entirely so
+        # we don't change the null_check / trusted_null_check classification.
+        if family == "trusted_null_check":
+            return None
+
+        target_reg = (
+            _extract_error_register(error_line)
+            or _extract_error_arg_register(error_line)
+            or base_reg
+        )
+        if target_reg is None:
+            return None
+        # helper_arg: type match — only use formal catalog for non-null,
+        # non-trusted cases where the error message clearly mentions type mismatch.
+        # For contract errors (helper contract mismatch, etc.) let old code handle.
+        if not _is_helper_contract_error(error_line) and not _error_mentions_null(lowered):
+            expected_types = _helper_contract_expected_types(error_line, "")
+            if not expected_types:
+                expected_types = ["ptr", "map_ptr", "map_value"]
+            return ObligationSpec(
+                kind="helper_arg",
+                failing_insn=fail_insn.insn_idx,
+                base_reg=target_reg,
+                index_reg=None,
+                const_off=0,
+                access_size=0,
+                atoms=[
+                    PredicateAtom(
+                        atom_id="type_matches",
+                        registers=(target_reg,),
+                        expression=f"{target_reg}.type matches {','.join(expected_types)}",
+                    )
+                ],
+            )
+        return None
+
+    # -------------------------------------------------------------------
+    # memory_access
+    # -------------------------------------------------------------------
+    if family == "memory_access":
+        target_reg = (
+            base_reg
+            or _extract_error_register(error_line)
+        )
+        if target_reg is None:
+            return None
+
+        # If the error message contains a quoted non-pointer type (e.g.
+        # "invalid mem access 'scalar'") the issue is actually that the
+        # register holds a scalar, not a pointer — classify as scalar_deref.
+        _quoted_type_match = re.search(r"invalid mem access '([^']+)'", error_line)
+        if _quoted_type_match:
+            quoted_type = _quoted_type_match.group(1).lower()
+            if quoted_type in {"scalar", "inv", "not_init"} or not is_pointer_type_name(quoted_type):
+                return ObligationSpec(
+                    kind="scalar_deref",
+                    failing_insn=fail_insn.insn_idx,
+                    base_reg=target_reg,
+                    index_reg=None,
+                    const_off=op.offset,
+                    access_size=access_size,
+                    atoms=[
+                        PredicateAtom(
+                            atom_id="type_is_pointer",
+                            registers=(target_reg,),
+                            expression=f"{target_reg}.type is pointer-compatible",
+                        )
+                    ],
+                )
+
+        # Check if it's a null pointer access (PTR_MAYBE_NULL)
+        if "PTR_MAYBE_NULL" in formal.precondition or "may_be_null" in formal.precondition:
+            return ObligationSpec(
+                kind="null_check",
+                failing_insn=fail_insn.insn_idx,
+                base_reg=target_reg,
+                index_reg=None,
+                const_off=op.offset,
+                access_size=access_size,
+                atoms=[
+                    PredicateAtom(
+                        atom_id="non_null",
+                        registers=(target_reg,),
+                        expression=f"{target_reg}.type not nullable",
+                    )
+                ],
+            )
+        return ObligationSpec(
+            kind="memory_access",
+            failing_insn=fail_insn.insn_idx,
+            base_reg=target_reg,
+            index_reg=None,
+            const_off=op.offset,
+            access_size=access_size,
+            atoms=[
+                PredicateAtom(
+                    atom_id="type_matches",
+                    registers=(target_reg,),
+                    expression=f"{target_reg}.type matches mem,ptr",
+                ),
+                PredicateAtom(
+                    atom_id="range_at_least",
+                    registers=(target_reg,),
+                    expression=(
+                        f"{target_reg}.off + {op.offset} + {access_size} <= "
+                        f"{details.get('mem_size', 0)}"
+                    ),
+                ),
+            ],
+        )
+
+    # -------------------------------------------------------------------
+    # unreleased_reference: evaluable=False in catalog, but just in case
+    # -------------------------------------------------------------------
+    if family == "unreleased_reference":
+        return ObligationSpec(
+            kind="unreleased_reference",
+            failing_insn=fail_insn.insn_idx,
+            base_reg=None,
+            index_reg=None,
+            const_off=0,
+            access_size=0,
+            atoms=[],
+        )
+
+    # -------------------------------------------------------------------
+    # execution_context: evaluable=False for most, skip
+    # -------------------------------------------------------------------
+    if family == "execution_context":
+        return None  # let old code handle it
+
+    # Unknown family — let the old if-else tree handle it
+    return None
+
+
 def infer_formal_obligation(
     trace_ir: TraceIR,
     fail_insn: InstructionNode,
     error_line: str,
 ) -> ObligationSpec | None:
-    """Infer the failing instruction's proof obligation from opcode and state."""
+    """Infer the failing instruction's proof obligation from opcode and state.
+
+    The formal obligation catalog is the PRIMARY and ONLY path for all error
+    families that are directly observable from LOG_LEVEL2 trace data.  After
+    the catalog, we only handle the small set of obligation kinds that the
+    catalog genuinely cannot cover (ptr_add, protocol families, BTF errors,
+    execution-context / limits errors, trusted-null-check).
+    """
 
     op = _parse_bytecode(fail_insn.insn_idx, fail_insn.bytecode)
     lowered = error_line.lower()
     details = _extract_error_details(error_line)
 
-    if op.kind in {"load", "store"}:
-        base_reg = op.base_reg
-        base_state = _lookup_state(fail_insn, base_reg)
-        access_size = op.size or details.get("size") or 0
+    # -----------------------------------------------------------------------
+    # STEP 1: Formal catalog (primary path).
+    # For all error families whose preconditions are directly evaluable from
+    # LOG_LEVEL2 data, the catalog builds the complete ObligationSpec.
+    # -----------------------------------------------------------------------
+    # Pre-check: dynptr protocol errors appear as "invalid mem access 'scalar'"
+    # on load/store ops, which the formal catalog would misclassify as
+    # scalar_deref.  Detect them first so the catalog is not consulted.
+    if op.kind in {"load", "store"} and "invalid mem access" in lowered:
+        if _looks_like_dynptr_state_access_error(trace_ir, fail_insn, error_line):
+            access_size = op.size or details.get("size") or 0
+            base_reg = op.base_reg
+            target_reg = _select_protocol_register_from_trace(
+                trace_ir, fail_insn, error_line, expected_type="dynptr",
+            ) or base_reg
+            if target_reg is not None:
+                return ObligationSpec(
+                    kind="dynptr_protocol",
+                    failing_insn=fail_insn.insn_idx,
+                    base_reg=target_reg,
+                    index_reg=None,
+                    const_off=op.offset,
+                    access_size=access_size,
+                    atoms=[
+                        PredicateAtom(
+                            atom_id="type_matches",
+                            registers=(target_reg,),
+                            expression=f"{target_reg}.type matches dynptr",
+                        )
+                    ],
+                )
 
-        if _is_nullable(base_state) or _error_mentions_null(lowered):
-            target_reg = base_reg or _extract_error_register(error_line)
-            if target_reg is None:
-                return None
+    formal_obligation_spec = _try_formal_catalog_obligation(
+        fail_insn, op, error_line, details, lowered
+    )
+    if formal_obligation_spec is not None:
+        return formal_obligation_spec
+
+    # -----------------------------------------------------------------------
+    # STEP 2: Cases the formal catalog cannot cover.
+    # Only the obligation kinds below are NOT handled by the catalog, so only
+    # these branches are reachable after the catalog returns None.
+    # -----------------------------------------------------------------------
+
+    # --- load/store errors NOT matched by the formal catalog -----------------
+    # The catalog covers most load/store error families (null_check, packet_access,
+    # map_value_access, scalar_deref, memory_access) but misses a few specific
+    # error message patterns.  Handle them here with minimal, targeted checks.
+    if op.kind in {"load", "store"}:
+        access_size = op.size or details.get("size") or 0
+        base_reg = op.base_reg
+
+        # Null-check: nullable pointer type used without null check.
+        # The formal catalog handles "or_null" errors via null_check/memory_access
+        # families BUT the pattern "invalid mem access 'X_or_null'" without a
+        # register prefix doesn't match the catalog regex ("R\\d+ invalid mem...").
+        # Handle it here using the base register state directly.
+        if base_reg is not None and (_is_nullable(_lookup_state(fail_insn, base_reg)) or _error_mentions_null(lowered)):
+            target_reg = base_reg
             return ObligationSpec(
                 kind="null_check",
                 failing_insn=fail_insn.insn_idx,
@@ -507,91 +935,35 @@ def infer_formal_obligation(
                 ],
             )
 
+        # Dynptr state access — must check BEFORE stack since dynptr errors
+        # often occur on fp-relative stores (R10-based) but are classified by
+        # error content, not by the register type.
         if _looks_like_dynptr_state_access_error(trace_ir, fail_insn, error_line):
             target_reg = _select_protocol_register_from_trace(
-                trace_ir,
-                fail_insn,
-                error_line,
-                expected_type="dynptr",
-            )
-            if target_reg is None:
-                target_reg = base_reg
-            if target_reg is None:
-                return None
-            return ObligationSpec(
-                kind="dynptr_protocol",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=target_reg,
-                index_reg=None,
-                const_off=op.offset,
-                access_size=access_size,
-                atoms=[
-                    PredicateAtom(
-                        atom_id="type_matches",
-                        registers=(target_reg,),
-                        expression=f"{target_reg}.type matches dynptr",
-                    )
-                ],
-            )
+                trace_ir, fail_insn, error_line, expected_type="dynptr",
+            ) or base_reg
+            if target_reg is not None:
+                return ObligationSpec(
+                    kind="dynptr_protocol",
+                    failing_insn=fail_insn.insn_idx,
+                    base_reg=target_reg,
+                    index_reg=None,
+                    const_off=op.offset,
+                    access_size=access_size,
+                    atoms=[
+                        PredicateAtom(
+                            atom_id="type_matches",
+                            registers=(target_reg,),
+                            expression=f"{target_reg}.type matches dynptr",
+                        )
+                    ],
+                )
 
-        if _is_scalar_deref_error(error_line, base_state):
-            if base_reg is None:
-                return None
+        # Stack access: fp-relative errors with stack-specific error messages
+        # ("invalid indirect read/write from stack") not matched by catalog.
+        if base_reg is not None and ("stack" in lowered or _is_stack_base(_lookup_state(fail_insn, base_reg), base_reg)):
             return ObligationSpec(
-                kind="scalar_deref",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=base_reg,
-                index_reg=None,
-                const_off=op.offset,
-                access_size=access_size,
-                atoms=[
-                    PredicateAtom(
-                        atom_id="type_is_pointer",
-                        registers=(base_reg,),
-                        expression=f"{base_reg}.type is pointer-compatible",
-                    )
-                ],
-            )
-
-        if _is_packet_ptr(base_state) or "invalid access to packet" in lowered:
-            if base_reg is None:
-                return None
-            access_off = details.get("off", op.offset)
-            return ObligationSpec(
-                kind="packet_access",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=base_reg,
-                index_reg=None,
-                const_off=access_off,
-                access_size=access_size,
-                atoms=[
-                    PredicateAtom(
-                        atom_id="base_is_pkt",
-                        registers=(base_reg,),
-                        expression=f"{base_reg}.type == pkt",
-                    ),
-                    PredicateAtom(
-                        atom_id="range_at_least",
-                        registers=(base_reg,),
-                        expression=f"{access_off} + {access_size} <= {base_reg}.range",
-                    ),
-                ],
-            )
-
-        if _is_map_value(base_state) or "map value" in lowered:
-            if base_reg is None:
-                return None
-            expected_types = ["map_value"]
-            if "ptr" in (base_state.type.lower() if base_state else ""):
-                expected_types.append("ptr")
-            value_size = details.get("value_size")
-            range_expr = (
-                f"{op.offset} + {access_size} <= {value_size}"
-                if value_size is not None
-                else f"{op.offset} + {access_size} <= {base_reg}.range"
-            )
-            return ObligationSpec(
-                kind="map_value_access",
+                kind="stack_access",
                 failing_insn=fail_insn.insn_idx,
                 base_reg=base_reg,
                 index_reg=None,
@@ -601,19 +973,19 @@ def infer_formal_obligation(
                     PredicateAtom(
                         atom_id="type_matches",
                         registers=(base_reg,),
-                        expression=f"{base_reg}.type matches {','.join(expected_types)}",
+                        expression=f"{base_reg}.type matches fp",
                     ),
                     PredicateAtom(
                         atom_id="range_at_least",
                         registers=(base_reg,),
-                        expression=range_expr,
+                        expression=f"{abs(op.offset)} + {access_size} <= {STACK_FRAME_BYTES}",
                     ),
                 ],
             )
 
-        if "invalid access to memory" in lowered or "mem_size" in lowered:
-            if base_reg is None:
-                return None
+        # Generic memory access not covered by catalog (e.g. "invalid access to
+        # memory, mem_size=N off=N size=N") — build memory_access obligation.
+        if base_reg is not None and ("invalid access to memory" in lowered or "mem_size" in lowered):
             return ObligationSpec(
                 kind="memory_access",
                 failing_insn=fail_insn.insn_idx,
@@ -638,34 +1010,22 @@ def infer_formal_obligation(
                 ],
             )
 
-        if "invalid bpf_context access" in lowered:
-            target_reg = base_reg or _extract_error_register(error_line) or "R1"
-            return ObligationSpec(
-                kind="memory_access",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=target_reg,
-                index_reg=None,
-                const_off=details.get("off", op.offset),
-                access_size=access_size,
-                atoms=[
-                    PredicateAtom(
-                        atom_id="type_matches",
-                        registers=(target_reg,),
-                        expression=f"{target_reg}.type matches ctx,ptr",
-                    ),
-                    PredicateAtom(
-                        atom_id="range_at_least",
-                        registers=(target_reg,),
-                        expression=f"{details.get('off', op.offset)} + {access_size} <= {target_reg}.range",
-                    ),
-                ],
+        # State-based map_value inference: when error message is absent or
+        # doesn't match any catalog pattern, infer map_value_access from the
+        # register state directly.  This covers cases where the error line
+        # describes a downstream consequence (e.g. "R4 must be a known
+        # constant") while the actual obligation failure is the out-of-bounds
+        # load from the map_value register.
+        base_state = _lookup_state(fail_insn, base_reg) if base_reg is not None else None
+        if base_reg is not None and _is_map_value(base_state):
+            value_size = details.get("value_size")
+            range_expr = (
+                f"{op.offset} + {access_size} <= {value_size}"
+                if value_size is not None
+                else f"{op.offset} + {access_size} <= {base_reg}.range"
             )
-
-        if _is_stack_base(base_state, base_reg) or "stack" in lowered:
-            if base_reg is None:
-                return None
             return ObligationSpec(
-                kind="stack_access",
+                kind="map_value_access",
                 failing_insn=fail_insn.insn_idx,
                 base_reg=base_reg,
                 index_reg=None,
@@ -675,15 +1035,17 @@ def infer_formal_obligation(
                     PredicateAtom(
                         atom_id="type_matches",
                         registers=(base_reg,),
-                        expression=f"{base_reg}.type matches fp",
+                        expression=f"{base_reg}.type matches map_value",
                     ),
                     PredicateAtom(
                         atom_id="range_at_least",
                         registers=(base_reg,),
-                        expression=f"{abs(op.offset)} + {access_size} <= {STACK_FRAME_BYTES}",
+                        expression=range_expr,
                     ),
                 ],
             )
+
+    # --- packet_ptr_add: pointer arithmetic error on pkt register ----------
 
     if op.kind == "ptr_add":
         base_state = _lookup_state(fail_insn, op.dst_reg)
@@ -720,101 +1082,16 @@ def infer_formal_obligation(
                 atoms=atoms,
             )
 
+    # --- call: only handle the edge cases not covered by the formal catalog ---
+    # Most call-site errors (packet_access, map_value_access, helper_arg, null_check)
+    # are already matched by the formal catalog above.  Only dynptr_slice (unbounded
+    # memory access on bpf_dynptr_slice) and trusted_null_check (call-site heuristic)
+    # need special handling here.
     if op.kind == "call":
         call_target = _call_target_name(fail_insn.bytecode)
-        if _is_execution_context_error(trace_ir, fail_insn, error_line):
-            return ObligationSpec(
-                kind="execution_context",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=None,
-                index_reg=None,
-                const_off=0,
-                access_size=0,
-                atoms=[],
-            )
 
-        if _is_verifier_limits_error(error_line):
-            return ObligationSpec(
-                kind="verifier_limits",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=None,
-                index_reg=None,
-                const_off=0,
-                access_size=0,
-                atoms=[],
-            )
-
-        if _is_exception_callback_context_error(error_line):
-            return ObligationSpec(
-                kind="exception_callback_context",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=None,
-                index_reg=None,
-                const_off=0,
-                access_size=0,
-                atoms=[],
-            )
-
-        if "invalid access to packet" in lowered:
-            target_reg = _select_access_register(fail_insn, error_line, _is_packet_ptr)
-            if target_reg is None:
-                return None
-            access_off = details.get("off", 0)
-            access_size = details.get("size", 0)
-            return ObligationSpec(
-                kind="packet_access",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=target_reg,
-                index_reg=None,
-                const_off=access_off,
-                access_size=access_size,
-                atoms=[
-                    PredicateAtom(
-                        atom_id="base_is_pkt",
-                        registers=(target_reg,),
-                        expression=f"{target_reg}.type == pkt",
-                    ),
-                    PredicateAtom(
-                        atom_id="range_at_least",
-                        registers=(target_reg,),
-                        expression=f"{access_off} + {access_size} <= {target_reg}.range",
-                    ),
-                ],
-            )
-
-        if "invalid access to map value" in lowered:
-            target_reg = _select_access_register(fail_insn, error_line, _is_map_value)
-            if target_reg is None:
-                return None
-            access_off = details.get("off", 0)
-            access_size = details.get("size", 0)
-            value_size = details.get("value_size")
-            range_expr = (
-                f"{access_off} + {access_size} <= {value_size}"
-                if value_size is not None
-                else f"{access_off} + {access_size} <= {target_reg}.range"
-            )
-            return ObligationSpec(
-                kind="map_value_access",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=target_reg,
-                index_reg=None,
-                const_off=access_off,
-                access_size=access_size,
-                atoms=[
-                    PredicateAtom(
-                        atom_id="type_matches",
-                        registers=(target_reg,),
-                        expression=f"{target_reg}.type matches map_value",
-                    ),
-                    PredicateAtom(
-                        atom_id="range_at_least",
-                        registers=(target_reg,),
-                        expression=range_expr,
-                    ),
-                ],
-            )
-
+        # dynptr_slice: "unbounded memory access" on bpf_dynptr_slice is a
+        # buffer_length_pair violation — formal catalog cannot detect the call target.
         if "unbounded memory access" in lowered and "dynptr_slice" in call_target:
             return ObligationSpec(
                 kind="buffer_length_pair",
@@ -826,37 +1103,59 @@ def infer_formal_obligation(
                 atoms=[],
             )
 
-        reg = _extract_error_register(error_line) or _extract_error_arg_register(error_line)
-        if reg is None and _error_mentions_null(lowered):
-            reg = _first_nullable_register(fail_insn)
-        if reg is None and _helper_arg_error_clue(error_line):
-            reg = "R1"
-        state = _lookup_state(fail_insn, reg)
+        # trusted_null_check: call-site heuristic for functions that require
+        # non-null trusted pointers (formal catalog explicitly returns None for this).
+        if _looks_like_trusted_null_call(call_target, fail_insn):
+            reg = (
+                _extract_error_register(error_line)
+                or _extract_error_arg_register(error_line)
+                or _first_zero_scalar_register(fail_insn)
+                or _first_nullable_register(fail_insn)
+                or "R1"
+            )
+            return ObligationSpec(
+                kind="trusted_null_check",
+                failing_insn=fail_insn.insn_idx,
+                base_reg=reg,
+                index_reg=None,
+                const_off=0,
+                access_size=0,
+                atoms=[
+                    PredicateAtom(
+                        atom_id="non_null",
+                        registers=(reg,),
+                        expression=f"{reg} is non-null",
+                    )
+                ],
+            )
 
+        # helper access to packet not allowed: catalog doesn't match this message.
         if "helper access to the packet is not allowed" in lowered:
-            target_reg = _select_access_register(fail_insn, error_line, _is_packet_ptr) or reg
-            if target_reg is not None:
-                return ObligationSpec(
-                    kind="packet_access",
-                    failing_insn=fail_insn.insn_idx,
-                    base_reg=target_reg,
-                    index_reg=None,
-                    const_off=details.get("off", 0),
-                    access_size=details.get("size", 0),
-                    atoms=[
-                        PredicateAtom(
-                            atom_id="base_is_pkt",
-                            registers=(target_reg,),
-                            expression=f"{target_reg}.type == pkt",
-                        ),
-                        PredicateAtom(
-                            atom_id="range_at_least",
-                            registers=(target_reg,),
-                            expression=f"{details.get('off', 0)} + {details.get('size', 0)} <= {target_reg}.range",
-                        ),
-                    ],
-                )
+            target_reg = _select_access_register(fail_insn, error_line, _is_packet_ptr) or "R1"
+            return ObligationSpec(
+                kind="packet_access",
+                failing_insn=fail_insn.insn_idx,
+                base_reg=target_reg,
+                index_reg=None,
+                const_off=details.get("off", 0),
+                access_size=details.get("size", 0),
+                atoms=[
+                    PredicateAtom(
+                        atom_id="base_is_pkt",
+                        registers=(target_reg,),
+                        expression=f"{target_reg}.type == pkt",
+                    ),
+                    PredicateAtom(
+                        atom_id="range_at_least",
+                        registers=(target_reg,),
+                        expression=f"{details.get('off', 0)} + {details.get('size', 0)} <= {target_reg}.range",
+                    ),
+                ],
+            )
 
+        # helper_arg contract errors: "must be a rcu pointer", "unsupported reg type",
+        # etc.  These are not in the formal catalog.
+        reg = _extract_error_register(error_line) or _extract_error_arg_register(error_line)
         if _is_helper_contract_error(error_line) or (
             "trusted_ptr_" in lowered and _call_target_suggests_pointer_contract(call_target)
         ):
@@ -879,156 +1178,7 @@ def infer_formal_obligation(
                     ],
                 )
 
-        if (
-            _is_trusted_null_error(error_line)
-            or _is_trusted_reference_error(error_line)
-            or _looks_like_trusted_null_call(call_target, fail_insn)
-        ):
-            target_reg = (
-                reg
-                or _first_zero_scalar_register(fail_insn)
-                or _first_nullable_register(fail_insn)
-                or "R1"
-            )
-            atoms = (
-                [
-                    PredicateAtom(
-                        atom_id="type_matches",
-                        registers=(target_reg,),
-                        expression=f"{target_reg}.type matches trusted_ptr_,rcu_ptr_,ptr_,ptr",
-                    )
-                ]
-                if _is_trusted_reference_error(error_line)
-                else [
-                    PredicateAtom(
-                        atom_id="non_null",
-                        registers=(target_reg,),
-                        expression=f"{target_reg} is non-null",
-                    )
-                ]
-            )
-            return ObligationSpec(
-                kind="trusted_null_check",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=target_reg,
-                index_reg=None,
-                const_off=0,
-                access_size=0,
-                atoms=atoms,
-            )
-
-        if _is_dynptr_protocol_error(fail_insn.bytecode, error_line):
-            target_reg = _select_protocol_register_from_trace(
-                trace_ir,
-                fail_insn,
-                error_line,
-                expected_type="dynptr",
-            )
-            if target_reg is None:
-                return None
-            return ObligationSpec(
-                kind="dynptr_protocol",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=target_reg,
-                index_reg=None,
-                const_off=0,
-                access_size=0,
-                atoms=[
-                    PredicateAtom(
-                        atom_id="type_matches",
-                        registers=(target_reg,),
-                        expression=f"{target_reg}.type matches dynptr",
-                    )
-                ],
-            )
-
-        if _is_iterator_protocol_error(fail_insn.bytecode, error_line):
-            target_reg = _select_protocol_register_from_trace(
-                trace_ir,
-                fail_insn,
-                error_line,
-                expected_type="iter",
-            )
-            if target_reg is None:
-                return None
-            return ObligationSpec(
-                kind="iterator_protocol",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=target_reg,
-                index_reg=None,
-                const_off=0,
-                access_size=0,
-                atoms=[
-                    PredicateAtom(
-                        atom_id="type_matches",
-                        registers=(target_reg,),
-                        expression=f"{target_reg}.type matches iter",
-                    )
-                ],
-            )
-
-        if _is_btf_reference_type_error(error_line) or _is_btf_metadata_error(error_line):
-            return ObligationSpec(
-                kind="btf_reference_type",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=reg,
-                index_reg=None,
-                const_off=0,
-                access_size=0,
-                atoms=[],
-            )
-
-        if _is_buffer_length_pair_error(error_line):
-            base_arg, index_arg = _extract_error_arg_pair(error_line)
-            return ObligationSpec(
-                kind="buffer_length_pair",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=base_arg or reg,
-                index_reg=index_arg,
-                const_off=0,
-                access_size=0,
-                atoms=[],
-            )
-
-        if reg is None:
-            return None
-
-        if _error_mentions_null(lowered) or _is_nullable(state):
-            return ObligationSpec(
-                kind="null_check",
-                failing_insn=fail_insn.insn_idx,
-                base_reg=reg,
-                index_reg=None,
-                const_off=0,
-                access_size=0,
-                atoms=[
-                    PredicateAtom(
-                        atom_id="non_null",
-                        registers=(reg,),
-                        expression=f"{reg}.type not nullable",
-                    )
-                ],
-            )
-
-        if not _helper_arg_error_clue(error_line):
-            return None
-
-        expected_types = _expected_types_for_helper(op.helper_id, reg, error_line)
-        return ObligationSpec(
-            kind="helper_arg",
-            failing_insn=fail_insn.insn_idx,
-            base_reg=reg,
-            index_reg=None,
-            const_off=0,
-            access_size=0,
-            atoms=[
-                PredicateAtom(
-                    atom_id="type_matches",
-                    registers=(reg,),
-                    expression=f"{reg}.type matches {','.join(expected_types)}",
-                )
-                ],
-            )
+    # --- protocol / context / meta errors (opcode-independent) ---------------
 
     if _is_reference_leak_error(error_line):
         return ObligationSpec(
@@ -1111,6 +1261,30 @@ def infer_formal_obligation(
                         atom_id="type_matches",
                         registers=(target_reg,),
                         expression=f"{target_reg}.type matches dynptr",
+                    )
+                ],
+            )
+
+    # iterator_protocol: "reference type size cannot be determined" on bpf_iter_*
+    # calls overlaps with the BTF reference type error pattern.  Check iterator
+    # BEFORE btf_reference_type so iterator errors are classified correctly.
+    if _is_iterator_protocol_error(fail_insn.bytecode, error_line):
+        target_reg = _select_protocol_register_from_trace(
+            trace_ir, fail_insn, error_line, expected_type="iter",
+        )
+        if target_reg is not None:
+            return ObligationSpec(
+                kind="iterator_protocol",
+                failing_insn=fail_insn.insn_idx,
+                base_reg=target_reg,
+                index_reg=None,
+                const_off=0,
+                access_size=0,
+                atoms=[
+                    PredicateAtom(
+                        atom_id="type_matches",
+                        registers=(target_reg,),
+                        expression=f"{target_reg}.type matches iter",
                     )
                 ],
             )
@@ -1408,7 +1582,17 @@ def _infer_obligation_fallback(
 
     if _helper_arg_error_clue(error_line) and "reg type unsupported for arg#0 function" not in lowered:
         target_reg = reg or "R1"
-        expected_types = _expected_types_from_helper_text(error_line) or ["ptr", "scalar", "map_value", "pkt", "fp"]
+        # Try to extract the expected type directly from "expected=X" in the
+        # error message.  The verifier emits "R%d type=%s expected=%s" where
+        # the last token is the comma-separated list of accepted types.  Prefer
+        # this over the keyword-based heuristic so that, e.g., "expected=fp"
+        # maps to ["fp"] rather than the catch-all wide list.
+        _expected_match = re.search(r"expected=(\S+)", error_line)
+        if _expected_match:
+            raw_expected = _expected_match.group(1).rstrip(",")
+            expected_types = [t.strip() for t in raw_expected.split(",") if t.strip()]
+        else:
+            expected_types = _expected_types_from_helper_text(error_line) or ["ptr", "scalar", "map_value", "pkt", "fp"]
         return ObligationSpec(
             kind="helper_arg",
             failing_insn=failing_insn,
@@ -1620,7 +1804,19 @@ def backward_slice(
     obligation: ObligationSpec,
     transition: TransitionWitness,
 ) -> list[SliceEdge]:
-    """Build a bounded backward slice from the violated predicate atom."""
+    """Build a complete backward slice from the violated predicate atom.
+
+    Strategy A (preferred): when mark_precise backtrack chains are available for the
+    relevant registers, follow the COMPLETE chain — it is the verifier's own root-cause
+    analysis and constitutes ground truth for which instructions are causally relevant.
+    All consecutive (src, dst) pairs in each chain are recorded as backtrack_hint edges
+    and the chain endpoints are seeded into the def-use BFS worklist so that the two
+    strategies compose naturally.
+
+    Strategy B (fallback / always runs): def-use chain traversal starting from the
+    transition witness.  A visited set (not a depth limit) prevents infinite loops.
+    The traversal is bounded only by the trace boundaries.
+    """
 
     node_by_pos = {instruction.trace_pos: instruction for instruction in trace_ir.instructions}
     seed_registers = (
@@ -1635,14 +1831,56 @@ def backward_slice(
     if start_pos is None:
         return []
 
-    worklist = deque((start_pos, register, 0) for register in seed_registers)
+    # Strategy A-prime (lineage): extend seed registers with all aliases of the
+    # carrier register at the transition point.  This surfaces spill/fill chains
+    # that the def-use BFS might miss if the intermediate stack slot is not in
+    # the instruction's explicit defs/uses list.
+    if trace_ir.value_lineage is not None:
+        extra_seed_registers: list[str] = []
+        for seed_reg in list(seed_registers):
+            aliases = trace_ir.value_lineage.get_all_aliases(start_pos, seed_reg)
+            for alias in aliases:
+                if alias not in seed_registers and alias not in extra_seed_registers:
+                    extra_seed_registers.append(alias)
+        seed_registers = list(seed_registers) + extra_seed_registers
+
+    # Build a fast lookup: insn_idx -> trace_pos for Strategy A chain seeding.
+    pos_by_insn: dict[int, int] = {
+        instruction.insn_idx: instruction.trace_pos
+        for instruction in trace_ir.instructions
+    }
+
     seen_points: set[tuple[int, str]] = set()
     edge_keys: set[tuple[tuple[int, str], tuple[int, str], str]] = set()
     edges: list[SliceEdge] = []
 
+    # Strategy A: seed ALL backtrack chain edges upfront for relevant registers.
+    # These are the verifier's own mark_precise backward chains — follow them completely.
+    for register in seed_registers:
+        for chain_edge in _all_backtrack_edges(trace_ir.backtrack_chains, register):
+            _record_edge(chain_edge, edge_keys, edges)
+
+    worklist: deque[tuple[int, str]] = deque(
+        (start_pos, register) for register in seed_registers
+    )
+    # Also seed worklist from the earliest point in each relevant backtrack chain.
+    for register in seed_registers:
+        for chain in trace_ir.backtrack_chains:
+            relevant_links = [
+                link for link in chain.links if register in _decode_regs_mask(link.regs)
+            ]
+            if not relevant_links:
+                continue
+            # links are stored error→root; chronologically the last element is the root.
+            root_link = relevant_links[-1]
+            chain_start_pos = pos_by_insn.get(root_link.insn_idx)
+            if chain_start_pos is not None:
+                worklist.append((chain_start_pos, register))
+
+    # Strategy B: def-use BFS — no depth limit, visited set prevents cycles.
     while worklist:
-        trace_pos, register, depth = worklist.popleft()
-        if depth >= 10 or (trace_pos, register) in seen_points:
+        trace_pos, register = worklist.popleft()
+        if (trace_pos, register) in seen_points:
             continue
         seen_points.add((trace_pos, register))
 
@@ -1664,7 +1902,7 @@ def backward_slice(
                     ),
                 )
                 if _record_edge(edge, edge_keys, edges):
-                    worklist.append((def_node.trace_pos, input_register, depth + 1))
+                    worklist.append((def_node.trace_pos, input_register))
         else:
             def_node = _find_reaching_definition(trace_ir, trace_pos, register)
             if def_node is not None:
@@ -1675,7 +1913,7 @@ def backward_slice(
                     reason=f"{register} flows from insn {def_node.insn_idx} to insn {node.insn_idx}",
                 )
                 if _record_edge(edge, edge_keys, edges):
-                    worklist.append((def_node.trace_pos, register, depth + 1))
+                    worklist.append((def_node.trace_pos, register))
 
         guard_node = _find_guard_that_changed_atom(
             trace_ir,
@@ -1696,6 +1934,7 @@ def backward_slice(
             )
             _record_edge(edge, edge_keys, edges)
 
+        # Per-node backtrack hints (single-hop edges touching this specific node).
         for hint in _matching_backtrack_edges(trace_ir.backtrack_chains, node.insn_idx, register):
             _record_edge(hint, edge_keys, edges)
 
@@ -2954,6 +3193,24 @@ def _candidate_carriers(
         if same_lineage or same_alias:
             candidates.append((candidate_register, candidate_state))
 
+    # Lineage-based alias fallback: if version-tracking found nothing AND the primary
+    # register is completely absent from this instruction's state (i.e., it was spilled
+    # to the stack or moved to another register before this point), consult the
+    # value_lineage graph to find an equivalent register holding the same proof-root
+    # value through spills, fills, and copies.
+    #
+    # Deliberately avoid this fallback when primary_state is present: if the register
+    # appears in the state, its abstract value should be evaluated directly — using an
+    # alias could mask a genuine null / type violation on the primary register.
+    if not candidates and primary_state is None and trace_ir.value_lineage is not None:
+        aliases = trace_ir.value_lineage.get_all_aliases(trace_pos, register)
+        for alias_reg in aliases:
+            if alias_reg == register:
+                continue
+            alias_state = state_map.get(alias_reg)
+            if alias_state is not None:
+                candidates.append((alias_reg, alias_state))
+
     return candidates
 
 
@@ -3047,10 +3304,31 @@ def _eval_atom_on_state(
     if state is None:
         return "unknown", f"{register}: state unavailable"
 
-    if atom.atom_id == "base_is_pkt":
-        result = "satisfied" if _is_packet_ptr(state) else "violated"
-        return result, f"{register}.type={state.type}"
+    # -------------------------------------------------------------------
+    # Abstract domain evaluator — primary path for ALL atom types.
+    #
+    # eval_atom_abstract uses the full interval arithmetic + tnum domain.
+    # Its "unknown" result is the honest answer when the abstract domain
+    # cannot determine satisfaction from the available state fields.
+    # We fall through to obligation-context-aware helpers for three atom
+    # types that need either obligation context or eBPF-specific semantics:
+    #   - range_at_least: bound depends on obligation.kind and access size
+    #   - non_null: additionally checks for scalar zero (umin==umax==0)
+    #   - offset_non_negative: eBPF uses "violates if smin < 0" semantics
+    #                          (abstract domain returns "unknown" when smin<0
+    #                          but smax>=0, which is too conservative here)
+    # Everything else uses eval_atom_abstract as the authoritative answer.
+    # -------------------------------------------------------------------
+    if atom.atom_id not in {"range_at_least", "non_null", "offset_non_negative", "offset_bounded"}:
+        try:
+            abstract_result, abstract_witness = eval_atom_abstract(
+                atom.atom_id, atom.expression, state
+            )
+            return abstract_result, f"{register}: {abstract_witness}"
+        except Exception:
+            return "unknown", f"{register}: abstract domain error for {atom.atom_id}"
 
+    # --- range_at_least: uses obligation-specific bound and access extent ---
     if atom.atom_id == "range_at_least":
         required = _required_access_extent(state, obligation)
         bound = _bound_for_range_atom(atom, state, obligation)
@@ -3063,48 +3341,54 @@ def _eval_atom_on_state(
             f"{register}: fixed_off={fixed_off}, required={required}, bound={bound}, type={state.type}",
         )
 
+    # --- non_null: includes scalar-zero detection (umin==umax==0) ----------
     if atom.atom_id == "non_null":
         result = "violated" if _is_nullable(state) or _is_definitely_null(state) else "satisfied"
         return result, f"{register}.type={state.type}"
 
+    # --- offset_non_negative: eBPF verifier semantics ----------------------
+    # The verifier treats an offset as "violated" whenever smin < 0 (meaning
+    # the scalar CAN take a negative value and cannot be proven non-negative).
+    # This differs from the three-valued abstract domain which returns "unknown"
+    # when smin < 0 but smax >= 0.
     if atom.atom_id == "offset_non_negative":
         lower_bound = state.smin if state.smin is not None else state.umin
         if lower_bound is None and state.umax is not None and _is_scalar_like(state):
+            # Scalar with umax but no smin/umin: treat umin=0 (non-negative)
             lower_bound = 0
         if lower_bound is None:
             return "unknown", f"{register}: no lower bound"
         result = "satisfied" if lower_bound >= 0 else "violated"
         return result, f"{register}: lower_bound={lower_bound}"
 
+    # --- offset_bounded: use abstract domain with explicit fallback --------
+    # eval_atom_abstract for offset_bounded can mis-parse expressions like
+    # "R0.umax is bounded" (extracting the register index as the limit).
+    # We use it when umax is present; fall back to checking umax is None.
     if atom.atom_id == "offset_bounded":
+        try:
+            abstract_result, abstract_witness = eval_atom_abstract(
+                "offset_bounded", atom.expression, state
+            )
+            if abstract_result != "unknown":
+                return abstract_result, f"{register}: {abstract_witness}"
+        except Exception:
+            pass
         upper_bound = state.umax
         if upper_bound is None:
-            return "violated", f"{register}: umax=None"
+            # Fallback: use tnum upper bound from var_off when umax is not set.
+            # This catches scalars constrained only via bitwise ops (e.g., &= 0xff).
+            sb = scalar_bounds_from_register_state(state)
+            tnum_ub = sb.upper_bound()
+            _U64_MAX = (1 << 64) - 1
+            if tnum_ub < _U64_MAX:
+                upper_bound = tnum_ub
+        if upper_bound is None:
+            return "violated", f"{register}: umax=None (unbounded)"
         expected_bound = _extract_explicit_bound(atom.expression)
         if expected_bound is not None and upper_bound > expected_bound:
             return "violated", f"{register}: umax={upper_bound}, limit={expected_bound}"
         return "satisfied", f"{register}: umax={upper_bound}"
-
-    if atom.atom_id == "type_is_pointer":
-        result = "satisfied" if _looks_pointer_like(state.type) else "violated"
-        return result, f"{register}.type={state.type}"
-
-    if atom.atom_id == "type_matches":
-        expected_types = _parse_expected_types(atom.expression)
-        actual = state.type.lower()
-        result = (
-            "satisfied"
-            if any(_type_matches(actual, expected_type) for expected_type in expected_types)
-            else "violated"
-        )
-        return result, f"{register}.type={state.type}, expected={','.join(expected_types)}"
-
-    if atom.atom_id == "scalar_bounds_known":
-        if not _is_scalar_like(state):
-            return "violated", f"{register}.type={state.type}"
-        bounds = (state.umin, state.umax, state.smin, state.smax)
-        result = "satisfied" if any(bound is not None for bound in bounds) else "violated"
-        return result, f"{register}.type={state.type}, bounds={bounds}"
 
     return "unknown", f"{atom.atom_id}: unsupported"
 
@@ -3125,8 +3409,17 @@ def _required_access_extent(
 
 
 def _max_variable_offset(state: RegisterState, obligation_kind: str) -> int:
-    if obligation_kind in {"map_value_access", "memory_access"} and state.umax is not None:
-        return max(0, state.umax)
+    if obligation_kind in {"map_value_access", "memory_access"}:
+        # Primary: use umax from the parsed interval bounds
+        if state.umax is not None:
+            return max(0, state.umax)
+        # Fallback: use tnum upper bound (value | mask) when umax is not set.
+        # This catches cases like `r0 &= 0xff` where the verifier tracks
+        # var_off=(0x0; 0xff) but hasn't propagated a tight umax yet.
+        sb = scalar_bounds_from_register_state(state)
+        tnum_ub = sb.upper_bound()  # min(umax, tnum_upper_bound)
+        if tnum_ub < (1 << 64) - 1:  # only use if tnum actually constrains
+            return max(0, tnum_ub)
     return 0
 
 
@@ -3467,6 +3760,39 @@ def _iter_reachable_predecessors(
             if pred_pos not in seen:
                 worklist.append(pred_pos)
     return ordered
+
+
+def _all_backtrack_edges(
+    chains: list[BacktrackChain],
+    register: str,
+) -> list[SliceEdge]:
+    """Return ALL consecutive backtrack edges for *register* across every chain.
+
+    Unlike ``_matching_backtrack_edges`` (which filters to a single insn_idx), this
+    function follows the complete mark_precise chain and records every hop, making it
+    suitable for Strategy A complete-chain extraction in ``backward_slice``.
+    """
+    if _register_index(register) is None:
+        return []
+
+    edges: list[SliceEdge] = []
+    for chain in chains:
+        relevant_links = [link for link in chain.links if register in _decode_regs_mask(link.regs)]
+        # links are stored in error→root order; reverse to get chronological (root→error).
+        chronological = list(reversed(relevant_links))
+        for previous, current in zip(chronological, chronological[1:]):
+            edges.append(
+                SliceEdge(
+                    src=(previous.insn_idx, register),
+                    dst=(current.insn_idx, register),
+                    kind="backtrack_hint",
+                    reason=(
+                        f"verifier backtracking kept {register} live from insn {previous.insn_idx} "
+                        f"to insn {current.insn_idx}"
+                    ),
+                )
+            )
+    return edges
 
 
 def _matching_backtrack_edges(

@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-import sys
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
 from interface.extractor.diagnoser import _classify_without_catalog, diagnose
 
@@ -140,8 +137,8 @@ def test_diagnose_fallback_classifies_round2_uncatalogued_symptoms(tmp_path: Pat
 def test_diagnose_keeps_scalar_mem_access_as_source_bug_without_same_register_loss() -> None:
     diagnosis = diagnose(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
-            "kernel-selftest-dynptr-fail-clone-invalidate4.yaml"
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-dynptr-fail-clone-invalidate4-raw-tp-0dfbe587.yaml"
         )
     )
 

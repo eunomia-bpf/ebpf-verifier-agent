@@ -2,14 +2,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-import sys
 
 import yaml
 from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
 from interface.extractor.rust_diagnostic import generate_diagnostic
 

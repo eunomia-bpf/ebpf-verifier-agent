@@ -159,6 +159,7 @@ def generate_diagnostic(
     verifier_log: str,
     catalog_path: str | None = None,
     bpftool_xlated: str | None = None,
+    source_code: str | None = None,
 ) -> DiagnosticOutput:
     """Run the full parser → proof summary → source correlation → renderer pipeline."""
 
@@ -289,7 +290,10 @@ def _attach_proof_analysis_metadata(
         return
     metadata = output.json_data.setdefault("metadata", {})
     if proof_result.causal_chain:
-        metadata["causal_chain"] = list(proof_result.causal_chain)
+        metadata["causal_chain"] = [
+            {"insn_idx": entry[0], "reason": entry[1]}
+            for entry in proof_result.causal_chain
+        ]
     if proof_result.fallback_reasons:
         metadata["proof_analysis"] = {
             "fallback_reasons": proof_result.fallback_reasons,

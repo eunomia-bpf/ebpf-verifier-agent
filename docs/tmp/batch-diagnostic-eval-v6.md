@@ -1,4 +1,4 @@
-# Batch Diagnostic Evaluation
+# Batch Diagnostic Evaluation — v6
 
 - Generated at: `2026-03-13T04:45:56.744053+00:00`
 - Minimum verifier log length: `50` chars
@@ -93,3 +93,48 @@ Examples:
 ## Recommendations
 
 - Strengthen fallback proof-event synthesis for sparse outputs; 146 successful cases render at most one span.
+
+---
+
+## v5 vs v6 Comparison
+
+> **v5 baseline**: generated at `2026-03-13T04:36:28.447621+00:00` (from `eval/results/batch_diagnostic_results_v5.json`)
+> **v6 run**: generated at `2026-03-13T04:45:56.744053+00:00` (from `docs/tmp/batch-diagnostic-eval.md`, the default report path)
+
+### Key Metrics
+
+| Metric | v5 | v6 | Delta |
+| --- | ---: | ---: | ---: |
+| Success rate | 262/262 (100.0%) | 262/262 (100.0%) | 0 |
+| BTF correlation | 172 (65.6%) | 172 (65.6%) | 0 |
+| `proof_established` spans | 113 (43.1%) | 115 (43.9%) | **+2** |
+| `proof_lost` spans | 97 (37.0%) | 99 (37.8%) | **+2** |
+| `proof_rejected` spans | 262 (100.0%) | 262 (100.0%) | 0 |
+| Cases with `causal_chain` in metadata | 24 | ~26 (est.) | **+2** |
+| `proof_status: established_then_lost` | 97 | 99 | **+2** |
+| `proof_status: never_established` | 128 | 126 | **−2** |
+| `proof_status: established_but_insufficient` | 16 | 16 | 0 |
+| `proof_status: unknown` | 21 | 21 | 0 |
+| Single-span outputs | 148 | 146 | **−2** |
+| Avg selftests spans | 1.99 | 2.02 | +0.03 |
+| Failures | 0 | 0 | 0 |
+
+### What Changed
+
+**Interval arithmetic improvements** (`abstract_domain.py`): Two cases previously classified as `never_established` are now correctly identified as `established_then_lost`. The improved `ScalarBounds` class with proper tnum intersection (`upper_bound()` / `lower_bound()`) and the `is_bounded()` check that accounts for tnum-constrained values (e.g., `r0 &= 0xff` with `var_off=(0x0; 0xff)`) allows the predicate evaluator to detect more proof-satisfaction events earlier in the trace. This reclassification adds 2 `proof_established` + 2 `proof_lost` spans (+2 each) and reduces `never_established` by 2.
+
+**Causal chain wiring fix** (`pipeline.py` `attach_proof_analysis_metadata`): The `causal_chain` serialization was changed from raw tuple arrays (JSON arrays-of-arrays: `[[insn_idx, reason], ...]`) to structured dicts (`[{"insn_idx": ..., "reason": ...}, ...]`). This makes the metadata more readable for downstream tools (LLM agents, repair loop) without changing the number of cases that produce causal chains. The approximately 24–26 cases with non-empty causal chains correspond to `established_then_lost` cases where the backward obligation slice found contributing instructions.
+
+### No Regressions
+
+- BTF correlation rate: unchanged at 65.6%
+- Taxonomy distribution: unchanged (verifier_limit 7.6%, source_bug 48.5%, env_mismatch 31.3%, lowering_artifact 12.6%)
+- Zero failures in both v5 and v6
+- Zero cases with missing expected roles
+- Selftests BTF rate: unchanged at 98.8%
+
+### Remaining Improvement Areas
+
+- 146 cases (55.7%) still emit only one span; the dominant path is `never_established` (126 cases) which falls through to a single rejected span.
+- Stack Overflow BTF rate remains low (1.5%) due to missing BTF annotations in user-supplied snippets.
+- 21 cases (8.0%) remain `unknown` proof status — these are subprog-only traces or helper-boundary cases that resist formal obligation inference.

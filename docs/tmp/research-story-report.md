@@ -30,7 +30,125 @@ Three approaches currently exist, all inadequate:
 
 **LLM-based tools (Kgent, SimpleBPF).** Feed the full raw log as unstructured text to language models. LLMs achieve 95%+ classification accuracy on our test set (confirming that *classification is not the hard problem*), but they cannot reliably extract state transitions from prose or identify the specific instruction where a proof broke. Our analysis of 591 production verifier-fix commits shows that 63.6% are proof-reshaping workarounds -- developers adding bounds checks at the wrong location because they cannot identify where the proof was actually lost.
 
-### 2.3 The key insight
+### 2.3 Three failure vignettes from the corpus
+
+The following three cases, drawn from the OBLIGE corpus, illustrate why raw verifier output is insufficient and how structured diagnostic output changes the picture. Each represents a different failure class.
+
+#### Vignette 1: The byte-swap trap (lowering artifact -- SO #70750259)
+
+**What the developer was trying to do.** Parse TLS extension headers in an XDP program by reading a 2-byte length field from the packet and using it to advance a pointer.
+
+**What the verifier said:**
+
+```
+22: (4f) r0 |= r6
+23: (dc) r0 = be16 r0
+24: (0f) r5 += r0
+math between pkt pointer and register with unbounded min value is not allowed
+```
+
+**Why it is hard to diagnose.** The source code contains a valid bounds check (`if (data_end < (data + ext_len))`), and the developer explicitly declared `ext_len` with an unsigned type. The error says "unbounded min value," but nothing in the source code is obviously unbounded. The root cause is invisible at the source level: LLVM lowered `__bpf_htons()` into a byte-load, shift, OR, byte-swap sequence, and the OR instruction at BPF insn 22 destroys the scalar bounds that the verifier was tracking. The developer cannot see this without reading the bytecode state trace -- and even experienced kernel developers needed a 500-word Stack Overflow answer to explain it.
+
+**What OBLIGE produces:**
+
+```
+error[OBLIGE-E005]: lowering_artifact -- packet access with lost proof
+  +-- <source>
+  |
+22 |     __u16 ext_len = __bpf_htons(ext->len);
+   |     ---- proof established
+   |     R5: pkt(range=6, off=6) -> pkt(range=6, off=6)
+   |
+22 |     __u16 ext_len = __bpf_htons(ext->len);
+   |     ---- proof lost: OR operation destroys bounds
+   |     R0: scalar(umax=65280, var_off=(0x0; 0xff00)) -> scalar(unbounded)
+   |
+24 |     if (data_end < (data + ext_len)) {
+   |     ---- rejected
+   |     R5: pkt(range=6, off=6)
+   |
+  = note: A verifier-visible proof existed earlier, but arithmetic
+          lowering widened the offset before the rejected access.
+  = help: Add an explicit unsigned clamp and keep the offset
+          calculation in a separate verified register
+```
+
+OBLIGE identifies the three-span lifecycle: the packet pointer R5 had a valid range proof at instruction 13 (the earlier bounds check), the OR at instruction 22 destroyed R0's bounds, and the addition at instruction 24 was rejected because R0 is now unbounded. The diagnostic names the root cause ("OR operation destroys bounds") and the repair strategy ("add an explicit unsigned clamp") -- the exact fix confirmed by the accepted Stack Overflow answer. Without OBLIGE, developers typically add a redundant bounds check at the rejection site (instruction 24), which does not address the actual proof loss.
+
+#### Vignette 2: The missing null check (source bug -- kernel selftest `cgrp_kfunc_acquire_no_null_check`)
+
+**What the developer was trying to do.** Acquire a reference to a cgroup via `bpf_cgroup_acquire()` and immediately release it via `bpf_cgroup_release()`.
+
+**What the verifier said:**
+
+```
+1: (85) call bpf_cgroup_acquire#71302   ; R0_w=ptr_or_null_cgroup(id=2,ref_obj_id=2)
+2: (bf) r1 = r0                        ; R1_w=ptr_or_null_cgroup(id=2,ref_obj_id=2)
+3: (85) call bpf_cgroup_release#71323
+Possibly NULL pointer passed to trusted arg0
+```
+
+**Why it is hard to diagnose.** This particular error message is relatively clear -- "Possibly NULL pointer passed to trusted arg0" -- but the developer must still understand *which* value is null-capable and *where* a null check should be inserted. In larger programs with multiple acquire/release pairs and conditional branches, the connection between the acquire call (which returns `ptr_or_null`) and the release call (which requires a trusted, non-null pointer) can span dozens of instructions. The verifier does not tell the developer *what proof it needed* or *where that proof should have been established*.
+
+**What OBLIGE produces:**
+
+```
+error[OBLIGE-E015]: source_bug -- required proof never established
+  +-- cgrp_kfunc_failure.c
+  |
+61 |     bpf_cgroup_release(acquired);
+   |     ---- rejected
+   |     R1: ptr_or_null_cgroup
+   |
+  = note: The verifier still treats arg0 as nullable at this trusted
+          call site, so NULL can flow to the callee on one path.
+  = help: Add a dominating null check for the value passed as arg0
+          and keep the checked register/value through the call.
+```
+
+OBLIGE classifies the proof status as `never_established`: the obligation (R1 must be non-null) was never satisfied at any point in the trace. The diagnostic names the obligation type (`trusted_null_check`), identifies the register (`R1: ptr_or_null_cgroup`), maps to the source file and line (`cgrp_kfunc_failure.c:61`), and suggests the concrete repair ("add a dominating null check"). This is the simplest case in the proof lifecycle -- the proof was never there, so OBLIGE emits a single span (rejected) rather than the three-span established/lost/rejected pattern.
+
+#### Vignette 3: The verifier's silent precision loss (verifier limit -- SO #70729664)
+
+**What the developer was trying to do.** Parse SCTP chunks in an XDP program using a loop unrolled to 32 iterations, with a bounds check (`if (nh->pos + size < data_end)`) guarding each chunk access.
+
+**What the verifier said:**
+
+```
+2948: (71) r1 = *(u8 *)(r7 +0)
+invalid access to packet, off=26 size=1, R7(id=68,off=26,r=0)
+R7 offset is outside of the packet
+```
+
+**Why it is hard to diagnose.** The developer *did* perform a bounds check before the access. Reducing the loop from 32 to 16 iterations makes the program load successfully, with no other code changes. The error message says "R7 offset is outside of the packet" but gives no hint why the bounds check at instruction 2940 failed to update R7's range. The actual cause is a verifier-internal precision limit: the variable `size` was spilled to the stack before being bounds-checked (the check `if (size > 512)` happens after the stack write at instruction 2784), so the verifier loses track of the upper bound. When `size` is later reloaded and added to R7, R7's `umax_value` becomes 73,851 -- exceeding the verifier's internal `MAX_PACKET_OFF` (65,535) threshold, which silently prevents the bounds check from propagating. The developer's loop iteration count affects whether the compiler spills the variable, making the failure appear nondeterministic.
+
+**What OBLIGE produces:**
+
+```
+error[OBLIGE-E005]: lowering_artifact -- packet access with lost proof
+  +-- <source>
+  |
+2937 |     if (nh->pos + size < data_end)
+     |     ---- proof established
+     |     R7: pkt(range=27, off=27) -> pkt(range=0, off=26)
+     |
+2937 |     if (nh->pos + size < data_end)
+     |     ---- proof lost: branch join loses the earlier refinement
+     |     R7: pkt(range=27, off=27) -> pkt(range=0, off=26)
+     |
+2947 |     if (type == INV_RET_U8)
+     |     ---- rejected
+     |     R7: pkt(range=0, off=26)
+     |
+  = note: A verifier-visible proof existed earlier, but arithmetic
+          lowering widened the offset before the rejected access.
+  = help: Add an explicit unsigned clamp and keep the offset
+          calculation in a separate verified register
+```
+
+OBLIGE's three-span output shows the proof lifecycle: R7 had `range=27` at earlier iterations (proof established), but at instruction 2940 the branch comparison fails to update `r=0` because the verifier's `MAX_PACKET_OFF` guard rejected the bounds refinement (proof lost: "branch join loses the earlier refinement"). The access at instruction 2948 is then rejected with `r=0`. The causal chain traces back to instructions 2937-2940, where the variable-offset addition pushed `umax_value` above the verifier's internal threshold. The repair -- adding an explicit `if (nh->pos > MAX_PACKET_OFF) return` before the bounds check -- is exactly what the accepted Stack Overflow answer recommends. Without OBLIGE, developers are left wondering why reducing loop iterations "fixes" the program.
+
+### 2.4 The key insight
 
 The eBPF verifier *is* a static abstract interpreter. Its LOG_LEVEL2 output is the complete execution trace of that interpreter. Every register's type, bounds, offset, and range at every instruction; every control flow merge; every precision-tracking backtrack chain -- all are already present in the log. The missing step is *meta-analysis*: treating the verifier's output as a first-class data structure and reasoning about it.
 

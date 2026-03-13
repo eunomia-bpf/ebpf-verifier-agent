@@ -27,6 +27,7 @@ OpenAI Codex CLI is available on this machine (`codex-cli 0.113.0`, default mode
 - **Codex runs in background** — use `run_in_background: true` for all codex tasks; Claude dispatches and moves on
 - **Review cycle** — when codex produces a new document, dispatch another codex to review it; iterate until quality is sufficient
 - **Never ask for confirmation** — just keep going, do all work, iterate multiple rounds autonomously
+- **Single agent for build+code+test** — Do NOT split building, code modification, and testing/running into separate subagents. Use ONE agent that can iterate: write code → run tests → see failure → fix → rerun. Only split when tasks are truly independent (e.g., two unrelated eval scripts). This avoids the problem where a test agent finds bugs but can't fix them.
 
 ### Usage
 ```bash

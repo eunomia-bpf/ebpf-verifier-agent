@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-import sys
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
 from interface.extractor.trace_parser import (
     BacktrackLine,
@@ -189,8 +186,8 @@ def test_full_pipeline_handles_backtracking_packet_case() -> None:
 def test_parse_trace_keeps_btf_annotations_across_multi_instruction_statement() -> None:
     parsed = parse_trace(
         _verifier_log(
-            "case_study/cases/kernel_selftests.pre_unique_ids_20260311T0903/"
-            "kernel-selftest-dynptr-fail-bpf-prog.yaml"
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403.yaml"
         )
     )
 

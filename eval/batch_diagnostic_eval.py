@@ -26,8 +26,8 @@ from interface.extractor.rust_diagnostic import generate_diagnostic
 CASE_DIRS: tuple[tuple[str, str, Path], ...] = (
     (
         "selftests",
-        "kernel_selftests.pre_unique_ids_20260311T0903",
-        ROOT / "case_study" / "cases" / "kernel_selftests.pre_unique_ids_20260311T0903",
+        "kernel_selftests",
+        ROOT / "case_study" / "cases" / "kernel_selftests",
     ),
     (
         "stackoverflow",

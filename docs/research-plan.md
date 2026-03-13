@@ -1,40 +1,57 @@
 # OBLIGE：计划与进度
 
+> ## **第一优先级：实现必须配得上 claims，不是降 claims 配实现。目标 OSDI/ATC。**
+>
+> Critical review (2026-03-13) 发现论文 claims 与代码严重脱节。方向不是降低 claims，而是**重新实现核心引擎**使其配得上 OSDI/ATC level 的 novelty。具体见 §10 Implementation Gap Closure Plan。
+
 > 本文档是 OBLIGE 项目的单一 hub。
 > **编辑规则**：
 > - 任何 TODO/实验/文档引用条目被取代时，必须至少保留一行并标注状态，不得直接删除。
 > - 每个任务做完 → 立即更新本文档（任务条目状态 + 关键数据 + 文档路径）。
 > - 每次 context 压缩后 → 完整读取本文档恢复全局状态。
-> - 用 codex background 跑任务，不阻塞主对话。
-> 上次更新：2026-03-12（新增：formal treatment in paper, multi-language analysis, decompiler direction）
+> - 用 sonnet agent 跑实现/分析任务。codex 额度已尽（至 2026-03-18）。
+> 上次更新：2026-03-13 evening（critical review done; claims audit done; implementation gap plan added; target OSDI/ATC confirmed）
 
 ---
 
-## 0. 当前快照（2026-03-12）
+## 0. 当前快照（2026-03-13）
 
-- Obligation coverage：**94.2%**（227/241 eval set），**96.4%**（397/412 full pipeline）
-- Tests：**104 passing**
-- Latency：**median 27ms, P95 43ms, max 92ms**
-- A/B repair v2：**54 cases**；`lowering_artifact` fix-type **+30pp**（3/10 → 6/10）
-- Paper：**8 pages**, **ACM SIGPLAN format**, **compiled**（`docs/paper/main.tex`, `docs/paper/main.pdf`）
-- Title：`OBLIGE: Root-Cause Diagnostics for eBPF Verification Failures via Proof Obligation Tracking`
+- Batch v5：**262/262 成功**（formal engine only），proof_established 115 (43.9%), proof_lost 99 (37.8%), rejected 262 (100%), BTF 172 (65.6%), causal_chain 24
+- Obligation coverage：**100%**（262/262 have `missing_obligation`）
+- Tests：**268 passing**（heuristic 已清理，formal engine only）
+- Latency v3：**median 25.3ms, P95 41.2ms, max 89.3ms**，Pearson r=0.802
+- A/B repair v3：**56 cases**（本地 GPT-OSS 20B）；B consistently > A +7.1pp（21.4%→28.6%），lowering +9.1pp。绝对准确率低（20B 太弱），McNemar p=0.22
+- A/B repair v4：**❌ 待运行**（Qwen3.5-122B-A10B，56 cases）
+- Formal engine comparison：v3→v4 +21 eligible cases, +21 causal chains, obligation 94.19%→94.27%
+- Per-language：C 274 / Rust 21 / Go 7，全部成功
+- Paper：**9 pages**, **ACM SIGPLAN format**, **compiled**（`docs/paper/main.tex`）。6 个数字不一致待修
+- Title：`OBLIGE: Fast, Precise Root-Cause Diagnosis of eBPF Verification Failures`
+- Framing：**abstract state transition analysis**（第四次调整）
+- 文件清理完成：deprecated files → `eval/results/deprecated/`, `eval/deprecated/`, `docs/tmp/deprecated/`
+- 新增：`value_lineage.py`, `Makefile`（根目录一键操作）
 
 ---
 
 ## 1. 论文定位与策略
 
-### 1.1 核心 Thesis：Rust-Quality Diagnostics via Proof Trace Meta-Analysis（2026-03-11 再调整）
+### 1.1 核心 Thesis：Abstract State Transition Analysis（2026-03-12 第四次调整）
 
 > **旧 thesis（已放弃）**：verifier 缺少诊断信息，需要 kernel-side hooks 暴露 abstract state。
 > **第一次调整**：发现 LOG_LEVEL2 已有完整 abstract state，问题是 unstructured。做 proof trace analysis。
-> **第二次调整（当前）**：分类准确率不是贡献（LLM 已做到 95%+）。真正的贡献是 **diagnostic output 的质量**——类比 Rust 的 borrow checker 错误信息。
+> **第二次调整**：分类准确率不是贡献（LLM 已做到 95%+）。真正的贡献是 diagnostic output 的质量。
+> **第三次调整**：核心 insight 是 proof obligation lifecycle。但 obligation inference 本质是 lookup table，不够 general。
+> **第四次调整（当前）**：核心 insight 是 **abstract state transition analysis** — verifier trace 是 proof attempt 的完整记录，直接分析 abstract state 的变化即可定位 root cause，不需要预先知道 obligation 是什么。
 
 > **当前 thesis**：
-> eBPF verifier 的 LOG_LEVEL2 trace 是 abstract interpretation 的完整输出，包含 proof lifecycle 的所有信息（proof 在哪里建立、传播、丢失）。
-> OBLIGE 对这个 trace 做 **meta-analysis**——backward slicing、proof obligation inference、proof propagation tracking——然后结合 BTF source annotation，生成 **Rust-quality multi-span source-level diagnostics**。
+> Verifier 的 LOG_LEVEL2 trace 记录了完整的 abstract state 序列 [s_0, s_1, ..., s_n]。每条指令要么推进、维持、或破坏 safety argument。
+> 通过分析 abstract state 在每条指令的 **transition**（bounds collapse、type downgrade、provenance loss、range loss），可以自动定位 proof 被破坏的精确位置 — root cause — **无需预先知道哪个 safety property 被检查**。
 >
-> **关键类比**：Rust borrow checker 无法证明内存安全 → 指出多个源码位置 + 因果标签（"borrow occurs here", "conflict here"）。
-> eBPF verifier 无法证明程序安全 → OBLIGE 做同样的事：指出 proof-established、proof-lost、rejected 的源码位置。
+> **Key insight**: The verifier trace IS the proof attempt. Abstract state transitions reveal where the proof broke:
+> - 检测 safety-relevant state 退化的指令（bounds 变宽、type 降级、provenance 丢失）
+> - **Transition pattern** 直接分类 failure：从未建立 = source bug，建立后破坏 = lowering artifact
+> - Error message 作为 **focus mechanism**（zoom in 到最相关的 transitions），不作为分析基础
+>
+> **Generality**: 适用于任何输出 per-step abstract state 的 abstract interpreter（Rust borrow checker、WebAssembly validator、Java bytecode verifier）。
 > 纯 userspace，不需要改 kernel。
 
 **OBLIGE 输出示例**：
@@ -90,31 +107,38 @@ unbounded min value is not allowed
 | Model checking counterexample analysis | counterexample trace | 提取 property violation 原因 | 不适用于 eBPF abstract interpreter |
 | **OBLIGE** | **完整 verifier state trace** | **state transition analysis + causal chain** | — |
 
-#### 论文逻辑链条（更新版）
+#### 论文逻辑链条（2026-03-12 更新，abstract state transition analysis framing）
 
-1. eBPF 广泛部署，verifier 必须拒绝不安全程序
-2. 拒绝时 verifier 输出 verbose log（LOG_LEVEL2）包含完整 abstract state trace
-3. 这个 trace 有时 500-1000+ 行，开发者无法有效利用
-4. **Semantic opacity 的根源不是信息缺失，而是 unstructured trace 中的 needle-in-haystack**
-5. 现有工具（Pretty Verifier）只 parse error message 那一行，忽略了 trace 里的丰富 state 信息
-6. LLM agent（Kgent）直接消费 raw text，同样受限于 trace 噪音
-7. **OBLIGE 解析完整 proof trace，提取 critical transition + causal chain + structured diagnosis**
-8. 纯 userspace，不改 kernel，今天就能部署
+1. **Context + Problem (Para 1)**: eBPF critical → verifier rejection = 500-line trace → last line = symptom, root cause buried 30-500 lines earlier
+2. **Evidence + Why existing fails (Para 2)**: 591 commits 分析 → 63.6% 是 proof-reshaping workarounds（根因是 verifier over-approximation，不是 diagnostics 差）。修复需要知道 proof *在哪里*断了。PV regex on final line; LLMs treat as text; neither finds the state transition that broke the proof
+3. **Key insight (Para 3)**: Verifier trace = proof attempt record. Abstract state transitions（bounds collapse, type downgrade, provenance loss）直接揭示 root cause。Transition pattern 分类 failure：从未建立 = source bug，建立后破坏 = lowering artifact。不需要预先知道 obligation
+4. **Example (Para 4)**: Figure 1 (SO #70750259) — bounds check established (line 3), OR destroys bounds (line 7), rejected (line 8). OBLIGE shows 3 labeled spans with state transitions vs PV's 1 hint
+5. **System + Results + Contributions (Para 5)**: State transition detection + backward slicing + interval arithmetic, 94% coverage, Rust-style rendering. 3 contribution bullets
 
-### 1.2 Novelty（2026-03-11 再调整）
+### 1.2 Novelty（2026-03-12 第四次调整 — abstract state transition analysis）
 
 **核心 novelty（不是分类准确率——LLM 已做到 95%+）**：
-1. **Meta-analysis of abstract interpretation output** — verifier 做了 abstract interpretation，OBLIGE 对其输出再做 backward slicing + proof propagation。这是"分析的分析"，在 eBPF 领域首创
-2. **Formal foundation: obligation lattice + soundness** — 定义 L={⊥,unknown,satisfied,violated}，transfer function τ_i，transition witness w。证明 OBLIGE labels 的 soundness 继承自 verifier AI 的 soundness。Backward obligation slice 形式化定义
-3. **Leveraging verifier's own `mark_precise` backtracking** — verifier 内部的 precision tracking（`last_idx`, `first_idx`, `regs=`, `before N:` ）是 verifier 自己算好的根因链，但只以 debug text 暴露。OBLIGE 提取并结构化它
-4. **Rust-quality multi-span diagnostics for eBPF** — 多个源码位置 + 因果标签（proof established / propagated / lost / rejected）。没有人做过
-5. **Proof obligation inference from verifier's type system** — 对每种访问类型，从 error message + register state 推导 "verifier 需要什么条件"（packet: `reg.off+size <= reg.range`）。不是启发式，是基于 verifier 类型系统
-6. **Language-agnostic**: 在 bytecode level 分析 → C/Rust/Go 编译的 BPF 程序都适用。不需要源码 parser
-7. **实证研究** — 64% of 591 production commits 是 proof-reshaping workaround，不是 source bug fix
+
+**论文三大贡献（对应 Introduction contribution bullets）**：
+1. **Abstract state transition analysis framework** — 将 verifier trace 视为 proof attempt 的完整记录，通过分析每条指令的 abstract state 变化（bounds collapse、type downgrade、provenance loss、range loss）自动定位 root cause。不需要预先知道 obligation 是什么 — transition pattern 本身就分类 failure（从未建立 = source bug，建立后破坏 = lowering artifact）。适用于任何输出 per-step abstract state 的 abstract interpreter
+2. **The OBLIGE diagnostic engine** — 五阶段 pipeline（trace parsing → state transition detection → backward slicing via mark_precise → BTF source correlation → multi-span rendering），interval arithmetic 三值评估（satisfied/violated/unknown），27ms median latency，纯 userspace，不改 kernel
+3. **Evaluation on 302 real-world failures** — 94.2% coverage，lowering artifact +30pp repair accuracy，root-cause localization 67% vs PV 0%
+
+**支撑 novelty**：
+- **Meta-analysis of abstract interpretation output** — 对 verifier AI 输出做二阶分析（second-order abstract interpretation）
+- **Leveraging verifier's own `mark_precise` backtracking** — 提取并结构化 verifier 自己的根因链，完整 BFS 无深度限制
+- **Interval arithmetic + tnum** — 精确匹配 verifier 的 scalar 追踪（[umin,umax]×[smin,smax] + tnum value/mask），三值评估
+- **Language-agnostic**: bytecode level 分析 → C/Rust/Go 都适用
+- **Soundness from verifier**: OBLIGE labels 的 soundness 继承自 verifier AI 的 soundness
 
 **与 Pretty Verifier 的本质差异**：
 - Pretty Verifier：parse **1 行** error message（91 regex）→ 1 个 enhanced text + 1 个建议
-- OBLIGE：parse **500 行** state trace → **多个源码位置** + 因果链 + proof lifecycle + 结构化 JSON
+- OBLIGE：parse **500 行** state trace → **多个源码位置** + 因果链 + abstract state transitions + 结构化 JSON
+
+**Obligation 的角色（降级为 focus mechanism）**：
+- Obligation 从 error message 推断 verifier 需要的 safety condition → 用作 focus mechanism（zoom in 到最相关的 transitions）
+- 核心分析不依赖 obligation catalog — 直接分析 abstract state diff 找到 safety-relevant 退化
+- 已有的 obligation_catalog_formal.py（35 个从 verifier.c 提取的 precondition）作为 precision 增强，不是 foundation
 
 **Go 条件（全部满足才提交）**：
 1. Benchmark ≥80 个 labeled cases，覆盖全 5 类 ✅ 302 cases, 30 labeled
@@ -480,18 +504,33 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 
 | # | 任务 | 状态 | 关键数据 / 文档 |
 |---|------|:---:|------|
-| 55 | **Obligation status lattice + transfer function** | ✅ in paper | 定义 L={⊥, unknown, satisfied, violated}，τ_i transfer function, transition witness w。已写入 `docs/paper/main.tex` §3 |
-| 56 | **Soundness theorem (Proposition 1)** | ✅ in paper | "OBLIGE labels inherit soundness from verifier's own abstract interpretation." Proof sketch in paper §3 |
-| 57 | **Backward obligation slice** | ✅ | `backward_obligation_slice()` + `CompositeObligation` + `track_composite()` in proof_engine.py; `causal_chain` 字段集成; 104 tests passing. `docs/tmp/backward-slice-report.md` |
+| 55 | **Obligation status lattice + transfer function** | ✅ 已补实现 | 论文形式化 + `abstract_domain.py` interval arithmetic 三值评估。Phase 2e #81 完成 |
+| 56 | **Soundness theorem (Proposition 1)** | ✅ in paper | Prop 1 重述 verifier soundness — 保留，诚实标注为 "proof sketch" |
+| 57 | **Backward obligation slice** | ✅ 已修复 | depth-10 已移除，完整 BFS + mark_precise chain。Phase 2e #83 完成 |
 | 58 | **Generalization beyond eBPF** | ✅ in paper | Paper §3 includes paragraph: framework applies to any verifier/type-checker producing per-step abstract state traces |
 
 ### Phase 2d: Generality（2026-03-12 开始）
 
 | # | 任务 | 状态 | 关键数据 / 文档 |
 |---|------|:---:|------|
-| 70 | **Multi-language analysis** | 🔄 codex running | 验证 OBLIGE 对 Rust (Aya, 18 cases) 和 Go (Cilium, 7 cases) 编译的 BPF 是否同样有效。OBLIGE 在 bytecode level 分析，应 language-agnostic |
-| 71 | **Decompiler integration analysis** | 🔄 codex running | `bpftool dump xlated linum`, Ghidra eBPF module。评估生产环境无源码场景。`docs/tmp/decompiler-analysis.md` |
-| 72 | **Per-language eval table** | ❌ | 在论文中加入 per-language breakdown（C/Rust/Go），证明 language independence |
+| 70 | **Multi-language analysis** | ✅ | 25/25 non-C cases 全部成功（18 Rust/Aya + 7 Go/Cilium）。obligation: Aya 10/18, Cilium 6/7。`docs/tmp/multi-language-analysis.md` |
+| 71 | **Decompiler integration analysis** | ✅ | bpftool_parser.py 实现；source fallback 集成。结论：decompiler 不作为核心功能，OBLIGE 已有 BTF fallback + bytecode spans。`docs/tmp/decompiler-analysis.md` |
+| 72 | **Per-language eval table** | ✅ | C 274 (235 success, 97.4% obl) / Rust 21 (20 success, 60.0% obl) / Go 7 (7 success, 85.7% obl)。`eval/results/per_language_eval.json`, `docs/tmp/per-language-eval.md` |
+
+### Phase 2e: 真正做到位 — Formal Predicate Engine（2026-03-12 决定）
+
+> **背景**：代码审计发现论文的 formal claims 与实现严重不符。obligation inference 是 lookup table，predicate evaluation 是简单值比较，backward slice 硬编码深度 10。决定：真正实现，不糊弄。
+
+| # | 任务 | 状态 | 关键数据 / 文档 |
+|---|------|:---:|------|
+| 80 | **从 verifier source 提取 obligation preconditions** | ✅ | `obligation_catalog_formal.py`：35 个 FormalObligation，来源于 verifier.c 真实 C 条件，83% 可从 trace 评估。已集成进 pipeline |
+| 81 | **Interval arithmetic based predicate evaluation** | ✅ | `abstract_domain.py`：ScalarBounds（[umin,umax]×[smin,smax] + tnum），三值评估，tnum 算术。已集成进 `_eval_atom_on_state()`。248 tests |
+| 82 | **Register value lineage 完整实现** | ✅ | `interface/extractor/value_lineage.py`：ValueNode/ValueLineage，支持 MOV/STORE/LOAD/ALU+const/ALU+reg/CALL。集成到 TraceIR，用于 alias fallback + backward slice seed expansion。20 tests in test_value_lineage.py。v5 batch: +3 proof spans vs v4 |
+| 83 | **完整 backward obligation slice** | ✅ | depth-10 限制已移除，改用 visited set BFS。完整遍历 mark_precise chain。causal_chain 在 21/262 cases 中出现。123 tests |
+| 84 | **Predicate evaluation 单元测试** | ✅ | 125 tests in test_abstract_domain.py，覆盖 interval arithmetic、tnum、三值评估、各 obligation family |
+| 85 | **End-to-end 验证：formal engine vs 旧 heuristic** | ✅ | v3→v4: +21 eligible (241→262), +21 causal chains (0→21), obligation 94.19%→94.27%。26 improvements vs 7 regressions。`docs/tmp/formal-engine-comparison.md` |
+| 86 | **A/B 实验 v3** | ✅ 完成 | 本地 GPT-OSS 20B，56 cases。**B consistently > A**：overall +7.1pp（21.4%→28.6%），lowering +9.1pp（1/11→2/11），source_bug +6.9pp（9/29→11/29）。**source-bug regression 已修复**（v2 是 -14pp）。但绝对准确率低（20B 太弱），McNemar p=0.22 不显著。需要更强模型重跑。`eval/results/repair_experiment_results_v3.json`, `docs/tmp/repair-experiment-v3-results.md` |
+| 87 | **本地 LLM eval 基础设施** | ✅ | `scripts/local_llm_eval.py`：自动启动 llama-server，OpenAI-compatible API，信号处理。`docs/local-llm-guide.md`。TinyLlama 测试通过 3/3 |
 
 ### Phase 3: Evaluation（原 Phase 5 合并）
 
@@ -504,7 +543,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | 44 | Compile synthetic cases | ✅ 失败 | **0/20 pilot 编译成功**（snippets 是 diff 片段，缺完整上下文）。需从原始 repo checkout 完整源文件才可行。`docs/tmp/synthetic-compilation-report.md` |
 | 45 | PV comparison on Rust-style output | ❌ | 扩展现有 PV comparison |
 | 46 | Cross-kernel stability evaluation | ❌ 暂缓 | QEMU/KVM, ≥3 kernel versions |
-| 47 | Overhead measurement | ✅ | **中位 27ms, P95 43ms, max 92ms**。fresh rerun 见 `eval/results/latency_benchmark_v2.json`，论文同步见 `docs/tmp/paper-data-audit.md`。 |
+| 47 | Overhead measurement | ✅ | **中位 25.3ms, P95 41.2ms, max 89.3ms**，Pearson r=0.802（log lines vs latency）。262/262 cases，0 failures。`eval/results/latency_benchmark_v3.json` |
 
 ### Phase 4: Paper
 
@@ -512,7 +551,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 |---|------|:---:|------|
 | 60 | Paper outline | ✅ | `docs/paper-outline.md`（historical outline；当前 draft 以 `docs/paper/main.tex` 为准） |
 | 61 | Motivating example | ❌ | stackoverflow-70750259: 500 行 log → 3 个 labeled spans → 1 行 fix |
-| 62 | Paper draft | ✅ compiled | `docs/paper/main.tex`, `docs/paper/main.pdf`；**ACM SIGPLAN format，8 pages**；标题：`OBLIGE: Root-Cause Diagnostics for eBPF Verification Failures via Proof Obligation Tracking` |
+| 62 | Paper draft | ✅ compiled | `docs/paper/main.tex`, `docs/paper/main.pdf`；**ACM SIGPLAN format，9 pages**；标题：`OBLIGE: Fast, Precise Root-Cause Diagnosis of eBPF Verification Failures`；使用 `\sys` macro；Introduction 无 subsection，OSDI/SOSP 风格；framing 已更新为 **abstract state transition analysis**（2026-03-12） |
 | 63 | Figures | ❌ | pipeline 图 + Rust-style 输出示例 + span coverage 图 |
 
 ---
@@ -538,5 +577,73 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | **A/B repair experiment 是核心评估** | ✅（新） | 不是测分类，是测"OBLIGE 输出是否帮 LLM 生成更好的修复" |
 | **Cross-kernel 暂缓** | ✅（新） | 先做 Rust-style engine + repair experiment，再做跨版本稳定性 |
 | **Formal treatment in paper** | ✅（新） | Obligation lattice L={⊥,unknown,satisfied,violated}，soundness from verifier AI，backward slice。论文 §3 |
-| **Language-agnostic claim** | 🔄（新） | OBLIGE 在 bytecode level 分析 → 理论上 language-agnostic（C/Rust/Go）。需实证验证。codex 分析中 |
-| **Decompiler as deployment story** | 🔄（新） | 生产环境无源码时用 bpftool xlated + Ghidra 提供 source correlation fallback。codex 分析中 |
+| **Language-agnostic claim** | ✅（新） | 25/25 non-C cases 成功。Aya obligation 56%, Cilium 86%。quality 取决于 log richness 而非语言 |
+| **Decompiler as deployment story** | ✅（新） | bpftool_parser.py 实现。BTF fallback + bytecode spans 已支持。不作为论文核心功能 |
+| **P1 code review fixes** | ✅（新） | 18 项 correctness + structure 修复。proof_engine/rust_diagnostic/trace_parser 拆分为子模块。120 tests |
+| **Formal engine 必须真正做到位** | ✅（新） | 代码审计发现：obligation inference = lookup table，predicate eval = 值比较，backward slice = depth-10。决定：实现 interval arithmetic、从 verifier source 提取 preconditions、完整 backward slice。不糊弄 |
+| **A/B 实验必须重做** | ✅（新） | 当前 A/B：整体 regression（-6pp），source-bug -14pp，仅 10 lowering cases。必须修复 source-bug regression + 扩大 case 数 + 加 verifier-pass oracle |
+| **63.6% framing 需修正** | ✅（新） | 63.6% workarounds 的根因是 verifier over-approximation，不是 diagnostics 差。OBLIGE 不能减少这 63.6%，只能帮开发者更快找到正确的修复方式。论文不应说 "poor diagnostics 导致不必要工作"，应说 "verifier rejection 是严重问题，OBLIGE 帮开发者更快、更准确地修复" |
+| **单 agent 做 build+code+test** | ✅（新） | 构建、修改代码和运行测试不要拆分成不同 subagent。一个 agent 完成全部：写代码→测试→发现 bug→修复→重跑。拆分会导致 test agent 发现 bug 但无法修复 |
+| **Makefile 一键操作** | ✅（新） | 根目录 Makefile 提供 `make test`, `make eval-all`, `make eval-repair-qwen`, `make paper` 等。以后所有操作用 Makefile target，不需要记住复杂命令 |
+| **实现必须配得上 claims** | ✅（新，2026-03-13） | Critical review 发现 paper claims 与代码脱节。方向：重新实现核心引擎，不是降 claims。详见 §10 |
+| **目标 OSDI/ATC** | ✅（确认，2026-03-13） | 不降级到 workshop/tools track。实现要配得上 top venue |
+
+---
+
+## 10. Implementation Gap Closure Plan（2026-03-13 新增，第一优先级）
+
+> **原则**：论文写什么，代码就必须做什么。不是"调整措辞让 claim 变弱"，而是"把实现做到论文描述的水平"。
+> **目标**：OSDI / ATC。
+
+### 10.1 Critical Review 诊断（docs/tmp/critical-review-2026-03-13.md）
+
+| 论文 Claim | 当前实现 | Gap | 严重度 |
+|------------|----------|-----|--------|
+| "Abstract state transition analysis" | 读 verifier 已算好的 bounds 做 field comparison | 不是 analysis，是 reading | **致命** |
+| "Interval arithmetic + tnum" | tnum 函数写了但评估路径几乎不用 | 写了没用 | **高** |
+| "Formal predicate evaluation" | if-else field comparison dispatch table | 不是 formal | **高** |
+| "Backward obligation slice" | 跟着 mark_precise chain + value lineage heuristic，无 CFG | 不是真正的 slicing | **高** |
+| "+30pp repair accuracy" in abstract | 只是 10 个 lowering cases，overall -6pp | 误导 | **致命** |
+| 56.5% 只产出单 span | never_established cases 无 lifecycle 分析 | 方法覆盖率低 | **中** |
+| "19 obligation families" | 7 个 atoms=[]，不产出 lifecycle | 夸大 | **中** |
+
+### 10.2 要做的事（按优先级）
+
+#### P0：重新实现核心引擎（使 claims 成为事实）
+
+| # | 任务 | 当前状态 | 目标状态 | 怎么做 |
+|---|------|----------|----------|--------|
+| 100 | **真正的 abstract state transition analysis** | 读预计算值做比较 | 在 trace 上运行轻量 abstract interpreter：对每条指令的 pre→post state 计算 transfer function，检测 state 退化 | 实现 `AbstractTransitionAnalyzer`：输入=traced instruction sequence，输出=每条指令的 state transition classification（narrowing/widening/type-change/no-change）+ 检测 critical transitions（bounds collapse 用 interval arithmetic 而不是 field comparison） |
+| 101 | **真正用 interval arithmetic** | tnum 函数存在但没调用者 | 所有 predicate evaluation 走 abstract domain | 改 `_eval_atom_on_state()`：所有 atom 类型都经过 `ScalarBounds` 的 interval arithmetic evaluation；用 tnum 推导 ALU 指令后的 bounds（AND/OR/SHIFT）；实现 transfer function for 常见 BPF 指令 |
+| 102 | **真正的 backward slicing with CFG** | 跟着 mark_precise + heuristic | 构建 trace-level CFG，做 proper reaching-definition + control-dependence slicing | 从 trace 中的 branch/jump 指令重建 CFG edges；实现 reaching definition analysis；backward slice = data dependence ∪ control dependence from transition witness |
+| 103 | **消除 heuristic fallback** | 6% cases 回退到 heuristic status | formal engine 覆盖所有 cases | 给 7 个 atoms=[] 的 family 添加 predicate atoms；确保 formal engine 路径处理所有 262 cases |
+| 104 | **A/B 实验达到统计显著** | v3: p=0.22, N=56, 20B model | p<0.05, N≥100, strong model, verifier-pass oracle | 用 verifier oracle 做客观评判；如可能用 API model（GPT-4/Claude）；扩大 case 数 |
+| 105 | **Root-cause ground truth** | 无法自动验证 | 至少 30 cases 有 expert validation | Manual annotation: 30 个 established_then_lost cases，expert 判断 proof_lost 位置是否正确 |
+
+#### P1：评估补强
+
+| # | 任务 | 状态 |
+|---|------|------|
+| 110 | Verifier-pass oracle 集成到 A/B | ✅ 已实现 `--use-oracle` |
+| 111 | Root-cause validation 脚本 | ✅ 已实现 `eval/root_cause_validation.py`，51.5% backtracking rate |
+| 112 | Batch v6 with updated engine | ✅ 报告完成（interval arithmetic +2 cases） |
+| 113 | A/B v5 with Qwen3.5 + oracle | 🔄 跑着，12/56 |
+| 114 | Paper 数字全面更新 | ❌ 等 v5 + 重实现完成后统一更新 |
+
+#### P2：论文重写（等 P0 实现完成后）
+
+| # | 任务 | 说明 |
+|---|------|------|
+| 120 | 重写 §3 formal section | 基于真正实现的 abstract interpreter + CFG slicing |
+| 121 | 重写 abstract 和 introduction | 基于真实数据，不夸大 |
+| 122 | 加 case study section | 3-5 个详细 examples 展示完整 pipeline |
+| 123 | 更新所有 evaluation tables | 基于重实现后的新 batch + A/B 数据 |
+
+### 10.3 当前进展（2026-03-13 evening）
+
+- ✅ Critical review + claims audit 完成，gap 已精确定位
+- ✅ Verifier oracle 实现 + 集成
+- ✅ Root-cause validation 框架
+- ✅ tnum/interval arithmetic 小幅改进（+2 cases）
+- 🔄 A/B v5 实验跑着
+- ❌ P0 核心引擎重实现尚未开始 — **这是决定论文命运的关键**
