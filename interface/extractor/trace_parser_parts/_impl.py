@@ -167,6 +167,7 @@ class TracedInstruction:
     backtrack: BacktrackInfo | None
     is_error: bool
     error_text: str | None
+    opcode_hex: str | None = None  # Raw opcode byte (e.g. "0f") from InstructionLine
 
 
 @dataclass(slots=True)
@@ -208,6 +209,7 @@ class ParsedTrace:
     has_backtracking: bool
     validated_functions: list[int] = field(default_factory=list)
     caller_transfer_sites: list[int] = field(default_factory=list)
+    cfg_edges: list[tuple[int, int]] = field(default_factory=list)  # from-to edges from verifier DFS
 
 
 def parse_line(line: str) -> TraceLine:
@@ -277,6 +279,7 @@ def parse_trace(log_text: str) -> ParsedTrace:
     backtrack_chains = extract_backtrack_chains(log_text)
     error_texts = _collect_error_texts(instructions, raw_lines)
     validated_functions, caller_transfer_sites = _collect_validation_context(raw_lines)
+    cfg_edges = _extract_cfg_edges(raw_lines)
 
     return ParsedTrace(
         instructions=instructions,
@@ -291,6 +294,7 @@ def parse_trace(log_text: str) -> ParsedTrace:
         ),
         validated_functions=validated_functions,
         caller_transfer_sites=caller_transfer_sites,
+        cfg_edges=cfg_edges,
     )
 
 
@@ -455,6 +459,7 @@ def _aggregate_instructions(raw_lines: list[str]) -> list[TracedInstruction]:
                     backtrack=None,
                     is_error=False,
                     error_text=None,
+                    opcode_hex=opcode,
                 )
 
                 if current and pre_state:
@@ -993,6 +998,26 @@ def _normalize_line(line: str) -> str:
         stripped = stripped[1:]
         normalized = stripped.lstrip()
     return normalized.replace("\t", "    ")
+
+
+_FROM_TO_RE = re.compile(r"^\s*from\s+(?P<from_idx>\d+)\s+to\s+(?P<to_idx>\d+):")
+
+
+def _extract_cfg_edges(raw_lines: list[str]) -> list[tuple[int, int]]:
+    """Extract 'from X to Y' CFG edges from raw verifier log lines."""
+    edges: list[tuple[int, int]] = []
+    seen: set[tuple[int, int]] = set()
+    for raw_line in raw_lines:
+        normalized = _normalize_line(raw_line)
+        match = _FROM_TO_RE.match(normalized)
+        if match:
+            from_idx = int(match.group("from_idx"))
+            to_idx = int(match.group("to_idx"))
+            edge = (from_idx, to_idx)
+            if edge not in seen:
+                seen.add(edge)
+                edges.append(edge)
+    return edges
 
 
 def _parse_int(value: str | None) -> int | None:
