@@ -49,6 +49,15 @@ ERROR_LINE_PATTERNS: tuple[tuple[re.Pattern[str], int], ...] = (
     ),
 )
 INSTRUCTION_LINE_RE = re.compile(r"^\d+: \([0-9a-f]{2}\)", flags=re.IGNORECASE)
+# Matches the spurious BTF probe line emitted by the verifier when it tries to
+# resolve a kfunc/helper argument type at the start of a pass.  This line is
+# NOT the root-cause error for dynptr/iterator/kfunc protocol violations — the
+# actual error (e.g. "expected an initialized iter_num") appears later.  We
+# give it a strong negative adjustment so it never beats the real error line.
+BTF_PROBE_NOISE_RE = re.compile(
+    r"reference type\('UNKNOWN\s*'\)\s+size cannot be determined",
+    flags=re.IGNORECASE,
+)
 EXACT_VERIFIER_SYMPTOM_RE = re.compile(
     "|".join(
         (
@@ -67,6 +76,21 @@ EXACT_VERIFIER_SYMPTOM_RE = re.compile(
             r"failed to find kernel BTF type ID",
             r"\bInvalid name\b",
             r"pointer type .* must point",
+            # scalar/range errors that appear alongside spurious BTF probe lines
+            r"math between .* pointer and register with unbounded",
+            r"min value is negative, either use unsigned or",
+            # dynptr protocol violations — programmer used the dynptr API wrongly
+            r"Expected (?:an )?initialized dynptr as arg #\d+",
+            r"Expected a dynptr of type .* as arg #\d+",
+            r"cannot overwrite referenced dynptr",
+            r"cannot pass in dynptr at an offset",
+            r"dynptr has to be at a constant offset",
+            # iterator state-machine violations — source_bug, not env_mismatch
+            r"expected (?:an )?(?:un)?initialized iter_\w+ as arg #\d+",
+            r"arg#\d+ expected pointer to an iterator",
+            # exception callback misuse — source_bug
+            r"cannot call exception cb directly",
+            r"exception cb only supports single integer argument",
         )
     ),
     flags=re.IGNORECASE,
@@ -172,6 +196,13 @@ class VerifierLogParser:
 
             if _is_specific_verifier_symptom(normalized):
                 score += 7
+            if BTF_PROBE_NOISE_RE.search(normalized):
+                # This BTF probe failure is emitted before the main trace when
+                # the verifier introspects kfunc/helper argument types.  For
+                # dynptr, iterator, and kfunc protocol violations it is noise —
+                # the real error line (e.g. "expected an initialized iter_num")
+                # appears later.  Penalise strongly so the real error wins.
+                score -= 8
             if INSTRUCTION_LINE_RE.match(normalized):
                 score -= 4
             if normalized.startswith(";"):

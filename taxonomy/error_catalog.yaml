@@ -161,12 +161,16 @@ error_types:
   - error_id: OBLIGE-E013
     short_name: execution_context_discipline_violation
     taxonomy_class: source_bug
-    title: Lock, IRQ, or RCU discipline violated on at least one control-flow path
+    title: Lock, IRQ, RCU, or exception-callback discipline violated on at least one control-flow path
     verifier_messages:
       - "cannot restore irq state out of order"
       - "function calls are not allowed while holding a lock"
       - "BPF_EXIT instruction .* cannot be used inside .* region"
       - "requires RCU critical section protection"
+      - "cannot call exception cb directly"
+      - "exception cb only supports single integer argument"
+      - "multiple exception callback tags for main subprog"
+      - "Global function .* doesn't return scalar(?:\\. Only those are supported\\.)?"
     likely_obligation: OBLIGE-O013
     example_fix_actions:
       - BALANCE_LOCK_IRQ_RCU_SCOPE
@@ -207,10 +211,6 @@ error_types:
       - "calling kernel function .* is not allowed"
       - "global functions that may sleep are not allowed in non-sleepable context"
       - "kernel func .* is sleepable within IRQ-disabled region"
-      - "cannot call exception cb directly"
-      - "exception cb only supports single integer argument"
-      - "Global function .* doesn't return scalar(?:\\. Only those are supported\\.)?"
-      - "multiple exception callback tags for main subprog"
       - "attach to unsupported member .*"
       - "helper access to the packet is not allowed"
     likely_obligation: OBLIGE-O016

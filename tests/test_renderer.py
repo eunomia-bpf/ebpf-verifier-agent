@@ -156,12 +156,14 @@ def test_renderer_uses_structured_state_fields_without_reparsing_state_change() 
     assert output.json_data["observed_state"]["registers"]["R1"] == "scalar(unbounded)"
 
 
-def test_renderer_env_mismatch_b8afbe98_produces_rejected_span() -> None:
-    """kernel-selftest-crypto-acquire: env_mismatch case must produce at least a rejected span.
+def test_renderer_crypto_acquire_b8afbe98_produces_rejected_span() -> None:
+    """kernel-selftest-crypto-acquire: unreleased-reference case must produce at least a rejected span.
 
-    This case (OBLIGE-E021) was previously falsely classified as established_then_lost
-    via the TransitionAnalyzer fallback. After fixing the false-positive inflation, it
-    correctly returns proof_status=unknown with only a rejected span.
+    The expected verifier message for this case is 'Unreleased reference' (E004,
+    source_bug).  Previously the spurious BTF probe line
+    'arg#0 reference type(UNKNOWN) size cannot be determined: -22' was selected as
+    the error line and mis-mapped to E021 / env_mismatch.  After the BTF_PROBE_NOISE_RE
+    penalisation the correct 'Unreleased reference' error line is selected instead.
     """
     output = generate_diagnostic(
         _load_verifier_log(
@@ -173,8 +175,9 @@ def test_renderer_env_mismatch_b8afbe98_produces_rejected_span() -> None:
     roles = {span["role"] for span in _proof_spans(output)}
     # Must have at least a rejected span — no false lifecycle spans
     assert "rejected" in roles
-    # env_mismatch classification from log_parser must be preserved
-    assert output.json_data["failure_class"] == "env_mismatch"
+    # The real error is Unreleased reference (E004 / source_bug), not env_mismatch
+    assert output.json_data["failure_class"] == "source_bug"
+    assert output.json_data["error_id"] == "OBLIGE-E004"
 
 
 def test_renderer_caps_redundant_spans_at_five() -> None:
