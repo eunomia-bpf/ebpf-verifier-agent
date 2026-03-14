@@ -316,11 +316,12 @@ def _build_proof_events(
     events: list[ProofEvent] = []
 
     if predicate is not None and monitor_result.proof_status not in {"unknown"}:
-        # Use monitor result for establish/loss sites
+        # Real SafetyCondition exists: use monitor result for establish/loss sites.
+        # The monitor found a real predicate satisfaction/violation, so lifecycle spans are meaningful.
         events = _monitor_result_to_events(monitor_result, indexed, primary_reg)
-    elif transition_chain.establish_point is not None or transition_chain.loss_point is not None:
-        # Use transition_chain for establish/loss when no predicate or monitor was inconclusive
-        events = _transition_chain_to_events(transition_chain, indexed, primary_reg, error_line)
+    # No predicate (structural errors, or opcode_safety returned None):
+    # Do NOT produce proof_established/proof_lost spans from TA fallback.
+    # TA transition chain is already attached as causal_chain metadata (see step 12).
 
     # Always add the rejected event if not already present
     if not any(e.event_type == "rejected" for e in events):
