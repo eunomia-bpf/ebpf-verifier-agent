@@ -92,9 +92,22 @@ def evaluate_case(
     proof_status = None
     status_reason = None
     reject_site = error_insn
+    _cached_diagnosis = None
+
+    diagnoser_success = False
+    diagnoser_exception = None
+    diagnoser_proof_status = None
     try:
-        diagnosis = diagnose(verifier_log)
-        proof_result = try_proof_engine(parsed_log, parsed_trace, diagnosis)
+        _cached_diagnosis = diagnose(verifier_log)
+        diagnoser_success = True
+        diagnoser_proof_status = _cached_diagnosis.proof_status
+    except Exception as exc:  # pragma: no cover - batch runner should not abort on one case.
+        diagnoser_exception = f"{type(exc).__name__}: {exc}"
+
+    try:
+        if _cached_diagnosis is None:
+            _cached_diagnosis = diagnose(verifier_log)
+        proof_result = try_proof_engine(parsed_log, parsed_trace, _cached_diagnosis)
         proof_success = True
         if proof_result is not None:
             obligation_kind = (
@@ -106,17 +119,6 @@ def evaluate_case(
             status_reason = proof_result.fallback_reasons[0] if proof_result.fallback_reasons else None
     except Exception as exc:  # pragma: no cover - batch runner should not abort on one case.
         proof_exception = f"{type(exc).__name__}: {exc}"
-
-    diagnoser_success = False
-    diagnoser_exception = None
-    diagnoser_proof_status = None
-    try:
-        if "diagnosis" not in dir():
-            diagnosis = diagnose(verifier_log)
-        diagnoser_success = True
-        diagnoser_proof_status = diagnosis.proof_status
-    except Exception as exc:  # pragma: no cover - batch runner should not abort on one case.
-        diagnoser_exception = f"{type(exc).__name__}: {exc}"
 
     return CaseEval(
         case_id=case_id,
