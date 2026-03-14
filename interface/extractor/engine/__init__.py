@@ -38,6 +38,13 @@ from .predicate import (
     TypeMembership,
 )
 from .synthesizer import RepairSuggestion, RepairSynthesizer
+from .control_dep import (
+    ControlDep,
+    compute_control_dependence,
+    compute_control_dependence_from_trace,
+    controlling_branches,
+    control_dependent_instructions,
+)
 from .transition_analyzer import (
     TransitionAnalyzer,
     TransitionChain,
@@ -73,6 +80,12 @@ __all__ = [
     # Synthesis
     "RepairSynthesizer",
     "RepairSuggestion",
+    # Control dependence
+    "ControlDep",
+    "compute_control_dependence",
+    "compute_control_dependence_from_trace",
+    "controlling_branches",
+    "control_dependent_instructions",
     # Transition analysis
     "TransitionAnalyzer",
     "TransitionChain",
