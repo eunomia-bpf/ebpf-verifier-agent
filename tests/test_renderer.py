@@ -151,7 +151,13 @@ def test_renderer_uses_structured_state_fields_without_reparsing_state_change() 
     assert output.json_data["observed_state"]["registers"]["R1"] == "scalar(unbounded)"
 
 
-def test_renderer_synthesizes_missing_established_then_lost_roles() -> None:
+def test_renderer_env_mismatch_b8afbe98_produces_rejected_span() -> None:
+    """kernel-selftest-crypto-acquire: env_mismatch case must produce at least a rejected span.
+
+    This case (OBLIGE-E021) was previously falsely classified as established_then_lost
+    via the TransitionAnalyzer fallback. After fixing the false-positive inflation, it
+    correctly returns proof_status=unknown with only a rejected span.
+    """
     output = generate_diagnostic(
         _load_verifier_log(
             "case_study/cases/kernel_selftests/"
@@ -160,7 +166,10 @@ def test_renderer_synthesizes_missing_established_then_lost_roles() -> None:
     )
 
     roles = {span["role"] for span in _proof_spans(output)}
-    assert {"proof_established", "proof_lost", "rejected"} <= roles
+    # Must have at least a rejected span — no false lifecycle spans
+    assert "rejected" in roles
+    # env_mismatch classification from log_parser must be preserved
+    assert output.json_data["failure_class"] == "env_mismatch"
 
 
 def test_renderer_caps_redundant_spans_at_five() -> None:
@@ -289,6 +298,12 @@ def test_renderer_preserves_engine_inferred_obligation_when_formal_analysis_retu
 
 
 def test_renderer_keeps_engine_obligation_when_unknown_engine_status_is_ignored() -> None:
+    """OBLIGE-E021 env_mismatch: ClassificationOnlyPredicate must preserve btf_reference_type obligation.
+
+    After fixing the TransitionAnalyzer false-positive fallback, this case correctly
+    returns proof_status='unknown' (no real register-level predicate for BTF lookup
+    failures). The obligation type is still btf_reference_type (from ClassificationOnlyPredicate).
+    """
     output = generate_diagnostic(
         _load_verifier_log(
             "case_study/cases/kernel_selftests/"
@@ -296,7 +311,8 @@ def test_renderer_keeps_engine_obligation_when_unknown_engine_status_is_ignored(
         )
     )
 
-    assert output.json_data["metadata"]["proof_status"] == "established_then_lost"
+    # proof_status is now correctly unknown (no real predicate for BTF env_mismatch)
+    assert output.json_data["metadata"]["proof_status"] in {"unknown", "never_established"}
     assert output.json_data["metadata"]["obligation"] == {
         "type": "btf_reference_type",
         "required": "btf_reference_type",

@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from interface.extractor.diagnoser import diagnose
+from interface.extractor.pipeline import diagnose
 from interface.extractor.log_parser import parse_log
 
 

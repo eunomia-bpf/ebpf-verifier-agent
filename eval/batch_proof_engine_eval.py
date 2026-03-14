@@ -17,9 +17,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from eval.batch_diagnostic_eval import MIN_LOG_CHARS, extract_verifier_log, iter_case_files, read_yaml
-from interface.extractor.diagnoser import diagnose
+from interface.extractor.pipeline import diagnose, try_proof_engine
 from interface.extractor.log_parser import parse_log
-from interface.extractor.proof_engine import analyze_proof
 from interface.extractor.trace_parser import parse_trace
 
 
@@ -94,12 +93,17 @@ def evaluate_case(
     status_reason = None
     reject_site = error_insn
     try:
-        proof_result = analyze_proof(parsed_trace, error_line, error_insn)
+        diagnosis = diagnose(verifier_log)
+        proof_result = try_proof_engine(parsed_log, parsed_trace, diagnosis)
         proof_success = True
-        obligation_kind = proof_result.obligation.kind if proof_result.obligation is not None else None
-        proof_status = proof_result.proof_status
-        status_reason = proof_result.status_reason
-        reject_site = proof_result.reject_site
+        if proof_result is not None:
+            obligation_kind = (
+                getattr(proof_result.obligation, "obligation_type", None)
+                if proof_result.obligation is not None
+                else None
+            )
+            proof_status = proof_result.proof_status
+            status_reason = proof_result.fallback_reasons[0] if proof_result.fallback_reasons else None
     except Exception as exc:  # pragma: no cover - batch runner should not abort on one case.
         proof_exception = f"{type(exc).__name__}: {exc}"
 
@@ -107,7 +111,8 @@ def evaluate_case(
     diagnoser_exception = None
     diagnoser_proof_status = None
     try:
-        diagnosis = diagnose(verifier_log)
+        if "diagnosis" not in dir():
+            diagnosis = diagnose(verifier_log)
         diagnoser_success = True
         diagnoser_proof_status = diagnosis.proof_status
     except Exception as exc:  # pragma: no cover - batch runner should not abort on one case.

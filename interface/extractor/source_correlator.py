@@ -4,10 +4,34 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import Any
 
 from .bpftool_parser import BpftoolInstructionMapping
-from .proof_analysis import ProofEvent, ProofObligation
 from .trace_parser import ParsedTrace, RegisterState, TracedInstruction
+
+
+@dataclass(slots=True)
+class ProofEvent:
+    """A structured event in the proof lifecycle."""
+
+    insn_idx: int
+    event_type: str  # 'proof_established', 'proof_lost', 'proof_propagated', 'rejected'
+    register: str
+    state_before: RegisterState | None
+    state_after: RegisterState | None
+    source_line: str | None
+    description: str
+
+
+@dataclass(slots=True)
+class ProofObligation:
+    """A proof obligation inferred from the verifier error."""
+
+    obligation_type: str  # e.g., 'null_check', 'bounds_check', 'type_check'
+    register: str
+    required_condition: str
+    description: str
+    catalog_id: str | None = None
 
 
 SOURCE_LOCATION_SUFFIX_RE = re.compile(

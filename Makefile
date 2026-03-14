@@ -51,7 +51,7 @@ help:
 	@echo "  make eval-latency      Latency benchmark → results/latency_benchmark.json"
 	@echo "  make eval-pv           PV vs OBLIGE comparison → results/pv_comparison_expanded.json"
 	@echo "  make eval-language     Per-language breakdown → results/per_language_eval.json"
-	@echo "  make eval-formal       Formal engine comparison → docs/tmp/formal-engine-comparison.md"
+	@# eval-formal removed (formal_engine_comparison.py script deleted)
 	@echo "  make eval-all          Run all non-LLM evaluations above"
 	@echo ""
 	@echo "A/B Repair experiment (requires local LLM server)"
@@ -114,20 +114,17 @@ eval-language:
 	@echo "[eval-language] Running per-language breakdown evaluation…"
 	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/per_language_eval.py
 
-.PHONY: eval-formal
-eval-formal:
-	@echo "[eval-formal] Running formal engine comparison (v3 heuristic vs v4 formal)…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/formal_engine_comparison.py
+# eval-formal target removed: formal_engine_comparison.py no longer exists.
+# To add back: create eval/formal_engine_comparison.py and re-add the target.
 
 .PHONY: eval-all
-eval-all: eval-batch eval-latency eval-pv eval-language eval-formal
+eval-all: eval-batch eval-latency eval-pv eval-language
 	@echo ""
 	@echo "[eval-all] All non-LLM evaluations complete."
 	@echo "  Batch results:    $(RESULTS_DIR)/batch_diagnostic_results.json"
 	@echo "  Latency results:  $(RESULTS_DIR)/latency_benchmark.json"
 	@echo "  PV comparison:    $(RESULTS_DIR)/pv_comparison_expanded.json"
 	@echo "  Language eval:    $(RESULTS_DIR)/per_language_eval.json"
-	@echo "  Formal engine:    $(TMP_DIR)/formal-engine-comparison.md"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # A/B Repair experiment (requires local llama-server)
@@ -238,7 +235,6 @@ clean: paper-clean
 	@rm -f $(RESULTS_DIR)/latency_benchmark.json
 	@rm -f $(RESULTS_DIR)/pv_comparison_expanded.json
 	@rm -f $(RESULTS_DIR)/per_language_eval.json
-	@rm -f $(TMP_DIR)/formal-engine-comparison.md
 	@rm -f $(TMP_DIR)/pv-comparison-expanded.md
 	@rm -f $(TMP_DIR)/batch-diagnostic-eval.md
 	@echo "[clean] Done."

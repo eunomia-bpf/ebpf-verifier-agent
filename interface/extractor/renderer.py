@@ -208,10 +208,12 @@ def _display_state_change(state_change: str) -> str:
 
 
 def _normalize_failure_class(taxonomy_class: str, proof_status: str) -> str:
+    # Use the taxonomy classification from log_parser as the authoritative source.
+    # The proof_status is diagnostic metadata only — it does NOT override taxonomy.
+    # (Previously this unconditionally mapped established_then_lost → lowering_artifact,
+    # which caused false positives when TransitionAnalyzer falsely reported lifecycle.)
     if taxonomy_class in VALID_FAILURE_CLASSES:
         return taxonomy_class
-    if proof_status == "established_then_lost":
-        return "lowering_artifact"
     return "source_bug"
 
 

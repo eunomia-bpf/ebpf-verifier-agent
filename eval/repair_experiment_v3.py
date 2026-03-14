@@ -34,7 +34,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from interface.extractor.diagnoser import diagnose
+from interface.extractor.pipeline import diagnose
 from interface.extractor.rust_diagnostic import generate_diagnostic
 
 # ── optional oracle import ─────────────────────────────────────────────────────
