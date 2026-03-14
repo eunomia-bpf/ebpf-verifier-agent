@@ -19,7 +19,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from interface.extractor.trace_parser import parse_verifier_trace
 from interface.extractor.log_parser import parse_verifier_log
 from interface.extractor.engine.monitor import TraceMonitor
-from interface.extractor.engine.ebpf_predicates import infer_predicate
+from interface.extractor.engine.opcode_safety import (
+    OpcodeConditionPredicate,
+    find_violated_condition,
+    infer_conditions_from_error_insn,
+)
 from interface.extractor.engine.synthesizer import RepairSynthesizer
 from eval.verifier_oracle import verify_fix
 
@@ -150,14 +154,21 @@ def run_pilot(limit: int = 10, compile_only: bool = False) -> None:
                         error_msg = insn.error_text
                         break
 
-            # Get register states at error point
-            register_states = {}
+            # Get the error instruction for opcode-driven analysis
+            error_insn = None
             for insn in parsed_trace.instructions:
                 if insn.is_error:
-                    register_states = insn.pre_state or insn.post_state or {}
+                    error_insn = insn
                     break
+            if error_insn is None and parsed_trace.instructions:
+                error_insn = parsed_trace.instructions[-1]
 
-            pred = infer_predicate(error_msg, register_states)
+            pred = None
+            if error_insn is not None:
+                conditions = infer_conditions_from_error_insn(error_insn)
+                violated = find_violated_condition(error_insn, conditions)
+                if violated is not None:
+                    pred = OpcodeConditionPredicate(violated)
 
             if not pred:
                 results.append({

@@ -6,15 +6,29 @@ Public API:
 - Predicate (and subclasses): declarative safety properties
 - RepairSynthesizer: template-based repair synthesis
 - RepairSuggestion: a concrete repair suggestion
-- infer_predicate: map error messages to predicates
-- infer_predicate_from_trace: higher-level inference
+- OpcodeConditionPredicate: opcode-driven safety condition predicate
+- SafetyCondition / SafetyDomain: ISA-derived safety condition structures
+- infer_conditions_from_error_insn: opcode-driven condition inference
+- find_violated_condition: identify violated condition at error instruction
 """
 
 from __future__ import annotations
 
-from .ebpf_predicates import infer_predicate, infer_predicate_from_trace
 from .monitor import MonitorResult, TraceMonitor
+from .opcode_safety import (
+    OpcodeClass,
+    OpcodeConditionPredicate,
+    OpcodeInfo,
+    SafetyCondition,
+    SafetyDomain,
+    decode_opcode,
+    derive_safety_conditions,
+    evaluate_condition,
+    find_violated_condition,
+    infer_conditions_from_error_insn,
+)
 from .predicate import (
+    ClassificationOnlyPredicate,
     CompositeAllPredicate,
     IntervalContainment,
     NullCheckPredicate,
@@ -36,7 +50,18 @@ __all__ = [
     # Monitor
     "TraceMonitor",
     "MonitorResult",
-    # Predicates
+    # Opcode-driven safety analysis (primary path)
+    "OpcodeClass",
+    "OpcodeConditionPredicate",
+    "OpcodeInfo",
+    "SafetyCondition",
+    "SafetyDomain",
+    "decode_opcode",
+    "derive_safety_conditions",
+    "evaluate_condition",
+    "find_violated_condition",
+    "infer_conditions_from_error_insn",
+    # Predicates (kept for backward compatibility and structural errors)
     "Predicate",
     "IntervalContainment",
     "TypeMembership",
@@ -44,9 +69,7 @@ __all__ = [
     "NullCheckPredicate",
     "PacketAccessPredicate",
     "CompositeAllPredicate",
-    # Predicate inference
-    "infer_predicate",
-    "infer_predicate_from_trace",
+    "ClassificationOnlyPredicate",
     # Synthesis
     "RepairSynthesizer",
     "RepairSuggestion",

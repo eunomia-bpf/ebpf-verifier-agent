@@ -10,8 +10,12 @@ from typing import Any
 import yaml
 
 from .bpftool_parser import parse_bpftool_xlated_linum
-from .engine.ebpf_predicates import infer_predicate
 from .engine.monitor import TraceMonitor
+from .engine.opcode_safety import (
+    OpcodeConditionPredicate,
+    find_violated_condition,
+    infer_conditions_from_error_insn,
+)
 from .engine.transition_analyzer import TransitionAnalyzer
 from .log_parser import ParsedLog, parse_log
 from .reject_info import (
@@ -135,9 +139,8 @@ def infer_obligation_from_engine_result(
     parsed_trace: Any,
     diagnosis: Any,
 ) -> tuple[Any | None, list[str]]:
-    """Infer obligation from engine result, falling back to catalog."""
+    """Infer obligation from engine result using opcode-driven analysis."""
     try:
-        from .engine.ebpf_predicates import infer_predicate_from_trace
         obligation = _infer_obligation_from_trace(parsed_log, parsed_trace)
         return obligation, []
     except Exception:
@@ -148,21 +151,41 @@ def _infer_obligation_from_trace(
     parsed_log: Any,
     parsed_trace: Any,
 ) -> ProofObligation | None:
-    """Infer obligation from trace using engine predicates."""
+    """Infer obligation from trace using opcode-driven safety analysis.
+
+    Only applies when the error instruction is explicitly marked as is_error=True.
+    For structural/environmental errors without an explicit error instruction,
+    falls back to None (caller will use the classification-only path).
+    """
     try:
-        from .engine.ebpf_predicates import infer_predicate_from_trace
-        predicate = infer_predicate_from_trace(parsed_log, parsed_trace)
-        if predicate is None:
+        # Find the error instruction — only use explicitly-marked error instructions
+        instructions = list(getattr(parsed_trace, "instructions", []))
+        error_insn = None
+        for insn in instructions:
+            if insn.is_error:
+                error_insn = insn
+                break
+
+        # Do NOT use fallback (last instruction) for structural errors.
+        # If no instruction is explicitly marked as error, opcode analysis does not apply.
+        if error_insn is None:
             return None
-        from .engine.predicate import ClassificationOnlyPredicate
-        if isinstance(predicate, ClassificationOnlyPredicate):
-            return _classification_only_obligation(predicate)
+
+        # Derive conditions from the error instruction's opcode
+        conditions = infer_conditions_from_error_insn(error_insn)
+        if not conditions:
+            return None
+
+        violated = find_violated_condition(error_insn, conditions)
+        if violated is None:
+            return None
+
         error_line = getattr(parsed_log, "error_line", "") or ""
         return ProofObligation(
-            obligation_type=_predicate_to_obligation_type(predicate),
-            register="R0",
-            required_condition=error_line,
-            description=f"Inferred from: {error_line}",
+            obligation_type=_safety_domain_to_obligation_type(violated.domain),
+            register=violated.critical_register,
+            required_condition=violated.required_property,
+            description=f"ISA-derived from opcode: {error_line}",
         )
     except Exception:
         return None
@@ -281,6 +304,19 @@ def generate_diagnostic(
         or catalog_obligation
     )
     specific_reject = extract_specific_reject_info(parsed_log)
+    # When we have a specific contract mismatch but no obligation yet, create one from it.
+    # This handles cases where the error is structural (no explicit error instruction) but
+    # the raw log contains a concrete contract violation (e.g., "arg#0 expected pointer to...").
+    if obligation is None and specific_reject is not None:
+        specific_required = getattr(specific_reject, "obligation_required", None)
+        specific_type = getattr(specific_reject, "obligation_type", None)
+        if specific_required and specific_type:
+            obligation = ProofObligation(
+                obligation_type=specific_type,
+                register="R1",
+                required_condition=specific_required,
+                description=f"Contract violation: {specific_required}",
+            )
     obligation = refine_obligation_with_specific_reject(obligation, specific_reject)
     spans = correlate_to_source(
         parsed_trace,
@@ -409,17 +445,26 @@ def try_proof_engine(
         )
 
     try:
-        # Step 1: infer predicate from error message
-        error_register_states: dict = {}
+        # Step 1: derive safety conditions from the error instruction's opcode (ISA-driven)
+        # Only use opcode analysis when the instruction is explicitly marked as error
+        # (is_error=True). When no instruction has is_error, the error is structural/
+        # environmental and opcode-driven lifecycle analysis does not apply.
+        error_insn = None
+        has_explicit_error_insn = False
         for insn in instructions:
             if insn.is_error:
-                error_register_states = insn.pre_state or insn.post_state or {}
+                error_insn = insn
+                has_explicit_error_insn = True
                 break
-        if not error_register_states and instructions:
-            last = instructions[-1]
-            error_register_states = last.post_state or last.pre_state or {}
+        if error_insn is None and instructions:
+            error_insn = instructions[-1]
 
-        predicate = infer_predicate(error_line, error_register_states)
+        predicate = None
+        if error_insn is not None and has_explicit_error_insn:
+            conditions = infer_conditions_from_error_insn(error_insn)
+            violated = find_violated_condition(error_insn, conditions)
+            if violated is not None:
+                predicate = OpcodeConditionPredicate(violated)
 
         # Step 2: run TraceMonitor to find establish/loss sites
         monitor = TraceMonitor()
@@ -566,10 +611,20 @@ def try_proof_engine(
         cop_error_id = getattr(predicate, "error_id", None) if is_classification_only else None
         _ALWAYS_NEVER_ESTABLISHED_IDS = {"OBLIGE-E022"}
 
-        if is_classification_only and (
-            cop_taxonomy in {"verifier_limit", "verifier_bug"}
-            or cop_error_id in _ALWAYS_NEVER_ESTABLISHED_IDS
-        ):
+        # Verifier limits and structural errors are always "never_established":
+        # the program violated a structural constraint, not a register safety property.
+        # This applies both to ClassificationOnlyPredicate cases and to cases where
+        # predicate is None but the taxonomy class is verifier_limit/verifier_bug.
+        diag_taxonomy = diagnosis.taxonomy_class or ""
+        diag_error_id = diagnosis.error_id or ""
+        is_verifier_limit = (
+            (is_classification_only and cop_taxonomy in {"verifier_limit", "verifier_bug"})
+            or (predicate is None and diag_taxonomy in {"verifier_limit", "verifier_bug"})
+            or (is_classification_only and cop_error_id in _ALWAYS_NEVER_ESTABLISHED_IDS)
+            or (predicate is None and diag_error_id in _ALWAYS_NEVER_ESTABLISHED_IDS)
+        )
+
+        if is_verifier_limit:
             final_status = "never_established"
         else:
             # For env_mismatch and unclassified errors: defer to diagnosis (log_parser classification)
@@ -580,10 +635,16 @@ def try_proof_engine(
             else:
                 final_status = "unknown"
 
-        if final_status == "never_established":
-            specific_contract = extract_specific_contract_mismatch(error_line)
-            if specific_contract is not None:
-                obligation = _make_helper_contract_obligation(specific_contract.raw)
+        # Always check for specific contract violations from the error message,
+        # regardless of final_status. This covers helper/type mismatch cases where
+        # no error instruction is explicitly marked but the error_line contains a
+        # concrete contract violation (e.g., "R2 type=inv expected=fp").
+        specific_contract = extract_specific_contract_mismatch(error_line)
+        if specific_contract is not None:
+            obligation = _make_helper_contract_obligation(specific_contract.raw)
+            # Upgrade "unknown" to "never_established" when we have a concrete contract violation
+            if final_status == "unknown":
+                final_status = "never_established"
 
         return FallbackProofResult(
             proof_status=final_status,
@@ -1097,11 +1158,24 @@ def _predicate_required_condition(
             parts.append(f"{reg_name}.type in {{{', '.join(sorted(allowed))}}}")
         return "; ".join(parts) if parts else None
 
+    # OpcodeConditionPredicate: use the required_property from the SafetyCondition
+    from .engine.opcode_safety import OpcodeConditionPredicate as _OCP
+    if isinstance(predicate, _OCP):
+        cond = predicate.condition
+        for reg_name in target_regs:
+            parts.append(f"{reg_name}: {cond.required_property}")
+        return "; ".join(parts) if parts else None
+
     return None
 
 
 def _predicate_to_obligation_type(predicate: Any) -> str:
     """Map a Predicate instance to a semantic obligation type string."""
+    # Handle OpcodeConditionPredicate (opcode-driven analysis)
+    from .engine.opcode_safety import OpcodeConditionPredicate as _OCP
+    if isinstance(predicate, _OCP):
+        return _safety_domain_to_obligation_type(predicate.condition.domain)
+
     class_name = type(predicate).__name__
     mapping = {
         "PacketAccessPredicate": "packet_access",
@@ -1113,6 +1187,22 @@ def _predicate_to_obligation_type(predicate: Any) -> str:
         "CompositeAllPredicate": "composite",
     }
     return mapping.get(class_name, class_name.lower())
+
+
+def _safety_domain_to_obligation_type(domain: Any) -> str:
+    """Map a SafetyDomain enum value to a semantic obligation type string."""
+    from .engine.opcode_safety import SafetyDomain
+    mapping = {
+        SafetyDomain.MEMORY_BOUNDS: "bounds_check",
+        SafetyDomain.POINTER_TYPE: "type_check",
+        SafetyDomain.SCALAR_BOUND: "scalar_bound",
+        SafetyDomain.NULL_SAFETY: "null_check",
+        SafetyDomain.REFERENCE_BALANCE: "ref_balance",
+        SafetyDomain.ARG_CONTRACT: "helper_arg",
+        SafetyDomain.WRITE_PERMISSION: "write_permission",
+        SafetyDomain.ARITHMETIC_LEGALITY: "arith_legality",
+    }
+    return mapping.get(domain, str(domain).lower())
 
 
 def _confidence_to_float(confidence: str | float | None) -> float | None:
