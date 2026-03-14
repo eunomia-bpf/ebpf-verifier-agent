@@ -45,6 +45,7 @@ from .control_dep import (
     controlling_branches,
     control_dependent_instructions,
 )
+from .slicer import BackwardSlice, backward_slice
 from .transition_analyzer import (
     TransitionAnalyzer,
     TransitionChain,
@@ -86,6 +87,9 @@ __all__ = [
     "compute_control_dependence_from_trace",
     "controlling_branches",
     "control_dependent_instructions",
+    # Backward slice (principled data + control dependence)
+    "BackwardSlice",
+    "backward_slice",
     # Transition analysis
     "TransitionAnalyzer",
     "TransitionChain",

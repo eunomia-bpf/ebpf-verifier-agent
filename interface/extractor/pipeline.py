@@ -23,6 +23,7 @@ from .engine.opcode_safety import (
     find_violated_condition,
     infer_conditions_from_error_insn,
 )
+from .engine.slicer import backward_slice
 from .engine.transition_analyzer import TransitionAnalyzer, TransitionEffect
 from .log_parser import ParsedLog, parse_log
 from .reject_info import (
@@ -131,12 +132,75 @@ def generate_diagnostic(
     note = _build_note(parsed_log, obligation, proof_status, specific_reject)
     help_text = _build_help_text(parsed_log, obligation, proof_status, specific_reject)
 
-    # Step 12: render
-    causal_chain = [
-        (d.insn_idx, d.reason)
-        for d in transition_chain.chain
-        if d.effect in (TransitionEffect.DESTROYING, TransitionEffect.WIDENING)
-    ]
+    # Step 12: compute principled backward slice for causal chain.
+    # This replaces the old heuristic mark_precise + value_lineage chain.
+    #
+    # Determine the criterion: error instruction + the primary register of interest.
+    # Prefer the predicate's target register; fall back to the first register
+    # used or defined by the error instruction.
+    slice_criterion_insn: int | None = None
+    slice_criterion_reg: str | None = None
+
+    if error_insn is not None:
+        slice_criterion_insn = error_insn.insn_idx
+        if predicate is not None:
+            target_regs = getattr(predicate, "target_regs", [])
+            slice_criterion_reg = target_regs[0] if target_regs else None
+        if slice_criterion_reg is None:
+            # Fall back to primary register from obligation or first used/defined reg
+            if obligation is not None:
+                slice_criterion_reg = getattr(obligation, "register", None)
+        if slice_criterion_reg is None:
+            # Last resort: use the monitor or transition chain loss register
+            if monitor_result is not None and hasattr(monitor_result, "loss_site"):
+                pass  # we'll figure out below
+            from .engine.dataflow import extract_uses, extract_defs
+            bytecode = error_insn.bytecode or ""
+            uses = extract_uses(bytecode)
+            defs = extract_defs(bytecode)
+            regs = list(uses) or list(defs)
+            slice_criterion_reg = regs[0] if regs else "R0"
+
+    # Build the backward slice (principled data + control dependence).
+    # Only run if we have a clear criterion; otherwise fall back to TA chain.
+    use_slice_chain = (
+        slice_criterion_insn is not None
+        and slice_criterion_reg is not None
+        and len(instructions) > 0
+    )
+
+    causal_chain: list[tuple[int, str]]
+
+    if use_slice_chain:
+        bslice = backward_slice(
+            instructions,
+            criterion_insn=slice_criterion_insn,
+            criterion_register=slice_criterion_reg,
+        )
+        # Build causal chain entries: each instruction in the ordered slice
+        # (excluding the criterion itself, which appears as the rejected event).
+        from .engine.dataflow import compute_reaching_defs as _crd
+        _df_chain = _crd(instructions)
+        causal_chain = []
+        indexed = {insn.insn_idx: insn for insn in instructions}
+        for insn_idx in bslice.ordered:
+            if insn_idx == slice_criterion_insn:
+                continue
+            insn_obj = indexed.get(insn_idx)
+            bytecode_text = insn_obj.bytecode if insn_obj else ""
+            # Annotate with "data" or "control" for the reason field.
+            if insn_idx in bslice.data_deps:
+                reason = f"data_dep: {bytecode_text}"
+            else:
+                reason = f"control_dep: {bytecode_text}"
+            causal_chain.append((insn_idx, reason))
+    else:
+        # Fallback: use transition_chain (old heuristic path) when no clear criterion.
+        causal_chain = [
+            (d.insn_idx, d.reason)
+            for d in transition_chain.chain
+            if d.effect in (TransitionEffect.DESTROYING, TransitionEffect.WIDENING)
+        ]
 
     output = render_diagnostic(
         error_id=parsed_log.error_id or "OBLIGE-UNKNOWN",
@@ -157,6 +221,17 @@ def generate_diagnostic(
         metadata["causal_chain"] = [
             {"insn_idx": idx, "reason": reason} for idx, reason in causal_chain
         ]
+
+    # Also attach backward slice metadata when available.
+    if use_slice_chain and bslice.full_slice:
+        metadata = output.json_data.setdefault("metadata", {})
+        metadata["backward_slice"] = {
+            "criterion_insn": slice_criterion_insn,
+            "criterion_register": slice_criterion_reg,
+            "full_slice": sorted(bslice.full_slice),
+            "data_deps": sorted(bslice.data_deps),
+            "control_deps": sorted(bslice.control_deps),
+        }
 
     return output
 
