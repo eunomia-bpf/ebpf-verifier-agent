@@ -34,6 +34,7 @@ from .reject_info import (
     specific_contract_note,
 )
 from .renderer import DiagnosticOutput, render_diagnostic
+from .shared_utils import extract_registers
 from .source_correlator import ProofEvent, ProofObligation, SourceSpan, correlate_to_source
 from .trace_parser import ParsedTrace, parse_trace
 
@@ -70,7 +71,15 @@ def generate_diagnostic(
     # Step 4: derive safety conditions from error instruction opcode (ISA-driven, no keywords)
     predicate = None
     if error_insn is not None:
-        conditions = infer_conditions_from_error_insn(error_insn)
+        error_register = getattr(getattr(parsed_trace, "causal_chain", None), "error_register", None)
+        if error_register is None:
+            registers = extract_registers(getattr(error_insn, "error_text", None))
+            error_register = registers[0] if registers else None
+
+        conditions = infer_conditions_from_error_insn(
+            error_insn,
+            error_register=error_register,
+        )
         violated = find_violated_condition(error_insn, conditions)
         if violated is not None:
             predicate = OpcodeConditionPredicate(violated)

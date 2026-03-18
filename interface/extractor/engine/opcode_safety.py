@@ -18,6 +18,12 @@ from enum import Enum
 from typing import Any
 
 from ..shared_utils import is_pointer_type_name, is_nullable_pointer_type
+from .helper_signatures import (
+    get_helper_id_by_name,
+    get_helper_signature,
+    get_helper_safety_condition,
+    get_helper_safety_conditions,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -39,6 +45,7 @@ BPF_EXIT = 0x95   # JMP | EXIT
 
 # Memory access size encoding (bits 4:3)
 _SIZE_MAP = {0x00: 4, 0x08: 2, 0x10: 1, 0x18: 8}
+_UNKNOWN_NUMERIC_GAP = 1 << 62
 
 
 # ---------------------------------------------------------------------------
@@ -75,6 +82,13 @@ class SafetyCondition:
     critical_register: str       # Which register must satisfy this condition
     required_property: str       # Human-readable description of what's required
     access_size: int | None = None   # For memory access conditions
+    expected_types: tuple[str, ...] = ()
+    allow_null: bool = False
+    requires_range: bool = False
+    requires_writable: bool = False
+    helper_id: int | None = None
+    helper_name: str | None = None
+    constraint: str | None = None
 
 
 @dataclass(frozen=True)
@@ -90,6 +104,8 @@ class OpcodeInfo:
     access_size: int | None       # For memory ops: 1/2/4/8 bytes
     src_reg: str | None           # Decoded from bytecode text (e.g. "R1")
     dst_reg: str | None           # Decoded from bytecode text (e.g. "R3")
+    call_target: str | None = None
+    helper_id: int | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -117,6 +133,10 @@ _STORE_IMM_RE = re.compile(
 )
 _ALU_RE = re.compile(
     r"^\s*(?P<dst>[rw]\d+)\s*(?:\+=|-=|\*=|/=|%=|&=|\|=|\^=|<<=|>>=|>>>=|=)\s*(?P<src>[rw]\d+)?",
+    re.IGNORECASE,
+)
+_CALL_TARGET_RE = re.compile(
+    r"^\s*call\s+(?:(?P<pc>pc[+-]\d+)|(?P<name>[a-zA-Z0-9_]+)(?:#(?P<helper_id>\d+))?|#(?P<imm>\d+))",
     re.IGNORECASE,
 )
 
@@ -166,7 +186,6 @@ def _extract_regs_from_bytecode(bytecode: str) -> tuple[str | None, str | None]:
 
     return None, None
 
-
 # ---------------------------------------------------------------------------
 # Opcode decoder
 # ---------------------------------------------------------------------------
@@ -201,6 +220,7 @@ def decode_opcode(hex_str: str, bytecode_text: str) -> OpcodeInfo:
         access_size = _SIZE_MAP.get(size_bits << 3)
 
     src_reg, dst_reg = _extract_regs_from_bytecode(bytecode_text)
+    call_target, helper_id = _extract_call_target(bytecode_text) if is_call else (None, None)
 
     return OpcodeInfo(
         raw=raw,
@@ -213,6 +233,8 @@ def decode_opcode(hex_str: str, bytecode_text: str) -> OpcodeInfo:
         access_size=access_size,
         src_reg=src_reg,
         dst_reg=dst_reg,
+        call_target=call_target,
+        helper_id=helper_id,
     )
 
 
@@ -220,7 +242,10 @@ def decode_opcode(hex_str: str, bytecode_text: str) -> OpcodeInfo:
 # Safety condition derivation (ISA-driven, zero keyword matching)
 # ---------------------------------------------------------------------------
 
-def derive_safety_conditions(info: OpcodeInfo) -> list[SafetyCondition]:
+def derive_safety_conditions(
+    info: OpcodeInfo,
+    error_register: str | None = None,
+) -> list[SafetyCondition]:
     """Derive all safety conditions implied by the opcode class.
 
     This is the ISA-derived mapping: opcode class -> safety domain.
@@ -296,8 +321,18 @@ def derive_safety_conditions(info: OpcodeInfo) -> list[SafetyCondition]:
             ))
 
     elif info.is_call:
-        # CALL: R1-R5 are the argument registers.
-        # Safety: each argument must satisfy the helper/kfunc prototype.
+        if info.helper_id is not None:
+            signature = get_helper_signature(info.helper_id)
+            if signature is not None and error_register is not None:
+                specific = get_helper_safety_condition(info.helper_id, error_register)
+                if specific is not None:
+                    return [specific]
+
+            if signature is not None:
+                helper_conditions = get_helper_safety_conditions(info.helper_id)
+                return helper_conditions
+
+        # Fallback for subprogram calls / unknown helpers.
         for i in range(1, 6):
             conditions.append(SafetyCondition(
                 domain=SafetyDomain.ARG_CONTRACT,
@@ -377,17 +412,7 @@ def evaluate_condition(
             return "satisfied"
 
         case SafetyDomain.SCALAR_BOUND:
-            if not _is_scalar_like(reg_type):
-                return "unknown"    # not a scalar, condition does not apply
-            umax = getattr(reg, "umax", None)
-            smax = getattr(reg, "smax", None)
-            if umax is None and smax is None:
-                return "violated"   # completely unbounded scalar
-            if umax is not None and umax < (1 << 32):
-                return "satisfied"  # reasonably bounded
-            if umax is not None and umax >= (1 << 32):
-                return "violated"   # bounds too wide for pointer arithmetic
-            return "unknown"
+            return _evaluate_scalar_bound_reg(reg)
 
         case SafetyDomain.ARITHMETIC_LEGALITY:
             if not is_pointer_type_name(reg_type):
@@ -405,19 +430,96 @@ def evaluate_condition(
                 return "violated"
             return "unknown"
 
-        case SafetyDomain.REFERENCE_BALANCE | SafetyDomain.ARG_CONTRACT:
-            # These require cross-instruction or prototype knowledge.
+        case SafetyDomain.ARG_CONTRACT:
+            return _evaluate_helper_arg_contract(condition, reg)
+
+        case SafetyDomain.REFERENCE_BALANCE:
+            # This requires cross-instruction knowledge.
             return "unknown"
 
         case _:
             return "unknown"
 
 
+def compute_condition_gap(
+    condition: SafetyCondition,
+    register_state: dict[str, Any],
+) -> int | None:
+    """Return a numeric distance to satisfying a SafetyCondition."""
+    reg = register_state.get(condition.critical_register)
+    if reg is None:
+        return None
+
+    reg_type = getattr(reg, "type", "") or ""
+
+    match condition.domain:
+        case SafetyDomain.POINTER_TYPE:
+            if is_pointer_type_name(reg_type):
+                return 0
+            return 1 if reg_type else None
+
+        case SafetyDomain.NULL_SAFETY:
+            if is_nullable_pointer_type(reg_type):
+                return 1
+            if is_pointer_type_name(reg_type):
+                return 0
+            return 1 if reg_type else None
+
+        case SafetyDomain.MEMORY_BOUNDS:
+            if not is_pointer_type_name(reg_type):
+                return 1 if reg_type else None
+            rng = getattr(reg, "range", None)
+            if rng is None:
+                return _UNKNOWN_NUMERIC_GAP
+            off = getattr(reg, "off", None) or 0
+            access_size = condition.access_size or 1
+            return max(0, off + access_size - rng)
+
+        case SafetyDomain.SCALAR_BOUND:
+            if not _is_scalar_like(reg_type):
+                return None
+            umax = getattr(reg, "umax", None)
+            smax = getattr(reg, "smax", None)
+            if umax is None and smax is None:
+                return _UNKNOWN_NUMERIC_GAP
+            if umax is not None:
+                return max(0, umax - ((1 << 32) - 1))
+            return 0
+
+        case SafetyDomain.ARITHMETIC_LEGALITY:
+            if not is_pointer_type_name(reg_type):
+                return 0
+            prohibited = {"ctx", "sock", "sock_or_null", "ptr_sock"}
+            return 1 if reg_type.lower() in prohibited else 0
+
+        case SafetyDomain.WRITE_PERMISSION:
+            if not reg_type:
+                return None
+            return 1 if "rdonly" in reg_type.lower() else 0
+
+        case SafetyDomain.ARG_CONTRACT:
+            result = _evaluate_helper_arg_contract(condition, reg)
+            if result == "satisfied":
+                return 0
+            if result == "violated":
+                return 1
+            return _UNKNOWN_NUMERIC_GAP
+
+        case SafetyDomain.REFERENCE_BALANCE:
+            return None
+
+        case _:
+            return None
+
+
 # ---------------------------------------------------------------------------
 # High-level: infer conditions from the error instruction's opcode
 # ---------------------------------------------------------------------------
 
-def infer_conditions_from_error_insn(error_insn: Any) -> list[SafetyCondition]:
+def infer_conditions_from_error_insn(
+    error_insn: Any,
+    error_register: str | None = None,
+) -> list[SafetyCondition]:
     """Derive safety conditions from the error instruction's opcode byte.
 
     This is the primary entry point for opcode-driven analysis.
@@ -439,7 +541,10 @@ def infer_conditions_from_error_insn(error_insn: Any) -> list[SafetyCondition]:
     # then produce the correct SafetyConditions.
     bytecode = getattr(error_insn, "bytecode", "") or ""
     # Try to get the raw opcode if stored (some TracedInstruction instances may carry it)
-    raw_opcode = getattr(error_insn, "_opcode_hex", None)
+    raw_opcode = (
+        getattr(error_insn, "opcode_hex", None)
+        or getattr(error_insn, "_opcode_hex", None)
+    )
 
     if raw_opcode:
         info = decode_opcode(raw_opcode, bytecode)
@@ -449,7 +554,7 @@ def infer_conditions_from_error_insn(error_insn: Any) -> list[SafetyCondition]:
     if info is None:
         return []
 
-    conditions = derive_safety_conditions(info)
+    conditions = derive_safety_conditions(info, error_register=error_register)
 
     # Refine using register state at the error point:
     # For ALU conditions, only keep pointer-arithmetic conditions if dst IS a pointer,
@@ -526,6 +631,7 @@ def _infer_opcode_class_from_bytecode(bytecode: str) -> OpcodeInfo | None:
 
     # CALL
     if text.startswith("call "):
+        call_target, helper_id = _extract_call_target(bytecode)
         return OpcodeInfo(
             raw=BPF_CALL,
             opclass=OpcodeClass.JMP,
@@ -537,6 +643,8 @@ def _infer_opcode_class_from_bytecode(bytecode: str) -> OpcodeInfo | None:
             access_size=None,
             src_reg=None,
             dst_reg=None,
+            call_target=call_target,
+            helper_id=helper_id,
         )
 
     # EXIT
@@ -631,6 +739,103 @@ def _is_scalar_like(reg_type: str) -> bool:
     )
 
 
+def _extract_call_target(bytecode: str) -> tuple[str | None, int | None]:
+    """Extract the textual CALL target and helper ID from bytecode text."""
+    if not bytecode:
+        return None, None
+
+    match = _CALL_TARGET_RE.match(bytecode.strip())
+    if match is None:
+        return None, None
+
+    if match.group("pc") is not None:
+        return match.group("pc"), None
+
+    helper_name = match.group("name")
+    helper_id_text = match.group("helper_id") or match.group("imm")
+    helper_id = int(helper_id_text) if helper_id_text is not None else None
+
+    normalized_name: str | None
+    if helper_name is None:
+        normalized_name = None
+    elif helper_name.startswith("bpf_"):
+        normalized_name = helper_name
+    else:
+        normalized_name = f"bpf_{helper_name}"
+
+    if helper_id is None and normalized_name is not None:
+        helper_id = get_helper_id_by_name(normalized_name)
+
+    return normalized_name, helper_id
+
+
+def _evaluate_scalar_bound_reg(reg: Any) -> str:
+    reg_type = getattr(reg, "type", "") or ""
+    if not _is_scalar_like(reg_type):
+        return "unknown"
+
+    umax = getattr(reg, "umax", None)
+    smax = getattr(reg, "smax", None)
+    if umax is None and smax is None:
+        return "violated"
+    if umax is not None and umax < (1 << 32):
+        return "satisfied"
+    if umax is not None and umax >= (1 << 32):
+        return "violated"
+    return "unknown"
+
+
+def _evaluate_helper_arg_contract(condition: SafetyCondition, reg: Any) -> str:
+    reg_type = getattr(reg, "type", "") or ""
+    expected_types = condition.expected_types
+    if not expected_types:
+        return "unknown"
+
+    if not any(_matches_helper_expected_type(reg_type, expected) for expected in expected_types):
+        if is_pointer_type_name(reg_type) or _is_scalar_like(reg_type):
+            return "violated"
+        return "unknown"
+
+    if is_nullable_pointer_type(reg_type) and not condition.allow_null:
+        return "violated"
+
+    if condition.requires_range and reg_type.lower() != "fp":
+        rng = getattr(reg, "range", None)
+        if rng == 0:
+            return "violated"
+        if rng is None:
+            return "unknown"
+
+    if condition.requires_writable and "rdonly" in reg_type.lower():
+        return "violated"
+
+    if expected_types == ("scalar",):
+        return "satisfied" if _is_scalar_like(reg_type) else "violated"
+
+    return "satisfied"
+
+
+def _matches_helper_expected_type(reg_type: str, expected_type: str) -> bool:
+    lowered = reg_type.lower()
+
+    if expected_type == "scalar":
+        return _is_scalar_like(lowered)
+    if expected_type == "ptr":
+        return is_pointer_type_name(lowered)
+    if expected_type == "map_ptr":
+        return lowered == "map_ptr"
+    if expected_type == "ctx":
+        return lowered == "ctx"
+    if expected_type == "fp":
+        return lowered == "fp"
+    if expected_type == "sock":
+        return lowered.startswith("sock") or lowered == "ptr_sock"
+    if expected_type == "dynptr":
+        return lowered.startswith("dynptr")
+
+    return False
+
+
 # ---------------------------------------------------------------------------
 # Predicate adapter: wrap SafetyCondition into the Predicate interface
 # ---------------------------------------------------------------------------
@@ -653,6 +858,9 @@ class OpcodeConditionPredicate:
 
     def evaluate(self, state: dict, insn: Any = None) -> str:
         return evaluate_condition(self.condition, state)
+
+    def compute_gap(self, state: dict, insn: Any = None) -> int | None:
+        return compute_condition_gap(self.condition, state)
 
     def describe_violation(self, state: dict, insn: Any = None) -> str:
         reg = state.get(self.condition.critical_register)

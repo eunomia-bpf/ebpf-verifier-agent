@@ -10,6 +10,16 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
+from ..shared_utils import is_nullable_pointer_type, is_pointer_type_name
+
+
+_UNKNOWN_NUMERIC_GAP = 1 << 62
+
+
+def _min_known_gap(gaps: list[int | None]) -> int | None:
+    known = [gap for gap in gaps if gap is not None]
+    return min(known) if known else None
+
 
 class Predicate(ABC):
     """Abstract base class for verifier proof predicates."""
@@ -30,6 +40,20 @@ class Predicate(ABC):
     def describe_violation(self, state: dict, insn: Any = None) -> str:
         """Human-readable explanation of why the predicate is violated."""
 
+    def compute_gap(self, state: dict, insn: Any = None) -> int | None:
+        """Return a numeric distance to satisfaction.
+
+        A gap of 0 means the predicate is satisfied. Positive values mean the
+        proof obligation is not yet established. ``None`` means the state is
+        too incomplete to assign a meaningful gap.
+        """
+        result = self.evaluate(state, insn)
+        if result == "satisfied":
+            return 0
+        if result == "violated":
+            return 1
+        return None
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
@@ -48,6 +72,47 @@ class IntervalContainment(Predicate):
     target_regs: list[str]
     max_range: int | None = None
     field_name: str = "range"  # which field to check: 'range', 'umax', 'smax'
+
+    def compute_gap(self, state: dict, insn: Any = None) -> int | None:
+        gaps: list[int | None] = []
+        finite_limit = (1 << 32) - 1
+
+        for reg_name in self.target_regs:
+            reg = state.get(reg_name)
+            if reg is None:
+                continue
+
+            off = getattr(reg, "off", None)
+            effective_off = 0 if off is None else off
+
+            if self.field_name == "range":
+                rng = getattr(reg, "range", None)
+                if rng is None or rng == 0:
+                    gaps.append(_UNKNOWN_NUMERIC_GAP)
+                    continue
+
+                gap = max(0, -effective_off)
+                upper_limit = self.max_range if self.max_range is not None else finite_limit
+                gap += max(0, effective_off + rng - upper_limit)
+                gaps.append(gap)
+
+            elif self.field_name == "umax":
+                umax = getattr(reg, "umax", None)
+                upper_limit = self.max_range if self.max_range is not None else finite_limit
+                if umax is None:
+                    gaps.append(_UNKNOWN_NUMERIC_GAP)
+                    continue
+                gaps.append(max(0, umax - upper_limit))
+
+            elif self.field_name == "smax":
+                smax = getattr(reg, "smax", None)
+                upper_limit = self.max_range if self.max_range is not None else finite_limit
+                if smax is None:
+                    gaps.append(_UNKNOWN_NUMERIC_GAP)
+                    continue
+                gaps.append(max(0, smax - upper_limit))
+
+        return _min_known_gap(gaps)
 
     def evaluate(self, state: dict, insn: Any = None) -> str:
         for reg_name in self.target_regs:
@@ -109,6 +174,33 @@ class TypeMembership(Predicate):
     allowed_types: set[str]
     forbidden_types: set[str] | None = None
 
+    def compute_gap(self, state: dict, insn: Any = None) -> int | None:
+        gaps: list[int | None] = []
+        forbidden = self.forbidden_types or set()
+
+        for reg_name in self.target_regs:
+            reg = state.get(reg_name)
+            if reg is None:
+                continue
+
+            reg_type = getattr(reg, "type", "")
+            if not reg_type:
+                continue
+
+            type_lower = reg_type.lower()
+
+            if any(f.lower() in type_lower for f in forbidden):
+                gaps.append(1)
+                continue
+
+            allowed = any(
+                a.lower() in type_lower or type_lower.startswith(a.lower())
+                for a in self.allowed_types
+            )
+            gaps.append(0 if allowed else 1)
+
+        return _min_known_gap(gaps)
+
     def evaluate(self, state: dict, insn: Any = None) -> str:
         for reg_name in self.target_regs:
             reg = state.get(reg_name)
@@ -168,6 +260,53 @@ class ScalarBound(Predicate):
     umax_limit: int | None = None   # umax must be <= this
     smin_floor: int | None = None   # smin must be >= this
     check_non_negative: bool = False  # smin >= 0
+
+    def compute_gap(self, state: dict, insn: Any = None) -> int | None:
+        gaps: list[int | None] = []
+
+        for reg_name in self.target_regs:
+            reg = state.get(reg_name)
+            if reg is None:
+                continue
+
+            reg_type = getattr(reg, "type", "")
+            if not reg_type:
+                continue
+
+            type_lower = reg_type.lower()
+            is_scalar = (
+                "scalar" in type_lower
+                or "int" in type_lower
+                or type_lower.startswith("inv")
+                or type_lower == "unknown"
+            )
+            if not is_scalar:
+                continue
+
+            if self.umax_limit is not None:
+                umax = getattr(reg, "umax", None)
+                if umax is None:
+                    gaps.append(_UNKNOWN_NUMERIC_GAP)
+                    continue
+                gaps.append(max(0, umax - self.umax_limit))
+                continue
+
+            if self.smin_floor is not None:
+                smin = getattr(reg, "smin", None)
+                if smin is None:
+                    gaps.append(_UNKNOWN_NUMERIC_GAP)
+                    continue
+                gaps.append(max(0, self.smin_floor - smin))
+                continue
+
+            if self.check_non_negative:
+                smin = getattr(reg, "smin", None)
+                if smin is None:
+                    gaps.append(_UNKNOWN_NUMERIC_GAP)
+                    continue
+                gaps.append(max(0, -smin))
+
+        return _min_known_gap(gaps)
 
     def evaluate(self, state: dict, insn: Any = None) -> str:
         for reg_name in self.target_regs:
@@ -240,6 +379,27 @@ class NullCheckPredicate(Predicate):
 
     target_regs: list[str]
 
+    def compute_gap(self, state: dict, insn: Any = None) -> int | None:
+        gaps: list[int | None] = []
+
+        for reg_name in self.target_regs:
+            reg = state.get(reg_name)
+            if reg is None:
+                continue
+
+            reg_type = getattr(reg, "type", "")
+            if not reg_type:
+                continue
+
+            if is_nullable_pointer_type(reg_type):
+                gaps.append(1)
+            elif is_pointer_type_name(reg_type):
+                gaps.append(0)
+            else:
+                gaps.append(1)
+
+        return _min_known_gap(gaps)
+
     def evaluate(self, state: dict, insn: Any = None) -> str:
         for reg_name in self.target_regs:
             reg = state.get(reg_name)
@@ -293,6 +453,37 @@ class PacketAccessPredicate(Predicate):
 
     target_regs: list[str]
     access_size: int | None = None  # bytes being accessed
+
+    def compute_gap(self, state: dict, insn: Any = None) -> int | None:
+        gaps: list[int | None] = []
+        size = self.access_size or 1
+
+        for reg_name in self.target_regs:
+            reg = state.get(reg_name)
+            if reg is None:
+                continue
+
+            reg_type = getattr(reg, "type", "")
+            if not reg_type:
+                continue
+
+            is_pkt = is_pointer_type_name(reg_type) and (
+                reg_type.lower().startswith("pkt") or reg_type.lower() == "ctx"
+            )
+            if not is_pkt:
+                gaps.append(1)
+                continue
+
+            rng = getattr(reg, "range", None)
+            if rng is None:
+                gaps.append(_UNKNOWN_NUMERIC_GAP)
+                continue
+
+            off = getattr(reg, "off", None)
+            effective_off = 0 if off is None else off
+            gaps.append(max(0, effective_off + size - rng))
+
+        return _min_known_gap(gaps)
 
     def evaluate(self, state: dict, insn: Any = None) -> str:
         for reg_name in self.target_regs:
@@ -355,6 +546,14 @@ class CompositeAllPredicate(Predicate):
 
     predicates: list[Predicate]
 
+    def compute_gap(self, state: dict, insn: Any = None) -> int | None:
+        gaps = [predicate.compute_gap(state, insn) for predicate in self.predicates]
+        if any(gap is not None and gap > 0 for gap in gaps):
+            return sum(gap for gap in gaps if gap is not None and gap > 0)
+        if gaps and all(gap == 0 for gap in gaps):
+            return 0
+        return None
+
     def evaluate(self, state: dict, insn: Any = None) -> str:
         results = [p.evaluate(state, insn) for p in self.predicates]
         if all(r == "satisfied" for r in results):
@@ -393,6 +592,9 @@ class ClassificationOnlyPredicate(Predicate):
         # Classification-only predicates cannot be evaluated against register state.
         # The verifier's own error message is the complete diagnosis.
         return "unknown"
+
+    def compute_gap(self, state: dict, insn: Any = None) -> int | None:
+        return None
 
     def describe_violation(self, state: dict, insn: Any = None) -> str:
         return (

@@ -151,11 +151,12 @@ class TestDecodeOpcode:
 
     def test_call(self):
         """0x85 = CALL."""
-        info = decode_opcode("85", "call bpf_map_lookup_elem")
+        info = decode_opcode("85", "call bpf_map_lookup_elem#1")
         assert info.is_call is True
         assert info.is_exit is False
         assert info.is_alu is False
         assert info.is_memory_access is False
+        assert info.helper_id == 1
 
     def test_exit(self):
         """0x95 = EXIT."""
@@ -232,9 +233,14 @@ class TestDeriveSafetyConditions:
         conditions = derive_safety_conditions(info)
         domains = {c.domain for c in conditions}
         assert SafetyDomain.ARG_CONTRACT in domains
-        # R1-R5 should all have ARG_CONTRACT conditions
+        # Helper-specific signature should expose only the real arguments.
         regs = {c.critical_register for c in conditions if c.domain == SafetyDomain.ARG_CONTRACT}
-        assert regs == {"R1", "R2", "R3", "R4", "R5"}
+        assert regs == {"R1", "R2"}
+
+    def test_zero_arg_helper_has_no_arg_conditions(self):
+        info = decode_opcode("85", "call bpf_get_current_pid_tgid#14")
+        conditions = derive_safety_conditions(info)
+        assert conditions == []
 
     def test_exit_conditions(self):
         info = decode_opcode("95", "exit")
@@ -651,13 +657,13 @@ class TestReferenceCase:
         assert violated.domain == SafetyDomain.SCALAR_BOUND
         assert violated.critical_register == "R0"
 
-    def test_pipeline_produces_established_then_lost(self):
-        """End-to-end: the pipeline should produce established_then_lost lifecycle."""
+    def test_pipeline_avoids_vacuous_establishment(self):
+        """End-to-end: the pipeline should not synthesize establishment from gap=0 at trace start."""
         from interface.extractor.rust_diagnostic import generate_diagnostic
         log = _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
         output = generate_diagnostic(log)
 
-        assert output.json_data["metadata"]["proof_status"] == "established_then_lost"
+        assert output.json_data["metadata"]["proof_status"] == "never_established"
         assert output.json_data["failure_class"] == "lowering_artifact"
 
 

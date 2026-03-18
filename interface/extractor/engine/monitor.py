@@ -1,7 +1,7 @@
 """Generic trace monitor for proof obligation evaluation.
 
-Evaluates a predicate at each traced instruction's register state to find
-where a safety property was established, then where it was lost.
+Evaluates a predicate's verification gap at each traced instruction to find
+where a safety property was materially established, then where it was lost.
 """
 
 from __future__ import annotations
@@ -15,17 +15,17 @@ class MonitorResult:
 
     proof_status: str
     """
-    - 'never_established': predicate never reached 'satisfied'
-    - 'established_then_lost': predicate was satisfied then violated
-    - 'established_but_insufficient': predicate was satisfied but error still occurred
+    - 'never_established': predicate never reached gap=0 after a positive gap
+    - 'established_then_lost': predicate reached gap=0, then later regressed
+    - 'established_but_insufficient': predicate reached gap=0 but error still occurred
     - 'unknown': could not determine (e.g., no instructions, no predicate)
     """
 
     establish_site: int | None
-    """Instruction index where predicate was first satisfied."""
+    """Instruction index where the gap first transitioned from >0 to 0."""
 
     loss_site: int | None
-    """Instruction index where predicate flipped to 'violated' after being satisfied."""
+    """Instruction index where the gap transitioned from 0 to >0."""
 
     loss_reason: str | None
     """Human-readable description of why P was violated at loss_site."""
@@ -41,14 +41,15 @@ class TraceMonitor:
     """Evaluate a predicate over a sequence of TracedInstructions."""
 
     def monitor(self, predicate, traced_insns) -> MonitorResult:
-        """Evaluate predicate at each instruction's register state.
+        """Evaluate a predicate's verification gap at each instruction.
 
-        Finds the last instruction where P=satisfied, then the first after
-        where P=violated.
+        Establishment is recorded only when the gap transitions from positive
+        to zero. Vacuous satisfaction (gap already zero at the start) does not
+        count as proof establishment.
 
         Args:
-            predicate: A Predicate object with an evaluate(state) method.
-                       evaluate() returns 'satisfied', 'violated', or 'unknown'.
+            predicate: A Predicate-like object with compute_gap(state) and
+                       describe_violation(state) methods.
             traced_insns: Iterable of TracedInstruction objects.
 
         Returns:
@@ -76,6 +77,8 @@ class TraceMonitor:
         loss_site: int | None = None
         loss_reason: str | None = None
         error_insn: int | None = None
+        previous_gap: int | None = None
+        proof_active = False
 
         for insn in instructions:
             if insn.is_error and error_insn is None:
@@ -86,25 +89,36 @@ class TraceMonitor:
             state_to_check = insn.post_state or insn.pre_state
 
             if not state_to_check:
+                if insn.is_error:
+                    break
                 continue
 
-            result = predicate.evaluate(state_to_check, insn)
+            gap = predicate.compute_gap(state_to_check, insn)
+            if gap is None:
+                if insn.is_error:
+                    break
+                continue
 
-            if result == "satisfied":
+            if previous_gap is not None and previous_gap > 0 and gap == 0:
                 if establish_site is None:
                     establish_site = insn.insn_idx
-                last_satisfied_insn = insn.insn_idx
-                # If we had a loss_site but now it's satisfied again, clear it
-                # (predicate re-established downstream of a conditional)
-                if loss_site is not None:
-                    loss_site = None
-                    loss_reason = None
+                proof_active = True
+                loss_site = None
+                loss_reason = None
 
-            elif result == "violated":
-                if establish_site is not None and loss_site is None:
-                    # We had a satisfied run, now it's violated — this is the loss point
+            elif previous_gap is not None and previous_gap == 0 and gap > 0:
+                if loss_site is None:
                     loss_site = insn.insn_idx
                     loss_reason = predicate.describe_violation(state_to_check, insn)
+                proof_active = False
+
+            if gap == 0 and proof_active:
+                last_satisfied_insn = insn.insn_idx
+
+            previous_gap = gap
+
+            if insn.is_error:
+                break
 
         # Classify the proof status
         if establish_site is None:
