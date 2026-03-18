@@ -9,8 +9,6 @@ Flow:
 
 from __future__ import annotations
 
-import re
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -34,9 +32,20 @@ from .reject_info import (
     specific_contract_note,
 )
 from .renderer import DiagnosticOutput, render_diagnostic
-from .shared_utils import extract_registers
 from .source_correlator import ProofEvent, ProofObligation, SourceSpan, correlate_to_source
 from .trace_parser import ParsedTrace, parse_trace
+
+
+_STRUCTURAL_TAXONOMY_BY_ERROR_ID = {
+    "OBLIGE-E007": "verifier_limit",
+    "OBLIGE-E008": "verifier_limit",
+    "OBLIGE-E009": "env_mismatch",
+    "OBLIGE-E010": "verifier_bug",
+    "OBLIGE-E016": "env_mismatch",
+    "OBLIGE-E018": "verifier_limit",
+    "OBLIGE-E021": "env_mismatch",
+    "OBLIGE-E022": "env_mismatch",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -47,7 +56,6 @@ def generate_diagnostic(
     verifier_log: str,
     catalog_path: str | None = None,
     bpftool_xlated: str | None = None,
-    source_code: str | None = None,
 ) -> DiagnosticOutput:
     """Run the full parser → engine → source correlation → renderer pipeline.
 
@@ -71,15 +79,7 @@ def generate_diagnostic(
     # Step 4: derive safety conditions from error instruction opcode (ISA-driven, no keywords)
     predicate = None
     if error_insn is not None:
-        error_register = getattr(getattr(parsed_trace, "causal_chain", None), "error_register", None)
-        if error_register is None:
-            registers = extract_registers(getattr(error_insn, "error_text", None))
-            error_register = registers[0] if registers else None
-
-        conditions = infer_conditions_from_error_insn(
-            error_insn,
-            error_register=error_register,
-        )
+        conditions = infer_conditions_from_error_insn(error_insn)
         violated = find_violated_condition(error_insn, conditions)
         if violated is not None:
             predicate = OpcodeConditionPredicate(violated)
@@ -100,33 +100,32 @@ def generate_diagnostic(
         monitor_result=monitor_result,
         transition_chain=transition_chain,
         predicate=predicate,
+        error_insn=error_insn,
+    )
+    taxonomy_class = _derive_taxonomy_class(
+        predicate=predicate,
+        proof_status=proof_status,
+        monitor_result=monitor_result,
+        error_insn=error_insn,
         parsed_log=parsed_log,
-        error_line=error_line,
-        instructions=instructions,
     )
 
     # Step 8: derive obligation from violated condition or specific contract mismatch
     obligation = _derive_obligation(
         predicate=predicate,
-        monitor_result=monitor_result,
-        parsed_trace=parsed_trace,
-        parsed_log=parsed_log,
         error_line=error_line,
     )
 
     # Refine obligation with specific reject info (helper contract violations, etc.)
     specific_reject = extract_specific_reject_info(parsed_log)
     if specific_reject is not None:
-        obligation = _refine_obligation(obligation, specific_reject, error_line)
+        obligation = _refine_obligation(obligation, specific_reject)
 
     # Step 9: build proof events from monitor + transition results
     proof_events = _build_proof_events(
         monitor_result=monitor_result,
-        transition_chain=transition_chain,
         predicate=predicate,
         parsed_trace=parsed_trace,
-        error_line=error_line,
-        proof_status=proof_status,
     )
 
     # Step 10: correlate events to source spans
@@ -135,11 +134,23 @@ def generate_diagnostic(
         proof_events,
         bpftool_source_map=bpftool_source_map,
     )
-    spans = _ensure_rejected_span(spans, parsed_trace, parsed_log, bpftool_source_map)
+    spans = _ensure_rejected_span(spans, parsed_trace, parsed_log)
 
     # Step 11: build note and help text
-    note = _build_note(parsed_log, obligation, proof_status, specific_reject)
-    help_text = _build_help_text(parsed_log, obligation, proof_status, specific_reject)
+    note = _build_note(
+        parsed_log,
+        taxonomy_class=taxonomy_class,
+        obligation=obligation,
+        proof_status=proof_status,
+        specific_reject=specific_reject,
+    )
+    help_text = _build_help_text(
+        parsed_log,
+        taxonomy_class=taxonomy_class,
+        obligation=obligation,
+        proof_status=proof_status,
+        specific_reject=specific_reject,
+    )
 
     # Step 12: compute principled backward slice for causal chain.
     # This replaces the old heuristic mark_precise + value_lineage chain.
@@ -156,22 +167,15 @@ def generate_diagnostic(
             target_regs = getattr(predicate, "target_regs", [])
             slice_criterion_reg = target_regs[0] if target_regs else None
         if slice_criterion_reg is None:
-            # Fall back to primary register from obligation or first used/defined reg
-            if obligation is not None:
-                slice_criterion_reg = getattr(obligation, "register", None)
-        if slice_criterion_reg is None:
-            # Last resort: use the monitor or transition chain loss register
-            if monitor_result is not None and hasattr(monitor_result, "loss_site"):
-                pass  # we'll figure out below
             from .engine.dataflow import extract_uses, extract_defs
             bytecode = error_insn.bytecode or ""
             uses = extract_uses(bytecode)
             defs = extract_defs(bytecode)
             regs = list(uses) or list(defs)
-            slice_criterion_reg = regs[0] if regs else "R0"
+            slice_criterion_reg = regs[0] if regs else None
 
     # Build the backward slice (principled data + control dependence).
-    # Only run if we have a clear criterion; otherwise fall back to TA chain.
+    # Only run if we have a clear criterion.
     use_slice_chain = (
         slice_criterion_insn is not None
         and slice_criterion_reg is not None
@@ -188,8 +192,6 @@ def generate_diagnostic(
         )
         # Build causal chain entries: each instruction in the ordered slice
         # (excluding the criterion itself, which appears as the rejected event).
-        from .engine.dataflow import compute_reaching_defs as _crd
-        _df_chain = _crd(instructions)
         causal_chain = []
         indexed = {insn.insn_idx: insn for insn in instructions}
         for insn_idx in bslice.ordered:
@@ -204,7 +206,6 @@ def generate_diagnostic(
                 reason = f"control_dep: {bytecode_text}"
             causal_chain.append((insn_idx, reason))
     else:
-        # Fallback: use transition_chain (old heuristic path) when no clear criterion.
         causal_chain = [
             (d.insn_idx, d.reason)
             for d in transition_chain.chain
@@ -213,7 +214,7 @@ def generate_diagnostic(
 
     output = render_diagnostic(
         error_id=parsed_log.error_id or "OBLIGE-UNKNOWN",
-        taxonomy_class=parsed_log.taxonomy_class or "unknown",
+        taxonomy_class=taxonomy_class,
         proof_status=proof_status,
         spans=spans,
         obligation=obligation,
@@ -254,26 +255,13 @@ def _derive_proof_status(
     monitor_result: Any,
     transition_chain: Any,
     predicate: Any,
-    parsed_log: ParsedLog,
-    error_line: str,
-    instructions: list,
+    error_insn: Any,
 ) -> str:
-    """Derive proof_status from analysis results — no keyword heuristics.
-
-    Priority:
-    1. If predicate exists and monitor found a definitive result → use it
-    2. If no predicate but specific contract mismatch → never_established
-    3. If no predicate and verifier_limit/verifier_bug taxonomy → never_established
-    4. If no predicate but TA found established_then_lost with real establish+loss points → use it
-    5. Otherwise → unknown (no error instruction = no proof lifecycle to classify)
-    """
-    has_error_insn = any(i.is_error for i in instructions)
+    """Derive proof_status from engine results only."""
+    has_error_insn = error_insn is not None
 
     if predicate is not None:
-        # Real predicate: trust the monitor result
         status = monitor_result.proof_status
-        # If monitor says established_but_insufficient but TA found established_then_lost
-        # with a valid loss point, prefer TA (it found a specific loss site)
         if (
             status == "established_but_insufficient"
             and transition_chain.proof_status == "established_then_lost"
@@ -283,20 +271,6 @@ def _derive_proof_status(
             return "established_then_lost"
         return status
 
-    # No predicate: only classify based on strong signals
-
-    # Specific contract mismatch in error line → never_established (concrete violation)
-    # This applies even without an error instruction — the error line IS the signal
-    if extract_specific_contract_mismatch(error_line) is not None:
-        return "never_established"
-
-    # Verifier limits, bugs, and env mismatches are structural — always never_established
-    taxonomy = parsed_log.taxonomy_class or ""
-    if taxonomy in {"verifier_limit", "verifier_bug", "env_mismatch"}:
-        return "never_established"
-
-    # TA found established_then_lost with explicit establish AND loss points AND an error insn → real lifecycle
-    # Without an error instruction, the TA lifecycle is a spurious artifact (no proof failure occurred)
     if (
         has_error_insn
         and transition_chain.proof_status == "established_then_lost"
@@ -305,8 +279,38 @@ def _derive_proof_status(
     ):
         return "established_then_lost"
 
-    # No clear signal → unknown (don't fabricate proof lifecycle)
+    if has_error_insn:
+        return "never_established"
+
     return "unknown"
+
+
+def _derive_taxonomy_class(
+    *,
+    predicate: Any,
+    proof_status: str,
+    monitor_result: Any,
+    error_insn: Any,
+    parsed_log: ParsedLog,
+) -> str:
+    """Derive taxonomy from the principled engine path when available.
+
+    Structural cases without an instruction-level safety condition fall back to
+    the cataloged error ID, which is kept only for meta-errors outside the
+    opcode/predicate path.
+    """
+    if predicate is not None or error_insn is not None:
+        if proof_status == "established_then_lost" or monitor_result.loss_site is not None:
+            return "lowering_artifact"
+        return "source_bug"
+
+    error_id = parsed_log.error_id
+    if error_id is not None:
+        taxonomy = _STRUCTURAL_TAXONOMY_BY_ERROR_ID.get(error_id)
+        if taxonomy is not None:
+            return taxonomy
+
+    return "source_bug"
 
 
 # ---------------------------------------------------------------------------
@@ -316,16 +320,13 @@ def _derive_proof_status(
 def _derive_obligation(
     *,
     predicate: Any,
-    monitor_result: Any,
-    parsed_trace: ParsedTrace,
-    parsed_log: ParsedLog,
     error_line: str,
 ) -> ProofObligation | None:
     """Derive proof obligation from violated safety condition or error line."""
     if predicate is not None:
         target_regs = getattr(predicate, "target_regs", [])
         base_reg = target_regs[0] if target_regs else "R0"
-        required = _predicate_required_condition(predicate, monitor_result, parsed_trace) or error_line
+        required = _predicate_required_condition(predicate) or error_line
         return ProofObligation(
             obligation_type=_predicate_to_obligation_type(predicate),
             register=base_reg,
@@ -349,7 +350,6 @@ def _derive_obligation(
 def _refine_obligation(
     obligation: ProofObligation | None,
     specific_reject: SpecificRejectInfo,
-    error_line: str,
 ) -> ProofObligation | None:
     """Refine or replace obligation with info from specific reject (helper contracts, etc.)."""
     specific_required = getattr(specific_reject, "obligation_required", None)
@@ -384,11 +384,8 @@ def _refine_obligation(
 def _build_proof_events(
     *,
     monitor_result: Any,
-    transition_chain: Any,
     predicate: Any,
     parsed_trace: ParsedTrace,
-    error_line: str,
-    proof_status: str,
 ) -> list[ProofEvent]:
     """Build proof events from monitor and/or transition_chain results."""
     instructions = list(getattr(parsed_trace, "instructions", []))
@@ -480,67 +477,6 @@ def _monitor_result_to_events(
 
     return events
 
-
-def _transition_chain_to_events(
-    transition_chain: Any,
-    indexed: dict[int, Any],
-    primary_reg: str,
-    error_line: str,
-) -> list[ProofEvent]:
-    """Convert TransitionChain to ProofEvent list."""
-    events: list[ProofEvent] = []
-    reg = transition_chain.establish_point.register if transition_chain.establish_point else primary_reg
-
-    # Find error instruction index for temporal ordering
-    error_insn_idx = next(
-        (idx for idx, insn in indexed.items() if insn.is_error), None
-    )
-
-    if transition_chain.establish_point is not None:
-        ep = transition_chain.establish_point
-        insn = indexed.get(ep.insn_idx)
-        events.append(ProofEvent(
-            insn_idx=ep.insn_idx,
-            event_type="proof_established",
-            register=ep.register,
-            state_before=insn.pre_state.get(ep.register) if insn else None,
-            state_after=insn.post_state.get(ep.register) if insn else None,
-            source_line=ep.source_text,
-            description=f"Proof established: {ep.reason}",
-        ))
-
-    if transition_chain.loss_point is not None:
-        lp = transition_chain.loss_point
-        # Cap loss at error instruction for temporal coherence
-        lp_idx = lp.insn_idx
-        if error_insn_idx is not None and lp_idx > error_insn_idx:
-            lp_idx = error_insn_idx
-        insn = indexed.get(lp_idx)
-        events.append(ProofEvent(
-            insn_idx=lp_idx,
-            event_type="proof_lost",
-            register=lp.register,
-            state_before=insn.pre_state.get(lp.register) if insn else None,
-            state_after=insn.post_state.get(lp.register) if insn else None,
-            source_line=lp.source_text if lp.insn_idx == lp_idx else (insn.source_line if insn else None),
-            description=lp.reason,
-        ))
-
-    if error_insn_idx is not None:
-        insn = indexed.get(error_insn_idx)
-        events.append(ProofEvent(
-            insn_idx=error_insn_idx,
-            event_type="rejected",
-            register=reg,
-            state_before=insn.pre_state.get(reg) if insn else None,
-            state_after=insn.post_state.get(reg) if insn else None,
-            source_line=insn.source_line if insn else None,
-            description=(insn.error_text if insn else None) or error_line or "verifier rejected",
-        ))
-
-    return events
-
-
 # ---------------------------------------------------------------------------
 # Step 10: ensure there's always a rejected span
 # ---------------------------------------------------------------------------
@@ -549,7 +485,6 @@ def _ensure_rejected_span(
     spans: list[SourceSpan],
     parsed_trace: ParsedTrace,
     parsed_log: ParsedLog,
-    bpftool_source_map: Any,
 ) -> list[SourceSpan]:
     """Ensure there is at least one rejected span in the output."""
     if any(s.role == "rejected" for s in spans):
@@ -611,6 +546,8 @@ def _ensure_rejected_span(
 
 def _build_note(
     parsed_log: ParsedLog,
+    *,
+    taxonomy_class: str,
     obligation: ProofObligation | None,
     proof_status: str,
     specific_reject: SpecificRejectInfo | None,
@@ -618,16 +555,14 @@ def _build_note(
     if specific_reject is not None and specific_reject.note:
         return specific_reject.note
 
-    taxonomy = parsed_log.taxonomy_class or ""
-
-    if taxonomy == "lowering_artifact" and proof_status == "established_then_lost":
+    if taxonomy_class == "lowering_artifact" and proof_status == "established_then_lost":
         return "A verifier-visible proof existed earlier but was lost before the rejected instruction."
 
     if parsed_log.error_id == "OBLIGE-E002":
         return "The dereference happens while the pointer is still nullable on this control-flow path."
 
     specific_contract = extract_specific_contract_mismatch(parsed_log.error_line)
-    if taxonomy == "source_bug" and specific_contract is not None and proof_status in {"never_established", "unknown"}:
+    if taxonomy_class == "source_bug" and specific_contract is not None and proof_status in {"never_established", "unknown"}:
         return specific_contract_note(specific_contract)
 
     if obligation is not None and proof_status == "never_established":
@@ -643,6 +578,8 @@ def _build_note(
 
 def _build_help_text(
     parsed_log: ParsedLog,
+    *,
+    taxonomy_class: str,
     obligation: ProofObligation | None,
     proof_status: str,
     specific_reject: SpecificRejectInfo | None,
@@ -651,11 +588,10 @@ def _build_help_text(
         return specific_reject.help_text
 
     specific_contract = extract_specific_contract_mismatch(parsed_log.error_line)
-    taxonomy = parsed_log.taxonomy_class or ""
     obl_type = getattr(obligation, "obligation_type", None) if obligation else None
 
     if (
-        taxonomy == "source_bug"
+        taxonomy_class == "source_bug"
         and specific_contract is not None
         and (
             proof_status == "never_established"
@@ -689,8 +625,6 @@ def _build_help_text(
 
 def _predicate_required_condition(
     predicate: Any,
-    monitor_result: Any,
-    parsed_trace: ParsedTrace,
 ) -> str | None:
     """Extract the required condition string from a predicate."""
     from .engine.opcode_safety import OpcodeConditionPredicate as _OCP

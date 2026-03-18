@@ -14,9 +14,9 @@ Key design:
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional
+from typing import List
 
 from ..shared_utils import is_pointer_type_name, is_nullable_pointer_type
 
@@ -110,6 +110,14 @@ class TransitionAnalyzer:
             TransitionChain with classified transitions.
         """
         instructions = list(traced_insns)
+        if not proof_registers:
+            return TransitionChain(
+                proof_status="unknown",
+                establish_point=None,
+                loss_point=None,
+                chain=[],
+            )
+
         all_transitions: List[TransitionDetail] = []
 
         establish_point: TransitionDetail | None = None
@@ -117,14 +125,9 @@ class TransitionAnalyzer:
         proof_established = False
 
         for insn in instructions:
-            # Determine registers to examine: those in proof_registers that appear in state
-            relevant_regs = (
-                proof_registers
-                if proof_registers
-                else (
-                    {r for r in set(insn.pre_state) | set(insn.post_state) if r.startswith("R")}
-                )
-            )
+            # Only examine registers that the upstream proof analysis identified
+            # as relevant to the violated safety condition.
+            relevant_regs = proof_registers
 
             for reg in sorted(relevant_regs):
                 pre = insn.pre_state.get(reg)
@@ -623,9 +626,9 @@ class TransitionAnalyzer:
 
         # Stack operations
         if _STACK_FILL_RE.search(bytecode):
-            return f"stack fill: register loaded from stack slot (type info may be lost)"
+            return "stack fill: register loaded from stack slot (type info may be lost)"
         if _STACK_SPILL_RE.search(bytecode):
-            return f"stack spill: register stored to stack slot"
+            return "stack spill: register stored to stack slot"
 
         # Function call — R0 gets return value, R1-R5 are clobbered
         if bytecode.startswith("call "):
@@ -690,15 +693,15 @@ class TransitionAnalyzer:
 
         # Branch instruction — this is a join point if we see "from X to Y"
         if re.match(r"^if\s", bytecode) or re.match(r"^goto\s", bytecode):
-            return f"branch instruction — state may be JOIN of multiple paths"
+            return "branch instruction — state may be JOIN of multiple paths"
 
         # Memory load
         if re.match(r"^[rw]\d+\s*=\s*\*\(", bytecode):
-            return f"memory load — loaded value type/bounds depend on memory contents"
+            return "memory load — loaded value type/bounds depend on memory contents"
 
         # Memory store
         if re.match(r"^\*\(", bytecode):
-            return f"memory store — does not change register state"
+            return "memory store — does not change register state"
 
         # Branch-merge annotation detection (from X to Y)
         from_to = _FROM_TO_RE.match(bytecode)
@@ -740,7 +743,7 @@ def analyze_transitions(
     Args:
         traced_insns: List of TracedInstruction from trace_parser.
         proof_registers: Set of register names relevant to the proof.
-                         If None, all registers are analyzed.
+                         If empty/None, no transition story is synthesized.
 
     Returns:
         TransitionChain with classified transitions.

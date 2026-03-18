@@ -88,6 +88,7 @@ def test_infer_conditions_from_helper_call_by_name() -> None:
             "R2": MockReg(type="inv"),
         },
         post_state={},
+        opcode_hex="85",
     )
 
     conditions = infer_conditions_from_error_insn(insn, error_register="R2")

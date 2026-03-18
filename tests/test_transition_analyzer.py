@@ -504,8 +504,8 @@ class TestTransitionChainProofStatus:
         assert chain.establish_point is not None
         assert chain.loss_point is None
 
-    def test_all_registers_analyzed_when_empty_set(self):
-        """When proof_registers is empty, all registers are analyzed."""
+    def test_empty_proof_registers_returns_neutral_result(self):
+        """When proof_registers is empty, no transition story is synthesized."""
         insns = [
             _make_insn(
                 0,
@@ -518,9 +518,8 @@ class TestTransitionChainProofStatus:
             ),
         ]
         chain = self.analyzer.analyze(insns, set())
-        # Should have transitions for both R0 and R1
-        registers_in_chain = {t.register for t in chain.chain}
-        assert "R0" in registers_in_chain or "R1" in registers_in_chain
+        assert chain.proof_status == "unknown"
+        assert chain.chain == []
 
     def test_chain_contains_all_non_neutral_transitions(self):
         """chain field should include narrowing, widening, and destroying events."""
@@ -668,6 +667,7 @@ class TestIntegrationWithRealCases:
             "never_established",
             "established_then_lost",
             "established_but_insufficient",
+            "unknown",
         )
 
 
@@ -705,9 +705,10 @@ class TestAnalyzeTransitionsConvenience:
                 post={"R0": _make_reg("scalar", umin=0, umax=255)},
             )
         ]
-        # None triggers all-register analysis
+        # None/empty proof registers intentionally suppress speculative analysis.
         chain = analyze_transitions(insns, None)
-        assert chain is not None
+        assert chain.proof_status == "unknown"
+        assert chain.chain == []
 
     def test_describe_state_helper(self):
         state = _make_reg("pkt", off=2, range=14, id=0)

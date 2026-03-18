@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..trace_parser_parts._impl import TracedInstruction
 
-from .opcode_safety import OpcodeClass, decode_opcode, _infer_opcode_class_from_bytecode
+from .opcode_safety import decode_opcode
 
 # ---------------------------------------------------------------------------
 # Regex for branch target extraction
@@ -138,16 +138,16 @@ def is_unconditional_goto(bytecode: str) -> bool:
 def _get_opcode_info(insn: "TracedInstruction"):  # noqa: ANN201
     """Return OpcodeInfo for a TracedInstruction.
 
-    Prefers the stored opcode_hex; falls back to bytecode-text inference.
+    Requires the stored opcode_hex emitted by the trace parser.
     """
     opcode_hex = getattr(insn, "opcode_hex", None)
     bytecode = insn.bytecode or ""
-    if opcode_hex:
-        try:
-            return decode_opcode(opcode_hex, bytecode)
-        except (ValueError, TypeError):
-            pass
-    return _infer_opcode_class_from_bytecode(bytecode)
+    if not opcode_hex:
+        return None
+    try:
+        return decode_opcode(opcode_hex, bytecode)
+    except (ValueError, TypeError):
+        return None
 
 
 def _is_ld_imm64(insn: "TracedInstruction") -> bool:

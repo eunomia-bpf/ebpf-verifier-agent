@@ -18,7 +18,6 @@ Reference: Cytron et al. (1989), §3.  Ferrante, Ottenstein & Warren (1987).
 
 from __future__ import annotations
 
-from collections import deque
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -26,7 +25,6 @@ if TYPE_CHECKING:
     from .cfg_builder import TraceCFG
 
 from .cfg_builder import (
-    extract_branch_target,
     is_unconditional_goto,
     _get_opcode_info,
 )

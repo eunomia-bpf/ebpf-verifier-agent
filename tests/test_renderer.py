@@ -290,15 +290,15 @@ def test_renderer_drops_false_satisfied_status_for_round2_zero_trace_cases() -> 
 def test_renderer_preserves_engine_inferred_obligation_when_formal_analysis_returns_none() -> None:
     """OBLIGE-E022 env_mismatch: 'only read from bpf_array is supported'.
 
-    With opcode-driven analysis, env_mismatch cases without an explicit error
-    instruction produce proof_status='never_established' (from taxonomy) but
-    no register-level obligation (since the error is structural/environmental).
+    With the heuristics removed from the critical path, structural
+    env_mismatch cases without an explicit error instruction keep
+    proof_status='unknown' because no proof lifecycle can be established.
     """
     output = generate_diagnostic(
         _load_verifier_log("case_study/cases/github_issues/github-aya-rs-aya-1002.yaml")
     )
 
-    assert output.json_data["metadata"]["proof_status"] == "never_established"
+    assert output.json_data["metadata"]["proof_status"] == "unknown"
     # With opcode-driven analysis: no register-level obligation for structural env_mismatch.
     # The old approach produced a generic "safety_violation" placeholder; now we omit it.
     obligation = output.json_data.get("metadata", {}).get("obligation")
@@ -372,7 +372,7 @@ def test_renderer_preserves_specific_kfunc_contract_without_trace() -> None:
         _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-79045875.yaml")
     )
 
-    assert output.json_data["metadata"]["proof_status"] == "never_established"
+    assert output.json_data["metadata"]["proof_status"] == "unknown"
     assert output.json_data["missing_obligation"] == (
         "arg#0 pointer type UNKNOWN must point to scalar, or struct with scalar"
     )

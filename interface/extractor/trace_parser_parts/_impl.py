@@ -847,7 +847,6 @@ def _is_scalar_like(state: RegisterState) -> bool:
 
 
 def _extract_registers_from_line(line: str) -> dict[str, RegisterState]:
-    _idx = _extract_state_idx(line)
     body = _extract_state_body(line)
     if body is None:
         return {}

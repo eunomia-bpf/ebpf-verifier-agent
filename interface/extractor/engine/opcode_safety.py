@@ -532,27 +532,15 @@ def infer_conditions_from_error_insn(
     Returns:
         List of SafetyCondition objects (may be empty if opcode not available).
     """
-    # The TracedInstruction.bytecode holds the decoded text ("r6 = *(u8 *)(r0 +2)")
-    # but NOT the opcode byte. We need the opcode byte from the original InstructionLine.
-    # However, ParsedTrace's TracedInstruction does not carry the raw opcode byte —
-    # only the bytecode text. We need to infer the opcode class from the bytecode text.
-    #
-    # Strategy: use the bytecode text to infer opcode class heuristically,
-    # then produce the correct SafetyConditions.
     bytecode = getattr(error_insn, "bytecode", "") or ""
-    # Try to get the raw opcode if stored (some TracedInstruction instances may carry it)
     raw_opcode = (
         getattr(error_insn, "opcode_hex", None)
         or getattr(error_insn, "_opcode_hex", None)
     )
 
-    if raw_opcode:
-        info = decode_opcode(raw_opcode, bytecode)
-    else:
-        info = _infer_opcode_class_from_bytecode(bytecode)
-
-    if info is None:
+    if not raw_opcode:
         return []
+    info = decode_opcode(raw_opcode, bytecode)
 
     conditions = derive_safety_conditions(info, error_register=error_register)
 

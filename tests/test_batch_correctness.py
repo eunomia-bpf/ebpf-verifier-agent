@@ -196,7 +196,7 @@ def test_known_answer_verifier_limit_70841631() -> None:
 
     assert data["error_id"] == "OBLIGE-E018"
     assert data["failure_class"] == "verifier_limit"
-    assert data.get("metadata", {}).get("proof_status") == "never_established"
+    assert data.get("metadata", {}).get("proof_status") == "unknown"
 
 
 def test_known_answer_source_bug_60053570() -> None:

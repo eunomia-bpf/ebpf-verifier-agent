@@ -47,6 +47,7 @@ class MockInsn:
     insn_idx: int = 0
     source_line: str | None = None
     backtrack: Any = None
+    opcode_hex: str | None = None
 
 
 def _load_verifier_log(relative_path: str) -> str:
@@ -76,7 +77,6 @@ from interface.extractor.engine.opcode_safety import (
     find_violated_condition,
     infer_conditions_from_error_insn,
     _extract_regs_from_bytecode,
-    _infer_opcode_class_from_bytecode,
 )
 
 
@@ -410,17 +410,18 @@ class TestEvaluateCondition:
 
 
 # ---------------------------------------------------------------------------
-# Tests: infer_conditions_from_error_insn (bytecode text inference)
+# Tests: infer_conditions_from_error_insn (opcode-hex-driven)
 # ---------------------------------------------------------------------------
 
 class TestInferConditionsFromErrorInsn:
-    """Test opcode-class inference from bytecode text."""
+    """Test condition inference from explicit opcode bytes."""
 
-    def test_ldx_from_bytecode(self):
+    def test_ldx_from_opcode(self):
         insn = MockInsn(
             bytecode="r6 = *(u8 *)(r0 +2)",
             pre_state={},
             post_state={},
+            opcode_hex="71",
         )
         conditions = infer_conditions_from_error_insn(insn)
         domains = {c.domain for c in conditions}
@@ -428,18 +429,19 @@ class TestInferConditionsFromErrorInsn:
         assert SafetyDomain.NULL_SAFETY in domains
         assert SafetyDomain.MEMORY_BOUNDS in domains
 
-    def test_stx_from_bytecode(self):
+    def test_stx_from_opcode(self):
         insn = MockInsn(
             bytecode="*(u64 *)(r10 -8) = r1",
             pre_state={},
             post_state={},
+            opcode_hex="7b",
         )
         conditions = infer_conditions_from_error_insn(insn)
         domains = {c.domain for c in conditions}
         assert SafetyDomain.POINTER_TYPE in domains
         assert SafetyDomain.MEMORY_BOUNDS in domains
 
-    def test_alu_add_from_bytecode(self):
+    def test_alu_add_from_opcode(self):
         insn = MockInsn(
             bytecode="r5 += r0",
             pre_state={
@@ -447,6 +449,7 @@ class TestInferConditionsFromErrorInsn:
                 "R0": MockReg(type="inv"),  # unbounded scalar
             },
             post_state={},
+            opcode_hex="0f",
         )
         conditions = infer_conditions_from_error_insn(insn)
         # Should have SCALAR_BOUND for R0 (and ARITHMETIC_LEGALITY for R5 which is a pointer)
@@ -463,27 +466,30 @@ class TestInferConditionsFromErrorInsn:
                 "R6": MockReg(type="inv", umax=255),
             },
             post_state={},
+            opcode_hex="4f",
         )
         conditions = infer_conditions_from_error_insn(insn)
         # R0 is scalar: ARITHMETIC_LEGALITY should be dropped
         arith_conds = [c for c in conditions if c.domain == SafetyDomain.ARITHMETIC_LEGALITY]
         assert len(arith_conds) == 0
 
-    def test_call_from_bytecode(self):
+    def test_call_from_opcode(self):
         insn = MockInsn(
             bytecode="call bpf_map_lookup_elem",
             pre_state={},
             post_state={},
+            opcode_hex="85",
         )
         conditions = infer_conditions_from_error_insn(insn)
         domains = {c.domain for c in conditions}
         assert SafetyDomain.ARG_CONTRACT in domains
 
-    def test_exit_from_bytecode(self):
+    def test_exit_from_opcode(self):
         insn = MockInsn(
             bytecode="exit",
             pre_state={},
             post_state={},
+            opcode_hex="95",
         )
         conditions = infer_conditions_from_error_insn(insn)
         domains = {c.domain for c in conditions}
@@ -494,6 +500,7 @@ class TestInferConditionsFromErrorInsn:
             bytecode="if r3 > 0xfb goto pc+3",
             pre_state={},
             post_state={},
+            opcode_hex="25",
         )
         conditions = infer_conditions_from_error_insn(insn)
         assert len(conditions) == 0
@@ -524,6 +531,7 @@ class TestFindViolatedCondition:
                 "R0": MockReg(type="inv"),  # unbounded
             },
             post_state={},
+            opcode_hex="0f",
         )
         conditions = infer_conditions_from_error_insn(insn)
         violated = find_violated_condition(insn, conditions)
@@ -539,6 +547,7 @@ class TestFindViolatedCondition:
                 "R1": MockReg(type="map_value_or_null"),
             },
             post_state={},
+            opcode_hex="79",
         )
         conditions = infer_conditions_from_error_insn(insn)
         violated = find_violated_condition(insn, conditions)
@@ -554,6 +563,7 @@ class TestFindViolatedCondition:
                 "R1": MockReg(type="map_value", off=0, range=8),
             },
             post_state={},
+            opcode_hex="79",
         )
         conditions = infer_conditions_from_error_insn(insn)
         violated = find_violated_condition(insn, conditions)
@@ -567,6 +577,7 @@ class TestFindViolatedCondition:
             bytecode="if r3 > 5 goto pc+1",  # branch — no conditions
             pre_state={},
             post_state={},
+            opcode_hex="2d",
         )
         conditions = infer_conditions_from_error_insn(insn)
         violated = find_violated_condition(insn, conditions)
