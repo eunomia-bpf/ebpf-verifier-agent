@@ -192,12 +192,15 @@ def generate_diagnostic(
             predicate=predicate,
             error_insn=error_insn,
         )
-        taxonomy_class = _derive_taxonomy_class(
-            predicate=predicate,
-            proof_status=proof_status,
-            monitor_result=monitor_result,
-            error_insn=error_insn,
-            parsed_log=parsed_log,
+        taxonomy_class = _override_taxonomy_class(
+            _derive_taxonomy_class(
+                predicate=predicate,
+                proof_status=proof_status,
+                monitor_result=monitor_result,
+                error_insn=error_insn,
+                parsed_log=parsed_log,
+            ),
+            cross_analysis_class,
         )
 
     # Step 8: derive obligation from violated condition or specific contract mismatch
@@ -462,6 +465,9 @@ def classify_atom(
     any_establish = False
     any_non_dominating_establish = False
     any_off_chain_establish = False
+    vacuous_on_chain_loss: tuple[CarrierLifecycle, LifecycleEvent] | None = None
+    vacuous_off_chain_loss: tuple[CarrierLifecycle, LifecycleEvent] | None = None
+    full_slice = set(bslice.full_slice)
 
     for lifecycle in monitoring.values():
         establishes = [event for event in lifecycle.events if event.kind == "establish"]
@@ -483,8 +489,18 @@ def classify_atom(
             if error_insn.insn_idx in dominators.get(loss.insn_idx, set())
         ]
 
+        if losses and not establishes and lifecycle.first_observed_gap == 0:
+            on_chain_vacuous_loss = next(
+                (loss for loss in dominating_losses if loss.insn_idx in full_slice),
+                None,
+            )
+            if on_chain_vacuous_loss is not None and vacuous_on_chain_loss is None:
+                vacuous_on_chain_loss = (lifecycle, on_chain_vacuous_loss)
+            elif dominating_losses and vacuous_off_chain_loss is None:
+                vacuous_off_chain_loss = (lifecycle, dominating_losses[0])
+
         for establish in dominating_establishes:
-            if establish.insn_idx not in bslice.full_slice:
+            if establish.insn_idx not in full_slice:
                 any_off_chain_establish = True
                 continue
 
@@ -493,7 +509,7 @@ def classify_atom(
                     loss
                     for loss in dominating_losses
                     if loss.trace_pos > establish.trace_pos
-                    and loss.insn_idx in bslice.full_slice
+                    and loss.insn_idx in full_slice
                 ),
                 None,
             )
@@ -509,6 +525,34 @@ def classify_atom(
                     lifecycles=monitoring,
                     backward_slice=bslice,
                 )
+
+    if vacuous_on_chain_loss is not None:
+        lifecycle, loss = vacuous_on_chain_loss
+        return AtomClassification(
+            classification="established_then_lost",
+            schema=schema,
+            primary=primary,
+            carrier=lifecycle.carrier,
+            reason="vacuous_establishment",
+            loss=loss,
+            reject_evaluation=reject_evaluation,
+            lifecycles=monitoring,
+            backward_slice=bslice,
+        )
+
+    if vacuous_off_chain_loss is not None:
+        lifecycle, loss = vacuous_off_chain_loss
+        return AtomClassification(
+            classification="lowering_artifact",
+            schema=schema,
+            primary=primary,
+            carrier=lifecycle.carrier,
+            reason="vacuous_establishment",
+            loss=loss,
+            reject_evaluation=reject_evaluation,
+            lifecycles=monitoring,
+            backward_slice=bslice,
+        )
 
     if any_non_dominating_establish:
         return AtomClassification(
@@ -646,6 +690,7 @@ def _lifecycle_to_dict(lifecycle: CarrierLifecycle) -> dict[str, Any]:
         "establish_site": lifecycle.establish_site,
         "loss_site": lifecycle.loss_site,
         "final_gap": lifecycle.final_gap,
+        "first_observed_gap": lifecycle.first_observed_gap,
         "proof_status": lifecycle.proof_status,
     }
 
@@ -715,6 +760,21 @@ def _derive_taxonomy_class(
             return taxonomy
 
     return "source_bug"
+
+
+def _override_taxonomy_class(
+    fallback_taxonomy: str,
+    cross_analysis_class: str | None,
+) -> str:
+    if cross_analysis_class is None:
+        return fallback_taxonomy
+    if cross_analysis_class in {"established_then_lost", "lowering_artifact"}:
+        return "lowering_artifact"
+    if cross_analysis_class == "source_bug":
+        return "source_bug"
+    if cross_analysis_class == "ambiguous":
+        return fallback_taxonomy
+    return fallback_taxonomy
 
 
 # ---------------------------------------------------------------------------

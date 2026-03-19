@@ -228,12 +228,18 @@ class VerifierLogParser:
 
     def _match_catalog(self, lines: list[str], error_line: str) -> _CatalogMatch | None:
         error_variants = _catalog_line_variants(error_line)
+        error_variant_set = set(error_variants)
         all_variants = [
             variant
             for line in lines
             for variant in _catalog_line_variants(line)
         ]
-        other_variants = [variant for variant in all_variants if variant not in set(error_variants)]
+        other_variants = [
+            variant
+            for variant in all_variants
+            if variant not in error_variant_set
+            and not _is_low_confidence_catalog_noise(variant)
+        ]
 
         for confidence, source, candidates, primary_only in (
             ("high", "error_line_primary", error_variants, True),
@@ -368,3 +374,8 @@ def _catalog_line_variants(line: str) -> list[str]:
                 variants.append(candidate)
                 queue.append(candidate)
     return variants
+
+
+def _is_low_confidence_catalog_noise(line: str) -> bool:
+    normalized = _normalize_catalog_line(line)
+    return bool(normalized and BTF_PROBE_NOISE_RE.search(normalized))

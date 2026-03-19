@@ -63,6 +63,7 @@ class CarrierLifecycle:
     establish_site: int | None
     loss_site: int | None
     final_gap: int | None
+    first_observed_gap: int | None
     proof_status: str
 
 
@@ -215,6 +216,7 @@ class TraceMonitor:
                 establish_site=None,
                 loss_site=None,
                 final_gap=None,
+                first_observed_gap=None,
                 proof_status="unknown",
             )
 
@@ -226,6 +228,7 @@ class TraceMonitor:
                 establish_site=None,
                 loss_site=None,
                 final_gap=None,
+                first_observed_gap=None,
                 proof_status="unknown",
             )
 
@@ -235,6 +238,7 @@ class TraceMonitor:
         error_insn: int | None = None
         previous_gap: int | None = None
         final_gap: int | None = None
+        first_observed_gap: int | None = None
 
         for trace_pos, insn in enumerate(instructions):
             if insn.is_error and error_insn is None:
@@ -251,6 +255,8 @@ class TraceMonitor:
                 if insn.is_error:
                     break
                 continue
+            if first_observed_gap is None:
+                first_observed_gap = gap
 
             if previous_gap is not None and previous_gap > 0 and gap == 0:
                 events.append(LifecycleEvent(
@@ -297,6 +303,7 @@ class TraceMonitor:
             establish_site=establish_site,
             loss_site=loss_site,
             final_gap=final_gap,
+            first_observed_gap=first_observed_gap,
             proof_status=proof_status,
         )
 

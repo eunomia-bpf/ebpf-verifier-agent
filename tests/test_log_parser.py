@@ -106,3 +106,23 @@ def test_parse_log_prefers_selected_error_line_for_catalog_seed() -> None:
     assert dynptr_unknown.error_id == "BPFIX-E012"
     assert dynptr_unknown.taxonomy_class == "source_bug"
     assert dynptr_unknown.catalog_confidence == "high"
+
+
+def test_parse_log_does_not_seed_e021_from_btf_probe_preface() -> None:
+    data_slice = parse_log(
+        _load_verifier_log(
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84.yaml"
+        )
+    )
+    reg_type = parse_log(
+        _load_verifier_log(
+            "case_study/cases/kernel_selftests/"
+            "kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9.yaml"
+        )
+    )
+
+    assert data_slice.error_id == "BPFIX-E005"
+    assert data_slice.taxonomy_class == "lowering_artifact"
+    assert reg_type.error_id == "BPFIX-E019"
+    assert reg_type.taxonomy_class == "source_bug"

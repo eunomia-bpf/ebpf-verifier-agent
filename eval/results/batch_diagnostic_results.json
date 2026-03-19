@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-19T03:30:14.096053+00:00",
+  "generated_at": "2026-03-19T03:58:53.993053+00:00",
   "min_log_chars": 50,
   "results": [
     {
@@ -4461,6 +4461,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -4549,6 +4550,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -4852,6 +4854,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -4934,6 +4937,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -5229,6 +5233,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -5317,6 +5322,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -5635,6 +5641,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -5732,6 +5739,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -6102,6 +6110,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -6197,6 +6206,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -6510,6 +6520,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -6579,6 +6590,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -6648,6 +6660,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -6919,6 +6932,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -7004,6 +7018,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -7089,6 +7104,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -7283,22 +7299,32 @@
     {
       "case_id": "kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84.yaml",
-      "compression_ratio": 0.09799118079372857,
+      "compression_ratio": 0.12861342479176874,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "GATE_BY_KERNEL_CAPABILITY",
-            "patch_hint": "Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
+            "action": "UNKNOWN",
+            "patch_hint": "Add masking or explicit casts.",
             "rationale": "Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22"
           }
         ],
         "confidence": 0.3,
         "diagnostic_version": "0.1.0",
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E005",
         "evidence": [
           {
             "detail": "arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
             "kind": "verifier_log"
+          },
+          {
+            "detail": "proof established at dynptr_fail.c:68: map_val = bpf_map_lookup_elem(&array_map3, &key);",
+            "instruction_index": 11,
+            "kind": "source_map"
+          },
+          {
+            "detail": "R0: scalar(unbounded) \u2192 map_value",
+            "instruction_index": 11,
+            "kind": "abstract_state"
           },
           {
             "detail": "rejected at dynptr_fail.c:287: val = *((char *)data + (sizeof(map_val) + 1));",
@@ -7335,13 +7361,254 @@
             "kind": "heuristic"
           }
         ],
-        "failure_class": "env_mismatch",
-        "message": "verifier rejection",
+        "expected_state": {
+          "notes": [
+            "Expected proof: type check",
+            "R0: must be a valid, non-scalar pointer type"
+          ],
+          "registers": {
+            "R0": "map_value"
+          }
+        },
+        "failure_class": "source_bug",
+        "message": "established then lost",
         "metadata": {
-          "cross_analysis_class": null,
-          "help": "Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
+          "active_atoms": [
+            {
+              "backward_slice": {
+                "control_deps": [
+                  2,
+                  3,
+                  7,
+                  9,
+                  11,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26,
+                  27
+                ],
+                "criterion_insn": 28,
+                "criterion_register": "R0",
+                "data_deps": [
+                  16,
+                  17,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26,
+                  28
+                ],
+                "full_slice": [
+                  2,
+                  3,
+                  7,
+                  9,
+                  11,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26,
+                  27,
+                  28
+                ]
+              },
+              "carrier_lifecycles": {
+                "R0": {
+                  "carrier": {
+                    "is_primary": true,
+                    "pointer_kind": null,
+                    "provenance_id": null,
+                    "register": "R0",
+                    "reject_type": "mem",
+                    "role": "base_ptr"
+                  },
+                  "establish_site": null,
+                  "events": [],
+                  "final_gap": 4611686018427387904,
+                  "first_observed_gap": 1,
+                  "loss_site": null,
+                  "proof_status": "never_established"
+                }
+              },
+              "classification": "source_bug",
+              "primary": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R0",
+                "reject_type": "mem",
+                "role": "base_ptr"
+              },
+              "reason": null,
+              "reject_evaluation": "unknown",
+              "schema": {
+                "access_size": 1,
+                "allow_null": false,
+                "constraint": null,
+                "domain": "memory_bounds",
+                "expected_types": [],
+                "helper_arg_index": null,
+                "helper_id": null,
+                "helper_name": null,
+                "pointer_kind": null,
+                "requires_range": false,
+                "requires_writable": false,
+                "role": "base_ptr"
+              }
+            }
+          ],
+          "backward_slice": {
+            "control_deps": [
+              2,
+              3,
+              7,
+              9,
+              11,
+              13,
+              14,
+              15,
+              16,
+              17,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27
+            ],
+            "criterion_insn": 28,
+            "criterion_register": "R0",
+            "data_deps": [
+              16,
+              17,
+              22,
+              23,
+              24,
+              25,
+              26,
+              28
+            ],
+            "full_slice": [
+              2,
+              3,
+              7,
+              9,
+              11,
+              13,
+              14,
+              15,
+              16,
+              17,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28
+            ]
+          },
+          "causal_chain": [
+            {
+              "insn_idx": 2,
+              "reason": "control_dep: r6 = r10"
+            },
+            {
+              "insn_idx": 3,
+              "reason": "control_dep: r6 += -4"
+            },
+            {
+              "insn_idx": 7,
+              "reason": "control_dep: r3 = 0xffffd10b70f96000"
+            },
+            {
+              "insn_idx": 9,
+              "reason": "control_dep: r4 = 0"
+            },
+            {
+              "insn_idx": 11,
+              "reason": "control_dep: r1 = 0xffff8d475ffd0800"
+            },
+            {
+              "insn_idx": 13,
+              "reason": "control_dep: r2 = r6"
+            },
+            {
+              "insn_idx": 14,
+              "reason": "control_dep: call bpf_map_lookup_elem#1"
+            },
+            {
+              "insn_idx": 15,
+              "reason": "control_dep: if r0 == 0x0 goto pc+6"
+            },
+            {
+              "insn_idx": 16,
+              "reason": "data_dep: r4 = r10"
+            },
+            {
+              "insn_idx": 17,
+              "reason": "data_dep: r4 += -24"
+            },
+            {
+              "insn_idx": 22,
+              "reason": "data_dep: r1 = r10"
+            },
+            {
+              "insn_idx": 23,
+              "reason": "data_dep: r1 += -24"
+            },
+            {
+              "insn_idx": 24,
+              "reason": "data_dep: w2 = 0"
+            },
+            {
+              "insn_idx": 25,
+              "reason": "data_dep: w3 = 4"
+            },
+            {
+              "insn_idx": 26,
+              "reason": "data_dep: call bpf_dynptr_data#203"
+            },
+            {
+              "insn_idx": 27,
+              "reason": "control_dep: if r0 == 0x0 goto pc+6"
+            }
+          ],
+          "cross_analysis_class": "source_bug",
+          "help": "Add masking or explicit casts.",
           "note": "Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
+          "obligation": {
+            "required": "R0: must be a valid, non-scalar pointer type",
+            "type": "type_check"
+          },
           "proof_spans": [
+            {
+              "insn_range": [
+                11,
+                14
+              ],
+              "line": 68,
+              "path": "dynptr_fail.c",
+              "reason": null,
+              "register": "R0",
+              "role": "proof_established",
+              "source_text": "map_val = bpf_map_lookup_elem(&array_map3, &key);",
+              "state_change": "R0: scalar(unbounded) \u2192 map_value"
+            },
             {
               "insn_range": [
                 28,
@@ -7356,9 +7623,9 @@
               "state_change": "R0: mem"
             }
           ],
-          "proof_status": "unknown"
+          "proof_status": "established_then_lost"
         },
-        "missing_obligation": "manual analysis required to identify the missing proof obligation",
+        "missing_obligation": "R0: must be a valid, non-scalar pointer type",
         "observed_state": {
           "notes": [
             "Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
@@ -7379,45 +7646,55 @@
           "instruction_index": 28
         }
       },
-      "diagnostic_text": "error[BPFIX-E021]: env_mismatch \u2014 verifier rejection\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n287 \u2502     val = *((char *)data + (sizeof(map_val) + 1));\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R0: mem\n    \u2502\n  = note: Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22\n  = help: Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
-      "error_id": "BPFIX-E021",
+      "diagnostic_text": "error[BPFIX-E005]: source_bug \u2014 established then lost\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n 68 \u2502     map_val = bpf_map_lookup_elem(&array_map3, &key);\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n    \u2502     R0: scalar(unbounded) \u2192 map_value\n    \u2502\n287 \u2502     val = *((char *)data + (sizeof(map_val) + 1));\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R0: mem\n    \u2502\n  = note: Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22\n  = help: Add masking or explicit casts.",
+      "error_id": "BPFIX-E005",
       "exception": null,
       "has_btf_file_line": true,
-      "has_proof_established_span": false,
+      "has_proof_established_span": true,
       "has_proof_lost_span": false,
       "has_rejected_span": true,
-      "headline": "verifier rejection",
+      "headline": "established then lost",
       "log_has_source_locations": true,
-      "num_spans": 1,
-      "output_text_length": 400,
-      "proof_status": "unknown",
+      "num_spans": 2,
+      "output_text_length": 525,
+      "proof_status": "established_then_lost",
       "skip_reason": null,
       "skipped": false,
       "source": "selftests",
       "source_dir": "kernel_selftests",
       "success": true,
-      "taxonomy_class": "env_mismatch",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 4082
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-data-slice-out-of-bounds-ringbuf-raw-tp-83139460",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-ringbuf-raw-tp-83139460.yaml",
-      "compression_ratio": 0.1540383014154871,
+      "compression_ratio": 0.19567027477102414,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "GATE_BY_KERNEL_CAPABILITY",
-            "patch_hint": "Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
+            "action": "UNKNOWN",
+            "patch_hint": "Add masking or explicit casts.",
             "rationale": "Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22"
           }
         ],
         "confidence": 0.3,
         "diagnostic_version": "0.1.0",
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E005",
         "evidence": [
           {
             "detail": "arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
             "kind": "verifier_log"
+          },
+          {
+            "detail": "proof established at dynptr_fail.c:239: data  = bpf_dynptr_data(&ptr, 0, 8);",
+            "instruction_index": 8,
+            "kind": "source_map"
+          },
+          {
+            "detail": "R0: mem_or_null(id=3)",
+            "instruction_index": 8,
+            "kind": "abstract_state"
           },
           {
             "detail": "rejected at dynptr_fail.c:244: val = *((char *)data + 8);",
@@ -7454,13 +7731,190 @@
             "kind": "heuristic"
           }
         ],
-        "failure_class": "env_mismatch",
-        "message": "verifier rejection",
+        "expected_state": {
+          "notes": [
+            "Expected proof: type check",
+            "R0: must be a valid, non-scalar pointer type"
+          ],
+          "registers": {
+            "R0": "mem_or_null(id=3)"
+          }
+        },
+        "failure_class": "source_bug",
+        "message": "established then lost",
         "metadata": {
-          "cross_analysis_class": null,
-          "help": "Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
+          "active_atoms": [
+            {
+              "backward_slice": {
+                "control_deps": [
+                  0,
+                  1,
+                  6,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ],
+                "criterion_insn": 13,
+                "criterion_register": "R0",
+                "data_deps": [
+                  0,
+                  1,
+                  6,
+                  8,
+                  9,
+                  10,
+                  11,
+                  13
+                ],
+                "full_slice": [
+                  0,
+                  1,
+                  6,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13
+                ]
+              },
+              "carrier_lifecycles": {
+                "R0": {
+                  "carrier": {
+                    "is_primary": true,
+                    "pointer_kind": null,
+                    "provenance_id": null,
+                    "register": "R0",
+                    "reject_type": "mem",
+                    "role": "base_ptr"
+                  },
+                  "establish_site": null,
+                  "events": [],
+                  "final_gap": 4611686018427387904,
+                  "first_observed_gap": 1,
+                  "loss_site": null,
+                  "proof_status": "never_established"
+                }
+              },
+              "classification": "source_bug",
+              "primary": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R0",
+                "reject_type": "mem",
+                "role": "base_ptr"
+              },
+              "reason": null,
+              "reject_evaluation": "unknown",
+              "schema": {
+                "access_size": 1,
+                "allow_null": false,
+                "constraint": null,
+                "domain": "memory_bounds",
+                "expected_types": [],
+                "helper_arg_index": null,
+                "helper_id": null,
+                "helper_name": null,
+                "pointer_kind": null,
+                "requires_range": false,
+                "requires_writable": false,
+                "role": "base_ptr"
+              }
+            }
+          ],
+          "backward_slice": {
+            "control_deps": [
+              0,
+              1,
+              6,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "criterion_insn": 13,
+            "criterion_register": "R0",
+            "data_deps": [
+              0,
+              1,
+              6,
+              8,
+              9,
+              10,
+              11,
+              13
+            ],
+            "full_slice": [
+              0,
+              1,
+              6,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ]
+          },
+          "causal_chain": [
+            {
+              "insn_idx": 0,
+              "reason": "data_dep: r6 = r10"
+            },
+            {
+              "insn_idx": 1,
+              "reason": "data_dep: r6 += -16"
+            },
+            {
+              "insn_idx": 6,
+              "reason": "data_dep: r4 = r6"
+            },
+            {
+              "insn_idx": 8,
+              "reason": "data_dep: r1 = r6"
+            },
+            {
+              "insn_idx": 9,
+              "reason": "data_dep: w2 = 0"
+            },
+            {
+              "insn_idx": 10,
+              "reason": "data_dep: w3 = 8"
+            },
+            {
+              "insn_idx": 11,
+              "reason": "data_dep: call bpf_dynptr_data#203"
+            },
+            {
+              "insn_idx": 12,
+              "reason": "control_dep: if r0 == 0x0 goto pc+6"
+            }
+          ],
+          "cross_analysis_class": "source_bug",
+          "help": "Add masking or explicit casts.",
           "note": "Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
+          "obligation": {
+            "required": "R0: must be a valid, non-scalar pointer type",
+            "type": "type_check"
+          },
           "proof_spans": [
+            {
+              "insn_range": [
+                8,
+                10
+              ],
+              "line": 239,
+              "path": "dynptr_fail.c",
+              "reason": null,
+              "register": "R0",
+              "role": "proof_established",
+              "source_text": "data  = bpf_dynptr_data(&ptr, 0, 8);",
+              "state_change": "R0: mem_or_null(id=3)"
+            },
             {
               "insn_range": [
                 13,
@@ -7475,9 +7929,9 @@
               "state_change": "R0: mem"
             }
           ],
-          "proof_status": "unknown"
+          "proof_status": "established_then_lost"
         },
-        "missing_obligation": "manual analysis required to identify the missing proof obligation",
+        "missing_obligation": "R0: must be a valid, non-scalar pointer type",
         "observed_state": {
           "notes": [
             "Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
@@ -7498,24 +7952,24 @@
           "instruction_index": 13
         }
       },
-      "diagnostic_text": "error[BPFIX-E021]: env_mismatch \u2014 verifier rejection\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n244 \u2502     val = *((char *)data + 8);\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R0: mem\n    \u2502\n  = note: Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22\n  = help: Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
-      "error_id": "BPFIX-E021",
+      "diagnostic_text": "error[BPFIX-E005]: source_bug \u2014 established then lost\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n239 \u2502     data  = bpf_dynptr_data(&ptr, 0, 8);\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n    \u2502     R0: mem_or_null(id=3)\n    \u2502\n244 \u2502     val = *((char *)data + 8);\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R0: mem\n    \u2502\n  = note: Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22\n  = help: Add masking or explicit casts.",
+      "error_id": "BPFIX-E005",
       "exception": null,
       "has_btf_file_line": true,
-      "has_proof_established_span": false,
+      "has_proof_established_span": true,
       "has_proof_lost_span": false,
       "has_rejected_span": true,
-      "headline": "verifier rejection",
+      "headline": "established then lost",
       "log_has_source_locations": true,
-      "num_spans": 1,
-      "output_text_length": 370,
-      "proof_status": "unknown",
+      "num_spans": 2,
+      "output_text_length": 470,
+      "proof_status": "established_then_lost",
       "skip_reason": null,
       "skipped": false,
       "source": "selftests",
       "source_dir": "kernel_selftests",
       "success": true,
-      "taxonomy_class": "env_mismatch",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 2402
     },
     {
@@ -7546,13 +8000,13 @@
     {
       "case_id": "kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-tc-b903ac49",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-tc-b903ac49.yaml",
-      "compression_ratio": 0.18743228602383533,
+      "compression_ratio": 0.14120621162874683,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "TIGHTEN_RANGE",
+            "action": "UNKNOWN",
             "patch_hint": "Add masking or explicit casts.",
-            "rationale": "A verifier-visible proof existed earlier but was lost before the rejected instruction."
+            "rationale": "source bug blocks the required type check proof."
           }
         ],
         "confidence": 0.3,
@@ -7584,10 +8038,6 @@
             "kind": "abstract_state"
           },
           {
-            "detail": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
-            "kind": "heuristic"
-          },
-          {
             "detail": "  1: .1....6... (6b) *(u16 *)(r10 -20) = r6",
             "kind": "heuristic"
           },
@@ -7617,8 +8067,8 @@
             "R0": "mem_or_null(id=2)"
           }
         },
-        "failure_class": "lowering_artifact",
-        "message": "proof established, then lost before rejection",
+        "failure_class": "source_bug",
+        "message": "established then lost",
         "metadata": {
           "active_atoms": [
             {
@@ -7673,6 +8123,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -7755,6 +8206,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -7864,7 +8316,6 @@
           ],
           "cross_analysis_class": "source_bug",
           "help": "Add masking or explicit casts.",
-          "note": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
           "obligation": {
             "required": "R0: must be a valid, non-null, writable pointer type",
             "type": "type_check"
@@ -7902,7 +8353,6 @@
         "missing_obligation": "R0: must be a valid, non-null, writable pointer type",
         "observed_state": {
           "notes": [
-            "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
             "invalid access to memory, mem_size=14 off=14 size=1"
           ],
           "registers": {
@@ -7920,24 +8370,24 @@
           "instruction_index": 17
         }
       },
-      "diagnostic_text": "error[BPFIX-E005]: lowering_artifact \u2014 proof established, then lost before rejection\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n262 \u2502     hdr = bpf_dynptr_slice_rdwr(&ptr, 0, buffer, sizeof(buffer));\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n    \u2502     R0: mem_or_null(id=2)\n    \u2502\n267 \u2502     *(__u8*)(hdr + 1) = 1;\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R0: mem\n    \u2502\n  = note: A verifier-visible proof existed earlier but was lost before the rejected instruction.\n  = help: Add masking or explicit casts.",
+      "diagnostic_text": "error[BPFIX-E005]: source_bug \u2014 established then lost\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n262 \u2502     hdr = bpf_dynptr_slice_rdwr(&ptr, 0, buffer, sizeof(buffer));\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n    \u2502     R0: mem_or_null(id=2)\n    \u2502\n267 \u2502     *(__u8*)(hdr + 1) = 1;\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R0: mem\n    \u2502\n  = help: Add masking or explicit casts.",
       "error_id": "BPFIX-E005",
       "exception": null,
       "has_btf_file_line": true,
       "has_proof_established_span": true,
       "has_proof_lost_span": false,
       "has_rejected_span": true,
-      "headline": "proof established, then lost before rejection",
+      "headline": "established then lost",
       "log_has_source_locations": true,
       "num_spans": 2,
-      "output_text_length": 519,
+      "output_text_length": 391,
       "proof_status": "established_then_lost",
       "skip_reason": null,
       "skipped": false,
       "source": "selftests",
       "source_dir": "kernel_selftests",
       "success": true,
-      "taxonomy_class": "lowering_artifact",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 2769
     },
     {
@@ -8056,6 +8506,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -8343,6 +8794,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -8424,6 +8876,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -8906,6 +9359,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -9132,6 +9586,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -9241,6 +9696,7 @@
                     }
                   ],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "established_but_insufficient"
                 }
@@ -9333,6 +9789,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -10643,6 +11100,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -10700,6 +11158,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -10759,6 +11218,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -10818,6 +11278,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -10873,6 +11334,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -11514,6 +11976,7 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 0,
                   "loss_site": 43,
                   "proof_status": "never_established"
                 }
@@ -11637,6 +12100,7 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 0,
                   "loss_site": 43,
                   "proof_status": "established_then_lost"
                 }
@@ -11735,6 +12199,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -11833,6 +12298,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -14946,11 +15412,11 @@
     {
       "case_id": "kernel-selftest-dynptr-fail-skb-invalid-data-slice1-tc-0b35a757",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-data-slice1-tc-0b35a757.yaml",
-      "compression_ratio": 0.11259382819015847,
+      "compression_ratio": 0.11426188490408674,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "REWRITE_POINTER_ARITH",
+            "action": "UNKNOWN",
             "patch_hint": "Re-derive the pointer from a verified base immediately before dereference.",
             "rationale": "The required type check proof was never established."
           }
@@ -15019,8 +15485,8 @@
             "R8: must be a valid, non-scalar pointer type"
           ]
         },
-        "failure_class": "lowering_artifact",
-        "message": "never established",
+        "failure_class": "source_bug",
+        "message": "required proof never established",
         "metadata": {
           "active_atoms": [
             {
@@ -15075,6 +15541,14 @@
                   31
                 ]
               },
+              "carrier": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R8",
+                "reject_type": "rdonly_mem",
+                "role": "base_ptr"
+              },
               "carrier_lifecycles": {
                 "R8": {
                   "carrier": {
@@ -15097,11 +15571,20 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 0,
                   "loss_site": 18,
                   "proof_status": "never_established"
                 }
               },
-              "classification": "source_bug",
+              "classification": "established_then_lost",
+              "loss": {
+                "gap_after": 1,
+                "gap_before": 0,
+                "insn_idx": 18,
+                "kind": "loss",
+                "reason": "OpcodeCondition[pointer_type] violated on R8 (type=rdonly_mem_or_null): required=must be a valid pointer type",
+                "trace_pos": 21
+              },
               "primary": {
                 "is_primary": true,
                 "pointer_kind": null,
@@ -15110,7 +15593,7 @@
                 "reject_type": "rdonly_mem",
                 "role": "base_ptr"
               },
-              "reason": null,
+              "reason": "vacuous_establishment",
               "reject_evaluation": "unknown",
               "schema": {
                 "access_size": null,
@@ -15179,6 +15662,14 @@
                   31
                 ]
               },
+              "carrier": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R8",
+                "reject_type": "rdonly_mem",
+                "role": "base_ptr"
+              },
               "carrier_lifecycles": {
                 "R8": {
                   "carrier": {
@@ -15201,11 +15692,20 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 0,
                   "loss_site": 18,
                   "proof_status": "never_established"
                 }
               },
-              "classification": "source_bug",
+              "classification": "established_then_lost",
+              "loss": {
+                "gap_after": 1,
+                "gap_before": 0,
+                "insn_idx": 18,
+                "kind": "loss",
+                "reason": "OpcodeCondition[null_safety] violated on R8 (type=rdonly_mem_or_null): required=must not be nullable at use site",
+                "trace_pos": 21
+              },
               "primary": {
                 "is_primary": true,
                 "pointer_kind": null,
@@ -15214,7 +15714,7 @@
                 "reject_type": "rdonly_mem",
                 "role": "base_ptr"
               },
-              "reason": null,
+              "reason": "vacuous_establishment",
               "reject_evaluation": "unknown",
               "schema": {
                 "access_size": null,
@@ -15296,6 +15796,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -15499,24 +16000,24 @@
           "instruction_index": 31
         }
       },
-      "diagnostic_text": "error[BPFIX-E011]: lowering_artifact \u2014 never established\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n1103 \u2502     hdr = bpf_dynptr_slice(&ptr, 0, buffer, sizeof(buffer));\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n     \u2502     R8: rdonly_mem_or_null(id=2)\n     \u2502\n1113 \u2502     val = hdr->h_proto;\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n     \u2502     R8: rdonly_mem\n     \u2502\n  = note: The required type check proof was never established.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
+      "diagnostic_text": "error[BPFIX-E011]: source_bug \u2014 required proof never established\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n1103 \u2502     hdr = bpf_dynptr_slice(&ptr, 0, buffer, sizeof(buffer));\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n     \u2502     R8: rdonly_mem_or_null(id=2)\n     \u2502\n1113 \u2502     val = hdr->h_proto;\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n     \u2502     R8: rdonly_mem\n     \u2502\n  = note: The required type check proof was never established.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
       "error_id": "BPFIX-E011",
       "exception": null,
       "has_btf_file_line": true,
       "has_proof_established_span": false,
       "has_proof_lost_span": true,
       "has_rejected_span": true,
-      "headline": "never established",
+      "headline": "required proof never established",
       "log_has_source_locations": true,
       "num_spans": 2,
-      "output_text_length": 540,
+      "output_text_length": 548,
       "proof_status": "never_established",
       "skip_reason": null,
       "skipped": false,
       "source": "selftests",
       "source_dir": "kernel_selftests",
       "success": true,
-      "taxonomy_class": "lowering_artifact",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 4796
     },
     {
@@ -15649,6 +16150,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -15744,6 +16246,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -15956,11 +16459,11 @@
     {
       "case_id": "kernel-selftest-dynptr-fail-skb-invalid-data-slice3-tc-a15c4322",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-skb-invalid-data-slice3-tc-a15c4322.yaml",
-      "compression_ratio": 0.0751019128253371,
+      "compression_ratio": 0.07635622452179366,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "REWRITE_POINTER_ARITH",
+            "action": "UNKNOWN",
             "patch_hint": "Re-derive the pointer from a verified base immediately before dereference.",
             "rationale": "The required type check proof was never established."
           }
@@ -16019,8 +16522,8 @@
             "R7: must be a valid, non-scalar pointer type"
           ]
         },
-        "failure_class": "lowering_artifact",
-        "message": "never established",
+        "failure_class": "source_bug",
+        "message": "required proof never established",
         "metadata": {
           "active_atoms": [
             {
@@ -16072,6 +16575,14 @@
                   45
                 ]
               },
+              "carrier": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R7",
+                "reject_type": null,
+                "role": "base_ptr"
+              },
               "carrier_lifecycles": {
                 "R7": {
                   "carrier": {
@@ -16094,11 +16605,20 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 0,
                   "loss_site": 43,
                   "proof_status": "never_established"
                 }
               },
-              "classification": "source_bug",
+              "classification": "established_then_lost",
+              "loss": {
+                "gap_after": 1,
+                "gap_before": 0,
+                "insn_idx": 43,
+                "kind": "loss",
+                "reason": "OpcodeCondition[pointer_type] violated on R7 (type=rdonly_mem): required=must be a valid pointer type",
+                "trace_pos": 43
+              },
               "primary": {
                 "is_primary": true,
                 "pointer_kind": null,
@@ -16107,7 +16627,7 @@
                 "reject_type": null,
                 "role": "base_ptr"
               },
-              "reason": null,
+              "reason": "vacuous_establishment",
               "reject_evaluation": "unknown",
               "schema": {
                 "access_size": null,
@@ -16173,6 +16693,14 @@
                   45
                 ]
               },
+              "carrier": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R7",
+                "reject_type": null,
+                "role": "base_ptr"
+              },
               "carrier_lifecycles": {
                 "R7": {
                   "carrier": {
@@ -16195,11 +16723,20 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 0,
                   "loss_site": 43,
                   "proof_status": "never_established"
                 }
               },
-              "classification": "source_bug",
+              "classification": "established_then_lost",
+              "loss": {
+                "gap_after": 1,
+                "gap_before": 0,
+                "insn_idx": 43,
+                "kind": "loss",
+                "reason": "OpcodeCondition[null_safety] violated on R7 (type=rdonly_mem): required=must not be nullable at use site",
+                "trace_pos": 43
+              },
               "primary": {
                 "is_primary": true,
                 "pointer_kind": null,
@@ -16208,7 +16745,7 @@
                 "reject_type": null,
                 "role": "base_ptr"
               },
-              "reason": null,
+              "reason": "vacuous_establishment",
               "reject_evaluation": "unknown",
               "schema": {
                 "access_size": null,
@@ -16287,6 +16824,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -16496,24 +17034,24 @@
           "instruction_index": 45
         }
       },
-      "diagnostic_text": "error[BPFIX-E011]: lowering_artifact \u2014 never established\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n1162 \u2502     bpf_dynptr_write(&ptr, 0, write_data, sizeof(write_data), 0);\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n     \u2502\n1165 \u2502     val = hdr->h_proto;\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n     \u2502\n  = note: The required type check proof was never established.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
+      "diagnostic_text": "error[BPFIX-E011]: source_bug \u2014 required proof never established\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n1162 \u2502     bpf_dynptr_write(&ptr, 0, write_data, sizeof(write_data), 0);\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n     \u2502\n1165 \u2502     val = hdr->h_proto;\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n     \u2502\n  = note: The required type check proof was never established.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
       "error_id": "BPFIX-E011",
       "exception": null,
       "has_btf_file_line": true,
       "has_proof_established_span": false,
       "has_proof_lost_span": true,
       "has_rejected_span": true,
-      "headline": "never established",
+      "headline": "required proof never established",
       "log_has_source_locations": true,
       "num_spans": 2,
-      "output_text_length": 479,
+      "output_text_length": 487,
       "proof_status": "never_established",
       "skip_reason": null,
       "skipped": false,
       "source": "selftests",
       "source_dir": "kernel_selftests",
       "success": true,
-      "taxonomy_class": "lowering_artifact",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 6378
     },
     {
@@ -16638,6 +17176,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -16730,6 +17269,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -16822,6 +17362,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -16914,6 +17455,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -17157,18 +17699,18 @@
     {
       "case_id": "kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9.yaml",
-      "compression_ratio": 0.6914556962025317,
+      "compression_ratio": 0.7088607594936709,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "GATE_BY_KERNEL_CAPABILITY",
+            "action": "UNKNOWN",
             "patch_hint": "Pass a stack pointer or a const struct bpf_dynptr for this argument. Plain scalars or unrelated pointers will not satisfy the contract.",
             "rationale": "This call requires one of: a stack pointer, a const struct bpf_dynptr."
           }
         ],
         "confidence": 0.3,
         "diagnostic_version": "0.1.0",
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E019",
         "evidence": [
           {
             "detail": "arg#0 expected pointer to stack or const struct bpf_dynptr",
@@ -17215,8 +17757,8 @@
             "arg#0 expected pointer to stack or const struct bpf_dynptr"
           ]
         },
-        "failure_class": "env_mismatch",
-        "message": "verifier rejection",
+        "failure_class": "source_bug",
+        "message": "helper expected a stack pointer",
         "metadata": {
           "cross_analysis_class": null,
           "help": "Pass a stack pointer or a const struct bpf_dynptr for this argument. Plain scalars or unrelated pointers will not satisfy the contract.",
@@ -17261,24 +17803,24 @@
           "instruction_index": 0
         }
       },
-      "diagnostic_text": "error[BPFIX-E021]: env_mismatch \u2014 verifier rejection\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n1735 \u2502     global_call_bpf_dynptr((const struct bpf_dynptr *)current);\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n     \u2502\n  = note: This call requires one of: a stack pointer, a const struct bpf_dynptr.\n  = help: Pass a stack pointer or a const struct bpf_dynptr for this argument. Plain scalars or unrelated pointers will not satisfy the contract.",
-      "error_id": "BPFIX-E021",
+      "diagnostic_text": "error[BPFIX-E019]: source_bug \u2014 helper expected a stack pointer\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n1735 \u2502     global_call_bpf_dynptr((const struct bpf_dynptr *)current);\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n     \u2502\n  = note: This call requires one of: a stack pointer, a const struct bpf_dynptr.\n  = help: Pass a stack pointer or a const struct bpf_dynptr for this argument. Plain scalars or unrelated pointers will not satisfy the contract.",
+      "error_id": "BPFIX-E019",
       "exception": null,
       "has_btf_file_line": true,
       "has_proof_established_span": false,
       "has_proof_lost_span": false,
       "has_rejected_span": true,
-      "headline": "verifier rejection",
+      "headline": "helper expected a stack pointer",
       "log_has_source_locations": true,
       "num_spans": 1,
-      "output_text_length": 437,
+      "output_text_length": 448,
       "proof_status": "unknown",
       "skip_reason": null,
       "skipped": false,
       "source": "selftests",
       "source_dir": "kernel_selftests",
       "success": true,
-      "taxonomy_class": "env_mismatch",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 632
     },
     {
@@ -17748,11 +18290,11 @@
     {
       "case_id": "kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests/kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5.yaml",
-      "compression_ratio": 0.11200995644057249,
+      "compression_ratio": 0.11366936320265505,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "REWRITE_POINTER_ARITH",
+            "action": "UNKNOWN",
             "patch_hint": "Re-derive the pointer from a verified base immediately before dereference.",
             "rationale": "The required type check proof was never established."
           }
@@ -17821,8 +18363,8 @@
             "R8: must be a valid, non-scalar pointer type"
           ]
         },
-        "failure_class": "lowering_artifact",
-        "message": "never established",
+        "failure_class": "source_bug",
+        "message": "required proof never established",
         "metadata": {
           "active_atoms": [
             {
@@ -17877,6 +18419,14 @@
                   32
                 ]
               },
+              "carrier": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R8",
+                "reject_type": "rdonly_mem",
+                "role": "base_ptr"
+              },
               "carrier_lifecycles": {
                 "R8": {
                   "carrier": {
@@ -17899,11 +18449,20 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 0,
                   "loss_site": 18,
                   "proof_status": "never_established"
                 }
               },
-              "classification": "source_bug",
+              "classification": "established_then_lost",
+              "loss": {
+                "gap_after": 1,
+                "gap_before": 0,
+                "insn_idx": 18,
+                "kind": "loss",
+                "reason": "OpcodeCondition[pointer_type] violated on R8 (type=rdonly_mem_or_null): required=must be a valid pointer type",
+                "trace_pos": 21
+              },
               "primary": {
                 "is_primary": true,
                 "pointer_kind": null,
@@ -17912,7 +18471,7 @@
                 "reject_type": "rdonly_mem",
                 "role": "base_ptr"
               },
-              "reason": null,
+              "reason": "vacuous_establishment",
               "reject_evaluation": "unknown",
               "schema": {
                 "access_size": null,
@@ -17981,6 +18540,14 @@
                   32
                 ]
               },
+              "carrier": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R8",
+                "reject_type": "rdonly_mem",
+                "role": "base_ptr"
+              },
               "carrier_lifecycles": {
                 "R8": {
                   "carrier": {
@@ -18003,11 +18570,20 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 0,
                   "loss_site": 18,
                   "proof_status": "never_established"
                 }
               },
-              "classification": "source_bug",
+              "classification": "established_then_lost",
+              "loss": {
+                "gap_after": 1,
+                "gap_before": 0,
+                "insn_idx": 18,
+                "kind": "loss",
+                "reason": "OpcodeCondition[null_safety] violated on R8 (type=rdonly_mem_or_null): required=must not be nullable at use site",
+                "trace_pos": 21
+              },
               "primary": {
                 "is_primary": true,
                 "pointer_kind": null,
@@ -18016,7 +18592,7 @@
                 "reject_type": "rdonly_mem",
                 "role": "base_ptr"
               },
-              "reason": null,
+              "reason": "vacuous_establishment",
               "reject_evaluation": "unknown",
               "schema": {
                 "access_size": null,
@@ -18098,6 +18674,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -18301,24 +18878,24 @@
           "instruction_index": 32
         }
       },
-      "diagnostic_text": "error[BPFIX-E011]: lowering_artifact \u2014 never established\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n1205 \u2502     hdr = bpf_dynptr_slice(&ptr, 0, buffer, sizeof(buffer));\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n     \u2502     R8: rdonly_mem_or_null(id=2)\n     \u2502\n1215 \u2502     val = hdr->h_proto;\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n     \u2502     R8: rdonly_mem\n     \u2502\n  = note: The required type check proof was never established.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
+      "diagnostic_text": "error[BPFIX-E011]: source_bug \u2014 required proof never established\n  \u250c\u2500 dynptr_fail.c\n  \u2502\n1205 \u2502     hdr = bpf_dynptr_slice(&ptr, 0, buffer, sizeof(buffer));\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n     \u2502     R8: rdonly_mem_or_null(id=2)\n     \u2502\n1215 \u2502     val = hdr->h_proto;\n     \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n     \u2502     R8: rdonly_mem\n     \u2502\n  = note: The required type check proof was never established.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
       "error_id": "BPFIX-E011",
       "exception": null,
       "has_btf_file_line": true,
       "has_proof_established_span": false,
       "has_proof_lost_span": true,
       "has_rejected_span": true,
-      "headline": "never established",
+      "headline": "required proof never established",
       "log_has_source_locations": true,
       "num_spans": 2,
-      "output_text_length": 540,
+      "output_text_length": 548,
       "proof_status": "never_established",
       "skip_reason": null,
       "skipped": false,
       "source": "selftests",
       "source_dir": "kernel_selftests",
       "success": true,
-      "taxonomy_class": "lowering_artifact",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 4821
     },
     {
@@ -18451,6 +19028,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -18546,6 +19124,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -20631,6 +21210,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -20693,6 +21273,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -20755,6 +21336,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -20817,6 +21399,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -20879,6 +21462,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -21537,6 +22121,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -21592,6 +22177,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -21647,6 +22233,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -21702,6 +22289,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -21757,6 +22345,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -21964,6 +22553,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -22036,6 +22626,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -22104,6 +22695,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -22172,6 +22764,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -22240,6 +22833,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -25429,6 +26023,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -25497,6 +26092,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -25563,6 +26159,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -25629,6 +26226,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -25695,6 +26293,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -25958,6 +26557,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -26026,6 +26626,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -26092,6 +26693,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -26158,6 +26760,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -26224,6 +26827,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -26630,6 +27234,7 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 0,
                   "loss_site": 18,
                   "proof_status": "never_established"
                 }
@@ -26721,6 +27326,7 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": 18,
                   "proof_status": "established_then_lost"
                 }
@@ -26795,6 +27401,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -26869,6 +27476,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -27172,6 +27780,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -27284,6 +27893,7 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": 23,
                   "proof_status": "established_then_lost"
                 }
@@ -27379,6 +27989,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -27474,6 +28085,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -27809,6 +28421,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -27896,6 +28509,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -27983,6 +28597,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -28070,6 +28685,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -28379,6 +28995,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -28459,6 +29076,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -28724,6 +29342,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -28781,6 +29400,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -28838,6 +29458,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -29529,6 +30150,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -29596,6 +30218,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -29663,6 +30286,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -29811,18 +30435,18 @@
     {
       "case_id": "kernel-selftest-iters-looping-wrong-sized-read-fail-raw-tp-b975c554",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests/kernel-selftest-iters-looping-wrong-sized-read-fail-raw-tp-b975c554.yaml",
-      "compression_ratio": 0.15848214285714285,
+      "compression_ratio": 0.14107142857142857,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "GATE_BY_KERNEL_CAPABILITY",
-            "patch_hint": "Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
+            "action": "UNKNOWN",
+            "patch_hint": "Add masking or explicit casts.",
             "rationale": "Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22"
           }
         ],
         "confidence": 0.3,
         "diagnostic_version": "0.1.0",
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E005",
         "evidence": [
           {
             "detail": "arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
@@ -29863,12 +30487,237 @@
             "kind": "heuristic"
           }
         ],
-        "failure_class": "env_mismatch",
-        "message": "verifier rejection",
+        "expected_state": {
+          "notes": [
+            "Expected proof: type check",
+            "R0: must be a valid, non-scalar pointer type"
+          ]
+        },
+        "failure_class": "source_bug",
+        "message": "required proof never established",
         "metadata": {
-          "cross_analysis_class": null,
-          "help": "Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
+          "active_atoms": [
+            {
+              "backward_slice": {
+                "control_deps": [
+                  8,
+                  12
+                ],
+                "criterion_insn": 9,
+                "criterion_register": "R0",
+                "data_deps": [
+                  9,
+                  12
+                ],
+                "full_slice": [
+                  8,
+                  9,
+                  12
+                ]
+              },
+              "carrier_lifecycles": {
+                "R0": {
+                  "carrier": {
+                    "is_primary": true,
+                    "pointer_kind": null,
+                    "provenance_id": null,
+                    "register": "R0",
+                    "reject_type": "rdonly_mem",
+                    "role": "base_ptr"
+                  },
+                  "establish_site": null,
+                  "events": [],
+                  "final_gap": 1,
+                  "first_observed_gap": 1,
+                  "loss_site": null,
+                  "proof_status": "never_established"
+                }
+              },
+              "classification": "source_bug",
+              "primary": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R0",
+                "reject_type": "rdonly_mem",
+                "role": "base_ptr"
+              },
+              "reason": null,
+              "reject_evaluation": "unknown",
+              "schema": {
+                "access_size": null,
+                "allow_null": false,
+                "constraint": null,
+                "domain": "pointer_type",
+                "expected_types": [],
+                "helper_arg_index": null,
+                "helper_id": null,
+                "helper_name": null,
+                "pointer_kind": null,
+                "requires_range": false,
+                "requires_writable": false,
+                "role": "base_ptr"
+              }
+            },
+            {
+              "backward_slice": {
+                "control_deps": [
+                  8,
+                  12
+                ],
+                "criterion_insn": 9,
+                "criterion_register": "R0",
+                "data_deps": [
+                  9,
+                  12
+                ],
+                "full_slice": [
+                  8,
+                  9,
+                  12
+                ]
+              },
+              "carrier_lifecycles": {
+                "R0": {
+                  "carrier": {
+                    "is_primary": true,
+                    "pointer_kind": null,
+                    "provenance_id": null,
+                    "register": "R0",
+                    "reject_type": "rdonly_mem",
+                    "role": "base_ptr"
+                  },
+                  "establish_site": null,
+                  "events": [],
+                  "final_gap": 1,
+                  "first_observed_gap": 1,
+                  "loss_site": null,
+                  "proof_status": "never_established"
+                }
+              },
+              "classification": "source_bug",
+              "primary": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R0",
+                "reject_type": "rdonly_mem",
+                "role": "base_ptr"
+              },
+              "reason": null,
+              "reject_evaluation": "unknown",
+              "schema": {
+                "access_size": null,
+                "allow_null": false,
+                "constraint": null,
+                "domain": "null_safety",
+                "expected_types": [],
+                "helper_arg_index": null,
+                "helper_id": null,
+                "helper_name": null,
+                "pointer_kind": null,
+                "requires_range": false,
+                "requires_writable": false,
+                "role": "base_ptr"
+              }
+            },
+            {
+              "backward_slice": {
+                "control_deps": [
+                  8,
+                  12
+                ],
+                "criterion_insn": 9,
+                "criterion_register": "R0",
+                "data_deps": [
+                  9,
+                  12
+                ],
+                "full_slice": [
+                  8,
+                  9,
+                  12
+                ]
+              },
+              "carrier_lifecycles": {
+                "R0": {
+                  "carrier": {
+                    "is_primary": true,
+                    "pointer_kind": null,
+                    "provenance_id": null,
+                    "register": "R0",
+                    "reject_type": "rdonly_mem",
+                    "role": "base_ptr"
+                  },
+                  "establish_site": null,
+                  "events": [],
+                  "final_gap": 1,
+                  "first_observed_gap": 1,
+                  "loss_site": null,
+                  "proof_status": "never_established"
+                }
+              },
+              "classification": "source_bug",
+              "primary": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R0",
+                "reject_type": "rdonly_mem",
+                "role": "base_ptr"
+              },
+              "reason": null,
+              "reject_evaluation": "unknown",
+              "schema": {
+                "access_size": 8,
+                "allow_null": false,
+                "constraint": null,
+                "domain": "memory_bounds",
+                "expected_types": [],
+                "helper_arg_index": null,
+                "helper_id": null,
+                "helper_name": null,
+                "pointer_kind": null,
+                "requires_range": false,
+                "requires_writable": false,
+                "role": "base_ptr"
+              }
+            }
+          ],
+          "backward_slice": {
+            "control_deps": [
+              8,
+              12
+            ],
+            "criterion_insn": 9,
+            "criterion_register": "R0",
+            "data_deps": [
+              9,
+              12
+            ],
+            "full_slice": [
+              8,
+              9,
+              12
+            ]
+          },
+          "causal_chain": [
+            {
+              "insn_idx": 8,
+              "reason": "control_dep: if r0 == 0x0 goto pc+1"
+            },
+            {
+              "insn_idx": 12,
+              "reason": "data_dep: w0 = 0"
+            }
+          ],
+          "cross_analysis_class": "source_bug",
+          "help": "Add masking or explicit casts.",
           "note": "Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
+          "obligation": {
+            "required": "R0: must be a valid, non-scalar pointer type",
+            "type": "type_check"
+          },
           "proof_spans": [
             {
               "insn_range": [
@@ -29884,9 +30733,9 @@
               "state_change": "R0: rdonly_mem"
             }
           ],
-          "proof_status": "unknown"
+          "proof_status": "never_established"
         },
-        "missing_obligation": "manual analysis required to identify the missing proof obligation",
+        "missing_obligation": "R0: must be a valid, non-scalar pointer type",
         "observed_state": {
           "notes": [
             "Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
@@ -29907,24 +30756,24 @@
           "instruction_index": 8
         }
       },
-      "diagnostic_text": "error[BPFIX-E021]: env_mismatch \u2014 verifier rejection\n  \u250c\u2500 iters_looping.c\n  \u2502\n101 \u2502     asm volatile (\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R0: rdonly_mem\n    \u2502\n  = note: Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22\n  = help: Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
-      "error_id": "BPFIX-E021",
+      "diagnostic_text": "error[BPFIX-E005]: source_bug \u2014 required proof never established\n  \u250c\u2500 iters_looping.c\n  \u2502\n101 \u2502     asm volatile (\n    \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n    \u2502     R0: rdonly_mem\n    \u2502\n  = note: Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22\n  = help: Add masking or explicit casts.",
+      "error_id": "BPFIX-E005",
       "exception": null,
       "has_btf_file_line": true,
       "has_proof_established_span": false,
       "has_proof_lost_span": false,
       "has_rejected_span": true,
-      "headline": "verifier rejection",
+      "headline": "required proof never established",
       "log_has_source_locations": true,
       "num_spans": 1,
-      "output_text_length": 355,
-      "proof_status": "unknown",
+      "output_text_length": 316,
+      "proof_status": "never_established",
       "skip_reason": null,
       "skipped": false,
       "source": "selftests",
       "source_dir": "kernel_selftests",
       "success": true,
-      "taxonomy_class": "env_mismatch",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 2240
     },
     {
@@ -31703,6 +32552,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -31765,6 +32615,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -31827,6 +32678,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -32143,6 +32995,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -32200,6 +33053,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -32257,6 +33111,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -32314,6 +33169,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -32373,6 +33229,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -32800,6 +33657,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -32855,6 +33713,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -32910,6 +33769,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -33126,6 +33986,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -33183,6 +34044,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -33240,6 +34102,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -33439,6 +34302,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -33496,6 +34360,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -33553,6 +34418,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -34435,6 +35301,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4,
+                  "first_observed_gap": 4,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -34694,6 +35561,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 31,
+                  "first_observed_gap": 28,
                   "loss_site": null,
                   "proof_status": "never_established"
                 },
@@ -34709,6 +35577,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 27,
+                  "first_observed_gap": 27,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -35063,6 +35932,14 @@
                   38
                 ]
               },
+              "carrier": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": 0,
+                "register": "R0",
+                "reject_type": "inv",
+                "role": "offset_scalar"
+              },
               "carrier_lifecycles": {
                 "R0": {
                   "carrier": {
@@ -35085,11 +35962,20 @@
                     }
                   ],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 0,
                   "loss_site": 22,
                   "proof_status": "never_established"
                 }
               },
-              "classification": "source_bug",
+              "classification": "established_then_lost",
+              "loss": {
+                "gap_after": 4611686018427387904,
+                "gap_before": 0,
+                "insn_idx": 22,
+                "kind": "loss",
+                "reason": "OpcodeCondition[scalar_bound] violated on R0 (type=inv): required=scalar must have bounded unsigned range",
+                "trace_pos": 3
+              },
               "primary": {
                 "is_primary": true,
                 "pointer_kind": null,
@@ -35098,7 +35984,7 @@
                 "reject_type": "inv",
                 "role": "offset_scalar"
               },
-              "reason": null,
+              "reason": "vacuous_establishment",
               "reject_evaluation": "violated",
               "schema": {
                 "access_size": null,
@@ -35329,7 +36215,7 @@
               "reason": "data_dep: r0 s>>= 32"
             }
           ],
-          "cross_analysis_class": "source_bug",
+          "cross_analysis_class": "established_then_lost",
           "help": "Add masking or explicit casts.",
           "note": "The required scalar bound proof was never established.",
           "obligation": {
@@ -35565,6 +36451,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 91,
+                  "first_observed_gap": 91,
                   "loss_site": null,
                   "proof_status": "never_established"
                 },
@@ -35580,6 +36467,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 95,
+                  "first_observed_gap": 91,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -36073,6 +36961,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 },
@@ -36088,6 +36977,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 2,
+                  "first_observed_gap": 2,
                   "loss_site": null,
                   "proof_status": "never_established"
                 },
@@ -36103,6 +36993,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -36738,6 +37629,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -36797,6 +37689,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -36854,6 +37747,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -36911,6 +37805,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -36970,6 +37865,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -37180,6 +38076,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -37241,6 +38138,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -37302,6 +38200,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -37755,6 +38654,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -37814,6 +38714,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -37873,6 +38774,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -38119,6 +39021,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -38214,6 +39117,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -38431,13 +39335,13 @@
     {
       "case_id": "stackoverflow-72575736",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-72575736.yaml",
-      "compression_ratio": 0.1074564904997605,
+      "compression_ratio": 0.08701900047900367,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "REWRITE_POINTER_ARITH",
+            "action": "ADD_BOUNDS_GUARD",
             "patch_hint": "Insert a guard using `data_end`.",
-            "rationale": "A verifier-visible proof existed earlier but was lost before the rejected instruction."
+            "rationale": "source bug blocks the required bounds check proof."
           }
         ],
         "confidence": 0.9,
@@ -38484,10 +39388,6 @@
             "kind": "abstract_state"
           },
           {
-            "detail": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
-            "kind": "heuristic"
-          },
-          {
             "detail": "ret=-1 os error=Permission denied (os error 13): 0: (61) r6 = *(u32 *)(r1 +4)",
             "kind": "heuristic"
           },
@@ -38497,6 +39397,10 @@
           },
           {
             "detail": "2: (bf) r1 = r7",
+            "kind": "heuristic"
+          },
+          {
+            "detail": "3: (07) r1 += 14",
             "kind": "heuristic"
           }
         ],
@@ -38509,8 +39413,8 @@
             "R1": "pkt(range=34, off=14)"
           }
         },
-        "failure_class": "lowering_artifact",
-        "message": "proof established, then lost before rejection",
+        "failure_class": "source_bug",
+        "message": "established then lost",
         "metadata": {
           "active_atoms": [
             {
@@ -38621,6 +39525,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 15,
+                  "first_observed_gap": 15,
                   "loss_site": null,
                   "proof_status": "never_established"
                 },
@@ -38636,6 +39541,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 2,
+                  "first_observed_gap": 2,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -38921,7 +39827,6 @@
           ],
           "cross_analysis_class": "source_bug",
           "help": "Insert a guard using `data_end`.",
-          "note": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
           "obligation": {
             "required": "R1: off + 1 <= range",
             "type": "bounds_check"
@@ -38973,7 +39878,6 @@
         "observed_state": {
           "notes": [
             "branch join loses the earlier refinement",
-            "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
             "invalid access to packet, off=14 size=1, R1(id=2,off=14,r=13)"
           ],
           "registers": {
@@ -38991,24 +39895,24 @@
           "instruction_index": 39
         }
       },
-      "diagnostic_text": "error[BPFIX-E001]: lowering_artifact \u2014 proof established, then lost before rejection\n  \u250c\u2500 <bytecode>\n  \u2502\n12 \u2502     if r2 > r6 goto pc+35\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R1: pkt(range=14, off=14) \u2192 pkt(range=34, off=14)\n   \u2502\n28 \u2502     if r7 > r1 goto pc+19\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: branch join loses the earlier refinement\n   \u2502     R1: pkt(range=34, off=14) \u2192 pkt(range=0, off=14)\n   \u2502\n39 \u2502     r3 = *(u8 *)(r1 +0)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R1: pkt(range=13, off=14)\n   \u2502\n  = note: A verifier-visible proof existed earlier but was lost before the rejected instruction.\n  = help: Insert a guard using `data_end`.",
+      "diagnostic_text": "error[BPFIX-E001]: source_bug \u2014 established then lost\n  \u250c\u2500 <bytecode>\n  \u2502\n12 \u2502     if r2 > r6 goto pc+35\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R1: pkt(range=14, off=14) \u2192 pkt(range=34, off=14)\n   \u2502\n28 \u2502     if r7 > r1 goto pc+19\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: branch join loses the earlier refinement\n   \u2502     R1: pkt(range=34, off=14) \u2192 pkt(range=0, off=14)\n   \u2502\n39 \u2502     r3 = *(u8 *)(r1 +0)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R1: pkt(range=13, off=14)\n   \u2502\n  = help: Insert a guard using `data_end`.",
       "error_id": "BPFIX-E001",
       "exception": null,
       "has_btf_file_line": false,
       "has_proof_established_span": true,
       "has_proof_lost_span": true,
       "has_rejected_span": true,
-      "headline": "proof established, then lost before rejection",
+      "headline": "established then lost",
       "log_has_source_locations": false,
       "num_spans": 3,
-      "output_text_length": 673,
+      "output_text_length": 545,
       "proof_status": "established_then_lost",
       "skip_reason": null,
       "skipped": false,
       "source": "stackoverflow",
       "source_dir": "stackoverflow",
       "success": true,
-      "taxonomy_class": "lowering_artifact",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 6263
     },
     {
@@ -39222,6 +40126,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -39277,6 +40182,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -39332,6 +40238,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -39562,6 +40469,7 @@
                     }
                   ],
                   "final_gap": 0,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "established_but_insufficient"
                 }
@@ -39649,6 +40557,7 @@
                     }
                   ],
                   "final_gap": 0,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "established_but_insufficient"
                 }
@@ -39727,6 +40636,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -40049,6 +40959,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -40154,6 +41065,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 7022364297878730084,
+                  "first_observed_gap": 7022364297878730084,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -40488,6 +41400,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -40543,6 +41456,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -40653,11 +41567,11 @@
     {
       "case_id": "stackoverflow-75294010",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-75294010.yaml",
-      "compression_ratio": 0.27240773286467485,
+      "compression_ratio": 0.27709431751611013,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "REWRITE_POINTER_ARITH",
+            "action": "UNKNOWN",
             "patch_hint": "Re-derive the pointer from a verified base immediately before dereference.",
             "rationale": "The required type check proof was never established."
           }
@@ -40721,8 +41635,8 @@
             "R2: must be a valid, non-null, writable pointer type"
           ]
         },
-        "failure_class": "lowering_artifact",
-        "message": "never established",
+        "failure_class": "source_bug",
+        "message": "required proof never established",
         "metadata": {
           "active_atoms": [
             {
@@ -40750,6 +41664,14 @@
                   11
                 ]
               },
+              "carrier": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R2",
+                "reject_type": "inv",
+                "role": "base_ptr"
+              },
               "carrier_lifecycles": {
                 "R2": {
                   "carrier": {
@@ -40772,11 +41694,20 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 0,
                   "loss_site": 10,
                   "proof_status": "never_established"
                 }
               },
-              "classification": "source_bug",
+              "classification": "established_then_lost",
+              "loss": {
+                "gap_after": 1,
+                "gap_before": 0,
+                "insn_idx": 10,
+                "kind": "loss",
+                "reason": "OpcodeCondition[pointer_type] violated on R2 (type=inv, umax=4): required=must be a valid pointer type",
+                "trace_pos": 9
+              },
               "primary": {
                 "is_primary": true,
                 "pointer_kind": null,
@@ -40785,7 +41716,7 @@
                 "reject_type": "inv",
                 "role": "base_ptr"
               },
-              "reason": null,
+              "reason": "vacuous_establishment",
               "reject_evaluation": "violated",
               "schema": {
                 "access_size": null,
@@ -40827,6 +41758,14 @@
                   11
                 ]
               },
+              "carrier": {
+                "is_primary": true,
+                "pointer_kind": null,
+                "provenance_id": null,
+                "register": "R2",
+                "reject_type": "inv",
+                "role": "base_ptr"
+              },
               "carrier_lifecycles": {
                 "R2": {
                   "carrier": {
@@ -40849,11 +41788,20 @@
                     }
                   ],
                   "final_gap": 1,
+                  "first_observed_gap": 0,
                   "loss_site": 10,
                   "proof_status": "never_established"
                 }
               },
-              "classification": "source_bug",
+              "classification": "established_then_lost",
+              "loss": {
+                "gap_after": 1,
+                "gap_before": 0,
+                "insn_idx": 10,
+                "kind": "loss",
+                "reason": "OpcodeCondition[null_safety] violated on R2 (type=inv, umax=4): required=must not be nullable at use site",
+                "trace_pos": 9
+              },
               "primary": {
                 "is_primary": true,
                 "pointer_kind": null,
@@ -40862,7 +41810,7 @@
                 "reject_type": "inv",
                 "role": "base_ptr"
               },
-              "reason": null,
+              "reason": "vacuous_establishment",
               "reject_evaluation": "unknown",
               "schema": {
                 "access_size": null,
@@ -40917,6 +41865,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -40985,6 +41934,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -41125,24 +42075,24 @@
           "instruction_index": 9
         }
       },
-      "diagnostic_text": "error[BPFIX-E011]: lowering_artifact \u2014 never established\n  \u250c\u2500 <source>\n  \u2502\n9 \u2502     event->attr.fd = ctx->fd;\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n  \u2502     R2: scalar(4)\n  \u2502\n9 \u2502     event->attr.fd = ctx->fd;\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502     R2: scalar(4)\n  \u2502\n  = note: The required type check proof was never established.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
+      "diagnostic_text": "error[BPFIX-E011]: source_bug \u2014 required proof never established\n  \u250c\u2500 <source>\n  \u2502\n9 \u2502     event->attr.fd = ctx->fd;\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n  \u2502     R2: scalar(4)\n  \u2502\n9 \u2502     event->attr.fd = ctx->fd;\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502     R2: scalar(4)\n  \u2502\n  = note: The required type check proof was never established.\n  = help: Re-derive the pointer from a verified base immediately before dereference.",
       "error_id": "BPFIX-E011",
       "exception": null,
       "has_btf_file_line": false,
       "has_proof_established_span": false,
       "has_proof_lost_span": true,
       "has_rejected_span": true,
-      "headline": "never established",
+      "headline": "required proof never established",
       "log_has_source_locations": false,
       "num_spans": 2,
-      "output_text_length": 465,
+      "output_text_length": 473,
       "proof_status": "never_established",
       "skip_reason": null,
       "skipped": false,
       "source": "stackoverflow",
       "source_dir": "stackoverflow",
       "success": true,
-      "taxonomy_class": "lowering_artifact",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 1707
     },
     {
@@ -41365,6 +42315,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -41423,6 +42374,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -41481,6 +42433,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -41600,13 +42553,13 @@
     {
       "case_id": "stackoverflow-75643912",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-75643912.yaml",
-      "compression_ratio": 0.1592646147490188,
+      "compression_ratio": 0.13282379673621153,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "REWRITE_POINTER_ARITH",
+            "action": "ADD_BOUNDS_GUARD",
             "patch_hint": "Insert a guard using `data_end`.",
-            "rationale": "A verifier-visible proof existed earlier but was lost before the rejected instruction."
+            "rationale": "source bug blocks the required bounds check proof."
           }
         ],
         "confidence": 0.9,
@@ -41653,10 +42606,6 @@
             "kind": "abstract_state"
           },
           {
-            "detail": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
-            "kind": "heuristic"
-          },
-          {
             "detail": "0: R1=ctx(off=0,imm=0) R10=fp0",
             "kind": "heuristic"
           },
@@ -41666,6 +42615,10 @@
           },
           {
             "detail": "1: (61) r2 = *(u32 *)(r1 +80)         ; R1=ctx(off=0,imm=0) R2_w=pkt_end(off=0,imm=0)",
+            "kind": "heuristic"
+          },
+          {
+            "detail": "2: (61) r1 = *(u32 *)(r1 +76)         ; R1_w=pkt(off=0,r=0,imm=0)",
             "kind": "heuristic"
           }
         ],
@@ -41678,8 +42631,8 @@
             "R4": "pkt(range=34, off=14)"
           }
         },
-        "failure_class": "lowering_artifact",
-        "message": "proof established, then lost before rejection",
+        "failure_class": "source_bug",
+        "message": "established then lost",
         "metadata": {
           "active_atoms": [
             {
@@ -41786,6 +42739,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 15,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 },
@@ -41801,6 +42755,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 15,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -42050,7 +43005,6 @@
           ],
           "cross_analysis_class": "source_bug",
           "help": "Insert a guard using `data_end`.",
-          "note": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
           "obligation": {
             "required": "R4: off + 1 <= range",
             "type": "bounds_check"
@@ -42102,7 +43056,6 @@
         "observed_state": {
           "notes": [
             "verifier-visible bounds were lost",
-            "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
             "invalid access to packet, off=14 size=1, R4(id=3,off=14,r=14)"
           ],
           "registers": {
@@ -42120,24 +43073,24 @@
           "instruction_index": 36
         }
       },
-      "diagnostic_text": "error[BPFIX-E001]: lowering_artifact \u2014 proof established, then lost before rejection\n  \u250c\u2500 <source>\n  \u2502\n20 \u2502     __u8 *tcp_data = (__u8 *) tcp_hdr + 4 * tcp_hdr->doff;\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R4: pkt(range=0, off=14) \u2192 pkt(range=34, off=14)\n   \u2502\n20 \u2502     __u8 *tcp_data = (__u8 *) tcp_hdr + 4 * tcp_hdr->doff;\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n   \u2502     R4: pkt(range=34, off=14) \u2192 pkt(range=0, off=14)\n   \u2502\n36 \u2502     if (tcp_data[i] == ' ') {\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R4: pkt(range=14, off=14)\n   \u2502\n  = note: A verifier-visible proof existed earlier but was lost before the rejected instruction.\n  = help: Insert a guard using `data_end`.",
+      "diagnostic_text": "error[BPFIX-E001]: source_bug \u2014 established then lost\n  \u250c\u2500 <source>\n  \u2502\n20 \u2502     __u8 *tcp_data = (__u8 *) tcp_hdr + 4 * tcp_hdr->doff;\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R4: pkt(range=0, off=14) \u2192 pkt(range=34, off=14)\n   \u2502\n20 \u2502     __u8 *tcp_data = (__u8 *) tcp_hdr + 4 * tcp_hdr->doff;\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n   \u2502     R4: pkt(range=34, off=14) \u2192 pkt(range=0, off=14)\n   \u2502\n36 \u2502     if (tcp_data[i] == ' ') {\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R4: pkt(range=14, off=14)\n   \u2502\n  = help: Insert a guard using `data_end`.",
       "error_id": "BPFIX-E001",
       "exception": null,
       "has_btf_file_line": false,
       "has_proof_established_span": true,
       "has_proof_lost_span": true,
       "has_rejected_span": true,
-      "headline": "proof established, then lost before rejection",
+      "headline": "established then lost",
       "log_has_source_locations": false,
       "num_spans": 3,
-      "output_text_length": 771,
+      "output_text_length": 643,
       "proof_status": "established_then_lost",
       "skip_reason": null,
       "skipped": false,
       "source": "stackoverflow",
       "source_dir": "stackoverflow",
       "success": true,
-      "taxonomy_class": "lowering_artifact",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 4841
     },
     {
@@ -42363,6 +43316,7 @@
                     }
                   ],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "established_but_insufficient"
                 }
@@ -42457,6 +43411,7 @@
                     }
                   ],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "established_but_insufficient"
                 }
@@ -42534,6 +43489,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -43023,13 +43979,13 @@
     {
       "case_id": "stackoverflow-76637174",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-76637174.yaml",
-      "compression_ratio": 0.13345971563981043,
+      "compression_ratio": 0.10919431279620853,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "REWRITE_POINTER_ARITH",
+            "action": "ADD_BOUNDS_GUARD",
             "patch_hint": "Insert a guard using `data_end`.",
-            "rationale": "A verifier-visible proof existed earlier but was lost before the rejected instruction."
+            "rationale": "source bug blocks the required bounds check proof."
           }
         ],
         "confidence": 0.9,
@@ -43076,10 +44032,6 @@
             "kind": "abstract_state"
           },
           {
-            "detail": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
-            "kind": "heuristic"
-          },
-          {
             "detail": "0: R1=ctx(off=0,imm=0) R10=fp0",
             "kind": "heuristic"
           },
@@ -43089,6 +44041,10 @@
           },
           {
             "detail": "1: (61) r1 = *(u32 *)(r1 +4)          ; R1_w=pkt_end(off=0,imm=0)",
+            "kind": "heuristic"
+          },
+          {
+            "detail": "2: (bf) r3 = r2                       ; R2_w=pkt(off=0,r=0,imm=0) R3_w=pkt(off=0,r=0,imm=0)",
             "kind": "heuristic"
           }
         ],
@@ -43101,8 +44057,8 @@
             "R0": "pkt(range=54, off=0)"
           }
         },
-        "failure_class": "lowering_artifact",
-        "message": "proof established, then lost before rejection",
+        "failure_class": "source_bug",
+        "message": "established then lost",
         "metadata": {
           "active_atoms": [
             {
@@ -43229,6 +44185,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -43546,7 +44503,6 @@
           ],
           "cross_analysis_class": "source_bug",
           "help": "Insert a guard using `data_end`.",
-          "note": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
           "obligation": {
             "required": "R0: off + 1 <= range",
             "type": "bounds_check"
@@ -43598,7 +44554,6 @@
         "observed_state": {
           "notes": [
             "verifier-visible bounds were lost",
-            "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
             "invalid access to packet, off=0 size=1, R0(id=3,off=0,r=0)"
           ],
           "registers": {
@@ -43616,24 +44571,24 @@
           "instruction_index": 54
         }
       },
-      "diagnostic_text": "error[BPFIX-E001]: lowering_artifact \u2014 proof established, then lost before rejection\n  \u250c\u2500 <source>\n  \u2502\n41 \u2502     if (tcph->dest != 4420)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R0: scalar(unbounded) \u2192 pkt(range=54, off=0)\n   \u2502\n41 \u2502     if (tcph->dest != 4420)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n   \u2502     R0: pkt(range=54, off=0) \u2192 pkt(range=0, off=0)\n   \u2502\n54 \u2502     if (*((uint8_t*)(data+i)) == 0 && !found) {\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R0: pkt(range=0, off=0)\n   \u2502\n  = note: A verifier-visible proof existed earlier but was lost before the rejected instruction.\n  = help: Insert a guard using `data_end`.",
+      "diagnostic_text": "error[BPFIX-E001]: source_bug \u2014 established then lost\n  \u250c\u2500 <source>\n  \u2502\n41 \u2502     if (tcph->dest != 4420)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R0: scalar(unbounded) \u2192 pkt(range=54, off=0)\n   \u2502\n41 \u2502     if (tcph->dest != 4420)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: verifier-visible bounds were lost\n   \u2502     R0: pkt(range=54, off=0) \u2192 pkt(range=0, off=0)\n   \u2502\n54 \u2502     if (*((uint8_t*)(data+i)) == 0 && !found) {\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R0: pkt(range=0, off=0)\n   \u2502\n  = help: Insert a guard using `data_end`.",
       "error_id": "BPFIX-E001",
       "exception": null,
       "has_btf_file_line": false,
       "has_proof_established_span": true,
       "has_proof_lost_span": true,
       "has_rejected_span": true,
-      "headline": "proof established, then lost before rejection",
+      "headline": "established then lost",
       "log_has_source_locations": false,
       "num_spans": 3,
-      "output_text_length": 704,
+      "output_text_length": 576,
       "proof_status": "established_then_lost",
       "skip_reason": null,
       "skipped": false,
       "source": "stackoverflow",
       "source_dir": "stackoverflow",
       "success": true,
-      "taxonomy_class": "lowering_artifact",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 5275
     },
     {
@@ -43726,6 +44681,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -43781,6 +44737,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -43836,6 +44793,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -44319,6 +45277,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -44374,6 +45333,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -44429,6 +45389,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -44759,6 +45720,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -44830,6 +45792,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -44902,6 +45865,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -44970,6 +45934,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -45038,6 +46003,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -45323,6 +46289,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -45415,6 +46382,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -45504,6 +46472,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -45592,6 +46561,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -45680,6 +46650,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -46046,13 +47017,13 @@
     {
       "case_id": "stackoverflow-78236856",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-78236856.yaml",
-      "compression_ratio": 0.1603624901497242,
+      "compression_ratio": 0.1099290780141844,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "REWRITE_POINTER_ARITH",
+            "action": "ADD_BOUNDS_GUARD",
             "patch_hint": "Add explicit bounds checks around computed offsets and sizes.",
-            "rationale": "A verifier-visible proof existed earlier but was lost before the rejected instruction."
+            "rationale": "source bug blocks the required type check proof."
           }
         ],
         "confidence": 0.9,
@@ -46077,10 +47048,6 @@
             "detail": "R2: map_value(off=0)",
             "instruction_index": 9,
             "kind": "abstract_state"
-          },
-          {
-            "detail": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
-            "kind": "heuristic"
           },
           {
             "detail": "reg type unsupported for arg#0 function hello#4",
@@ -46109,8 +47076,8 @@
             "R2: must be a valid, non-null, writable pointer type"
           ]
         },
-        "failure_class": "lowering_artifact",
-        "message": "proof established, then lost before rejection",
+        "failure_class": "source_bug",
+        "message": "established then lost",
         "metadata": {
           "active_atoms": [
             {
@@ -46152,6 +47119,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -46221,6 +47189,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -46305,7 +47274,6 @@
           ],
           "cross_analysis_class": "source_bug",
           "help": "Add explicit bounds checks around computed offsets and sizes.",
-          "note": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
           "obligation": {
             "required": "R2: must be a valid, non-null, writable pointer type",
             "type": "type_check"
@@ -46343,7 +47311,6 @@
         "missing_obligation": "R2: must be a valid, non-null, writable pointer type",
         "observed_state": {
           "notes": [
-            "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
             "invalid access to map value, value_size=20 off=76 size=4"
           ],
           "registers": {
@@ -46361,24 +47328,24 @@
           "instruction_index": 9
         }
       },
-      "diagnostic_text": "error[BPFIX-E017]: lowering_artifact \u2014 proof established, then lost before rejection\n  \u250c\u2500 <source>\n  \u2502\n9 \u2502     a[i] = b;\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n  \u2502\n9 \u2502     a[i] = b;\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502     R2: map_value(off=0)\n  \u2502\n  = note: A verifier-visible proof existed earlier but was lost before the rejected instruction.\n  = help: Add explicit bounds checks around computed offsets and sizes.",
+      "diagnostic_text": "error[BPFIX-E017]: source_bug \u2014 established then lost\n  \u250c\u2500 <source>\n  \u2502\n9 \u2502     a[i] = b;\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n  \u2502\n9 \u2502     a[i] = b;\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502     R2: map_value(off=0)\n  \u2502\n  = help: Add explicit bounds checks around computed offsets and sizes.",
       "error_id": "BPFIX-E017",
       "exception": null,
       "has_btf_file_line": false,
       "has_proof_established_span": true,
       "has_proof_lost_span": false,
       "has_rejected_span": true,
-      "headline": "proof established, then lost before rejection",
+      "headline": "established then lost",
       "log_has_source_locations": false,
       "num_spans": 2,
-      "output_text_length": 407,
+      "output_text_length": 279,
       "proof_status": "established_then_lost",
       "skip_reason": null,
       "skipped": false,
       "source": "stackoverflow",
       "source_dir": "stackoverflow",
       "success": true,
-      "taxonomy_class": "lowering_artifact",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 2538
     },
     {
@@ -46475,6 +47442,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -46530,6 +47498,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -46585,6 +47554,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -47332,6 +48302,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -47515,6 +48486,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -47699,6 +48671,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -47883,6 +48856,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -48064,6 +49038,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -49027,6 +50002,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4,
+                  "first_observed_gap": 4,
                   "loss_site": null,
                   "proof_status": "never_established"
                 },
@@ -49042,6 +50018,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 2,
+                  "first_observed_gap": 2,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -49514,13 +50491,13 @@
     {
       "case_id": "stackoverflow-79530762",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-79530762.yaml",
-      "compression_ratio": 0.14189680232558138,
+      "compression_ratio": 0.11864098837209303,
       "diagnostic_json": {
         "candidate_repairs": [
           {
-            "action": "REWRITE_POINTER_ARITH",
+            "action": "ADD_BOUNDS_GUARD",
             "patch_hint": "Insert a guard using `data_end`.",
-            "rationale": "A verifier-visible proof existed earlier but was lost before the rejected instruction."
+            "rationale": "source bug blocks the required bounds check proof."
           }
         ],
         "confidence": 0.9,
@@ -49567,10 +50544,6 @@
             "kind": "abstract_state"
           },
           {
-            "detail": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
-            "kind": "heuristic"
-          },
-          {
             "detail": "btf_vmlinux is malformed",
             "kind": "kernel_capability"
           },
@@ -49580,6 +50553,10 @@
           },
           {
             "detail": "2: (61) r2 = *(u32 *)(r7 +4)",
+            "kind": "heuristic"
+          },
+          {
+            "detail": "3: (61) r1 = *(u32 *)(r7 +0)",
             "kind": "heuristic"
           }
         ],
@@ -49592,8 +50569,8 @@
             "R4": "pkt(range=39, off=34)"
           }
         },
-        "failure_class": "lowering_artifact",
-        "message": "proof established, then lost before rejection",
+        "failure_class": "source_bug",
+        "message": "established then lost",
         "metadata": {
           "active_atoms": [
             {
@@ -49691,6 +50668,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 },
@@ -49706,6 +50684,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -49831,6 +50810,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 },
@@ -49846,6 +50826,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -50094,7 +51075,6 @@
           ],
           "cross_analysis_class": "source_bug",
           "help": "Insert a guard using `data_end`.",
-          "note": "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
           "obligation": {
             "required": "R4: off + 1 <= range",
             "type": "bounds_check"
@@ -50146,7 +51126,6 @@
         "observed_state": {
           "notes": [
             "branch join loses the earlier refinement",
-            "A verifier-visible proof existed earlier but was lost before the rejected instruction.",
             "invalid access to packet, off=33 size=1, R4(id=10,off=33,r=0)"
           ],
           "registers": {
@@ -50164,24 +51143,24 @@
           "instruction_index": 33
         }
       },
-      "diagnostic_text": "error[BPFIX-E001]: lowering_artifact \u2014 proof established, then lost before rejection\n  \u250c\u2500 <source>\n  \u2502\n16 \u2502     if (options_len > 0 && (void *)(options + 4) < data_end)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R4: pkt(range=34, off=34) \u2192 pkt(range=39, off=34)\n   \u2502\n22 \u2502     if (option_type == MY_OPTION_TYPE)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: branch join loses the earlier refinement\n   \u2502     R4: pkt(range=39, off=34) \u2192 scalar(31)\n   \u2502\n33 \u2502     data_bytes[i + option_length] = data_bytes[i];\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R4: pkt(range=34, off=34)\n   \u2502\n  = note: A verifier-visible proof existed earlier but was lost before the rejected instruction.\n  = help: Insert a guard using `data_end`.",
+      "diagnostic_text": "error[BPFIX-E001]: source_bug \u2014 established then lost\n  \u250c\u2500 <source>\n  \u2502\n16 \u2502     if (options_len > 0 && (void *)(options + 4) < data_end)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof established\n   \u2502     R4: pkt(range=34, off=34) \u2192 pkt(range=39, off=34)\n   \u2502\n22 \u2502     if (option_type == MY_OPTION_TYPE)\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 proof lost: branch join loses the earlier refinement\n   \u2502     R4: pkt(range=39, off=34) \u2192 scalar(31)\n   \u2502\n33 \u2502     data_bytes[i + option_length] = data_bytes[i];\n   \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n   \u2502     R4: pkt(range=34, off=34)\n   \u2502\n  = help: Insert a guard using `data_end`.",
       "error_id": "BPFIX-E001",
       "exception": null,
       "has_btf_file_line": false,
       "has_proof_established_span": true,
       "has_proof_lost_span": true,
       "has_rejected_span": true,
-      "headline": "proof established, then lost before rejection",
+      "headline": "established then lost",
       "log_has_source_locations": false,
       "num_spans": 3,
-      "output_text_length": 781,
+      "output_text_length": 653,
       "proof_status": "established_then_lost",
       "skip_reason": null,
       "skipped": false,
       "source": "stackoverflow",
       "source_dir": "stackoverflow",
       "success": true,
-      "taxonomy_class": "lowering_artifact",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 5504
     },
     {
@@ -50594,6 +51573,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -50933,6 +51913,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -51102,6 +52083,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -51275,6 +52257,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -51437,6 +52420,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -51594,6 +52578,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -53472,6 +54457,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 1,
+                  "first_observed_gap": 1,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -53529,6 +54515,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 4611686018427387904,
+                  "first_observed_gap": 4611686018427387904,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -53586,6 +54573,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": 0,
+                  "first_observed_gap": 0,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -54150,6 +55138,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -54207,6 +55196,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -54264,6 +55254,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -54321,6 +55312,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -54378,6 +55370,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -54590,18 +55583,11 @@
     {
       "case_id": "github-cilium-cilium-35182",
       "case_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/github_issues/github-cilium-cilium-35182.yaml",
-      "compression_ratio": 0.6316639741518578,
+      "compression_ratio": 0.48465266558966075,
       "diagnostic_json": {
-        "candidate_repairs": [
-          {
-            "action": "GATE_BY_KERNEL_CAPABILITY",
-            "patch_hint": "Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
-            "rationale": "Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22"
-          }
-        ],
-        "confidence": 0.3,
+        "candidate_repairs": [],
         "diagnostic_version": "0.1.0",
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-UNKNOWN",
         "evidence": [
           {
             "detail": "arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
@@ -54630,11 +55616,10 @@
             "kind": "heuristic"
           }
         ],
-        "failure_class": "env_mismatch",
+        "failure_class": "source_bug",
         "message": "verifier rejection",
         "metadata": {
           "cross_analysis_class": null,
-          "help": "Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
           "note": "Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
           "proof_spans": [
             {
@@ -54672,8 +55657,8 @@
           "instruction_index": 0
         }
       },
-      "diagnostic_text": "error[BPFIX-E021]: env_mismatch \u2014 verifier rejection\n  \u250c\u2500 <bytecode>\n  \u2502\n0 \u2502     bpf_test.go:174: verifier error: load program: invalid argument:\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502\n  = note: Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22\n  = help: Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.",
-      "error_id": "BPFIX-E021",
+      "diagnostic_text": "error[BPFIX-UNKNOWN]: source_bug \u2014 verifier rejection\n  \u250c\u2500 <bytecode>\n  \u2502\n0 \u2502     bpf_test.go:174: verifier error: load program: invalid argument:\n  \u2502     \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 rejected\n  \u2502\n  = note: Verifier reject line: arg#0 reference type('UNKNOWN ') size cannot be determined: -22",
+      "error_id": "BPFIX-UNKNOWN",
       "exception": null,
       "has_btf_file_line": false,
       "has_proof_established_span": false,
@@ -54682,14 +55667,14 @@
       "headline": "verifier rejection",
       "log_has_source_locations": false,
       "num_spans": 1,
-      "output_text_length": 391,
+      "output_text_length": 300,
       "proof_status": "unknown",
       "skip_reason": null,
       "skipped": false,
       "source": "github",
       "source_dir": "github_issues",
       "success": true,
-      "taxonomy_class": "env_mismatch",
+      "taxonomy_class": "source_bug",
       "verifier_log_chars": 619
     },
     {
@@ -54850,6 +55835,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -54978,6 +55964,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -55106,6 +56093,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -55578,6 +56566,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -55700,6 +56689,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -55822,6 +56812,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -56353,6 +57344,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -56437,6 +57429,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -56521,6 +57514,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -56778,6 +57772,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -56833,6 +57828,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }
@@ -56888,6 +57884,7 @@
                   "establish_site": null,
                   "events": [],
                   "final_gap": null,
+                  "first_observed_gap": null,
                   "loss_site": null,
                   "proof_status": "never_established"
                 }

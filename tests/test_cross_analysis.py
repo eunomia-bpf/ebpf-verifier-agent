@@ -9,7 +9,11 @@ from interface.extractor.engine.opcode_safety import (
     infer_safety_schemas,
     instantiate_primary_carrier,
 )
-from interface.extractor.pipeline import classify_atom, compute_forward_dominators
+from interface.extractor.pipeline import (
+    _override_taxonomy_class,
+    classify_atom,
+    compute_forward_dominators,
+)
 from interface.extractor.trace_parser import RegisterState, TracedInstruction
 
 
@@ -171,7 +175,90 @@ def test_counterexample_e_vacuous():
 
     assert lifecycle.proof_status == "never_established"
     assert lifecycle.establish_site is None
+    assert lifecycle.first_observed_gap == 0
     assert lifecycle.events == []
+
+
+def test_counterexample_e_vacuous_loss_on_chain_classifies_established_then_lost():
+    instructions = [
+        _insn(
+            0,
+            "r0 = r1",
+            opcode_hex="bf",
+            post={"R0": _rs("pkt", id=1, off=0, range=8)},
+        ),
+        _insn(
+            1,
+            "r0 += r2",
+            opcode_hex="0f",
+            pre={"R0": _rs("pkt", id=1, off=0, range=8)},
+            post={"R0": _rs("pkt", id=1, off=8, range=8)},
+        ),
+        _insn(
+            2,
+            "r6 = *(u8 *)(r0 +0)",
+            opcode_hex="71",
+            pre={"R0": _rs("pkt", id=1, off=8, range=8)},
+            is_error=True,
+        ),
+    ]
+
+    error_insn = instructions[-1]
+    schema = _memory_bounds_schema(error_insn)
+    cfg = build_cfg(instructions)
+    dominators = compute_forward_dominators(cfg)
+    result = classify_atom(schema, error_insn, instructions, cfg, dominators)
+
+    assert result.classification == "established_then_lost"
+    assert result.reason == "vacuous_establishment"
+    assert result.loss is not None
+    assert result.loss.insn_idx == 1
+
+
+def test_counterexample_e_vacuous_loss_off_chain_classifies_lowering_artifact():
+    instructions = [
+        _insn(
+            0,
+            "r5 = r1",
+            opcode_hex="bf",
+            post={"R5": _rs("pkt", id=1, off=0, range=8)},
+        ),
+        _insn(
+            1,
+            "r5 += r2",
+            opcode_hex="0f",
+            pre={"R5": _rs("pkt", id=1, off=0, range=8)},
+            post={"R5": _rs("pkt", id=1, off=8, range=8)},
+        ),
+        _insn(
+            2,
+            "r6 = *(u8 *)(r0 +0)",
+            opcode_hex="71",
+            pre={
+                "R0": _rs("pkt", id=1, off=8, range=8),
+                "R5": _rs("pkt", id=1, off=8, range=8),
+            },
+            is_error=True,
+        ),
+    ]
+
+    error_insn = instructions[-1]
+    schema = _memory_bounds_schema(error_insn)
+    cfg = build_cfg(instructions)
+    dominators = compute_forward_dominators(cfg)
+    result = classify_atom(schema, error_insn, instructions, cfg, dominators)
+
+    assert result.classification == "lowering_artifact"
+    assert result.reason == "vacuous_establishment"
+    assert result.loss is not None
+    assert result.loss.insn_idx == 1
+
+
+def test_cross_analysis_taxonomy_override_mapping():
+    assert _override_taxonomy_class("source_bug", "established_then_lost") == "lowering_artifact"
+    assert _override_taxonomy_class("source_bug", "lowering_artifact") == "lowering_artifact"
+    assert _override_taxonomy_class("lowering_artifact", "source_bug") == "source_bug"
+    assert _override_taxonomy_class("source_bug", "ambiguous") == "source_bug"
 
 
 def test_schema_inference_ldx():

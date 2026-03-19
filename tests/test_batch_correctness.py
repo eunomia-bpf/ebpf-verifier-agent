@@ -162,6 +162,7 @@ def test_known_answer_lowering_artifact_70750259() -> None:
     assert data["error_id"] == "BPFIX-E005"
     assert data["failure_class"] == "lowering_artifact"
     assert meta["proof_status"] == "never_established"
+    assert meta["cross_analysis_class"] == "established_then_lost"
     assert "proof_lost" in span_roles
     assert "rejected" in span_roles
 
