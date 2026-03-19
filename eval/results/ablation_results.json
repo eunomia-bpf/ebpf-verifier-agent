@@ -1574,12 +1574,14 @@
     {
       "case_id": "kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84",
       "bpfix": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
-        "spans": 1,
-        "cross_class": null,
-        "active_atom_classes": [],
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "established_then_lost",
+        "spans": 2,
+        "cross_class": "source_bug",
+        "active_atom_classes": [
+          "source_bug"
+        ],
         "has_carrier_establishment": false
       },
       "baseline": {
@@ -1589,33 +1591,35 @@
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
-        "spans": 1
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "established_but_insufficient",
+        "spans": 2
       },
       "ablation_b": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "never_established",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "never_established",
         "spans": 1
       }
     },
     {
       "case_id": "kernel-selftest-dynptr-fail-data-slice-out-of-bounds-ringbuf-raw-tp-83139460",
       "bpfix": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
-        "spans": 1,
-        "cross_class": null,
-        "active_atom_classes": [],
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "established_then_lost",
+        "spans": 2,
+        "cross_class": "source_bug",
+        "active_atom_classes": [
+          "source_bug"
+        ],
         "has_carrier_establishment": false
       },
       "baseline": {
@@ -1625,21 +1629,21 @@
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
-        "spans": 1
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "established_but_insufficient",
+        "spans": 2
       },
       "ablation_b": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "never_established",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "never_established",
         "spans": 1
       }
     },
@@ -1647,7 +1651,7 @@
       "case_id": "kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-tc-b903ac49",
       "bpfix": {
         "error_id": "BPFIX-E005",
-        "taxonomy": "lowering_artifact",
+        "taxonomy": "source_bug",
         "proof_status": "established_then_lost",
         "spans": 2,
         "cross_class": "source_bug",
@@ -3148,13 +3152,13 @@
       "case_id": "kernel-selftest-dynptr-fail-skb-invalid-data-slice1-tc-0b35a757",
       "bpfix": {
         "error_id": "BPFIX-E011",
-        "taxonomy": "lowering_artifact",
+        "taxonomy": "source_bug",
         "proof_status": "never_established",
         "spans": 2,
         "cross_class": "source_bug",
         "active_atom_classes": [
-          "source_bug",
-          "source_bug",
+          "established_then_lost",
+          "established_then_lost",
           "source_bug"
         ],
         "has_carrier_establishment": false
@@ -3227,13 +3231,13 @@
       "case_id": "kernel-selftest-dynptr-fail-skb-invalid-data-slice3-tc-a15c4322",
       "bpfix": {
         "error_id": "BPFIX-E011",
-        "taxonomy": "lowering_artifact",
+        "taxonomy": "source_bug",
         "proof_status": "never_established",
         "spans": 2,
         "cross_class": "source_bug",
         "active_atom_classes": [
-          "source_bug",
-          "source_bug",
+          "established_then_lost",
+          "established_then_lost",
           "source_bug"
         ],
         "has_carrier_establishment": false
@@ -3307,8 +3311,8 @@
     {
       "case_id": "kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9",
       "bpfix": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
+        "error_id": "BPFIX-E019",
+        "taxonomy": "source_bug",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -3322,20 +3326,20 @@
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
+        "error_id": "BPFIX-E019",
+        "taxonomy": "source_bug",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
+        "error_id": "BPFIX-E019",
+        "taxonomy": "source_bug",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
+        "error_id": "BPFIX-E019",
+        "taxonomy": "source_bug",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -3488,13 +3492,13 @@
       "case_id": "kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5",
       "bpfix": {
         "error_id": "BPFIX-E011",
-        "taxonomy": "lowering_artifact",
+        "taxonomy": "source_bug",
         "proof_status": "never_established",
         "spans": 2,
         "cross_class": "source_bug",
         "active_atom_classes": [
-          "source_bug",
-          "source_bug",
+          "established_then_lost",
+          "established_then_lost",
           "source_bug"
         ],
         "has_carrier_establishment": false
@@ -5818,12 +5822,16 @@
     {
       "case_id": "kernel-selftest-iters-looping-wrong-sized-read-fail-raw-tp-b975c554",
       "bpfix": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "never_established",
         "spans": 1,
-        "cross_class": null,
-        "active_atom_classes": [],
+        "cross_class": "source_bug",
+        "active_atom_classes": [
+          "source_bug",
+          "source_bug",
+          "source_bug"
+        ],
         "has_carrier_establishment": false
       },
       "baseline": {
@@ -5833,21 +5841,21 @@
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "never_established",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "never_established",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
-        "proof_status": "unknown",
+        "error_id": "BPFIX-E005",
+        "taxonomy": "source_bug",
+        "proof_status": "never_established",
         "spans": 1
       }
     },
@@ -6964,9 +6972,9 @@
         "taxonomy": "lowering_artifact",
         "proof_status": "never_established",
         "spans": 2,
-        "cross_class": "source_bug",
+        "cross_class": "established_then_lost",
         "active_atom_classes": [
-          "source_bug"
+          "established_then_lost"
         ],
         "has_carrier_establishment": false
       },
@@ -6990,7 +6998,7 @@
       },
       "ablation_c": {
         "error_id": "BPFIX-E005",
-        "taxonomy": "source_bug",
+        "taxonomy": "lowering_artifact",
         "proof_status": "never_established",
         "spans": 2
       }
@@ -7385,7 +7393,7 @@
       "case_id": "stackoverflow-72575736",
       "bpfix": {
         "error_id": "BPFIX-E001",
-        "taxonomy": "lowering_artifact",
+        "taxonomy": "source_bug",
         "proof_status": "established_then_lost",
         "spans": 3,
         "cross_class": "source_bug",
@@ -7617,13 +7625,13 @@
       "case_id": "stackoverflow-75294010",
       "bpfix": {
         "error_id": "BPFIX-E011",
-        "taxonomy": "lowering_artifact",
+        "taxonomy": "source_bug",
         "proof_status": "never_established",
         "spans": 2,
         "cross_class": "source_bug",
         "active_atom_classes": [
-          "source_bug",
-          "source_bug",
+          "established_then_lost",
+          "established_then_lost",
           "source_bug",
           "source_bug"
         ],
@@ -7734,7 +7742,7 @@
       "case_id": "stackoverflow-75643912",
       "bpfix": {
         "error_id": "BPFIX-E001",
-        "taxonomy": "lowering_artifact",
+        "taxonomy": "source_bug",
         "proof_status": "established_then_lost",
         "spans": 3,
         "cross_class": "source_bug",
@@ -7920,7 +7928,7 @@
       "case_id": "stackoverflow-76637174",
       "bpfix": {
         "error_id": "BPFIX-E001",
-        "taxonomy": "lowering_artifact",
+        "taxonomy": "source_bug",
         "proof_status": "established_then_lost",
         "spans": 3,
         "cross_class": "source_bug",
@@ -8302,7 +8310,7 @@
       "case_id": "stackoverflow-78236856",
       "bpfix": {
         "error_id": "BPFIX-E017",
-        "taxonomy": "lowering_artifact",
+        "taxonomy": "source_bug",
         "proof_status": "established_then_lost",
         "spans": 2,
         "cross_class": "source_bug",
@@ -8677,7 +8685,7 @@
       "case_id": "stackoverflow-79530762",
       "bpfix": {
         "error_id": "BPFIX-E001",
-        "taxonomy": "lowering_artifact",
+        "taxonomy": "source_bug",
         "proof_status": "established_then_lost",
         "spans": 3,
         "cross_class": "source_bug",
@@ -9417,8 +9425,8 @@
     {
       "case_id": "github-cilium-cilium-35182",
       "bpfix": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
+        "error_id": "BPFIX-UNKNOWN",
+        "taxonomy": "source_bug",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -9432,20 +9440,20 @@
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
+        "error_id": "BPFIX-UNKNOWN",
+        "taxonomy": "source_bug",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
+        "error_id": "BPFIX-UNKNOWN",
+        "taxonomy": "source_bug",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-E021",
-        "taxonomy": "env_mismatch",
+        "error_id": "BPFIX-UNKNOWN",
+        "taxonomy": "source_bug",
         "proof_status": "unknown",
         "spans": 1
       }

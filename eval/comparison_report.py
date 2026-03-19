@@ -544,6 +544,15 @@ def render_multi_span_analysis(
     multi_any_carrier_establish = count_has_carrier_establishment(results, multi_span_ids)
     missing_cross = len(eligible_case_ids) - concrete_cross
 
+    if established_then_lost == 0:
+        carrier_interpretation = (
+            f"- Interpretation: carrier establishment is rare and `cross_analysis_class == established_then_lost` never occurs in this run, so the {len(multi_span_ids)} multi-span outputs mostly come from the legacy proof-loss path rather than cross-analysis success cases."
+        )
+    else:
+        carrier_interpretation = (
+            f"- Interpretation: carrier establishment is rare, but `cross_analysis_class == established_then_lost` does appear in `{established_then_lost}/{len(eligible_case_ids)}` eligible cases, so only a small slice of the {len(multi_span_ids)} multi-span outputs come from explicit cross-analysis loss tracking."
+        )
+
     lines = [
         f"- Multi-span BPFix outputs: `{len(multi_span_ids)}/{len(eligible_case_ids)}`",
         f"- Concrete `cross_analysis_class` present: `{concrete_cross}/{len(eligible_case_ids)}`",
@@ -554,7 +563,7 @@ def render_multi_span_analysis(
         f"- Any carrier establishment: `{any_carrier_establish}/{len(eligible_case_ids)}`",
         f"- Multi-span cases with any carrier establishment: `{multi_any_carrier_establish}/{len(multi_span_ids)}`" if multi_span_ids else "- Multi-span cases with any carrier establishment: `0/0`",
         "- Interpretation: most eligible cases never emit a concrete `cross_analysis_class`, so the pipeline usually falls back to a single rejected span instead of a richer carrier story.",
-        "- Interpretation: carrier establishment is rare and `cross_analysis_class == established_then_lost` never occurs in this run, so the 19 multi-span outputs mostly come from the legacy proof-loss path rather than cross-analysis success cases.",
+        carrier_interpretation,
         "",
         "### cross_analysis_class Distribution",
         "",
