@@ -1,8 +1,16 @@
 # Fix-Type Evaluation
 
-- Generated at: `2026-03-19T19:30:49+00:00`
+- Generated at: `2026-03-19T20:04:13+00:00`
 - Evaluated labeled cases: `136`
 - Fix-type exact match: `99/136 (72.8%)`
+
+## By Source Stratum
+
+| Stratum | Cases | Fix-Type Match |
+| --- | --- | --- |
+| Selftest Cases | 85 | 76/85 (89.4%) |
+| Real-World Cases | 51 | 23/51 (45.1%) |
+| All Cases | 136 | 99/136 (72.8%) |
 
 ## Match Rate By Taxonomy Class
 

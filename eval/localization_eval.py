@@ -17,6 +17,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from eval.ground_truth import DEFAULT_GROUND_TRUTH_PATH, GroundTruthLabel, load_ground_truth_labels
+from eval.source_strata import STRATUM_LABELS, STRATUM_ORDER, case_source
 
 
 DEFAULT_BATCH_RESULTS_PATH = ROOT / "eval" / "results" / "batch_diagnostic_results.json"
@@ -245,6 +246,22 @@ def summarize_subset(rows: list[CaseLocalizationResult]) -> dict[str, Any]:
     }
 
 
+def summarize_source_strata(rows: list[CaseLocalizationResult]) -> dict[str, dict[str, Any]]:
+    subsets = {
+        "selftest_cases": [row for row in rows if case_source(row.case_id) == "kernel_selftests"],
+        "real_world_cases": [
+            row
+            for row in rows
+            if case_source(row.case_id) in {"stackoverflow", "github_issues"}
+        ],
+        "all_cases": list(rows),
+    }
+    return {
+        stratum: summarize_subset(subset_rows)
+        for stratum, subset_rows in subsets.items()
+    }
+
+
 def ordered_items(summary: dict[str, dict[str, Any]], order: tuple[str, ...]) -> list[tuple[str, dict[str, Any]]]:
     keys = [key for key in order if key in summary]
     keys.extend(sorted(key for key in summary if key not in keys))
@@ -319,6 +336,25 @@ def build_breakdown_rows(summary_by_key: dict[str, dict[str, Any]], order: tuple
     return rows
 
 
+def build_source_stratum_rows(by_source_stratum: dict[str, dict[str, Any]]) -> list[list[str]]:
+    rows: list[list[str]] = []
+    for stratum in STRATUM_ORDER:
+        summary = by_source_stratum[stratum]
+        rows.append(
+            [
+                STRATUM_LABELS[stratum],
+                str(summary["cases"]),
+                metric_str(summary["coverage"]["proof_lost"]),
+                metric_str(summary["coverage"]["any_earlier_span"]),
+                metric_str(summary["end_to_end"]["exact"]),
+                metric_str(summary["end_to_end"]["within_5"]),
+                metric_str(summary["end_to_end"]["within_10"]),
+                metric_str(summary["rejected_exact_match"]),
+            ]
+        )
+    return rows
+
+
 def build_nonzero_focus_rows(rows: list[CaseLocalizationResult]) -> list[list[str]]:
     table_rows: list[list[str]] = []
     for row in sorted(rows, key=lambda item: (item.distance_insns, item.case_id), reverse=True):
@@ -346,6 +382,7 @@ def build_report(
     overall: dict[str, Any],
     has_proof_lost: dict[str, Any],
     no_proof_lost: dict[str, Any],
+    by_source_stratum: dict[str, dict[str, Any]],
     by_taxonomy: dict[str, dict[str, Any]],
     by_distance_bucket: dict[str, dict[str, Any]],
     nonzero_distance_summary: dict[str, Any],
@@ -391,6 +428,22 @@ def build_report(
                 f"No proof_lost (N={no_proof_lost['cases']})",
             ],
             build_conditional_accuracy_rows(overall, has_proof_lost, no_proof_lost),
+        ),
+        "",
+        "## By Source Stratum",
+        "",
+        markdown_table(
+            [
+                "Stratum",
+                "Cases",
+                "Proof-lost Coverage",
+                "Any-earlier Coverage",
+                "Exact (all cases)",
+                "Within 5 (all cases)",
+                "Within 10 (all cases)",
+                "Rejected Exact",
+            ],
+            build_source_stratum_rows(by_source_stratum),
         ),
         "",
         "## By Taxonomy Class",
@@ -487,6 +540,7 @@ def main() -> int:
     no_proof_lost_rows = [row for row in results if not row.proof_lost_span_present]
     has_proof_lost = summarize_subset(has_proof_lost_rows)
     no_proof_lost = summarize_subset(no_proof_lost_rows)
+    by_source_stratum = summarize_source_strata(results)
 
     by_taxonomy: dict[str, dict[str, Any]] = {}
     for taxonomy_class in sorted({row.taxonomy_class for row in results}):
@@ -514,6 +568,7 @@ def main() -> int:
         "overall": overall,
         "has_proof_lost": has_proof_lost,
         "no_proof_lost": no_proof_lost,
+        "by_source_stratum": by_source_stratum,
         "conditional_accuracy_table": {
             "all_cases": overall,
             "has_proof_lost": has_proof_lost,
@@ -538,6 +593,7 @@ def main() -> int:
             overall=overall,
             has_proof_lost=has_proof_lost,
             no_proof_lost=no_proof_lost,
+            by_source_stratum=by_source_stratum,
             by_taxonomy=by_taxonomy,
             by_distance_bucket=by_distance_bucket,
             nonzero_distance_summary=nonzero_distance_summary,

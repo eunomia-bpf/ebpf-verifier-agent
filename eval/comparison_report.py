@@ -14,10 +14,19 @@ from typing import Any
 
 import yaml
 
-
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+
+from eval.source_strata import (
+    SOURCE_LABELS,
+    SOURCE_ORDER,
+    STRATUM_LABELS,
+    STRATUM_ORDER,
+    real_world_case_ids,
+    selftest_case_ids,
+    source_case_ids,
+)
 
 
 DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "ablation_results.json"
@@ -34,12 +43,6 @@ METHOD_LABELS = {
     "ablation_c": "Ablation C",
 }
 CLASS_ORDER = ("source_bug", "lowering_artifact", "env_mismatch", "verifier_limit")
-SOURCE_ORDER = ("kernel_selftests", "stackoverflow", "github_issues")
-SOURCE_LABELS = {
-    "kernel_selftests": "kernel_selftests",
-    "stackoverflow": "stackoverflow",
-    "github_issues": "github_issues",
-}
 
 
 @dataclass(slots=True)
@@ -201,18 +204,15 @@ def labels_by_case(path: Path) -> dict[str, str]:
     return result
 
 
-def manifest_case_sets(path: Path) -> tuple[list[str], list[str]]:
+def manifest_case_ids(path: Path) -> list[str]:
     manifest = list(load_yaml(path) or [])
     eligible_ids: list[str] = []
-    core_ids: list[str] = []
     for row in manifest:
         if not isinstance(row, dict) or not row.get("eligible"):
             continue
         case_id = str(row.get("case_id"))
         eligible_ids.append(case_id)
-        if row.get("eval_split") == "core":
-            core_ids.append(case_id)
-    return eligible_ids, core_ids
+    return eligible_ids
 
 
 def results_by_case(path: Path) -> dict[str, dict[str, Any]]:
@@ -248,24 +248,6 @@ def shared_case_ids(
     return [case_id for case_id in case_ids if case_id in results and case_id in labels]
 
 
-def case_source(case_id: str) -> str | None:
-    if case_id.startswith("kernel-selftest"):
-        return "kernel_selftests"
-    if case_id.startswith("stackoverflow"):
-        return "stackoverflow"
-    if case_id.startswith("github"):
-        return "github_issues"
-    return None
-
-
-def source_case_ids(case_ids: list[str], source: str) -> list[str]:
-    return [case_id for case_id in case_ids if case_source(case_id) == source]
-
-
-def external_case_ids(case_ids: list[str]) -> list[str]:
-    return [case_id for case_id in case_ids if case_source(case_id) in {"stackoverflow", "github_issues"}]
-
-
 def markdown_table(headers: list[str], rows: list[list[str]]) -> list[str]:
     lines = [
         "| " + " | ".join(headers) + " |",
@@ -291,30 +273,6 @@ def build_overall_rows(
                 ratio_str(summary.correct, summary.total),
                 pct(summary.accuracy),
                 f"{pct(summary.ci_low)} to {pct(summary.ci_high)}",
-            ]
-        )
-    return rows
-
-
-def build_core_delta_rows(
-    results: dict[str, dict[str, Any]],
-    truth: dict[str, str],
-    full_case_ids: list[str],
-    core_case_ids: list[str],
-) -> list[list[str]]:
-    rows: list[list[str]] = []
-    for method in METHOD_ORDER:
-        predictions_full = method_predictions(results, method, full_case_ids)
-        predictions_core = method_predictions(results, method, core_case_ids)
-        full_summary = accuracy_summary(predictions_full, truth, full_case_ids)
-        core_summary = accuracy_summary(predictions_core, truth, core_case_ids)
-        delta = core_summary.accuracy - full_summary.accuracy
-        rows.append(
-            [
-                METHOD_LABELS[method],
-                pct(full_summary.accuracy),
-                pct(core_summary.accuracy),
-                f"{delta * 100.0:+.1f}pp",
             ]
         )
     return rows
@@ -450,15 +408,18 @@ def render_inputs_section(
     results_path: Path,
     labels_path: Path,
     manifest_path: Path,
-    full_ids: list[str],
-    core_ids: list[str],
+    case_ids: list[str],
 ) -> list[str]:
+    selftest_ids = selftest_case_ids(case_ids)
+    real_world_ids = real_world_case_ids(case_ids)
     lines = [
         f"- Results: `{display_path(results_path)}`",
         f"- Labels: `{display_path(labels_path)}`",
         f"- Manifest: `{display_path(manifest_path)}`",
-        f"- Eligible cases in comparison run: `{len(full_ids)}`",
-        f"- Core-set eligible cases: `{len(core_ids)}`",
+        f"- Labeled comparison cases: `{len(case_ids)}`",
+        f"- Selftest cases: `{len(selftest_ids)}`",
+        f"- Real-world cases: `{len(real_world_ids)}`",
+        "- `All Cases` combines the selftest and real-world strata.",
     ]
     if labels_path == DEFAULT_LABELS_PATH and ARCHIVE_LABELS_PATH.exists():
         lines.append(
@@ -672,82 +633,44 @@ def render_multi_span_analysis(
     return lines
 
 
-def render_core_delta_section(
-    results: dict[str, dict[str, Any]],
-    truth: dict[str, str],
-    full_case_ids: list[str],
-    core_case_ids: list[str],
-) -> list[str]:
-    if not full_case_ids or not core_case_ids:
-        return ["Insufficient labeled cases to compare the full corpus against the core subset."]
-    bpfix_full = accuracy_summary(method_predictions(results, "bpfix", full_case_ids), truth, full_case_ids)
-    bpfix_core = accuracy_summary(method_predictions(results, "bpfix", core_case_ids), truth, core_case_ids)
-    baseline_full = accuracy_summary(method_predictions(results, "baseline", full_case_ids), truth, full_case_ids)
-    baseline_core = accuracy_summary(method_predictions(results, "baseline", core_case_ids), truth, core_case_ids)
-    lines = [
-        f"- BPFix improves from `{pct(bpfix_full.accuracy)}` to `{pct(bpfix_core.accuracy)}` on the core subset (`+{(bpfix_core.accuracy - bpfix_full.accuracy) * 100.0:.1f}pp`).",
-        f"- Baseline also improves from `{pct(baseline_full.accuracy)}` to `{pct(baseline_core.accuracy)}` (`+{(baseline_core.accuracy - baseline_full.accuracy) * 100.0:.1f}pp`), so the BPFix-vs-baseline gap is nearly unchanged on trace-rich cases.",
-        "",
-    ]
-    lines.extend(markdown_table(
-        ["Method", "Full Accuracy", "Core Accuracy", "Core - Full"],
-        build_core_delta_rows(results, truth, full_case_ids, core_case_ids),
-    ))
-    return lines
-
-
 def main() -> int:
     args = parse_args()
     labels_path = resolve_labels_path(args.labels_path)
 
     results = results_by_case(args.results_path)
     labels = labels_by_case(labels_path)
-    eligible_ids, core_ids = manifest_case_sets(args.manifest_path)
+    eligible_ids = manifest_case_ids(args.manifest_path)
 
     full_case_ids = shared_case_ids(results, labels, eligible_ids)
-    core_case_ids = shared_case_ids(results, labels, core_ids)
     eligible_case_ids_with_results = [case_id for case_id in eligible_ids if case_id in results]
 
-    lines = ["# Comparison Report 2026-03-18", ""]
+    lines = ["# Comparison Report", ""]
     append_section(
         lines,
         "Inputs",
-        render_inputs_section(args.results_path, labels_path, args.manifest_path, full_case_ids, core_case_ids),
+        render_inputs_section(args.results_path, labels_path, args.manifest_path, full_case_ids),
     )
-    append_section(
-        lines,
-        "Full Corpus",
-        render_dataset_section("Full Corpus", results, labels, full_case_ids),
-    )
-    append_section(
-        lines,
-        "Core Set",
-        render_dataset_section("Core Set", results, labels, core_case_ids),
-    )
-    append_section(
-        lines,
-        "Source-Stratified Results",
-        render_source_stratified_section(results, labels, full_case_ids),
-    )
-    append_section(
-        lines,
-        "External Cases Only",
-        [
-            "- This slice excludes `kernel_selftests` and keeps only Stack Overflow + GitHub cases.",
-            "",
-            *render_dataset_section(
-                "External Cases Only",
-                results,
-                labels,
-                external_case_ids(full_case_ids),
-            ),
-        ],
-    )
-    append_section(
-        lines,
-        "Core vs Full Delta",
-        render_core_delta_section(results, labels, full_case_ids, core_case_ids),
-    )
+    for stratum in STRATUM_ORDER:
+        case_ids = {
+            "selftest_cases": selftest_case_ids(full_case_ids),
+            "real_world_cases": real_world_case_ids(full_case_ids),
+            "all_cases": full_case_ids,
+        }[stratum]
+        lead_in = {
+            "selftest_cases": "- `kernel_selftests` cases only.",
+            "real_world_cases": "- Stack Overflow + GitHub issue cases only.",
+            "all_cases": "- Combined selftest + real-world comparison slice.",
+        }[stratum]
+        append_section(
+            lines,
+            STRATUM_LABELS[stratum],
+            [
+                lead_in,
+                "",
+                *render_dataset_section(STRATUM_LABELS[stratum], results, labels, case_ids),
+            ],
+        )
+    append_section(lines, "Source-Stratified Results", render_source_stratified_section(results, labels, full_case_ids))
 
     if ARCHIVE_LABELS_PATH.exists():
         old_labels = labels_by_case(ARCHIVE_LABELS_PATH)

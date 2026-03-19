@@ -346,6 +346,215 @@
       }
     }
   },
+  "by_source_stratum": {
+    "all_cases": {
+      "accuracy_given_proof_lost": {
+        "cases": 12,
+        "exact": {
+          "count": 3,
+          "denominator": 12,
+          "rate": 0.25
+        },
+        "mean_abs_error": 6.33,
+        "within_10": {
+          "count": 9,
+          "denominator": 12,
+          "rate": 0.75
+        },
+        "within_5": {
+          "count": 8,
+          "denominator": 12,
+          "rate": 0.6666666666666666
+        }
+      },
+      "cases": 136,
+      "coverage": {
+        "any_earlier_span": {
+          "count": 14,
+          "denominator": 136,
+          "rate": 0.10294117647058823
+        },
+        "proof_established": {
+          "count": 12,
+          "denominator": 136,
+          "rate": 0.08823529411764706
+        },
+        "proof_lost": {
+          "count": 12,
+          "denominator": 136,
+          "rate": 0.08823529411764706
+        },
+        "rejected": {
+          "count": 136,
+          "denominator": 136,
+          "rate": 1.0
+        }
+      },
+      "end_to_end": {
+        "exact": {
+          "count": 3,
+          "denominator": 136,
+          "rate": 0.022058823529411766
+        },
+        "within_10": {
+          "count": 9,
+          "denominator": 136,
+          "rate": 0.0661764705882353
+        },
+        "within_5": {
+          "count": 8,
+          "denominator": 136,
+          "rate": 0.058823529411764705
+        }
+      },
+      "gt_root_after_reject": 1,
+      "gt_root_before_reject": 17,
+      "mean_rejected_abs_error": 0.75,
+      "rejected_exact_match": {
+        "count": 114,
+        "denominator": 136,
+        "rate": 0.8382352941176471
+      }
+    },
+    "real_world_cases": {
+      "accuracy_given_proof_lost": {
+        "cases": 7,
+        "exact": {
+          "count": 2,
+          "denominator": 7,
+          "rate": 0.2857142857142857
+        },
+        "mean_abs_error": 3.71,
+        "within_10": {
+          "count": 6,
+          "denominator": 7,
+          "rate": 0.8571428571428571
+        },
+        "within_5": {
+          "count": 6,
+          "denominator": 7,
+          "rate": 0.8571428571428571
+        }
+      },
+      "cases": 51,
+      "coverage": {
+        "any_earlier_span": {
+          "count": 8,
+          "denominator": 51,
+          "rate": 0.1568627450980392
+        },
+        "proof_established": {
+          "count": 10,
+          "denominator": 51,
+          "rate": 0.19607843137254902
+        },
+        "proof_lost": {
+          "count": 7,
+          "denominator": 51,
+          "rate": 0.13725490196078433
+        },
+        "rejected": {
+          "count": 51,
+          "denominator": 51,
+          "rate": 1.0
+        }
+      },
+      "end_to_end": {
+        "exact": {
+          "count": 2,
+          "denominator": 51,
+          "rate": 0.0392156862745098
+        },
+        "within_10": {
+          "count": 6,
+          "denominator": 51,
+          "rate": 0.11764705882352941
+        },
+        "within_5": {
+          "count": 6,
+          "denominator": 51,
+          "rate": 0.11764705882352941
+        }
+      },
+      "gt_root_after_reject": 1,
+      "gt_root_before_reject": 15,
+      "mean_rejected_abs_error": 1.22,
+      "rejected_exact_match": {
+        "count": 39,
+        "denominator": 51,
+        "rate": 0.7647058823529411
+      }
+    },
+    "selftest_cases": {
+      "accuracy_given_proof_lost": {
+        "cases": 5,
+        "exact": {
+          "count": 1,
+          "denominator": 5,
+          "rate": 0.2
+        },
+        "mean_abs_error": 10.0,
+        "within_10": {
+          "count": 3,
+          "denominator": 5,
+          "rate": 0.6
+        },
+        "within_5": {
+          "count": 2,
+          "denominator": 5,
+          "rate": 0.4
+        }
+      },
+      "cases": 85,
+      "coverage": {
+        "any_earlier_span": {
+          "count": 6,
+          "denominator": 85,
+          "rate": 0.07058823529411765
+        },
+        "proof_established": {
+          "count": 2,
+          "denominator": 85,
+          "rate": 0.023529411764705882
+        },
+        "proof_lost": {
+          "count": 5,
+          "denominator": 85,
+          "rate": 0.058823529411764705
+        },
+        "rejected": {
+          "count": 85,
+          "denominator": 85,
+          "rate": 1.0
+        }
+      },
+      "end_to_end": {
+        "exact": {
+          "count": 1,
+          "denominator": 85,
+          "rate": 0.011764705882352941
+        },
+        "within_10": {
+          "count": 3,
+          "denominator": 85,
+          "rate": 0.03529411764705882
+        },
+        "within_5": {
+          "count": 2,
+          "denominator": 85,
+          "rate": 0.023529411764705882
+        }
+      },
+      "gt_root_after_reject": 0,
+      "gt_root_before_reject": 2,
+      "mean_rejected_abs_error": 0.47,
+      "rejected_exact_match": {
+        "count": 75,
+        "denominator": 85,
+        "rate": 0.8823529411764706
+      }
+    }
+  },
   "by_taxonomy_class": {
     "env_mismatch": {
       "accuracy_given_proof_lost": {
@@ -4242,7 +4451,7 @@
       }
     }
   },
-  "generated_at": "2026-03-19T19:31:27+00:00",
+  "generated_at": "2026-03-19T20:04:13+00:00",
   "has_proof_lost": {
     "accuracy_given_proof_lost": {
       "cases": 12,

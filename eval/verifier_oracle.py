@@ -68,7 +68,9 @@ CLANG_FLAGS_UAPI = [
     "-Wno-tautological-compare",
     f"-I/usr/src/linux-headers-{KVER}/include/uapi",
     f"-I/usr/src/linux-headers-{KVER}/arch/x86/include/generated/uapi",
+    f"-I/usr/src/linux-headers-{KVER}/arch/x86/include/generated",
     f"-I/usr/src/linux-headers-{KVER}/arch/x86/include/uapi",
+    f"-I/usr/src/linux-headers-{KVER}/arch/x86/include",
     f"-I/usr/src/linux-headers-{KVER}/include",
     "-I/usr/include",
 ]

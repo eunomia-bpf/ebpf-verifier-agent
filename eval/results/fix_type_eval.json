@@ -33,6 +33,32 @@
       }
     }
   },
+  "by_source_stratum": {
+    "all_cases": {
+      "cases": 136,
+      "fix_type_exact_match": {
+        "count": 99,
+        "denominator": 136,
+        "rate": 0.7279411764705882
+      }
+    },
+    "real_world_cases": {
+      "cases": 51,
+      "fix_type_exact_match": {
+        "count": 23,
+        "denominator": 51,
+        "rate": 0.45098039215686275
+      }
+    },
+    "selftest_cases": {
+      "cases": 85,
+      "fix_type_exact_match": {
+        "count": 76,
+        "denominator": 85,
+        "rate": 0.8941176470588236
+      }
+    }
+  },
   "cases": [
     {
       "bpfix_taxonomy_class": "verifier_limit",
@@ -2099,7 +2125,7 @@
       ]
     ]
   },
-  "generated_at": "2026-03-19T19:30:49+00:00",
+  "generated_at": "2026-03-19T20:04:13+00:00",
   "inputs": {
     "batch_results_path": "/home/yunwei37/workspace/ebpf-verifier-agent/eval/results/batch_diagnostic_results.json",
     "ground_truth_path": "/home/yunwei37/workspace/ebpf-verifier-agent/case_study/ground_truth.yaml"

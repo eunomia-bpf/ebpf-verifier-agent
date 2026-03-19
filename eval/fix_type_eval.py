@@ -18,6 +18,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from eval.ground_truth import DEFAULT_GROUND_TRUTH_PATH, GroundTruthLabel, load_ground_truth_labels
+from eval.source_strata import STRATUM_LABELS, STRATUM_ORDER, case_source
 
 
 DEFAULT_BATCH_RESULTS_PATH = ROOT / "eval" / "results" / "batch_diagnostic_results.json"
@@ -325,6 +326,28 @@ def metric_str(metric: dict[str, Any]) -> str:
     return f"{metric['count']}/{metric['denominator']} ({metric['rate'] * 100.0:.1f}%)"
 
 
+def summarize_source_strata(rows: list[FixTypeCaseResult]) -> dict[str, dict[str, Any]]:
+    subsets = {
+        "selftest_cases": [row for row in rows if case_source(row.case_id) == "kernel_selftests"],
+        "real_world_cases": [
+            row
+            for row in rows
+            if case_source(row.case_id) in {"stackoverflow", "github_issues"}
+        ],
+        "all_cases": list(rows),
+    }
+    return {
+        stratum: {
+            "cases": len(subset_rows),
+            "fix_type_exact_match": metric_entry(
+                sum(row.fix_type_match for row in subset_rows),
+                len(subset_rows),
+            ),
+        }
+        for stratum, subset_rows in subsets.items()
+    }
+
+
 def ordered_labels(rows: list[FixTypeCaseResult]) -> list[str]:
     labels = list(FIX_TYPE_ORDER)
     extras = sorted(
@@ -362,6 +385,7 @@ def build_report(
     *,
     rows: list[FixTypeCaseResult],
     overall: dict[str, Any],
+    by_source_stratum: dict[str, dict[str, Any]],
     by_taxonomy: dict[str, dict[str, Any]],
     labels: list[str],
     matrix: list[list[int]],
@@ -395,6 +419,14 @@ def build_report(
         for label in labels
         if prediction_distribution.get(label, 0)
     ]
+    source_rows = [
+        [
+            STRATUM_LABELS[stratum],
+            str(by_source_stratum[stratum]["cases"]),
+            metric_str(by_source_stratum[stratum]["fix_type_exact_match"]),
+        ]
+        for stratum in STRATUM_ORDER
+    ]
     rule_rows = [
         [rule, str(count)]
         for rule, count in mapping_rule_distribution.most_common()
@@ -407,6 +439,10 @@ def build_report(
             f"- Generated at: `{now_iso()}`",
             f"- Evaluated labeled cases: `{overall['cases']}`",
             f"- Fix-type exact match: `{metric_str(overall['fix_type_exact_match'])}`",
+            "",
+            "## By Source Stratum",
+            "",
+            markdown_table(["Stratum", "Cases", "Fix-Type Match"], source_rows),
             "",
             "## Match Rate By Taxonomy Class",
             "",
@@ -451,6 +487,7 @@ def main() -> int:
         "cases": len(rows),
         "fix_type_exact_match": metric_entry(sum(row.fix_type_match for row in rows), len(rows)),
     }
+    by_source_stratum = summarize_source_strata(rows)
 
     by_taxonomy: dict[str, dict[str, Any]] = {}
     for taxonomy in sorted({row.gt_taxonomy_class for row in rows}):
@@ -472,6 +509,7 @@ def main() -> int:
             "batch_results_path": str(args.batch_results_path),
         },
         "overall": overall,
+        "by_source_stratum": by_source_stratum,
         "by_gt_taxonomy_class": by_taxonomy,
         "prediction_distribution": dict(prediction_distribution),
         "mapping_rule_distribution": dict(mapping_rule_distribution),
@@ -489,6 +527,7 @@ def main() -> int:
         build_report(
             rows=rows,
             overall=overall,
+            by_source_stratum=by_source_stratum,
             by_taxonomy=by_taxonomy,
             labels=labels,
             matrix=matrix,

@@ -1,6 +1,6 @@
 # Localization Evaluation
 
-- Generated at: `2026-03-19T19:31:27+00:00`
+- Generated at: `2026-03-19T20:04:13+00:00`
 - Evaluated non-quarantined ground-truth cases: `136`
 - Cases with `root_cause_insn_idx != rejected_insn_idx`: `18`
 - Earlier-root cases (`root_cause_insn_idx < rejected_insn_idx`): `17`
@@ -33,6 +33,14 @@
 | Exact GT root match | 3/136 (2.2%) | 3/12 (25.0%) | 0/0 (n/a) |
 | Within 5 insns | 8/136 (5.9%) | 8/12 (66.7%) | 0/0 (n/a) |
 | Within 10 insns | 9/136 (6.6%) | 9/12 (75.0%) | 0/0 (n/a) |
+
+## By Source Stratum
+
+| Stratum | Cases | Proof-lost Coverage | Any-earlier Coverage | Exact (all cases) | Within 5 (all cases) | Within 10 (all cases) | Rejected Exact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Selftest Cases | 85 | 5/85 (5.9%) | 6/85 (7.1%) | 1/85 (1.2%) | 2/85 (2.4%) | 3/85 (3.5%) | 75/85 (88.2%) |
+| Real-World Cases | 51 | 7/51 (13.7%) | 8/51 (15.7%) | 2/51 (3.9%) | 6/51 (11.8%) | 6/51 (11.8%) | 39/51 (76.5%) |
+| All Cases | 136 | 12/136 (8.8%) | 14/136 (10.3%) | 3/136 (2.2%) | 8/136 (5.9%) | 9/136 (6.6%) | 114/136 (83.8%) |
 
 ## By Taxonomy Class
 

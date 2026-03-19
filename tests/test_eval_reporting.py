@@ -3,13 +3,11 @@ from __future__ import annotations
 from eval.comparison_report import (
     METHOD_ORDER,
     build_per_class_rows,
-    case_source,
-    external_case_ids,
     macro_f1,
-    source_case_ids,
 )
 from eval.fix_type_eval import classify_fix_type
 from eval.localization_eval import CaseLocalizationResult, summarize_subset
+from eval.source_strata import case_source, real_world_case_ids, source_case_ids
 
 
 def test_comparison_report_source_filters_and_macro_f1_rows() -> None:
@@ -35,7 +33,7 @@ def test_comparison_report_source_filters_and_macro_f1_rows() -> None:
     assert case_source("stackoverflow-1") == "stackoverflow"
     assert case_source("github-demo-1") == "github_issues"
     assert source_case_ids(case_ids, "kernel_selftests") == ["kernel-selftest-demo"]
-    assert external_case_ids(case_ids) == ["stackoverflow-1", "github-demo-1"]
+    assert real_world_case_ids(case_ids) == ["stackoverflow-1", "github-demo-1"]
 
     rows = build_per_class_rows(results, truth, case_ids)
     assert rows[-len(METHOD_ORDER):] == [
