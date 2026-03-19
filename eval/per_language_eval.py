@@ -28,7 +28,7 @@ from pathlib import Path
 # Paths
 # ---------------------------------------------------------------------------
 REPO_ROOT = Path(__file__).resolve().parent.parent
-V4_RESULTS = REPO_ROOT / "eval/results/batch_diagnostic_results_v4.json"
+BATCH_RESULTS = REPO_ROOT / "eval/results/batch_diagnostic_results.json"
 CASES_DIR = REPO_ROOT / "case_study/cases"
 OUT_JSON = REPO_ROOT / "eval/results/per_language_eval.json"
 OUT_MD = REPO_ROOT / "docs/tmp/per-language-eval.md"
@@ -297,8 +297,8 @@ def markdown_report(lang_stats: dict, per_language_cases: dict) -> str:
 # ---------------------------------------------------------------------------
 
 def main():
-    print(f"Loading batch results from {V4_RESULTS} ...")
-    with open(V4_RESULTS) as f:
+    print(f"Loading batch results from {BATCH_RESULTS} ...")
+    with open(BATCH_RESULTS) as f:
         data = json.load(f)
 
     results = data["results"]
@@ -338,7 +338,7 @@ def main():
     # Save JSON
     out_data = {
         "generated_at": "2026-03-12",
-        "source_file": str(V4_RESULTS),
+        "source_file": str(BATCH_RESULTS),
         "language_stats": lang_stats,
         "language_case_counts": {
             lang: len(cases) for lang, cases in per_language_cases.items()

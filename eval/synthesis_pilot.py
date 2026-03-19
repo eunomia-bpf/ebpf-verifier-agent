@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pilot test: proof engine + repair synthesis on lowering_artifact cases.
 
-Uses established_then_lost cases from batch_diagnostic_results_v5.json.
+Uses established_then_lost cases from batch_diagnostic_results.json.
 Tests the full pipeline: trace parse -> predicate inference -> monitoring -> synthesis.
 """
 
@@ -58,7 +58,7 @@ def get_source_code(case_data: dict) -> str:
 def run_pilot(limit: int = 10, compile_only: bool = False) -> None:
     """Run pilot test on established_then_lost cases."""
 
-    results_path = Path(__file__).resolve().parents[1] / "eval/results/batch_diagnostic_results_v5.json"
+    results_path = Path(__file__).resolve().parents[1] / "eval/results/batch_diagnostic_results.json"
     with open(results_path) as f:
         batch_data = json.load(f)
 

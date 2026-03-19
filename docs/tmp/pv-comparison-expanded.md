@@ -14,9 +14,9 @@ This report extends the 30-case manual comparison (Table 5 in the paper) to the 
 | --- | --- | --- |
 | Handles log without crash | 234/262 | 262/262 |
 | Produces recognized output (not 'Error not managed') | 75/262 | 262/262 |
-| Root-cause localization (proof_lost ≠ rejected site) | 0 (architecturally impossible) | 53/262 |
-| Multi-span diagnostic output | 0 (architecturally impossible) | 113/262 |
-| Causal chain (proof_lost + rejected spans) | 0 (architecturally impossible) | 96/262 |
+| Root-cause localization (proof_lost ≠ rejected site) | 0 (architecturally impossible) | 9/262 |
+| Multi-span diagnostic output | 0 (architecturally impossible) | 21/262 |
+| Causal chain (proof_lost + rejected spans) | 0 (architecturally impossible) | 13/262 |
 | BTF source correlation | 0 (no .o files in corpus) | 172/262 |
 | Full trace analysis (register state transitions) | No | Yes |
 | Proof obligation inference | No | Yes |
@@ -26,18 +26,18 @@ This report extends the 30-case manual comparison (Table 5 in the paper) to the 
 
 | Taxonomy | Cases | PV handled | PV crashed | BPFix multi-span | BPFix BTF source | BPFix causal chain | BPFix root cause earlier |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `source_bug` | 127 | 43/127 (33.9%) | 16/127 (12.6%) | 42/127 | 76/127 | 34/127 | 10/127 |
-| `lowering_artifact` | 33 | 5/33 (15.2%) | 8/33 (24.2%) | 24/33 | 20/33 | 21/33 | 15/33 |
-| `verifier_limit` | 20 | 3/20 (15.0%) | 0/20 (0.0%) | 6/20 | 3/20 | 5/20 | 5/20 |
-| `env_mismatch` | 82 | 24/82 (29.3%) | 4/82 (4.9%) | 41/82 | 73/82 | 36/82 | 23/82 |
+| `source_bug` | 220 | 66/220 (30.0%) | 18/220 (8.2%) | 1/220 | 152/220 | 0/220 | 0/220 |
+| `lowering_artifact` | 20 | 5/20 (25.0%) | 10/20 (50.0%) | 20/20 | 8/20 | 13/20 | 9/20 |
+| `verifier_limit` | 5 | 3/5 (60.0%) | 0/5 (0.0%) | 0/5 | 2/5 | 0/5 | 0/5 |
+| `env_mismatch` | 17 | 1/17 (5.9%) | 0/17 (0.0%) | 0/17 | 10/17 | 0/17 | 0/17 |
 
 ## Table 3: Coverage by Corpus Source
 
 | Source | Cases | PV handled | PV crashed | BPFix multi-span | BPFix BTF source | BPFix causal chain |
 | --- | --- | --- | --- | --- | --- | --- |
-| selftests | 171 | 58/171 | 4/171 | 92/171 | 169/171 | 78/171 |
-| stackoverflow | 65 | 15/65 | 23/65 | 15/65 | 1/65 | 13/65 |
-| github | 26 | 2/26 | 1/26 | 6/26 | 2/26 | 5/26 |
+| selftests | 171 | 58/171 | 4/171 | 8/171 | 169/171 | 5/171 |
+| stackoverflow | 65 | 15/65 | 23/65 | 11/65 | 1/65 | 8/65 |
+| github | 26 | 2/26 | 1/26 | 2/26 | 2/26 | 0/26 |
 
 ## Summary Statistics
 
@@ -53,15 +53,15 @@ This report extends the 30-case manual comparison (Table 5 in the paper) to the 
 
 **BPFix** (262 cases, 0 crashes):
 - Crash rate: 0/262 (0.0%)
-- Multi-span diagnostic: 113/262 (43.1%)
+- Multi-span diagnostic: 21/262 (8.0%)
 - BTF source correlation: 172/262 (65.6%)
-- Causal chain (proof_lost + rejected spans): 96/262 (36.6%)
-- Root-cause earlier than rejection site: 53/262 (20.2%)
-- Established-then-lost (non-trivial proof trajectory): 96/262 (36.6%)
+- Causal chain (proof_lost + rejected spans): 13/262 (5.0%)
+- Root-cause earlier than rejection site: 9/262 (3.4%)
+- Established-then-lost (non-trivial proof trajectory): 13/262 (5.0%)
 
 ## Cases Where BPFix Adds Value PV Cannot Provide
 
-**Multi-span output on cases PV does not handle**: 83 cases
+**Multi-span output on cases PV does not handle**: 16 cases
 _(BPFix provides structured multi-span diagnostic where PV outputs 'Error not managed')_
 
 **Causal chain on cases where PV crashed**: 6 cases
@@ -70,10 +70,10 @@ _(BPFix gives root-cause trace where PV throws a Python exception)_
 **BTF source correlation on cases PV leaves unhandled**: 108 cases
 _(BPFix maps failure to source line; PV reports 'Error not managed')_
 
-**Root cause located earlier than rejection site**: 53 cases
+**Root cause located earlier than rejection site**: 9 cases
 _(proof_lost span at an earlier instruction than the final rejected span — PV can only report the final rejection line)_
 
-**Lowering artifact cases where PV crashed**: 8 cases
+**Lowering artifact cases where PV crashed**: 10 cases
 _(Lowering artifacts are the most important class for BPFix; PV crashes on them due to brittle `output_raw[-2]` selection)_
 
 ## Analysis
@@ -86,7 +86,7 @@ BPFix parses the full abstract interpreter trace. When a program is rejected at 
 
 ### Lowering Artifacts: The Sharpest Separation
 
-Of the 33 lowering-artifact cases, PV handled 5 and crashed on 8. BPFix produced a multi-span diagnostic on 24 and found an earlier causal site on 21.
+Of the 20 lowering-artifact cases, PV handled 5 and crashed on 10. BPFix produced a multi-span diagnostic on 20 and found an earlier causal site on 13.
 
 Lowering artifacts are cases where the compiler (Clang/LLVM) or language runtime (Rust/Go BPF libraries) introduces a source-level construct that the verifier rejects due to a mismatch between the source-level proof obligation and the lowered IR. The final error line typically describes a bounds or packet-range violation — exactly the kind of message PV handlers target — but the real fix is a source rewrite or compiler option change, not adding more bounds checks. PV's single-line matching cannot distinguish these cases.
 
@@ -106,8 +106,8 @@ The 30-case manual comparison (paper Table 5) reported:
 
 The full 262-case corpus confirms and strengthens these findings:
 - PV produces recognized output on only 28.6% of cases
-- BPFix provides multi-span output on 43.1% of cases
-- BPFix finds an earlier causal root cause on 20.2% of cases
+- BPFix provides multi-span output on 8.0% of cases
+- BPFix finds an earlier causal root cause on 3.4% of cases
 - PV root-cause localization: 0% (architecturally impossible across all 262 cases)
 
 ## Honest Assessment

@@ -4,7 +4,7 @@
 This script characterizes what Pretty Verifier (PV) CAN and CANNOT do
 based on its architecture (single error-line regex-only), and compares
 against BPFix's full trace analysis on 262 cases from
-eval/results/batch_diagnostic_results_v4.json (BPFix) and
+eval/results/batch_diagnostic_results.json (BPFix) and
 eval/results/pretty_verifier_comparison.json (PV execution results).
 
 Key architectural constraint of Pretty Verifier:
@@ -34,7 +34,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 
-DEFAULT_V4_RESULTS = ROOT / "eval" / "results" / "batch_diagnostic_results_v4.json"
+DEFAULT_BATCH_RESULTS = ROOT / "eval" / "results" / "batch_diagnostic_results.json"
 DEFAULT_PV_RESULTS = ROOT / "eval" / "results" / "pretty_verifier_comparison.json"
 DEFAULT_OUTPUT_JSON = ROOT / "eval" / "results" / "pv_comparison_expanded.json"
 DEFAULT_OUTPUT_MD = ROOT / "docs" / "tmp" / "pv-comparison-expanded.md"
@@ -65,7 +65,7 @@ class CaseRow:
     pv_causal_chain: bool   # structurally impossible for PV
     pv_handler_name: str | None
     pv_error_number: int | None
-    # BPFix columns (from v4 pipeline)
+    # BPFix columns (from batch diagnostic pipeline)
     bpfix_crashed: bool    # always False; 0 crashes on 262 cases
     bpfix_num_spans: int
     bpfix_multi_span: bool
@@ -77,7 +77,7 @@ class CaseRow:
     bpfix_proof_established: bool
 
 
-def load_v4_results(path: Path) -> dict[str, Any]:
+def load_batch_results(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as fh:
         data = json.load(fh)
     return {r["case_id"]: r for r in data["results"] if not r["skipped"]}
@@ -90,18 +90,18 @@ def load_pv_results(path: Path) -> dict[str, Any]:
 
 
 def build_rows(
-    v4_by_id: dict[str, Any],
+    batch_by_id: dict[str, Any],
     pv_by_id: dict[str, Any],
 ) -> list[CaseRow]:
     rows: list[CaseRow] = []
-    for case_id in sorted(v4_by_id):
+    for case_id in sorted(batch_by_id):
         if case_id not in pv_by_id:
             continue
-        v4r = v4_by_id[case_id]
+        batch_result = batch_by_id[case_id]
         pvr = pv_by_id[case_id]
         pv = pvr["pretty_verifier"]
 
-        meta = v4r["diagnostic_json"].get("metadata", {})
+        meta = batch_result["diagnostic_json"].get("metadata", {})
         spans = meta.get("proof_spans", [])
         pl_insns = [s.get("insn_range") for s in spans if s.get("role") == "proof_lost"]
         rj_insns = [s.get("insn_range") for s in spans if s.get("role") == "rejected"]
@@ -112,10 +112,10 @@ def build_rows(
         rows.append(
             CaseRow(
                 case_id=case_id,
-                source=v4r["source"],
-                taxonomy_class=v4r.get("taxonomy_class") or "unclassified",
-                proof_status=v4r["proof_status"],
-                log_chars=v4r["verifier_log_chars"],
+                source=batch_result["source"],
+                taxonomy_class=batch_result.get("taxonomy_class") or "unclassified",
+                proof_status=batch_result["proof_status"],
+                log_chars=batch_result["verifier_log_chars"],
                 pv_status=pv["status"],
                 pv_handled=pv["status"] == "handled",
                 pv_crashed=pv["status"] == "exception",
@@ -126,14 +126,14 @@ def build_rows(
                 pv_handler_name=pv.get("handler_name"),
                 pv_error_number=pv.get("error_number"),
                 bpfix_crashed=False,
-                bpfix_num_spans=v4r["num_spans"],
-                bpfix_multi_span=v4r["num_spans"] > 1,
-                bpfix_btf_source=v4r["has_btf_file_line"],
-                bpfix_causal_chain=v4r["has_proof_lost_span"] and v4r["has_rejected_span"],
+                bpfix_num_spans=batch_result["num_spans"],
+                bpfix_multi_span=batch_result["num_spans"] > 1,
+                bpfix_btf_source=batch_result["has_btf_file_line"],
+                bpfix_causal_chain=batch_result["has_proof_lost_span"] and batch_result["has_rejected_span"],
                 bpfix_root_cause_earlier=root_cause_earlier,
-                bpfix_error_id=v4r.get("error_id"),
-                bpfix_proof_lost=v4r["has_proof_lost_span"],
-                bpfix_proof_established=v4r["has_proof_established_span"],
+                bpfix_error_id=batch_result.get("error_id"),
+                bpfix_proof_lost=batch_result["has_proof_lost_span"],
+                bpfix_proof_established=batch_result["has_proof_established_span"],
             )
         )
     return rows
@@ -470,8 +470,8 @@ def build_json_payload(
         "method": (
             "PV data from eval/results/pretty_verifier_comparison.json "
             "(actual PV execution on 263 corpus cases). "
-            "BPFix data from eval/results/batch_diagnostic_results_v4.json "
-            "(BPFix v4 pipeline on 262 eligible cases). "
+            "BPFix data from eval/results/batch_diagnostic_results.json "
+            "(current batch diagnostic pipeline on 262 eligible cases). "
             "PV architectural limits (root_cause, multi_span, causal_chain) are "
             "set to False/0 based on documented PV architecture, not inferred from output."
         ),
@@ -486,7 +486,13 @@ def build_json_payload(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--v4-results", type=Path, default=DEFAULT_V4_RESULTS)
+    parser.add_argument(
+        "--batch-results",
+        "--v4-results",
+        dest="batch_results",
+        type=Path,
+        default=DEFAULT_BATCH_RESULTS,
+    )
     parser.add_argument("--pv-results", type=Path, default=DEFAULT_PV_RESULTS)
     parser.add_argument("--output-json", type=Path, default=DEFAULT_OUTPUT_JSON)
     parser.add_argument("--output-md", type=Path, default=DEFAULT_OUTPUT_MD)
@@ -496,10 +502,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
 
-    v4_by_id = load_v4_results(args.v4_results)
+    batch_by_id = load_batch_results(args.batch_results)
     pv_by_id = load_pv_results(args.pv_results)
 
-    rows = build_rows(v4_by_id, pv_by_id)
+    rows = build_rows(batch_by_id, pv_by_id)
     overall = aggregate_overall(rows)
     by_taxonomy = aggregate_by_taxonomy(rows)
     by_source = aggregate_by_source(rows)
