@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-19T04:04:05.787552+00:00",
+  "generated_at": "2026-03-19T17:30:34.070196+00:00",
   "min_log_chars": 50,
   "results": [
     {
@@ -51611,46 +51611,132 @@
               7,
               8,
               10,
-              11
+              11,
+              34,
+              35,
+              38
             ],
             "criterion_insn": 48,
-            "criterion_register": "R3",
+            "criterion_register": "R2",
             "data_deps": [
+              3,
+              6,
+              7,
+              8,
+              10,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              34,
+              35,
+              39,
+              43,
+              44,
               45,
               46,
+              47,
               48
             ],
             "full_slice": [
+              3,
               6,
               7,
               8,
               10,
               11,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              34,
+              35,
+              38,
+              39,
+              43,
+              44,
               45,
               46,
+              47,
               48
             ]
           },
           "causal_chain": [
             {
+              "insn_idx": 3,
+              "reason": "data_dep: r6 = r1"
+            },
+            {
               "insn_idx": 6,
-              "reason": "control_dep: r2 = r10"
+              "reason": "data_dep: r2 = r10"
             },
             {
               "insn_idx": 7,
-              "reason": "control_dep: r2 += -8"
+              "reason": "data_dep: r2 += -8"
             },
             {
               "insn_idx": 8,
-              "reason": "control_dep: r1 = 0xffff8c9724c65200"
+              "reason": "data_dep: r1 = 0xffff8c9724c65200"
             },
             {
               "insn_idx": 10,
-              "reason": "control_dep: call bpf_map_lookup_elem#1"
+              "reason": "data_dep: call bpf_map_lookup_elem#1"
             },
             {
               "insn_idx": 11,
               "reason": "control_dep: if r0 != 0x0 goto pc+22"
+            },
+            {
+              "insn_idx": 14,
+              "reason": "data_dep: r6 += 104"
+            },
+            {
+              "insn_idx": 15,
+              "reason": "data_dep: r1 = r10"
+            },
+            {
+              "insn_idx": 16,
+              "reason": "data_dep: r1 += -8"
+            },
+            {
+              "insn_idx": 17,
+              "reason": "data_dep: r2 = 8"
+            },
+            {
+              "insn_idx": 18,
+              "reason": "data_dep: r3 = r6"
+            },
+            {
+              "insn_idx": 19,
+              "reason": "data_dep: call bpf_probe_read#4"
+            },
+            {
+              "insn_idx": 34,
+              "reason": "data_dep: r1 = r10"
+            },
+            {
+              "insn_idx": 35,
+              "reason": "data_dep: r1 += -8"
+            },
+            {
+              "insn_idx": 38,
+              "reason": "control_dep: if r0 > r1 goto pc+2"
+            },
+            {
+              "insn_idx": 39,
+              "reason": "data_dep: r1 -= r0"
+            },
+            {
+              "insn_idx": 43,
+              "reason": "data_dep: r1 = r0"
+            },
+            {
+              "insn_idx": 44,
+              "reason": "data_dep: r1 += 1"
             },
             {
               "insn_idx": 45,
@@ -51659,6 +51745,10 @@
             {
               "insn_idx": 46,
               "reason": "data_dep: r3 += -8"
+            },
+            {
+              "insn_idx": 47,
+              "reason": "data_dep: r2 = r1"
             }
           ],
           "cross_analysis_class": "source_bug",

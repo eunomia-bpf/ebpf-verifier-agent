@@ -1,0 +1,1985 @@
+metadata:
+  generated_at: '2026-03-19'
+  description: Independent LLM-labeled ground truth with cross-review adjudication
+  total_cases: 139
+  method: Two independent LLM labelers + expert adjudication of disagreements
+  agreement_rate: 89.21%
+  cohens_kappa: 0.74
+  labeler_a_source: docs/tmp/labeling-a/labels.yaml
+  labeler_b_source: docs/tmp/labeling-b/labels.yaml
+  taxonomy_counts:
+    source_bug: 100
+    lowering_artifact: 20
+    verifier_limit: 4
+    env_mismatch: 15
+    verifier_bug: 0
+cases:
+- case_id: kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda
+  taxonomy_class: verifier_limit
+  error_id: BPFIX-E018
+  root_cause_description: The test exceeds the verifier's combined stack-depth budget
+    across async or pseudo-call frames.
+  fix_type: inline
+  fix_direction: Reduce the proof complexity by simplifying loops, control flow, or
+    stack usage so the verifier explores fewer states.
+  confidence: high
+  label_source: agree
+  labeler_a_class: verifier_limit
+  labeler_b_class: verifier_limit
+  adjudication_note: null
+- case_id: kernel-selftest-async-stack-depth-pseudo-call-check-tc-320d654d
+  taxonomy_class: verifier_limit
+  error_id: BPFIX-E018
+  root_cause_description: The test exceeds the verifier's combined stack-depth budget
+    across async or pseudo-call frames.
+  fix_type: inline
+  fix_direction: Reduce the proof complexity by simplifying loops, control flow, or
+    stack usage so the verifier explores fewer states.
+  confidence: high
+  label_source: agree
+  labeler_a_class: verifier_limit
+  labeler_b_class: verifier_limit
+  adjudication_note: null
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-fp-tp-btf-cgroup-mkdir-7d3a90fe
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program passes a value with the wrong verifier-tracked
+    type to a helper or kfunc, so the callee never receives the required trusted or
+    stack-backed object.
+  fix_type: other
+  fix_direction: Rework the call site so the helper sees the exact pointer type and
+    storage class it expects instead of a walked, embedded, or fabricated pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-trusted-walked-tp-btf-cgroup-mkdir-6deeac84
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program passes a value with the wrong verifier-tracked
+    type to a helper or kfunc, so the callee never receives the required trusted or
+    stack-backed object.
+  fix_type: other
+  fix_direction: Rework the call site so the helper sees the exact pointer type and
+    storage class it expects instead of a walked, embedded, or fabricated pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-untrusted-tp-btf-cgroup-mkdir-2bcab89b
+  taxonomy_class: source_bug
+  error_id: BPFIX-E015
+  root_cause_description: A helper or kfunc is reached with a pointer that may still
+    be NULL on some path, so the verifier keeps the argument nullable and rejects
+    the call or dereference.
+  fix_type: null_check
+  fix_direction: Add a dominating NULL check and keep the helper call or dereference
+    entirely inside the non-NULL branch.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-rcu-get-release-tp-btf-cgroup-mkdir-29aa212b
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program uses a pointer in a state the verifier does
+    not consider trusted or RCU-protected, then passes it to an API that requires
+    stronger provenance.
+  fix_type: reorder
+  fix_direction: Acquire or re-derive the pointer in the required trust or RCU state
+    immediately before the helper call, or avoid calling the API on that pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program passes a value with the wrong verifier-tracked
+    type to a helper or kfunc, so the callee never receives the required trusted or
+    stack-backed object.
+  fix_type: other
+  fix_direction: Rework the call site so the helper sees the exact pointer type and
+    storage class it expects instead of a walked, embedded, or fabricated pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-untrusted-tp-btf-cgroup-mkdir-9eb3123d
+  taxonomy_class: source_bug
+  error_id: BPFIX-E015
+  root_cause_description: A helper or kfunc is reached with a pointer that may still
+    be NULL on some path, so the verifier keeps the argument nullable and rejects
+    the call or dereference.
+  fix_type: null_check
+  fix_direction: Add a dominating NULL check and keep the helper call or dereference
+    entirely inside the non-NULL branch.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-xchg-unreleased-tp-btf-cgroup-mkdir-241e8fc0
+  taxonomy_class: source_bug
+  error_id: BPFIX-E004
+  root_cause_description: The program acquires a referenced object and exits without
+    balancing that reference on all paths, so the verifier reports a leaked reference.
+  fix_type: refcount
+  fix_direction: Balance the acquire with exactly one release on every live control-flow
+    path.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cpumask-failure-test-global-mask-no-null-check-tp-btf-task-newtask-655f6c03
+  taxonomy_class: source_bug
+  error_id: BPFIX-E015
+  root_cause_description: A helper or kfunc is reached with a pointer that may still
+    be NULL on some path, so the verifier keeps the argument nullable and rejects
+    the call or dereference.
+  fix_type: null_check
+  fix_direction: Add a dominating NULL check and keep the helper call or dereference
+    entirely inside the non-NULL branch.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cpumask-failure-test-global-mask-out-of-rcu-tp-btf-task-newtask-55a16b69
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program uses a pointer in a state the verifier does
+    not consider trusted or RCU-protected, then passes it to an API that requires
+    stronger provenance.
+  fix_type: reorder
+  fix_direction: Acquire or re-derive the pointer in the required trust or RCU state
+    immediately before the helper call, or avoid calling the API on that pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39
+  taxonomy_class: source_bug
+  error_id: BPFIX-E015
+  root_cause_description: A helper or kfunc is reached with a pointer that may still
+    be NULL on some path, so the verifier keeps the argument nullable and rejects
+    the call or dereference.
+  fix_type: null_check
+  fix_direction: Add a dominating NULL check and keep the helper call or dereference
+    entirely inside the non-NULL branch.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cpumask-failure-test-invalid-nested-array-tp-btf-task-newtask-bd05d03f
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program passes a value with the wrong verifier-tracked
+    type to a helper or kfunc, so the callee never receives the required trusted or
+    stack-backed object.
+  fix_type: other
+  fix_direction: Rework the call site so the helper sees the exact pointer type and
+    storage class it expects instead of a walked, embedded, or fabricated pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cpumask-failure-test-mutate-cpumask-tp-btf-task-newtask-d7b7c258
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program passes a value with the wrong verifier-tracked
+    type to a helper or kfunc, so the callee never receives the required trusted or
+    stack-backed object.
+  fix_type: other
+  fix_direction: Rework the call site so the helper sees the exact pointer type and
+    storage class it expects instead of a walked, embedded, or fabricated pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cpumask-failure-test-populate-invalid-destination-tp-btf-task-newtask-2aa0585a
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program passes a value with the wrong verifier-tracked
+    type to a helper or kfunc, so the callee never receives the required trusted or
+    stack-backed object.
+  fix_type: other
+  fix_direction: Rework the call site so the helper sees the exact pointer type and
+    storage class it expects instead of a walked, embedded, or fabricated pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-cpumask-failure-test-populate-invalid-source-tp-btf-task-newtask-149c6ecc
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program passes a value with the wrong verifier-tracked
+    type to a helper or kfunc, so the callee never receives the required trusted or
+    stack-backed object.
+  fix_type: other
+  fix_direction: Rework the call site so the helper sees the exact pointer type and
+    storage class it expects instead of a walked, embedded, or fabricated pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-crypto-basic-crypto-acquire-syscall-b8afbe98
+  taxonomy_class: source_bug
+  error_id: BPFIX-E004
+  root_cause_description: The program acquires a referenced object and exits without
+    balancing that reference on all paths, so the verifier reports a leaked reference.
+  fix_type: refcount
+  fix_direction: Balance the acquire with exactly one release on every live control-flow
+    path.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-add-dynptr-to-map1-raw-tp-2b5ac898
+  taxonomy_class: source_bug
+  error_id: BPFIX-E003
+  root_cause_description: The program tries to store the on-stack dynptr representation
+    like ordinary initialized data, but that stack region is not a valid plain value
+    object for the helper.
+  fix_type: other
+  fix_direction: Fully initialize the helper-visible stack range or make the destination
+    buffer match the size and shape the helper expects.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-add-dynptr-to-map2-raw-tp-7a037daf
+  taxonomy_class: source_bug
+  error_id: BPFIX-E003
+  root_cause_description: The program tries to store the on-stack dynptr representation
+    like ordinary initialized data, but that stack region is not a valid plain value
+    object for the helper.
+  fix_type: other
+  fix_direction: Fully initialize the helper-visible stack range or make the destination
+    buffer match the size and shape the helper expects.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-clone-invalid1-raw-tp-b7206632
+  taxonomy_class: source_bug
+  error_id: BPFIX-E012
+  root_cause_description: The program breaks dynptr initialization, lifetime, or slice-validity
+    rules, so a stale or uninitialized dynptr-backed view is later used as if it were
+    still valid.
+  fix_type: other
+  fix_direction: Initialize the dynptr exactly as required, avoid overwriting or directly
+    reading its backing object, and stop using any slice after the dynptr state changes.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-data-slice-missing-null-check1-raw-tp-af2be9c9
+  taxonomy_class: source_bug
+  error_id: BPFIX-E002
+  root_cause_description: The code dereferences a dynptr data slice that may be NULL
+    without first proving the slice was returned successfully.
+  fix_type: null_check
+  fix_direction: Check the slice pointer for NULL immediately after the dynptr helper
+    and keep all dereferences inside the non-NULL branch.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-data-slice-missing-null-check2-raw-tp-8e533162
+  taxonomy_class: source_bug
+  error_id: BPFIX-E002
+  root_cause_description: The code dereferences a dynptr data slice that may be NULL
+    without first proving the slice was returned successfully.
+  fix_type: null_check
+  fix_direction: Check the slice pointer for NULL immediately after the dynptr helper
+    and keep all dereferences inside the non-NULL branch.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84
+  taxonomy_class: source_bug
+  error_id: BPFIX-E017
+  root_cause_description: The requested dynptr-backed access steps past the end of
+    the underlying map value object, so the access cannot be proven within bounds.
+  fix_type: bounds_check
+  fix_direction: Clamp the offset and length so the dynptr view stays fully inside
+    the target map value before dereferencing it.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-tc-b903ac49
+  taxonomy_class: source_bug
+  error_id: BPFIX-E001
+  root_cause_description: The requested dynptr slice reaches past the packet-backed
+    region represented by the skb dynptr, so the verifier rejects the packet access.
+  fix_type: bounds_check
+  fix_direction: Tighten the packet offset and size passed to the dynptr helper so
+    the entire slice is inside the packet.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-dynptr-from-mem-invalid-api-raw-tp-1040be69
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr is stored, offset, sized, or released in a way
+    the dynptr API contract does not allow, so the verifier rejects the helper interaction.
+  fix_type: other
+  fix_direction: Keep the dynptr at a fixed stack slot, use only allowed constant
+    offsets and lengths, and release it exactly once with the matching API.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-dynptr-invalidate-slice-reinit-raw-tp-f5b71f50
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: A data-slice pointer is reused after the dynptr is reinitialized,
+    so the verifier no longer tracks it as valid memory.
+  fix_type: reorder
+  fix_direction: Keep the verified pointer and offset discipline intact, and reload
+    or recompute the pointer from a verifier-tracked base before dereferencing it.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-dynptr-overwrite-ref-raw-tp-3fed55ba
+  taxonomy_class: source_bug
+  error_id: BPFIX-E012
+  root_cause_description: The program breaks dynptr initialization, lifetime, or slice-validity
+    rules, so a stale or uninitialized dynptr-backed view is later used as if it were
+    still valid.
+  fix_type: other
+  fix_direction: Initialize the dynptr exactly as required, avoid overwriting or directly
+    reading its backing object, and stop using any slice after the dynptr state changes.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-dynptr-pruning-type-confusion-tc-28056c9b
+  taxonomy_class: source_bug
+  error_id: BPFIX-E012
+  root_cause_description: The program breaks dynptr initialization, lifetime, or slice-validity
+    rules, so a stale or uninitialized dynptr-backed view is later used as if it were
+    still valid.
+  fix_type: other
+  fix_direction: Initialize the dynptr exactly as required, avoid overwriting or directly
+    reading its backing object, and stop using any slice after the dynptr state changes.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr is stored, offset, sized, or released in a way
+    the dynptr API contract does not allow, so the verifier rejects the helper interaction.
+  fix_type: other
+  fix_direction: Keep the dynptr at a fixed stack slot, use only allowed constant
+    offsets and lengths, and release it exactly once with the matching API.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-dynptr-slice-var-len1-tc-76a0b3fb
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr is stored, offset, sized, or released in a way
+    the dynptr API contract does not allow, so the verifier rejects the helper interaction.
+  fix_type: other
+  fix_direction: Keep the dynptr at a fixed stack slot, use only allowed constant
+    offsets and lengths, and release it exactly once with the matching API.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-dynptr-slice-var-len2-tc-673ab9e7
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr is stored, offset, sized, or released in a way
+    the dynptr API contract does not allow, so the verifier rejects the helper interaction.
+  fix_type: other
+  fix_direction: Keep the dynptr at a fixed stack slot, use only allowed constant
+    offsets and lengths, and release it exactly once with the matching API.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-dynptr-var-off-overwrite-tc-ab0a2e71
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr is stored, offset, sized, or released in a way
+    the dynptr API contract does not allow, so the verifier rejects the helper interaction.
+  fix_type: other
+  fix_direction: Keep the dynptr at a fixed stack slot, use only allowed constant
+    offsets and lengths, and release it exactly once with the matching API.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-global-raw-tp-e92dc79e
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr is stored, offset, sized, or released in a way
+    the dynptr API contract does not allow, so the verifier rejects the helper interaction.
+  fix_type: other
+  fix_direction: Keep the dynptr at a fixed stack slot, use only allowed constant
+    offsets and lengths, and release it exactly once with the matching API.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-invalid-data-slices-raw-tp-6798c725
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: A pointer returned from a dynptr/data-slice helper is used
+    after an operation that invalidates that slice.
+  fix_type: reorder
+  fix_direction: Keep the verified pointer and offset discipline intact, and reload
+    or recompute the pointer from a verifier-tracked base before dereferencing it.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-invalid-helper1-raw-tp-e765040b
+  taxonomy_class: source_bug
+  error_id: BPFIX-E012
+  root_cause_description: The program breaks dynptr initialization, lifetime, or slice-validity
+    rules, so a stale or uninitialized dynptr-backed view is later used as if it were
+    still valid.
+  fix_type: other
+  fix_direction: Initialize the dynptr exactly as required, avoid overwriting or directly
+    reading its backing object, and stop using any slice after the dynptr state changes.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-invalid-helper2-raw-tp-34ba04aa
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr is stored, offset, sized, or released in a way
+    the dynptr API contract does not allow, so the verifier rejects the helper interaction.
+  fix_type: other
+  fix_direction: Keep the dynptr at a fixed stack slot, use only allowed constant
+    offsets and lengths, and release it exactly once with the matching API.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-invalid-offset-raw-tp-549f8135
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr is stored, offset, sized, or released in a way
+    the dynptr API contract does not allow, so the verifier rejects the helper interaction.
+  fix_type: other
+  fix_direction: Keep the dynptr at a fixed stack slot, use only allowed constant
+    offsets and lengths, and release it exactly once with the matching API.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-invalid-read1-raw-tp-f61c0428
+  taxonomy_class: source_bug
+  error_id: BPFIX-E012
+  root_cause_description: The program breaks dynptr initialization, lifetime, or slice-validity
+    rules, so a stale or uninitialized dynptr-backed view is later used as if it were
+    still valid.
+  fix_type: other
+  fix_direction: Initialize the dynptr exactly as required, avoid overwriting or directly
+    reading its backing object, and stop using any slice after the dynptr state changes.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr is stored, offset, sized, or released in a way
+    the dynptr API contract does not allow, so the verifier rejects the helper interaction.
+  fix_type: other
+  fix_direction: Keep the dynptr at a fixed stack slot, use only allowed constant
+    offsets and lengths, and release it exactly once with the matching API.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-invalid-read3-raw-tp-99c4b958
+  taxonomy_class: source_bug
+  error_id: BPFIX-E012
+  root_cause_description: The program breaks dynptr initialization, lifetime, or slice-validity
+    rules, so a stale or uninitialized dynptr-backed view is later used as if it were
+    still valid.
+  fix_type: other
+  fix_direction: Initialize the dynptr exactly as required, avoid overwriting or directly
+    reading its backing object, and stop using any slice after the dynptr state changes.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-invalid-read4-raw-tp-8a9b0872
+  taxonomy_class: source_bug
+  error_id: BPFIX-E012
+  root_cause_description: The program breaks dynptr initialization, lifetime, or slice-validity
+    rules, so a stale or uninitialized dynptr-backed view is later used as if it were
+    still valid.
+  fix_type: other
+  fix_direction: Initialize the dynptr exactly as required, avoid overwriting or directly
+    reading its backing object, and stop using any slice after the dynptr state changes.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly-cgroup-skb-ingress-61688196
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E016
+  root_cause_description: The program asks for a writable dynptr slice from packet
+    data in `cgroup_skb/ingress`, but that program type does not permit packet writes
+    in this context.
+  fix_type: env_fix
+  fix_direction: Use a read-only slice API in this program type, or move the logic
+    to a program context that actually allows packet-data writes.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: env_mismatch
+  adjudication_note: The selftest source and the verifier log both point to a context
+    restriction, not to a missing proof in the code. The code is intentionally invoking
+    an operation that this program type forbids.
+- case_id: kernel-selftest-dynptr-fail-invalid-write1-raw-tp-ba5ba8ca
+  taxonomy_class: source_bug
+  error_id: BPFIX-E012
+  root_cause_description: The program breaks dynptr initialization, lifetime, or slice-validity
+    rules, so a stale or uninitialized dynptr-backed view is later used as if it were
+    still valid.
+  fix_type: other
+  fix_direction: Initialize the dynptr exactly as required, avoid overwriting or directly
+    reading its backing object, and stop using any slice after the dynptr state changes.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-release-twice-callback-raw-tp-bd7b2a60
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr reference is released twice; after the first
+    release there is no acquired reference left to drop.
+  fix_type: refcount
+  fix_direction: Keep the dynptr at a fixed stack slot, use only supported backing
+    storage and offsets, and release the acquired reference exactly once.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr reference is released twice; after the first
+    release there is no acquired reference left to drop.
+  fix_type: refcount
+  fix_direction: Keep the dynptr at a fixed stack slot, use only supported backing
+    storage and offsets, and release the acquired reference exactly once.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-ringbuf-invalid-api-raw-tp-87a443d6
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr is stored, offset, sized, or released in a way
+    the dynptr API contract does not allow, so the verifier rejects the helper interaction.
+  fix_type: other
+  fix_direction: Keep the dynptr at a fixed stack slot, use only allowed constant
+    offsets and lengths, and release it exactly once with the matching API.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program uses a pointer in a state the verifier does
+    not consider trusted or RCU-protected, then passes it to an API that requires
+    stronger provenance.
+  fix_type: reorder
+  fix_direction: Acquire or re-derive the pointer in the required trust or RCU state
+    immediately before the helper call, or avoid calling the API on that pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-skb-invalid-ctx-xdp-1a32a21f
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E016
+  root_cause_description: The program is invoking an API or using a capability or
+    context feature that is not available in the active program type or execution
+    context.
+  fix_type: env_fix
+  fix_direction: Use an API or attach type that is supported in this context, or change
+    the runtime or kernel configuration to one that permits the operation.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-skb-invalid-data-slice1-tc-0b35a757
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: A pointer returned from a dynptr/data-slice helper is used
+    after an operation that invalidates that slice.
+  fix_type: reorder
+  fix_direction: Keep the verified pointer and offset discipline intact, and reload
+    or recompute the pointer from a verifier-tracked base before dereferencing it.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-skb-invalid-data-slice3-tc-a15c4322
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: A pointer returned from a dynptr/data-slice helper is used
+    after an operation that invalidates that slice.
+  fix_type: reorder
+  fix_direction: Keep the verified pointer and offset discipline intact, and reload
+    or recompute the pointer from a verifier-tracked base before dereferencing it.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-test-dynptr-skb-small-buff-cgroup-skb-egress-4f498dbd
+  taxonomy_class: source_bug
+  error_id: BPFIX-E003
+  root_cause_description: The destination buffer is smaller than the size requested
+    from the dynptr helper.
+  fix_type: bounds_check
+  fix_direction: Fully initialize the helper-visible stack range or make the destination
+    buffer match the size and shape the helper expects.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838
+  taxonomy_class: source_bug
+  error_id: BPFIX-E019
+  root_cause_description: The dynptr is stored, offset, sized, or released in a way
+    the dynptr API contract does not allow, so the verifier rejects the helper interaction.
+  fix_type: other
+  fix_direction: Keep the dynptr at a fixed stack slot, use only allowed constant
+    offsets and lengths, and release it exactly once with the matching API.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-xdp-invalid-ctx-raw-tp-e886d43f
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E016
+  root_cause_description: The program is invoking an API or using a capability or
+    context feature that is not available in the active program type or execution
+    context.
+  fix_type: env_fix
+  fix_direction: Use an API or attach type that is supported in this context, or change
+    the runtime or kernel configuration to one that permits the operation.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: A pointer returned from a dynptr/data-slice helper is used
+    after an operation that invalidates that slice.
+  fix_type: reorder
+  fix_direction: Keep the verified pointer and offset discipline intact, and reload
+    or recompute the pointer from a verifier-tracked base before dereferencing it.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-exceptions-fail-reject-async-callback-throw-tc-a86cf7b1
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E016
+  root_cause_description: The program is invoking an API or using a capability or
+    context feature that is not available in the active program type or execution
+    context.
+  fix_type: env_fix
+  fix_direction: Use an API or attach type that is supported in this context, or change
+    the runtime or kernel configuration to one that permits the operation.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-exceptions-fail-reject-exception-cb-call-static-func-tc-f3ceb9b7
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-exceptions-fail-reject-with-cb-reference-tc-c99ec1a7
+  taxonomy_class: source_bug
+  error_id: BPFIX-E004
+  root_cause_description: The program acquires a referenced object and exits without
+    balancing that reference on all paths, so the verifier reports a leaked reference.
+  fix_type: refcount
+  fix_direction: Balance the acquire with exactly one release on every live control-flow
+    path.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-exceptions-fail-reject-with-rbtree-add-throw-tc-e943cfe2
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-flag-overwrite-tc-4c974993
+  taxonomy_class: source_bug
+  error_id: BPFIX-E020
+  root_cause_description: The program corrupts, reuses, or nests an IRQ flag slot
+    in a way that breaks the required save and restore protocol.
+  fix_type: other
+  fix_direction: Keep the IRQ flag in a dedicated stack slot, initialize it only with
+    the matching save helper, and restore it exactly once in the correct order.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-ooo-lock-cond-inv-tc-950f35d5
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-ooo-refs-array-tc-193001a6
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-restore-4-subprog-tc-f3feb6a1
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-restore-invalid-tc-e1f743bf
+  taxonomy_class: source_bug
+  error_id: BPFIX-E020
+  root_cause_description: The program corrupts, reuses, or nests an IRQ flag slot
+    in a way that breaks the required save and restore protocol.
+  fix_type: other
+  fix_direction: Keep the IRQ flag in a dedicated stack slot, initialize it only with
+    the matching save helper, and restore it exactly once in the correct order.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-restore-missing-3-minus-2-subprog-tc-5c202e26
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-restore-missing-3-subprog-tc-8592c5d7
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-restore-ooo-3-subprog-tc-b32ae1a0
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-restore-ooo-3-tc-e0b5e5ee
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-restore-ooo-tc-84ede29d
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The source violates required exception, lock, or IRQ discipline
+    on at least one path, so a disallowed call or exit occurs while the verifier still
+    considers the critical region active.
+  fix_type: reorder
+  fix_direction: Restructure control flow so the lock, IRQ, or exception region is
+    exited in a balanced order before any disallowed call, throw, or return.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-save-invalid-tc-86a07a3f
+  taxonomy_class: source_bug
+  error_id: BPFIX-E020
+  root_cause_description: The program corrupts, reuses, or nests an IRQ flag slot
+    in a way that breaks the required save and restore protocol.
+  fix_type: other
+  fix_direction: Keep the IRQ flag in a dedicated stack slot, initialize it only with
+    the matching save helper, and restore it exactly once in the correct order.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-sleepable-global-subprog-indirect-syscall-c96d09ca
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E016
+  root_cause_description: The program is invoking an API or using a capability or
+    context feature that is not available in the active program type or execution
+    context.
+  fix_type: env_fix
+  fix_direction: Use an API or attach type that is supported in this context, or change
+    the runtime or kernel configuration to one that permits the operation.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-sleepable-helper-global-subprog-syscall-7d470f89
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E016
+  root_cause_description: The program is invoking an API or using a capability or
+    context feature that is not available in the active program type or execution
+    context.
+  fix_type: env_fix
+  fix_direction: Use an API or attach type that is supported in this context, or change
+    the runtime or kernel configuration to one that permits the operation.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  root_cause_description: The IRQ save/restore and lock discipline is violated on
+    at least one path, so the program exits or calls into disallowed code with the
+    wrong state held.
+  fix_type: reorder
+  fix_direction: Move the disallowed call or state transition out of the protected
+    callback, lock, IRQ, or exception scope so every path respects the required discipline.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-iters-iter-err-too-permissive1-raw-tp-25649784
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: The code dereferences a value after it has lost pointer
+    or nullability proof, so the verifier only sees a scalar at the access site.
+  fix_type: null_check
+  fix_direction: Keep the verified pointer in scope and re-check it after the loop
+    or helper before dereferencing it.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-iters-iter-err-too-permissive2-raw-tp-177534f5
+  taxonomy_class: source_bug
+  error_id: BPFIX-E002
+  root_cause_description: The code dereferences a map lookup result after a loop without
+    preserving a dominating non-NULL proof, so the pointer remains `map_value_or_null`.
+  fix_type: null_check
+  fix_direction: Repeat the NULL check on the final lookup result and dereference
+    it only inside the proven non-NULL branch.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-iters-iter-err-too-permissive3-raw-tp-969d109d
+  taxonomy_class: source_bug
+  error_id: BPFIX-E002
+  root_cause_description: The code dereferences a map lookup result after a loop without
+    preserving a dominating non-NULL proof, so the pointer remains `map_value_or_null`.
+  fix_type: null_check
+  fix_direction: Repeat the NULL check on the final lookup result and dereference
+    it only inside the proven non-NULL branch.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-iters-iter-err-unsafe-asm-loop-raw-tp-9ee4d943
+  taxonomy_class: source_bug
+  error_id: BPFIX-E017
+  root_cause_description: The iterator loop derives an array or map-value offset from
+    an unbounded iteration count, so the final write is not proven within the target
+    object's bounds.
+  fix_type: bounds_check
+  fix_direction: Clamp or bound the loop-derived index before using it as an array
+    or map-value offset.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-iters-iter-err-unsafe-c-loop-raw-tp-4b9ee52e
+  taxonomy_class: source_bug
+  error_id: BPFIX-E017
+  root_cause_description: The iterator loop derives an array or map-value offset from
+    an unbounded iteration count, so the final write is not proven within the target
+    object's bounds.
+  fix_type: bounds_check
+  fix_direction: Clamp or bound the loop-derived index before using it as an array
+    or map-value offset.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-iters-iter-new-bad-arg-raw-tp-e25f0e76
+  taxonomy_class: source_bug
+  error_id: BPFIX-E014
+  root_cause_description: The iterator state machine or stack-placement rules are
+    violated, so the iterator slot is created, destroyed, overwritten, or read in
+    an invalid state.
+  fix_type: other
+  fix_direction: Keep the iterator object on stack, follow the create, next, and destroy
+    protocol exactly once, and do not read or overwrite iterator state bytes directly.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-iters-looping-missing-null-check-fail-raw-tp-732d9857
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: The code dereferences a value after it has lost pointer
+    or nullability proof, so the verifier only sees a scalar at the access site.
+  fix_type: null_check
+  fix_direction: Keep the verified pointer in scope and re-check it after the loop
+    or helper before dereferencing it.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-iters-state-safety-compromise-iter-w-helper-write-fail-raw-tp-50431478
+  taxonomy_class: source_bug
+  error_id: BPFIX-E014
+  root_cause_description: The iterator state machine or stack-placement rules are
+    violated, so the iterator slot is created, destroyed, overwritten, or read in
+    an invalid state.
+  fix_type: other
+  fix_direction: Keep the iterator object on stack, follow the create, next, and destroy
+    protocol exactly once, and do not read or overwrite iterator state bytes directly.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-iters-state-safety-double-create-fail-raw-tp-11a53add
+  taxonomy_class: source_bug
+  error_id: BPFIX-E014
+  root_cause_description: The iterator state machine or stack-placement rules are
+    violated, so the iterator slot is created, destroyed, overwritten, or read in
+    an invalid state.
+  fix_type: other
+  fix_direction: Keep the iterator object on stack, follow the create, next, and destroy
+    protocol exactly once, and do not read or overwrite iterator state bytes directly.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-iters-state-safety-double-destroy-fail-raw-tp-224283ff
+  taxonomy_class: source_bug
+  error_id: BPFIX-E014
+  root_cause_description: The iterator state machine or stack-placement rules are
+    violated, so the iterator slot is created, destroyed, overwritten, or read in
+    an invalid state.
+  fix_type: other
+  fix_direction: Keep the iterator object on stack, follow the create, next, and destroy
+    protocol exactly once, and do not read or overwrite iterator state bytes directly.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: kernel-selftest-iters-state-safety-read-from-iter-slot-fail-raw-tp-812dc246
+  taxonomy_class: source_bug
+  error_id: BPFIX-E014
+  root_cause_description: The iterator state machine or stack-placement rules are
+    violated, so the iterator slot is created, destroyed, overwritten, or read in
+    an invalid state.
+  fix_type: other
+  fix_direction: Keep the iterator object on stack, follow the create, next, and destroy
+    protocol exactly once, and do not read or overwrite iterator state bytes directly.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-53136145
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E006
+  root_cause_description: The parser merges IPv4 and IPv6-derived pointers through
+    a conditional expression, and the emitted bytecode loses the verifier's proof
+    about which checked packet base the merged UDP pointer came from.
+  fix_type: inline
+  fix_direction: Keep the IPv4 and IPv6 pointer derivations in separate verifier-visible
+    branches, or recompute the UDP pointer from the checked base inside each branch
+    before dereferencing it.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: lowering_artifact
+  adjudication_note: The accepted fix is to restructure the pointer merge rather than
+    to add a new packet-length check. That means the source already had the essential
+    safety checks, but the verifier lost the proof after the control-flow merge.
+- case_id: stackoverflow-60506220
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E006
+  root_cause_description: The same source is lowered into bytecode that reconstructs
+    `data_end` with 32-bit pieces, which destroys the verifier's packet-end pointer
+    type and triggers prohibited pointer arithmetic.
+  fix_type: type_cast
+  fix_direction: Load packet pointers with the exact pointer type the verifier expects
+    or rewrite the casts so LLVM does not rebuild them through scalar OR and shift
+    operations.
+  confidence: high
+  label_source: agree
+  labeler_a_class: lowering_artifact
+  labeler_b_class: lowering_artifact
+  adjudication_note: null
+- case_id: stackoverflow-61945212
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program calls the generic map-update helper on a queue-style
+    map with a NULL or immediate key instead of supplying a supported key/value form
+    for that map API.
+  fix_type: other
+  fix_direction: Use the helper intended for queue maps or pass helper arguments in
+    the exact stack-backed form required by the chosen map operation.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-67402772
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E016
+  root_cause_description: The selected attach type does not expose the requested `__sk_buff`
+    fields, so accessing `local_ip4` and `remote_ip4` is invalid in that program context.
+  fix_type: env_fix
+  fix_direction: Attach the program at a hook that exposes those context fields or
+    switch to fields or helpers that are valid for the current program type.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: stackoverflow-67679109
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: The code dereferences `current` even though it is initialized
+    to NULL rather than to the verified buffer, so the verifier only sees an invalid
+    scalar pointer.
+  fix_type: other
+  fix_direction: Point the cursor at the actual buffer before dereferencing it, or
+    read through a verifier-approved helper instead of a raw invalid pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-68752893
+  taxonomy_class: source_bug
+  error_id: BPFIX-E001
+  root_cause_description: The packet parser reaches into header or payload bytes without
+    a dominating verifier-visible bounds proof for the full access size.
+  fix_type: bounds_check
+  fix_direction: Add an explicit `data + needed_len <= data_end` guard immediately
+    before the exact packet access and keep the derived pointer within that checked
+    region.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-69413427
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The map helper is given a kernel object pointer where it
+    expects a pointer to key bytes in verifier-approved memory, so the key argument
+    has the wrong type and storage class.
+  fix_type: other
+  fix_direction: Copy the key bytes into stack-backed memory and pass that stack pointer
+    to the map helper instead of a raw kernel pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-69767533
+  taxonomy_class: source_bug
+  error_id: BPFIX-E003
+  root_cause_description: The program asks a helper to write a variable amount of
+    data into stack memory without giving the verifier a fully safe destination proof,
+    so the stack access is rejected.
+  fix_type: other
+  fix_direction: Initialize the destination buffer and cap the helper length in a
+    verifier-friendly way, or use a map-backed buffer instead of a raw stack region.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-70721661
+  taxonomy_class: source_bug
+  error_id: BPFIX-E001
+  root_cause_description: The packet parser reaches into header or payload bytes without
+    a dominating verifier-visible bounds proof for the full access size.
+  fix_type: bounds_check
+  fix_direction: Add an explicit `data + needed_len <= data_end` guard immediately
+    before the exact packet access and keep the derived pointer within that checked
+    region.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-70729664
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The SCTP parser already bounds `size`, but once the larger
+    unrolled loop forces the value through stack spill and reload, the verifier loses
+    that tighter range and packet-pointer arithmetic exceeds the `MAX_PACKET_OFF`
+    proof limit.
+  fix_type: reorder
+  fix_direction: Reorder the code so the narrowed size is preserved at the use site,
+    or add an explicit `MAX_PACKET_OFF` clamp immediately after advancing the cursor.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: verifier_limit
+  adjudication_note: The failure is not an explicit complexity-limit rejection. The
+    stronger evidence is the accepted explanation that the bounded `size` proof is
+    lost after spill/reload when the loop gets large, which fits proof loss after
+    lowering better than either `source_bug` or `verifier_limit`.
+- case_id: stackoverflow-70750259
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The TLS extension length is assembled from packet bytes
+    in a way that causes the verifier to lose its non-negative bounded interpretation
+    before the packet-pointer addition.
+  fix_type: type_cast
+  fix_direction: Force the extension length into a verifier-friendly unsigned or clamped
+    form before adding it to a packet pointer.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: lowering_artifact
+  adjudication_note: The source uses an unsigned length, but the verifier log shows
+    the bound disappearing only after the lowered byte assembly and endian conversion.
+    That is classic scalar-range proof loss rather than the absence of a bounds intent
+    in source.
+- case_id: stackoverflow-70760516
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The TLS parser checks each extension step, but after the
+    cursor is advanced through the loop the verifier no longer associates the earlier
+    packet bound with the `ext` pointer load.
+  fix_type: reorder
+  fix_direction: Keep the checked cursor in a dedicated local, add hard bounds that
+    keep the total packet cursor below verifier packet-offset limits, and dereference
+    the exact checked pointer before mutating the main cursor.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: lowering_artifact
+  adjudication_note: The source already has packet-end checks around the extension
+    parsing, yet the verifier loses the proof once the cursor's worst-case offset
+    grows across iterations. That is a verifier-proof-shape problem, not a missing
+    source check.
+- case_id: stackoverflow-70841631
+  taxonomy_class: verifier_limit
+  error_id: BPFIX-E018
+  root_cause_description: The parser expands into more verifier work than the analysis
+    budget allows, so the rejection is about complexity rather than a single unsafe
+    access.
+  fix_type: loop_rewrite
+  fix_direction: Reduce the proof complexity by simplifying loops, control flow, or
+    stack usage so the verifier explores fewer states.
+  confidence: high
+  label_source: agree
+  labeler_a_class: verifier_limit
+  labeler_b_class: verifier_limit
+  adjudication_note: null
+- case_id: stackoverflow-70873332
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The source performs a packet bounds check, but the offset
+    loaded from the map is widened in a way that prevents the verifier from carrying
+    that proof to the later access.
+  fix_type: clamp
+  fix_direction: Rewrite the code so the range proof survives lowering, for example
+    by introducing an explicit clamp, unsigned cast, or simpler branch structure near
+    the use site.
+  confidence: high
+  label_source: agree
+  labeler_a_class: lowering_artifact
+  labeler_b_class: lowering_artifact
+  adjudication_note: null
+- case_id: stackoverflow-71351495
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E016
+  root_cause_description: Direct packet-pointer comparison is being attempted under
+    a privilege or context combination where that operation is intentionally restricted.
+  fix_type: env_fix
+  fix_direction: Load the program with the privilege set that permits direct packet
+    access, or fall back to helper-based packet reads in this environment.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: stackoverflow-71522674
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The code checks `tcp_len`, but the verifier does not carry
+    that variable-length proof through to the later `bpf_csum_diff()` packet/len pair
+    and still sees the worst-case TCP header read.
+  fix_type: clamp
+  fix_direction: Rewrite the code so the range proof survives lowering, for example
+    by introducing an explicit clamp, unsigned cast, or simpler branch structure near
+    the use site.
+  confidence: high
+  label_source: agree
+  labeler_a_class: lowering_artifact
+  labeler_b_class: lowering_artifact
+  adjudication_note: null
+- case_id: stackoverflow-71946593
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: The kprobe program dereferences kernel object fields directly
+    from an untrusted scalar pointer instead of reading them through verifier-approved
+    kernel-memory access helpers.
+  fix_type: other
+  fix_direction: Use `bpf_probe_read_kernel()` or CO-RE reads from a verified kernel
+    pointer path instead of directly dereferencing the raw kprobe argument.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-72005172
+  taxonomy_class: source_bug
+  error_id: BPFIX-E001
+  root_cause_description: The packet parser reaches into header or payload bytes without
+    a dominating verifier-visible bounds proof for the full access size.
+  fix_type: bounds_check
+  fix_direction: Add an explicit `data + needed_len <= data_end` guard immediately
+    before the exact packet access and keep the derived pointer within that checked
+    region.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-72074115
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The source guards `shift < 64`, but the emitted code for
+    the cubic lookup still loses the verifier's index proof before the table access.
+  fix_type: clamp
+  fix_direction: Rewrite the lookup as a simple verifier-friendly clamp or constant-sized
+    table access so the checked index survives lowering.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: lowering_artifact
+  adjudication_note: The source contains an explicit range check for the table index,
+    so there is already a valid safety condition. The rejection comes from the verifier
+    not retaining that proof at the array access site.
+- case_id: stackoverflow-72560675
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The code clamps the copy size with `MIN()`, but the older
+    4.14 verifier loses that bound and still treats the helper length as too wide
+    unless it is rewritten into a simpler form.
+  fix_type: clamp
+  fix_direction: Rewrite the size cap into a verifier-friendly constant clamp that
+    the older kernel can track directly, or carry a kernel-version-specific workaround.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: verifier_bug
+  labeler_b_class: lowering_artifact
+  adjudication_note: The failure is version-sensitive, but the source can be rewritten
+    into an equivalent verifier-friendly form without changing the intended safety
+    policy. That makes this closer to proof loss in an older verifier than to a pure
+    verifier-bug label.
+- case_id: stackoverflow-72575736
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: Rust compiler generates packet-access bytecode that the
+    5.10 verifier cannot prove safe due to limited scalar tracking precision, while
+    the 5.13 verifier accepts it. The source logic is correct but the lowered form
+    exceeds older verifier capability.
+  fix_type: clamp
+  fix_direction: Add explicit bounds clamp or restructure the guard so older verifier
+    can track the proof through the bytecode.
+  confidence: high
+  label_source: adjudicated
+  labeler_a_class: verifier_bug
+  labeler_b_class: verifier_bug
+  adjudication_note: Reclassified from verifier_bug to lowering_artifact because the
+    same Rust-emitted bytecode is rejected by 5.10 but accepted by 5.13 without a
+    source logic change. That points to version-dependent proof loss in the lowered
+    form and older verifier precision limits, not a demonstrated verifier-internal
+    bug.
+- case_id: stackoverflow-72606055
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E021
+  root_cause_description: The object is being loaded without the metadata or relocation
+    handling needed to turn ELF map or rodata references into verifier-usable kernel
+    objects.
+  fix_type: env_fix
+  fix_direction: Load the object through a loader that applies BPF relocations and
+    supports the object's metadata requirements, or rebuild for the target loader
+    or kernel pair.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: stackoverflow-73088287
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The verifier does not retain the relationship between `payload
+    + i` and the separately computed `data_len` unless the loop bound is written in
+    a more explicit form.
+  fix_type: clamp
+  fix_direction: Use the proven payload length as an explicit loop bound alongside
+    the pointer check so the range proof survives lowering.
+  confidence: high
+  label_source: agree
+  labeler_a_class: lowering_artifact
+  labeler_b_class: lowering_artifact
+  adjudication_note: null
+- case_id: stackoverflow-74178703
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The loop and `offset + i` checks are present in source,
+    but the verifier loses the combined bound and still computes a possible access
+    at offset 1024.
+  fix_type: reorder
+  fix_direction: Rewrite the copy loop so the checked combined offset is the same
+    value used at the load or store site, or clamp the cursor before the access.
+  confidence: high
+  label_source: agree
+  labeler_a_class: lowering_artifact
+  labeler_b_class: lowering_artifact
+  adjudication_note: null
+- case_id: stackoverflow-74531552
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The automaton state value is used as a stack or table index
+    before being proven to lie within the valid state range.
+  fix_type: clamp
+  fix_direction: Validate or clamp `*curr_state` before indexing the transition table,
+    and reject impossible negative or oversized states first.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: lowering_artifact
+  labeler_b_class: source_bug
+  adjudication_note: The accepted fix is to add an explicit source-level bounds check
+    on `*curr_state`. That is direct evidence that the original source was missing
+    a necessary verifier-visible range proof.
+- case_id: stackoverflow-75294010
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: The code zeroes and later uses the pointer variable itself
+    instead of the map value it points to, so subsequent field writes happen through
+    an invalid scalar address.
+  fix_type: other
+  fix_direction: Operate on the looked-up map value object rather than on the pointer
+    variable's address, and keep the value pointer intact before dereferencing it.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-75515263
+  taxonomy_class: source_bug
+  error_id: BPFIX-E017
+  root_cause_description: The map is declared with pointer-sized values, but the program
+    accesses it as if the full `struct sock_info` were stored there.
+  fix_type: type_cast
+  fix_direction: Tighten the offset/index proof so the final access stays within the
+    actual map value layout that is declared for the map.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-75643912
+  taxonomy_class: source_bug
+  error_id: BPFIX-E001
+  root_cause_description: The loop condition uses `tcp_data + i <= data_end`, which
+    is not a dominating one-byte packet-access proof for the subsequent `tcp_data[i]`
+    load on every iteration.
+  fix_type: bounds_check
+  fix_direction: Move the one-byte packet bound check into the loop body and express
+    it as a direct `loop_ptr + 1 <= data_end` guard immediately before the byte load.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: lowering_artifact
+  adjudication_note: This source-level condition is genuinely too weak for a one-byte
+    dereference at the equality boundary, and the accepted rewrite fixes the check
+    itself rather than only changing code shape. That is stronger evidence for a real
+    packet-bounds bug than for a lowering artifact.
+- case_id: stackoverflow-76160985
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E006
+  root_cause_description: Passing the fixed-size packet buffer through a separate
+    helper subprogram erases the verifier's knowledge of its size, so later indexed
+    reads are validated without the caller-side allocation proof.
+  fix_type: inline
+  fix_direction: Mark the helper `__always_inline` or otherwise keep the bounded object
+    and its length proof in the same verifier-visible function.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: lowering_artifact
+  adjudication_note: The selected fix is pure inlining, and the verifier log shows
+    the helper subprogram being validated in isolation. That is a textbook cross-function
+    proof-loss case, not a missing safety check in the original logic.
+- case_id: stackoverflow-76277872
+  taxonomy_class: source_bug
+  error_id: BPFIX-E001
+  root_cause_description: The packet parser reaches into header or payload bytes without
+    a dominating verifier-visible bounds proof for the full access size.
+  fix_type: bounds_check
+  fix_direction: Add an explicit `data + needed_len <= data_end` guard immediately
+    before the exact packet access and keep the derived pointer within that checked
+    region.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-76441958
+  taxonomy_class: env_mismatch
+  error_id: unmatched
+  root_cause_description: The atomic compare-and-swap depends on target-architecture
+    alignment guarantees for user-space memory, so the failure is driven by an ABI
+    and execution-environment mismatch rather than by a missing verifier proof in
+    the BPF logic itself.
+  fix_type: env_fix
+  fix_direction: Align the user-space data or struct layout for the target architecture,
+    or move the state into a verifier-supported kernel or BPF object instead of doing
+    direct atomics on raw user memory.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: This case is a calibration override against the manual labels.
+    The source and log surface a scalar-pointer misuse, but the accepted explanation
+    is architecture-dependent alignment behavior for atomic operations on user memory,
+    which is better modeled as an environment mismatch.
+- case_id: stackoverflow-76637174
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The payload scan is guarded in source, but after several
+    variable-offset packet steps the verifier loses the range on the recomputed scan
+    cursor inside the loop body.
+  fix_type: reorder
+  fix_direction: Rewrite the scan as a cursor-based loop with an explicit maximum
+    iteration bound, and perform the packet-end check on the exact pointer that is
+    dereferenced.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: lowering_artifact
+  adjudication_note: The accepted answer points to loop rewrite and explicit verifier-friendly
+    cursor checks, not to a fundamentally missing source safety condition. The rejection
+    comes from proof shape and looped packet-pointer reconstruction.
+- case_id: stackoverflow-76960866
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: The kprobe program dereferences kernel object fields directly
+    from an untrusted scalar pointer instead of reading them through verifier-approved
+    kernel-memory access helpers.
+  fix_type: other
+  fix_direction: Use `bpf_probe_read_kernel()` or CO-RE reads from a verified kernel
+    pointer path instead of directly dereferencing the raw kprobe argument.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-77205912
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: After packet-writing helpers run, the program reuses stale
+    packet-derived state for a second checksum update, so the later helper sees an
+    invalid argument pointer.
+  fix_type: reorder
+  fix_direction: Reload and revalidate packet pointers and header fields after helpers
+    that mutate packet data before computing the next checksum delta.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-77673256
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E021
+  root_cause_description: The object is being loaded without the metadata or relocation
+    handling needed to turn ELF map or rodata references into verifier-usable kernel
+    objects.
+  fix_type: env_fix
+  fix_direction: Load the object through a loader that applies BPF relocations and
+    supports the object's metadata requirements, or rebuild for the target loader
+    or kernel pair.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: stackoverflow-77762365
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: Both `event->len` and `read` are masked, but the verifier
+    still loses the combined `event->len + read` proof before the user-read helper
+    touches the destination slice.
+  fix_type: clamp
+  fix_direction: Express the destination offset and length as a single clamped value
+    immediately before the helper call so the verifier can preserve the range proof.
+  confidence: high
+  label_source: agree
+  labeler_a_class: lowering_artifact
+  labeler_b_class: lowering_artifact
+  adjudication_note: null
+- case_id: stackoverflow-78236201
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The local VLAN-collection state is read before being initialized
+    on all paths, so the verifier sees an unreadable register or stack value when
+    it is later tested.
+  fix_type: other
+  fix_direction: Initialize the `vlans` structure before any read of its fields and
+    keep the reads inside the initialized path.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-78236856
+  taxonomy_class: source_bug
+  error_id: BPFIX-E017
+  root_cause_description: The code compares the array index against `sizeof(a)` in
+    bytes instead of the number of elements, so the verifier correctly allows indices
+    that still run past the 5-element array.
+  fix_type: bounds_check
+  fix_direction: Compare the index against the array element count, not the byte size
+    of the array object.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-78958420
+  taxonomy_class: source_bug
+  error_id: BPFIX-E001
+  root_cause_description: The DNS parser can request a very large packet read from
+    an offset near the end of the frame, so the verifier sees a genuine out-of-bounds
+    packet access.
+  fix_type: bounds_check
+  fix_direction: Add or move packet-length guards so every packet dereference or helper
+    memory range is dominated by a proof for the exact bytes consumed.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-79348306
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The program copies `file->f_path` into stack memory and
+    then passes that stack copy to `bpf_d_path()`, but the helper expects a verifier-trusted
+    pointer type instead.
+  fix_type: other
+  fix_direction: Call the helper with the supported trusted pointer form or use the
+    helper pattern documented for that LSM hook instead of a raw stack copy.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: stackoverflow-79485758
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The packet field offset is checked in source, but the verifier
+    loses the pointer-range proof because the offset can grow to the verifier's maximum
+    packet-offset limit and is also mixed with signed byte arithmetic in the loop.
+  fix_type: type_cast
+  fix_direction: Keep the field offset in an unsigned bounded type, add an explicit
+    packet-offset clamp below `MAX_PACKET_OFF`, and restate the checked cursor directly
+    at the read site.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: lowering_artifact
+  adjudication_note: The failing dereference already has a bounds check immediately
+    above it. The selected explanation in the case data is a verifier corner case
+    around packet-offset maxima, which is stronger evidence for lowering-induced proof
+    loss than for a missing source guard.
+- case_id: stackoverflow-79530762
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: Combining the two `option_length` cases into one boolean
+    expression changes the lowered control flow enough that the verifier can no longer
+    keep the packet-range proof.
+  fix_type: reorder
+  fix_direction: Split the cases into separate branches or otherwise restate the packet
+    check in the same branch as each access so the proof survives lowering.
+  confidence: high
+  label_source: agree
+  labeler_a_class: lowering_artifact
+  labeler_b_class: lowering_artifact
+  adjudication_note: null
+- case_id: stackoverflow-79812509
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  root_cause_description: The code feeds the scalar return value of `bpf_get_current_task()`
+    into `bpf_task_storage_get()`, but that helper requires a trusted task pointer
+    rather than an untyped scalar.
+  fix_type: other
+  fix_direction: Use a verifier-trusted task pointer source for task storage, such
+    as the hook argument or a helper or kfunc that returns the required pointer type.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: github-aya-rs-aya-1002
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E022
+  root_cause_description: The program writes mutable global/static state, but this
+    environment only supports read-only global data and rejects updates through the
+    backing array map.
+  fix_type: env_fix
+  fix_direction: Move mutable state into an explicit BPF map or target an environment
+    that supports mutable global data.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: github-aya-rs-aya-1056
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The extra info/logging path changes lowering enough that
+    a frame-pointer offset is computed from an unbounded scalar, while the simplified
+    source loads successfully.
+  fix_type: reorder
+  fix_direction: Rewrite the code so the range proof survives lowering, for example
+    by introducing an explicit clamp, unsigned cast, or simpler branch structure near
+    the use site.
+  confidence: high
+  label_source: agree
+  labeler_a_class: lowering_artifact
+  labeler_b_class: lowering_artifact
+  adjudication_note: null
+- case_id: github-aya-rs-aya-1062
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: Using `ctx.ret().unwrap()` as the read length lowers into
+    verifier-hostile signed arithmetic, so the safe runtime length loses its non-negative
+    bound before `bpf_probe_read_user()`.
+  fix_type: type_cast
+  fix_direction: Cast or clamp the return value into a simple unsigned bounded length
+    and avoid panic-style `unwrap()` paths inside eBPF code.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: source_bug
+  labeler_b_class: lowering_artifact
+  adjudication_note: The verifier log is a pure scalar-range failure (`R2 min value
+    is negative`) and the same call passes when the length is hard-coded. That is
+    stronger evidence for proof loss after lowering than for a source-level memory-safety
+    bug.
+- case_id: github-aya-rs-aya-1267
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  root_cause_description: The helper is reached with a computed read length that can
+    collapse to zero, and the verifier rejects the resulting zero-sized read contract.
+  fix_type: clamp
+  fix_direction: Pass the helper or kfunc exactly the pointer, stack slot, alignment,
+    and register kind it expects instead of a scalar, stale, or mismatched object.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: github-aya-rs-aya-407
+  taxonomy_class: source_bug
+  error_id: BPFIX-E003
+  root_cause_description: The emitted event structure includes padding or wider fields
+    that are not fully initialized before it is handed to the perf-event helper.
+  fix_type: type_cast
+  fix_direction: Fully initialize the helper-visible stack range or make the destination
+    buffer match the size and shape the helper expects.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: github-aya-rs-aya-440
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E016
+  root_cause_description: The program tries to send a direct packet pointer and length
+    pair through `bpf_perf_event_output()`, but that helper is not allowed to access
+    packet memory in this XDP context.
+  fix_type: env_fix
+  fix_direction: Copy the packet bytes into stack or map memory first, then emit that
+    owned buffer instead of a packet pointer.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: github-aya-rs-aya-458
+  taxonomy_class: source_bug
+  error_id: BPFIX-E015
+  root_cause_description: A helper or kfunc is reached with a pointer that may still
+    be NULL on some path, so the verifier keeps the argument nullable and rejects
+    the call or dereference.
+  fix_type: null_check
+  fix_direction: Add a dominating NULL check and keep the helper call or dereference
+    entirely inside the non-NULL branch.
+  confidence: high
+  label_source: agree
+  labeler_a_class: source_bug
+  labeler_b_class: source_bug
+  adjudication_note: null
+- case_id: github-aya-rs-aya-521
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E021
+  root_cause_description: The object lacks the function metadata the kernel expects
+    for the `bpf_loop()` callback, so verification stops at missing `func_info` rather
+    than at BPF logic.
+  fix_type: env_fix
+  fix_direction: Emit and load complete callback `func_info` and BTF metadata, or
+    use a toolchain path known to support `bpf_loop()` callbacks correctly.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null
+- case_id: github-cilium-cilium-41412
+  taxonomy_class: verifier_limit
+  error_id: BPFIX-E018
+  root_cause_description: The builtins memmove test expands into a verifier proof
+    shape with very high instruction and state counts, and `bpf_jit_harden=2` pushes
+    that proof over the verifier's practical complexity budget.
+  fix_type: loop_rewrite
+  fix_direction: Backport the simplification that removes the exponential complexity
+    growth, or otherwise reduce the generated proof shape so the test stays under
+    verifier complexity limits.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: verifier_limit
+  labeler_b_class: env_mismatch
+  adjudication_note: 'The decisive evidence is the load log itself: nearly 500k processed
+    instructions and a fix discussion centered on reducing exponential complexity
+    growth. The environment setting changes whether the limit is hit, but the failure
+    mode is still verifier-budget exhaustion rather than a missing helper capability.'
+- case_id: github-cilium-cilium-41522
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  root_cause_description: The node-specific post-upgrade rejection is more consistent
+    with compiled packet-access bytecode whose proof shape exceeds the rejecting kernel
+    verifier's precision than with a demonstrated verifier-internal bug. The source
+    logic may still be correct, but the lowered form is not robust across the observed
+    kernel/verifier combination.
+  fix_type: other
+  fix_direction: Compare the failing node's exact kernel, BTF, and build inputs against
+    a working node and reduce the failing path to a minimal reproducer before deciding
+    whether to rewrite the program or upgrade the kernel.
+  confidence: medium
+  label_source: adjudicated
+  labeler_a_class: lowering_artifact
+  labeler_b_class: verifier_bug
+  adjudication_note: Reclassified from verifier_bug to lowering_artifact because the
+    available evidence shows a node-specific rejection after upgrade, which is safer
+    to model as verifier-sensitive proof loss in the compiled bytecode than as a confirmed
+    verifier internal bug. Evidence remains incomplete, so lowering_artifact is the
+    more defensible label.
+- case_id: github-facebookincubator-katran-149
+  taxonomy_class: env_mismatch
+  error_id: BPFIX-E021
+  root_cause_description: The object relies on newer BTF and relocation metadata than
+    the target 4.18 kernel can validate, so later verifier stages never see the expected
+    typed map references.
+  fix_type: env_fix
+  fix_direction: Regenerate or supply the expected BTF/reference metadata, or run
+    on a kernel/toolchain combination that can validate this object correctly.
+  confidence: high
+  label_source: agree
+  labeler_a_class: env_mismatch
+  labeler_b_class: env_mismatch
+  adjudication_note: null

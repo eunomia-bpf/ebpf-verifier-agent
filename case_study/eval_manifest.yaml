@@ -1986,7 +1986,7 @@
   eligible: true
   log_quality: trace_rich
   eval_split: core
-  duplicate_group: null
+  duplicate_group: TLS SNI XDP parser near-duplicate (collect_ips_prog / server_name extraction)
   core_representative: false
 - case_id: stackoverflow-70760516
   source: stackoverflow
@@ -1995,7 +1995,7 @@
   eligible: true
   log_quality: trace_rich
   eval_split: core
-  duplicate_group: null
+  duplicate_group: TLS SNI XDP parser near-duplicate (collect_ips_prog / server_name extraction)
   core_representative: false
 - case_id: stackoverflow-70841631
   source: stackoverflow

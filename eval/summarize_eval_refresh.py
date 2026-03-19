@@ -19,7 +19,7 @@ DEFAULT_MANIFEST_PATH = ROOT / "case_study" / "eval_manifest.yaml"
 DEFAULT_BATCH_RESULTS_PATH = ROOT / "eval" / "results" / "batch_diagnostic_results.json"
 DEFAULT_LATENCY_RESULTS_PATH = ROOT / "eval" / "results" / "latency_benchmark_v4.json"
 DEFAULT_BASELINE_RESULTS_PATH = ROOT / "eval" / "results" / "baseline_results.json"
-DEFAULT_LABELS_PATH = ROOT / "case_study" / "ground_truth_labels.yaml"
+DEFAULT_LABELS_PATH = ROOT / "case_study" / "ground_truth.yaml"
 DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "eval-refresh-2026-03-18.md"
 
 

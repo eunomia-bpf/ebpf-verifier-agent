@@ -22,8 +22,8 @@ if str(ROOT) not in sys.path:
 
 DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "ablation_results.json"
 DEFAULT_MANIFEST_PATH = ROOT / "case_study" / "eval_manifest.yaml"
-DEFAULT_LABELS_PATH = ROOT / "case_study" / "ground_truth_labels.yaml"
-DEFAULT_LABELS_V2_PATH = ROOT / "case_study" / "ground_truth_v2.yaml"
+DEFAULT_LABELS_PATH = ROOT / "case_study" / "ground_truth.yaml"
+ARCHIVE_LABELS_PATH = ROOT / "case_study" / "archive" / "ground_truth_labels.yaml"
 DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "comparison-report-2026-03-18.md"
 METHOD_ORDER = ("bpfix", "baseline", "ablation_a", "ablation_b", "ablation_c")
 METHOD_LABELS = {
@@ -53,7 +53,7 @@ def parse_args() -> argparse.Namespace:
         "--labels-path",
         type=Path,
         default=None,
-        help="Optional explicit labels file. Defaults to ground_truth_v2.yaml when present.",
+        help="Optional explicit labels file. Defaults to ground_truth.yaml.",
     )
     parser.add_argument("--report-path", type=Path, default=DEFAULT_REPORT_PATH)
     return parser.parse_args()
@@ -72,8 +72,6 @@ def load_json(path: Path) -> Any:
 def resolve_labels_path(explicit: Path | None) -> Path:
     if explicit is not None:
         return explicit
-    if DEFAULT_LABELS_V2_PATH.exists():
-        return DEFAULT_LABELS_V2_PATH
     return DEFAULT_LABELS_PATH
 
 
@@ -412,9 +410,13 @@ def render_inputs_section(
         f"- Eligible cases in comparison run: `{len(full_ids)}`",
         f"- Core-set eligible cases: `{len(core_ids)}`",
     ]
-    if labels_path == DEFAULT_LABELS_V2_PATH and DEFAULT_LABELS_PATH.exists():
+    if labels_path == DEFAULT_LABELS_V3_PATH and DEFAULT_LABELS_PATH.exists():
         lines.append(
-            "- `ground_truth_v2.yaml` is used for the primary tables; the older `ground_truth_labels.yaml` is still used below for the historical 70.2% vs 75.7% gap analysis."
+            "- `ground_truth.yaml` is used for the primary tables; the older `ground_truth_labels.yaml` is still used below for the historical 70.2% vs 75.7% gap analysis."
+        )
+    elif labels_path == DEFAULT_LABELS_V2_PATH and DEFAULT_LABELS_PATH.exists():
+        lines.append(
+            "- `ground_truth.yaml (v2)` is used for the primary tables; the older `ground_truth_labels.yaml` is still used below for the historical 70.2% vs 75.7% gap analysis."
         )
     return lines
 
