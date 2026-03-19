@@ -1,6 +1,6 @@
 # Batch Diagnostic Evaluation
 
-- Generated at: `2026-03-19T02:45:56.569277+00:00`
+- Generated at: `2026-03-19T03:30:14.096053+00:00`
 - Minimum verifier log length: `50` chars
 - Case files scanned: `302`
 - Eligible for evaluation: `262`
@@ -12,39 +12,39 @@
 
 - Success rate: `262/262 (100.0%)`
 - BTF source correlation: `172/262 (65.6%)`
-- Span role coverage: established `14/262 (5.3%)`, lost `13/262 (5.0%)`, rejected `262/262 (100.0%)`
+- Span role coverage: established `12/262 (4.6%)`, lost `13/262 (5.0%)`, rejected `262/262 (100.0%)`
 
 ## Distribution of taxonomy_class
 
 | Value | Count | Share |
 | --- | ---: | ---: |
 | `verifier_limit` | 5 | 1.9% |
-| `source_bug` | 220 | 84.0% |
-| `env_mismatch` | 17 | 6.5% |
-| `lowering_artifact` | 20 | 7.6% |
+| `source_bug` | 212 | 80.9% |
+| `env_mismatch` | 27 | 10.3% |
+| `lowering_artifact` | 18 | 6.9% |
 
 ## Distribution of proof_status
 
 | Value | Count | Share |
 | --- | ---: | ---: |
-| `unknown` | 174 | 66.4% |
-| `never_established` | 74 | 28.2% |
-| `established_then_lost` | 13 | 5.0% |
+| `unknown` | 184 | 70.2% |
+| `never_established` | 66 | 25.2% |
+| `established_then_lost` | 11 | 4.2% |
 | `established_but_insufficient` | 1 | 0.4% |
 
 ## Number of Spans Histogram
 
 | Value | Count | Share |
 | --- | ---: | ---: |
-| `1` | 241 | 92.0% |
-| `2` | 15 | 5.7% |
+| `1` | 243 | 92.7% |
+| `2` | 13 | 5.0% |
 | `3` | 6 | 2.3% |
 
 ## Per-Source Breakdown
 
 | Source | Total | Eligible | Success | Failure | Skipped | Success Rate | BTF Rate | Avg Spans |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Selftests | 200 | 171 | 171 | 0 | 29 | 100.0% | 98.8% | 1.05 |
+| Selftests | 200 | 171 | 171 | 0 | 29 | 100.0% | 98.8% | 1.04 |
 | Stack Overflow | 76 | 65 | 65 | 0 | 11 | 100.0% | 1.5% | 1.26 |
 | GitHub | 26 | 26 | 26 | 0 | 0 | 100.0% | 7.7% | 1.08 |
 
@@ -80,17 +80,17 @@ _Ranking heuristic penalizes sparse spans, missing roles, missing BTF, and bloat
 
 - `0` successful cases emitted `6+` spans; these outputs risk becoming noisy.
 - `0` successful cases emitted zero correlated spans.
-- `241` successful cases emitted only one span, which often reduces causal context.
+- `243` successful cases emitted only one span, which often reduces causal context.
 - `0` successful cases had source markers in the verifier log but no `file:line` in emitted spans.
-- `7` successful cases were missing role(s) expected by their `proof_status`.
+- `5` successful cases were missing role(s) expected by their `proof_status`.
 - `0` successful cases were missing an explicit rejected span.
 
 Examples:
 - Missing BTF despite source markers: 0
 - Too many spans: 0
-- Missing expected roles: 7 (`kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84`, `kernel-selftest-dynptr-fail-data-slice-out-of-bounds-ringbuf-raw-tp-83139460`, `kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-tc-b903ac49`, `stackoverflow-76160985`, `stackoverflow-78236856`, +2 more)
+- Missing expected roles: 5 (`kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-tc-b903ac49`, `stackoverflow-76160985`, `stackoverflow-78236856`, `github-aya-rs-aya-1267`, `github-aya-rs-aya-407`)
 
 ## Recommendations
 
-- Strengthen fallback proof-event synthesis for sparse outputs; 241 successful cases render at most one span.
+- Strengthen fallback proof-event synthesis for sparse outputs; 243 successful cases render at most one span.
 - Enforce a minimal role set from `proof_status` during rendering so `established_then_lost` always includes established/lost/rejected context when recoverable.
