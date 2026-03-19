@@ -34,24 +34,27 @@
 
 ## 1. 论文核心要求
 
-### 1.1 核心 Thesis：Abstract State Transition Analysis（2026-03-12 第四次调整）
+### 1.1 核心 Thesis（2026-03-18 第五次调整）
 
-> **旧 thesis（已放弃）**：verifier 缺少诊断信息，需要 kernel-side hooks 暴露 abstract state。
-> **第一次调整**：发现 LOG_LEVEL2 已有完整 abstract state，问题是 unstructured。做 proof trace analysis。
-> **第二次调整**：分类准确率不是贡献（LLM 已做到 95%+）。真正的贡献是 diagnostic output 的质量。
-> **第三次调整**：核心 insight 是 proof obligation lifecycle。但 obligation inference 本质是 lookup table，不够 general。
-> **第四次调整（当前）**：核心 insight 是 **abstract state transition analysis** — verifier trace 是 proof attempt 的完整记录，直接分析 abstract state 的变化即可定位 root cause，不需要预先知道 obligation 是什么。
+> **历史调整**：
+> - v1：verifier 缺诊断信息 → 发现 LOG_LEVEL2 已有完整 abstract state
+> - v2：分类准确率 ≠ 贡献（LLM 95%+）→ 贡献是 diagnostic quality
+> - v3：proof obligation lifecycle → obligation inference 本质是 lookup table
+> - v4：abstract state transition analysis → "不需要知道 obligation"（overclaim，已修正）
+> - **v5（当前）**：cross-analysis classification + diagnosis-guided repair
 
 > **当前 thesis**：
-> Verifier 的 LOG_LEVEL2 trace 记录了完整的 abstract state 序列 [s_0, s_1, ..., s_n]。每条指令要么推进、维持、或破坏 safety argument。
-> 通过分析 abstract state 在每条指令的 **transition**（bounds collapse、type downgrade、provenance loss、range loss），可以自动定位 proof 被破坏的精确位置 — root cause — **无需预先知道哪个 safety property 被检查**。
+> eBPF verifier 的 LOG_LEVEL2 trace 是完整的 proof attempt 记录（per-instruction abstract state）。
+> OBLIGE 从 BPF ISA specification（opcode byte）推断 rejection 处的 safety condition，
+> 然后通过 **(1) 全局监控该 condition 的 proof lifecycle** 和 **(2) 从 rejection 点的 backward slice** 交叉比较，精确定位 root cause 并分类 failure mode：
+> - Establishment_global ∩ Slice ≠ ∅ → proof 在 causal chain 上建立后被破坏 → **established_then_lost**
+> - Establishment_global ≠ ∅ 但 ∩ Slice = ∅ → proof 存在但编译器断开了连接 → **lowering_artifact**
+> - Establishment_global = ∅ → 从未有任何 register 满足 condition → **source_bug**
 >
-> **Key insight**: The verifier trace IS the proof attempt. Abstract state transitions reveal where the proof broke:
-> - 检测 safety-relevant state 退化的指令（bounds 变宽、type 降级、provenance 丢失）
-> - **Transition pattern** 直接分类 failure：从未建立 = source bug，建立后破坏 = lowering artifact
-> - Error message 作为 **focus mechanism**（zoom in 到最相关的 transitions），不作为分析基础
+> 在此诊断基础上，OBLIGE 合成修复并通过 verifier oracle 验证，实现端到端自动化修复。
 >
-> **Generality**: 适用于任何输出 per-step abstract state 的 abstract interpreter（Rust borrow checker、WebAssembly validator、Java bytecode verifier）。
+> **Safety condition 推断是 ISA-driven**（opcode byte → required property），不是 error message pattern matching（Pretty Verifier 的 91 regex 做法）。Opcode 是 ABI 稳定的，跨 kernel 版本不变。
+>
 > 纯 userspace，不需要改 kernel。
 
 **OBLIGE 输出示例**：
@@ -107,45 +110,39 @@ unbounded min value is not allowed
 | Model checking counterexample analysis | counterexample trace | 提取 property violation 原因 | 不适用于 eBPF abstract interpreter |
 | **OBLIGE** | **完整 verifier state trace** | **state transition analysis + causal chain** | — |
 
-#### 论文逻辑链条（2026-03-12 更新，abstract state transition analysis framing）
+#### 论文逻辑链条（2026-03-18 更新）
 
 1. **Context + Problem (Para 1)**: eBPF critical → verifier rejection = 500-line trace → last line = symptom, root cause buried 30-500 lines earlier
-2. **Evidence + Why existing fails (Para 2)**: 591 commits 分析 → 63.6% 是 proof-reshaping workarounds（根因是 verifier over-approximation，不是 diagnostics 差）。修复需要知道 proof *在哪里*断了。PV regex on final line; LLMs treat as text; neither finds the state transition that broke the proof
-3. **Key insight (Para 3)**: Verifier trace = proof attempt record. Abstract state transitions（bounds collapse, type downgrade, provenance loss）直接揭示 root cause。Transition pattern 分类 failure：从未建立 = source bug，建立后破坏 = lowering artifact。不需要预先知道 obligation
-4. **Example (Para 4)**: Figure 1 (SO #70750259) — bounds check established (line 3), OR destroys bounds (line 7), rejected (line 8). OBLIGE shows 3 labeled spans with state transitions vs PV's 1 hint
-5. **System + Results + Contributions (Para 5)**: State transition detection + backward slicing + interval arithmetic, 94% coverage, Rust-style rendering. 3 contribution bullets
+2. **Evidence + Why existing fails (Para 2)**: 591 commits → 63.6% 是 proof-reshaping workarounds（根因是 verifier over-approximation）。修复需要知道 proof *在哪里*断了。PV regex on final line; LLMs treat as text; neither finds the state transition that broke the proof
+3. **Key insight (Para 3)**: Verifier trace = proof attempt record。从 ISA spec 推断 safety condition，全局监控其 proof lifecycle，backward slice 找 causal chain，交叉比较判定 failure mode。Cross-analysis 能区分 source_bug、lowering_artifact、established_then_lost
+4. **Example (Para 4)**: Figure 1 — bounds check established on R5 (line 3), but LLVM uses R3 for access → proof exists but not on causal chain → lowering_artifact。OBLIGE 诊断 + 合成修复 + verifier oracle 验证
+5. **System + Results + Contributions (Para 5)**: Cross-analysis classification + end-to-end repair pipeline + evaluation
 
-### 1.2 Novelty（2026-03-12 第四次调整 — abstract state transition analysis）
+### 1.2 Novelty（2026-03-18 第五次调整）
 
 **核心 novelty（不是分类准确率——LLM 已做到 95%+）**：
 
-**论文三大贡献（对应 Introduction contribution bullets）**：
-1. **Abstract state transition analysis framework** — 将 verifier trace 视为 proof attempt 的完整记录，通过分析每条指令的 abstract state 变化（bounds collapse、type downgrade、provenance loss、range loss）自动定位 root cause。不需要预先知道 obligation 是什么 — transition pattern 本身就分类 failure（从未建立 = source bug，建立后破坏 = lowering artifact）。适用于任何输出 per-step abstract state 的 abstract interpreter
-2. **The OBLIGE diagnostic engine** — 五阶段 pipeline（trace parsing → state transition detection → backward slicing via mark_precise → BTF source correlation → multi-span rendering），interval arithmetic 三值评估（satisfied/violated/unknown），27ms median latency，纯 userspace，不改 kernel
-3. **Evaluation on 302 real-world failures** — 94.2% coverage，lowering artifact +30pp repair accuracy，root-cause localization 67% vs PV 0%
-
-**支撑 novelty**：
-- **Meta-analysis of abstract interpretation output** — 对 verifier AI 输出做二阶分析（second-order abstract interpretation）
-- **Leveraging verifier's own `mark_precise` backtracking** — 提取并结构化 verifier 自己的根因链，完整 BFS 无深度限制
-- **Interval arithmetic + tnum** — 精确匹配 verifier 的 scalar 追踪（[umin,umax]×[smin,smax] + tnum value/mask），三值评估
-- **Language-agnostic**: bytecode level 分析 → C/Rust/Go 都适用
-- **Soundness from verifier**: OBLIGE labels 的 soundness 继承自 verifier AI 的 soundness
+**论文三大贡献**：
+1. **Cross-analysis classification** — 全局 proof monitoring（对所有 register 评估 safety condition 的 gap trajectory）× backward slice（从 error 点的 data+control 依赖）的交集判定 failure mode。三种情况精确对应三类故障：E∩S≠∅ → established_then_lost；E≠∅ ∧ E∩S=∅ → lowering_artifact；E=∅ → source_bug。这比单独的 monitor 或单独的 slice 更精确，尤其能区分 lowering artifact（proof 在不同 register 上存在但编译器断开了连接）
+2. **End-to-end diagnostic + repair pipeline** — 4 层架构：parse → analyze (safety condition inference + global monitoring + backward slice + cross-analysis) → present (Rust-style multi-span) → repair (template synthesis + verifier oracle + CEGAR-like loop)。纯 userspace，不改 kernel
+3. **Evaluation on 302 real-world failures** — root-cause precision, synthesis success rate, vs Pretty Verifier（数字待重跑确认）
 
 **与 Pretty Verifier 的本质差异**：
 - Pretty Verifier：parse **1 行** error message（91 regex）→ 1 个 enhanced text + 1 个建议
-- OBLIGE：parse **500 行** state trace → **多个源码位置** + 因果链 + abstract state transitions + 结构化 JSON
+- OBLIGE：parse **500 行** state trace → cross-analysis classification + **多个源码位置** + 因果链 + 合成修复
 
-**Obligation 的角色（降级为 focus mechanism）**：
-- Obligation 从 error message 推断 verifier 需要的 safety condition → 用作 focus mechanism（zoom in 到最相关的 transitions）
-- 核心分析不依赖 obligation catalog — 直接分析 abstract state diff 找到 safety-relevant 退化
-- 已有的 obligation_catalog_formal.py（35 个从 verifier.c 提取的 precondition）作为 precision 增强，不是 foundation
+**Safety condition 的角色（诚实说明）**：
+- Safety condition 从 BPF ISA specification（opcode byte + helper signature table）推断，是 Layer 2 的**显式输入**
+- Backward slice (Step C) 不依赖 safety condition（纯结构分析），但 global monitoring (Step B) 需要它来计算 gap
+- 推断方式是 ISA-driven（跨版本稳定），不是 error message regex（Pretty Verifier 做法）
 
 **Go 条件（全部满足才提交）**：
-1. Benchmark ≥80 个 labeled cases，覆盖全 5 类 ✅ 302 cases, 30 labeled
-2. Rust-style multi-span diagnostic engine end-to-end 跑通 ✅ `generate_diagnostic()` + 241/241 batch success
-3. OBLIGE 输出的 source spans 覆盖实际 fix 位置（vs PV: 1 span only）✅ 101/263 covered；manual 12/14 (86%)
-4. A/B repair experiment：OBLIGE 输出 + LLM vs raw log + LLM，修复质量差异 ✅ 54 cases；`lowering_artifact` fix-type +30pp（3/10 → 6/10）
-5. 信息压缩质量：500 行 → 3-5 个带标签的源码跨度，expert 评估 sufficiency ❌（已有 241-case batch + deep quality analysis，尚缺 expert study）
+1. ≥80 labeled cases ✅ 302 cases, 30 manual
+2. End-to-end pipeline 跑通 ✅ 262/262 batch success
+3. Cross-analysis classification 实现 ❌ 待实现 (#78)
+4. 至少 1 个 lowering artifact case 端到端自动修复验证 ❌ 待验证（codex 在跑）
+5. Synthesis + verifier oracle loop 实现 ❌ 待实现 (#66-#68)
+6. 重跑全部 eval ❌ 待做 (#58)
 
 ### 1.3 与 existing work 的关键差异
 
@@ -174,33 +171,71 @@ unbounded min value is not allowed
 ### 2.0 四层架构概览
 
 ```
-Layer 1: PARSING（regex 不可避免——文本 → 结构化数据）
-  输入: 500 行 raw verifier log
-  输出: [TracedInstruction(insn_idx, opcode, pre_state, post_state, btf_source)]
+Layer 1: PARSING（文本 → 结构化数据，regex 是合理的 lexer）
+  输入: raw verifier LOG_LEVEL2 text (500+ 行)
+  输出: TracedInstruction[] — (insn_idx, opcode_hex, pre_state, post_state, btf_source)
   实现: log_parser.py + trace_parser.py
 
-Layer 2: ANALYSIS（纯结构化分析，零 regex）
-  Step 1: 找到 rejection point (is_error=True)
-  Step 2: 从 rejection 指令的 opcode 推断 safety condition (opcode_safety.py)
-  Step 3: Backward slice from rejection point (cfg_builder + dataflow + control_dep + slicer)
-  Step 4: 在 slice 内评估 safety condition，找 establish/loss (monitor.py)
-  Step 5: 分类 (never_established → source_bug, established_then_lost → lowering_artifact)
-  输出: (rejection_point, safety_condition, proof_loss_point, backward_slice, classification, gap)
+Layer 2: ANALYSIS（核心贡献 — 纯结构化，零 regex）
+
+  Step A: Safety condition inference
+    从 error instruction 的 opcode byte 推断 safety condition
+    LDX → BOUNDS (off+size ≤ range)
+    CALL → ARG_CONTRACT (from helper signature table)
+    ISA-driven, 跨版本稳定
+    实现: opcode_safety.py + helper_signatures.py
+
+  Step B: Global proof monitoring
+    对 trace 中每条指令的每个相关 register，评估 safety condition
+    计算 verification gap = distance(actual_state, required_condition)
+    Establishment_global = {insn where gap transitions >0 → 0}
+    Loss_global = {insn where gap transitions 0 → >0}
+    实现: monitor.py
+
+  Step C: Backward slice from error
+    CFG reconstruction from trace (branch opcodes + merge annotations)
+    Reaching definitions + control dependence
+    Slice = backward_slice(error_insn, error_register)
+    实现: cfg_builder.py + dataflow.py + control_dep.py + slicer.py
+
+  Step D: Cross-analysis classification
+    if Establishment_global ∩ Slice ≠ ∅:
+      → established_then_lost (proof 在 causal chain 上建立后被破坏)
+      root_cause = loss point within slice
+    elif Establishment_global ≠ ∅:
+      → lowering_artifact (proof 存在但在不同 register，编译器断开了连接)
+      root_cause = establishment point
+    else:
+      → source_bug (从未有任何 register 满足 condition)
+      root_cause = error instruction
+    实现: pipeline.py (待更新 #78)
+
+  输出: Diagnosis(safety_condition, classification,
+                   establish_site, loss_site, backward_slice, gap)
 
 Layer 3: PRESENTATION
-  输入: 分析结果 + BTF source annotations
-  输出: Rust-style multi-span diagnostic + structured JSON
+  输入: Diagnosis + BTF source annotations
+  输出: Rust-style multi-span diagnostic (3-5 labeled spans) + structured JSON
   实现: source_correlator.py + renderer.py
 
-Layer 4: REPAIR（Path B — 主要 novelty，待实现）
-  Step 1: 从 condition type + gap → 选修复模板
-  Step 2: 实例化模板 → 生成修复代码
-  Step 3: compile + bpftool prog load → verifier oracle
-  Step 4: 不通过 → 重新分析 → 迭代（CEGAR-like loop）
+Layer 4: REPAIR（主要 novelty，待实现 #66-#68）
+  Step A: Template selection
+    从 condition type + gap value + classification 选修复策略
+    bounds gap → insert clamp/mask
+    null gap → insert null check
+    lowering artifact → insert redundant bounds check at access site
+
+  Step B: Template instantiation
+    从 gap 具体数值 + BTF source location → 生成修复代码片段
+
+  Step C: Verifier oracle
+    修复代码 → compile → bpftool prog load → pass/fail
+
+  Step D: Iterative refinement (CEGAR-like)
+    if fail → 分析新 rejection trace → 新 Diagnosis → 新修复 → 迭代
+
   实现: synthesizer.py + verifier_oracle.py
 ```
-
-### 2.1 Verifier state trace 包含什么
 
 ---
 
@@ -250,7 +285,7 @@ Layer 4: REPAIR（Path B — 主要 novelty，待实现）
 
 **完整定义**：`taxonomy/error_catalog.yaml`
 
-### 2.1 Verifier state trace 包含什么
+### 3.3 Verifier state trace 包含什么
 
 每条指令的 register state dump：
 ```
@@ -272,7 +307,7 @@ BTF source lines：
 42: (bf) r3 = r1
 ```
 
-### 2.2 OBLIGE Rust-Style Diagnostic Engine（已实现）
+### 3.4 OBLIGE 输出格式示例
 
 **Pipeline**：raw verifier log → 5 步 → Rust-style multi-span output
 
@@ -330,7 +365,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 }
 ```
 
-### 2.3 技术挑战
+### 3.5 技术挑战
 
 1. **Meta-analysis of abstract interpretation** — 对 verifier 输出的 per-instruction abstract state 做二阶分析（backward slicing + proof propagation）
 2. **Leveraging `mark_precise`** — verifier 自己的 precision tracking 是最精确的根因链，但只以 debug text 暴露
@@ -338,7 +373,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 4. **Source correlation** — BTF annotation 并非总是存在；需要 fallback 到 bytecode-level spans
 5. **Information compression** — 500 行 → 3-5 个 spans，选择标准：proof lifecycle 的关键节点
 
-### 3.3 Case Corpus 摘要
+### 3.6 Case Corpus 摘要
 
 | 来源 | Cases | 特点 | 文档 |
 |------|:---:|------|------|
@@ -349,7 +384,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 
 **注意**：302 cases 中有完整 verbose log（含 state trace）的主要是 SO 和 GitHub 来源。Kernel selftests 只有 expected error message，没有完整 state dump。后续需要补充 selftests 的完整 verbose log。
 
-### 5b. Synthetic Cases from eval_commits（2026-03-12）
+### 3.7 Synthetic Cases from eval_commits
 
 从 591 个 eval_commits 中提取 C 代码，生成 535 个 synthetic case（`case_study/cases/eval_commits_synthetic/`）。每个保留完整 provenance（original_case_id, original_commit, original_repository, original_commit_message）。
 
