@@ -26,6 +26,7 @@ struct sni_extension {
 } __attribute__((packed));
 
 #define SERVER_NAME_EXTENSION 0
+#define XDP_DROP 1
 #define XDP_PASS 2
 
 static __inline __u16 bpf_ntohs(__u16 v)
@@ -63,32 +64,7 @@ int collect_ips_prog(struct xdp_md *ctx)
         }
 
         if (ext->type == SERVER_NAME_EXTENSION) {
-            struct server_name sn;
-
-            if (data_end < (data + sizeof(struct sni_extension))) {
-                goto end;
-            }
-
-            struct sni_extension *sni = (struct sni_extension *)data;
-
-            data += sizeof(struct sni_extension);
-
-            __u16 server_name_len = bpf_ntohs(sni->len);
-
-            for (int sn_idx = 0; sn_idx < server_name_len; sn_idx++) {
-                if (data_end < data + sn_idx) {
-                    goto end;
-                }
-
-                if (sn.server_name + sizeof(struct server_name) < sn.server_name + sn_idx) {
-                    goto end;
-                }
-
-                sn.server_name[sn_idx] = data[sn_idx];
-            }
-
-            sn.server_name[server_name_len] = 0;
-            goto end;
+            return XDP_DROP;
         }
 
         __u16 ext_len = bpf_ntohs(ext->len);

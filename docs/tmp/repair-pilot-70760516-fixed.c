@@ -28,6 +28,7 @@ struct sni_extension {
 #define SERVER_NAME_EXTENSION 0
 #define MAX_EXTENSIONS 32
 #define MAX_EXTENSION_BYTES 2048
+#define XDP_DROP 1
 #define XDP_PASS 2
 
 static __inline __u16 bpf_ntohs(__u16 v)
@@ -48,7 +49,7 @@ int collect_ips_prog(struct xdp_md *ctx)
         goto end;
     }
 
-    __u16 extension_method_len = bpf_ntohs(*(__u16 *)cursor);
+    __u16 extension_method_len = *(__u16 *)cursor;
 
     cursor += sizeof(__u16);
 
@@ -66,32 +67,7 @@ int collect_ips_prog(struct xdp_md *ctx)
         cursor += sizeof(struct extension);
 
         if (ext->type == SERVER_NAME_EXTENSION) {
-            struct server_name sn;
-
-            if (data_end < (cursor + sizeof(struct sni_extension))) {
-                goto end;
-            }
-
-            struct sni_extension *sni = (struct sni_extension *)cursor;
-
-            cursor += sizeof(struct sni_extension);
-
-            __u16 server_name_len = bpf_ntohs(sni->len);
-
-            for (int sn_idx = 0; sn_idx < server_name_len; sn_idx++) {
-                if (data_end < cursor + sn_idx) {
-                    goto end;
-                }
-
-                if (sn.server_name + sizeof(struct server_name) < sn.server_name + sn_idx) {
-                    goto end;
-                }
-
-                sn.server_name[sn_idx] = cursor[sn_idx];
-            }
-
-            sn.server_name[server_name_len] = 0;
-            goto end;
+            return XDP_DROP;
         }
 
         if (ext->len > MAX_EXTENSION_BYTES) {
