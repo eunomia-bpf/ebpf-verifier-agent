@@ -26,6 +26,40 @@ from .helper_signatures import (
 )
 
 
+class OperandRole(Enum):
+    BASE_PTR = "base_ptr"
+    OFFSET_SCALAR = "offset_scalar"
+    HELPER_ARG = "helper_arg"
+    RETURN_VALUE = "return_value"
+    REF_OBJECT = "ref_object"
+
+
+@dataclass(frozen=True)
+class SafetySchema:
+    domain: SafetyDomain
+    role: OperandRole
+    access_size: int | None = None
+    pointer_kind: str | None = None
+    expected_types: tuple[str, ...] = ()
+    allow_null: bool = False
+    requires_range: bool = False
+    requires_writable: bool = False
+    helper_id: int | None = None
+    helper_name: str | None = None
+    helper_arg_index: int | None = None
+    constraint: str | None = None
+
+
+@dataclass(frozen=True)
+class CarrierSpec:
+    register: str
+    role: OperandRole
+    pointer_kind: str | None
+    provenance_id: int | None
+    reject_type: str | None
+    is_primary: bool = False
+
+
 # ---------------------------------------------------------------------------
 # BPF opcode class constants (bits 2:0 of opcode byte)
 # ---------------------------------------------------------------------------
@@ -510,6 +544,330 @@ def compute_condition_gap(
 
         case _:
             return None
+
+
+# ---------------------------------------------------------------------------
+# Schema-driven cross-analysis helpers
+# ---------------------------------------------------------------------------
+
+_POINTER_KIND_MAP = {
+    "ctx": "ctx",
+    "dynptr": "dynptr",
+    "fp": "fp",
+    "map_ptr": "map_ptr",
+    "map_value": "map_value",
+    "map_value_or_null": "map_value",
+    "pkt": "pkt",
+    "pkt_end": "pkt_end",
+    "pkt_meta": "pkt_meta",
+    "ptr": "ptr",
+    "ptr_or_null": "ptr",
+    "ptr_sock": "sock",
+    "ringbuf_mem": "ringbuf_mem",
+    "sock": "sock",
+    "sock_or_null": "sock",
+    "trusted_ptr": "trusted_ptr",
+}
+
+
+def normalize_pointer_kind(type_str: str) -> str | None:
+    """Normalize a parsed RegisterState.type token to a carrier kind."""
+    normalized = (type_str or "").strip().lower()
+    if not normalized:
+        return None
+    return _POINTER_KIND_MAP.get(normalized)
+
+
+def infer_safety_schemas(error_insn: Any) -> list[SafetySchema]:
+    """Infer register-parametric safety schemas from the reject opcode."""
+    bytecode = getattr(error_insn, "bytecode", "") or ""
+    raw_opcode = (
+        getattr(error_insn, "opcode_hex", None)
+        or getattr(error_insn, "_opcode_hex", None)
+    )
+    if not raw_opcode:
+        return []
+
+    info = decode_opcode(raw_opcode, bytecode)
+    state = getattr(error_insn, "pre_state", {}) or {}
+
+    def _pointer_kind_for(reg_name: str | None) -> str | None:
+        if reg_name is None:
+            return None
+        reg = state.get(reg_name)
+        if reg is None:
+            return None
+        return normalize_pointer_kind(getattr(reg, "type", "") or "")
+
+    schemas: list[SafetySchema] = []
+
+    if info.opclass == OpcodeClass.LDX:
+        pointer_kind = _pointer_kind_for(info.src_reg)
+        schemas.extend([
+            SafetySchema(
+                domain=SafetyDomain.POINTER_TYPE,
+                role=OperandRole.BASE_PTR,
+                pointer_kind=pointer_kind,
+            ),
+            SafetySchema(
+                domain=SafetyDomain.NULL_SAFETY,
+                role=OperandRole.BASE_PTR,
+                pointer_kind=pointer_kind,
+            ),
+            SafetySchema(
+                domain=SafetyDomain.MEMORY_BOUNDS,
+                role=OperandRole.BASE_PTR,
+                access_size=info.access_size,
+                pointer_kind=pointer_kind,
+            ),
+        ])
+        return schemas
+
+    if info.opclass in (OpcodeClass.ST, OpcodeClass.STX):
+        pointer_kind = _pointer_kind_for(info.dst_reg)
+        schemas.extend([
+            SafetySchema(
+                domain=SafetyDomain.POINTER_TYPE,
+                role=OperandRole.BASE_PTR,
+                pointer_kind=pointer_kind,
+            ),
+            SafetySchema(
+                domain=SafetyDomain.NULL_SAFETY,
+                role=OperandRole.BASE_PTR,
+                pointer_kind=pointer_kind,
+            ),
+            SafetySchema(
+                domain=SafetyDomain.MEMORY_BOUNDS,
+                role=OperandRole.BASE_PTR,
+                access_size=info.access_size,
+                pointer_kind=pointer_kind,
+            ),
+            SafetySchema(
+                domain=SafetyDomain.WRITE_PERMISSION,
+                role=OperandRole.BASE_PTR,
+                pointer_kind=pointer_kind,
+            ),
+        ])
+        return schemas
+
+    if info.is_alu:
+        schemas.append(SafetySchema(
+            domain=SafetyDomain.ARITHMETIC_LEGALITY,
+            role=OperandRole.BASE_PTR,
+            pointer_kind=_pointer_kind_for(info.dst_reg),
+        ))
+        if info.src_reg is not None:
+            schemas.append(SafetySchema(
+                domain=SafetyDomain.SCALAR_BOUND,
+                role=OperandRole.OFFSET_SCALAR,
+            ))
+        return schemas
+
+    if info.is_call:
+        helper_conditions = (
+            get_helper_safety_conditions(info.helper_id)
+            if info.helper_id is not None
+            else []
+        )
+        if helper_conditions:
+            for condition in helper_conditions:
+                arg_index = _helper_arg_index(condition.critical_register)
+                schemas.append(SafetySchema(
+                    domain=condition.domain,
+                    role=OperandRole.HELPER_ARG,
+                    pointer_kind=_pointer_kind_for(condition.critical_register),
+                    expected_types=condition.expected_types,
+                    allow_null=condition.allow_null,
+                    requires_range=condition.requires_range,
+                    requires_writable=condition.requires_writable,
+                    helper_id=condition.helper_id,
+                    helper_name=condition.helper_name,
+                    helper_arg_index=arg_index,
+                    constraint=condition.constraint,
+                ))
+            return schemas
+
+        for register in ("R1", "R2", "R3", "R4", "R5"):
+            schemas.append(SafetySchema(
+                domain=SafetyDomain.ARG_CONTRACT,
+                role=OperandRole.HELPER_ARG,
+                pointer_kind=_pointer_kind_for(register),
+                helper_id=info.helper_id,
+                helper_name=info.call_target,
+                helper_arg_index=_helper_arg_index(register),
+            ))
+        return schemas
+
+    if info.is_exit:
+        return [
+            SafetySchema(
+                domain=SafetyDomain.REFERENCE_BALANCE,
+                role=OperandRole.REF_OBJECT,
+            ),
+            SafetySchema(
+                domain=SafetyDomain.SCALAR_BOUND,
+                role=OperandRole.RETURN_VALUE,
+            ),
+        ]
+
+    return []
+
+
+def instantiate_primary_carrier(
+    schema: SafetySchema,
+    error_insn: Any,
+) -> CarrierSpec | None:
+    """Instantiate the reject-site carrier selected by opcode operand roles."""
+    bytecode = getattr(error_insn, "bytecode", "") or ""
+    raw_opcode = (
+        getattr(error_insn, "opcode_hex", None)
+        or getattr(error_insn, "_opcode_hex", None)
+    )
+    if not raw_opcode:
+        return None
+
+    info = decode_opcode(raw_opcode, bytecode)
+    register: str | None = None
+
+    if schema.role == OperandRole.BASE_PTR:
+        if info.opclass == OpcodeClass.LDX:
+            register = info.src_reg
+        elif info.opclass in (OpcodeClass.ST, OpcodeClass.STX):
+            register = info.dst_reg
+        elif info.is_alu:
+            register = info.dst_reg
+    elif schema.role == OperandRole.OFFSET_SCALAR:
+        register = info.src_reg
+    elif schema.role == OperandRole.HELPER_ARG and schema.helper_arg_index is not None:
+        register = f"R{schema.helper_arg_index}"
+    elif schema.role in {OperandRole.RETURN_VALUE, OperandRole.REF_OBJECT}:
+        register = "R0"
+
+    if register is None:
+        return None
+
+    state = getattr(error_insn, "pre_state", {}) or {}
+    reg = state.get(register)
+    reject_type = getattr(reg, "type", None) if reg is not None else None
+    pointer_kind = (
+        normalize_pointer_kind(reject_type or "")
+        if reject_type is not None
+        else schema.pointer_kind
+    )
+
+    return CarrierSpec(
+        register=register,
+        role=schema.role,
+        pointer_kind=pointer_kind,
+        provenance_id=getattr(reg, "id", None) if reg is not None else None,
+        reject_type=reject_type,
+        is_primary=True,
+    )
+
+
+def instantiate_schema(schema: SafetySchema, carrier: CarrierSpec) -> SafetyCondition:
+    """Bind a register-parametric schema to a concrete carrier register."""
+    return SafetyCondition(
+        domain=schema.domain,
+        critical_register=carrier.register,
+        required_property=_schema_required_property(schema),
+        access_size=schema.access_size,
+        expected_types=schema.expected_types,
+        allow_null=schema.allow_null,
+        requires_range=schema.requires_range,
+        requires_writable=schema.requires_writable,
+        helper_id=schema.helper_id,
+        helper_name=schema.helper_name,
+        constraint=schema.constraint,
+    )
+
+
+def discover_compatible_carriers(
+    schema: SafetySchema,
+    primary: CarrierSpec,
+    reject_state: dict[str, Any],
+) -> list[CarrierSpec]:
+    """Find reject-site carriers in the same alias class as the primary."""
+    if not _schema_supports_carrier_expansion(schema):
+        return [primary]
+
+    if primary.pointer_kind is None or primary.provenance_id is None:
+        return [primary]
+
+    carriers_by_reg: dict[str, CarrierSpec] = {
+        primary.register: primary,
+    }
+
+    for register, reg_state in reject_state.items():
+        reg_type = getattr(reg_state, "type", "") or ""
+        if normalize_pointer_kind(reg_type) != primary.pointer_kind:
+            continue
+        if getattr(reg_state, "id", None) != primary.provenance_id:
+            continue
+        carriers_by_reg[register] = CarrierSpec(
+            register=register,
+            role=primary.role,
+            pointer_kind=primary.pointer_kind,
+            provenance_id=primary.provenance_id,
+            reject_type=reg_type,
+            is_primary=(register == primary.register),
+        )
+
+    ordered_registers = sorted(carriers_by_reg, key=_register_sort_key)
+    if primary.register in ordered_registers:
+        ordered_registers.remove(primary.register)
+        ordered_registers.insert(0, primary.register)
+    return [carriers_by_reg[register] for register in ordered_registers]
+
+
+def _helper_arg_index(register: str | None) -> int | None:
+    if not register or not register.startswith("R"):
+        return None
+    suffix = register[1:]
+    return int(suffix) if suffix.isdigit() else None
+
+
+def _register_sort_key(register: str) -> tuple[int, str]:
+    if register.startswith("R"):
+        suffix = register[1:]
+        if suffix.isdigit():
+            return int(suffix), register
+    return 1 << 30, register
+
+
+def _schema_supports_carrier_expansion(schema: SafetySchema) -> bool:
+    if schema.domain in {SafetyDomain.SCALAR_BOUND, SafetyDomain.REFERENCE_BALANCE}:
+        return False
+    if schema.domain != SafetyDomain.ARG_CONTRACT:
+        return True
+    return any(expected != "scalar" for expected in schema.expected_types)
+
+
+def _schema_required_property(schema: SafetySchema) -> str:
+    match schema.domain:
+        case SafetyDomain.MEMORY_BOUNDS:
+            size = schema.access_size if schema.access_size is not None else "?"
+            return f"off + {size} <= range"
+        case SafetyDomain.POINTER_TYPE:
+            if schema.pointer_kind is not None:
+                return f"must be a valid {schema.pointer_kind} pointer"
+            return "must be a valid pointer type"
+        case SafetyDomain.NULL_SAFETY:
+            return "must not be nullable at use site"
+        case SafetyDomain.SCALAR_BOUND:
+            return "scalar must have bounded unsigned range"
+        case SafetyDomain.ARG_CONTRACT:
+            helper = schema.helper_name or f"helper#{schema.helper_id}" if schema.helper_id is not None else "helper"
+            arg = f"arg#{schema.helper_arg_index}" if schema.helper_arg_index is not None else "arg"
+            return f"{helper} {arg} must satisfy the helper contract"
+        case SafetyDomain.WRITE_PERMISSION:
+            return "pointee must be writable"
+        case SafetyDomain.ARITHMETIC_LEGALITY:
+            return "pointer arithmetic must be legal for this pointer kind"
+        case SafetyDomain.REFERENCE_BALANCE:
+            return "all acquired references must be released before exit"
+        case _:
+            return schema.domain.value
 
 
 # ---------------------------------------------------------------------------

@@ -9,17 +9,31 @@ Flow:
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import yaml
 
+from .engine.cfg_builder import TraceCFG, build_cfg
 from .bpftool_parser import parse_bpftool_xlated_linum
-from .engine.monitor import TraceMonitor
+from .engine.monitor import (
+    CarrierLifecycle,
+    LifecycleEvent,
+    TraceMonitor,
+    monitor_carriers,
+)
 from .engine.opcode_safety import (
+    CarrierSpec,
     OpcodeConditionPredicate,
+    SafetySchema,
+    discover_compatible_carriers,
+    evaluate_condition,
     find_violated_condition,
     infer_conditions_from_error_insn,
+    infer_safety_schemas,
+    instantiate_primary_carrier,
+    instantiate_schema,
 )
 from .engine.slicer import backward_slice
 from .engine.transition_analyzer import TransitionAnalyzer, TransitionEffect
@@ -46,6 +60,20 @@ _STRUCTURAL_TAXONOMY_BY_ERROR_ID = {
     "BPFIX-E021": "env_mismatch",
     "BPFIX-E022": "env_mismatch",
 }
+
+
+@dataclass
+class AtomClassification:
+    classification: str
+    schema: SafetySchema
+    primary: CarrierSpec | None
+    carrier: CarrierSpec | None = None
+    reason: str | None = None
+    establish: LifecycleEvent | None = None
+    loss: LifecycleEvent | None = None
+    reject_evaluation: str | None = None
+    lifecycles: dict[str, CarrierLifecycle] | None = None
+    backward_slice: Any | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -75,10 +103,68 @@ def generate_diagnostic(
     instructions = list(getattr(parsed_trace, "instructions", []))
     error_insn = next((i for i in instructions if i.is_error), None)
     error_line = parsed_trace.error_line or parsed_log.error_line or ""
+    structural_taxonomy_class = _STRUCTURAL_TAXONOMY_BY_ERROR_ID.get(parsed_log.error_id)
+
+    cross_analysis_class: str | None = None
+    cross_atom_results: list[AtomClassification] = []
+    cross_cfg: TraceCFG | None = None
+
+    if structural_taxonomy_class is None and error_insn is not None:
+        schemas = infer_safety_schemas(error_insn)
+        cross_cfg = build_cfg(instructions) if instructions else None
+        dominators = compute_forward_dominators(cross_cfg) if cross_cfg is not None else {}
+
+        for schema in schemas:
+            primary = instantiate_primary_carrier(schema, error_insn)
+            if primary is None:
+                cross_atom_results.append(AtomClassification(
+                    classification="ambiguous",
+                    schema=schema,
+                    primary=None,
+                    reason="no_primary_carrier",
+                    reject_evaluation="unknown",
+                ))
+                continue
+
+            condition = instantiate_schema(schema, primary)
+            reject_evaluation = evaluate_condition(condition, error_insn.pre_state)
+
+            if reject_evaluation == "satisfied":
+                cross_atom_results.append(AtomClassification(
+                    classification="inactive",
+                    schema=schema,
+                    primary=primary,
+                    reject_evaluation=reject_evaluation,
+                ))
+                continue
+
+            carriers = discover_compatible_carriers(schema, primary, error_insn.pre_state)
+            lifecycles = monitor_carriers(schema, carriers, instructions)
+            bslice = backward_slice(
+                instructions,
+                criterion_insn=error_insn.insn_idx,
+                criterion_register=primary.register,
+                cfg=cross_cfg,
+            )
+            cross_atom_results.append(classify_atom(
+                schema,
+                error_insn,
+                instructions,
+                cross_cfg,
+                dominators,
+                primary=primary,
+                monitoring=lifecycles,
+                bslice=bslice,
+                reject_evaluation=reject_evaluation,
+            ))
+
+        cross_analysis_class = aggregate_atom_classes(
+            [result.classification for result in cross_atom_results]
+        )
 
     # Step 4: derive safety conditions from error instruction opcode (ISA-driven, no keywords)
     predicate = None
-    if error_insn is not None:
+    if structural_taxonomy_class is None and error_insn is not None:
         conditions = infer_conditions_from_error_insn(error_insn)
         violated = find_violated_condition(error_insn, conditions)
         if violated is not None:
@@ -96,19 +182,23 @@ def generate_diagnostic(
     transition_chain = analyzer.analyze(instructions, proof_registers)
 
     # Step 7: derive proof_status from analysis results (not keywords)
-    proof_status = _derive_proof_status(
-        monitor_result=monitor_result,
-        transition_chain=transition_chain,
-        predicate=predicate,
-        error_insn=error_insn,
-    )
-    taxonomy_class = _derive_taxonomy_class(
-        predicate=predicate,
-        proof_status=proof_status,
-        monitor_result=monitor_result,
-        error_insn=error_insn,
-        parsed_log=parsed_log,
-    )
+    if structural_taxonomy_class is not None:
+        proof_status = "unknown"
+        taxonomy_class = structural_taxonomy_class
+    else:
+        proof_status = _derive_proof_status(
+            monitor_result=monitor_result,
+            transition_chain=transition_chain,
+            predicate=predicate,
+            error_insn=error_insn,
+        )
+        taxonomy_class = _derive_taxonomy_class(
+            predicate=predicate,
+            proof_status=proof_status,
+            monitor_result=monitor_result,
+            error_insn=error_insn,
+            parsed_log=parsed_log,
+        )
 
     # Step 8: derive obligation from violated condition or specific contract mismatch
     obligation = _derive_obligation(
@@ -161,7 +251,7 @@ def generate_diagnostic(
     slice_criterion_insn: int | None = None
     slice_criterion_reg: str | None = None
 
-    if error_insn is not None:
+    if structural_taxonomy_class is None and error_insn is not None:
         slice_criterion_insn = error_insn.insn_idx
         if predicate is not None:
             target_regs = getattr(predicate, "target_regs", [])
@@ -189,6 +279,7 @@ def generate_diagnostic(
             instructions,
             criterion_insn=slice_criterion_insn,
             criterion_register=slice_criterion_reg,
+            cfg=cross_cfg,
         )
         # Build causal chain entries: each instruction in the ordered slice
         # (excluding the criterion itself, which appears as the rejected event).
@@ -225,16 +316,23 @@ def generate_diagnostic(
         raw_log_excerpt=(specific_reject.raw if specific_reject is not None else parsed_log.error_line) or None,
     )
 
+    metadata = output.json_data.setdefault("metadata", {})
+    metadata["cross_analysis_class"] = cross_analysis_class
+    if cross_atom_results:
+        metadata["active_atoms"] = [
+            _atom_classification_to_dict(result)
+            for result in cross_atom_results
+            if result.classification != "inactive"
+        ]
+
     # Attach causal chain to metadata if present
     if causal_chain:
-        metadata = output.json_data.setdefault("metadata", {})
         metadata["causal_chain"] = [
             {"insn_idx": idx, "reason": reason} for idx, reason in causal_chain
         ]
 
     # Also attach backward slice metadata when available.
     if use_slice_chain and bslice.full_slice:
-        metadata = output.json_data.setdefault("metadata", {})
         metadata["backward_slice"] = {
             "criterion_insn": slice_criterion_insn,
             "criterion_register": slice_criterion_reg,
@@ -244,6 +342,312 @@ def generate_diagnostic(
         }
 
     return output
+
+
+# ---------------------------------------------------------------------------
+# Cross-analysis helpers
+# ---------------------------------------------------------------------------
+
+def compute_forward_dominators(cfg: TraceCFG | None) -> dict[int, set[int]]:
+    """Return a dominance relation as {dominator: dominated_nodes}."""
+    if cfg is None:
+        return {}
+
+    all_nodes = set(cfg.insn_successors) | set(cfg.insn_predecessors)
+    if not all_nodes:
+        return {}
+
+    dom: dict[int, set[int]] = {node: set(all_nodes) for node in all_nodes}
+    entry = cfg.entry
+    dom[entry] = {entry}
+
+    changed = True
+    while changed:
+        changed = False
+        for node in sorted(all_nodes):
+            if node == entry:
+                continue
+            preds = cfg.insn_predecessors.get(node, set()) & all_nodes
+            if not preds:
+                new_dom = {node}
+            else:
+                pred_iter = iter(preds)
+                new_dom = set(dom.get(next(pred_iter), set(all_nodes)))
+                for pred in pred_iter:
+                    new_dom &= dom.get(pred, set(all_nodes))
+                new_dom.add(node)
+            if new_dom != dom.get(node):
+                dom[node] = new_dom
+                changed = True
+
+    dominates: dict[int, set[int]] = {node: set() for node in all_nodes}
+    for node, dominators in dom.items():
+        for dominator in dominators:
+            dominates.setdefault(dominator, set()).add(node)
+    return dominates
+
+
+def slice_contains_back_edge(bslice, cfg: TraceCFG | None) -> bool:
+    if cfg is None or not getattr(bslice, "full_slice", None):
+        return False
+
+    slice_nodes = set(bslice.full_slice)
+    for src, succs in cfg.insn_successors.items():
+        if src not in slice_nodes:
+            continue
+        for dst in succs:
+            if dst in slice_nodes and dst <= src:
+                return True
+    return False
+
+
+def classify_atom(
+    schema: SafetySchema,
+    error_insn: Any,
+    traced_insns: list[Any],
+    cfg: TraceCFG | None,
+    dominators: dict[int, set[int]],
+    *,
+    primary: CarrierSpec | None = None,
+    monitoring: dict[str, CarrierLifecycle] | None = None,
+    bslice: Any | None = None,
+    reject_evaluation: str | None = None,
+) -> AtomClassification:
+    if primary is None:
+        primary = instantiate_primary_carrier(schema, error_insn)
+    if primary is None:
+        return AtomClassification(
+            classification="ambiguous",
+            schema=schema,
+            primary=None,
+            reason="no_primary_carrier",
+            reject_evaluation="unknown",
+        )
+
+    if reject_evaluation is None:
+        reject_condition = instantiate_schema(schema, primary)
+        reject_evaluation = evaluate_condition(reject_condition, error_insn.pre_state)
+
+    if reject_evaluation == "satisfied":
+        return AtomClassification(
+            classification="inactive",
+            schema=schema,
+            primary=primary,
+            reject_evaluation=reject_evaluation,
+        )
+
+    if monitoring is None:
+        carriers = discover_compatible_carriers(schema, primary, error_insn.pre_state)
+        monitoring = monitor_carriers(schema, carriers, traced_insns)
+
+    if bslice is None:
+        bslice = backward_slice(
+            traced_insns,
+            criterion_insn=error_insn.insn_idx,
+            criterion_register=primary.register,
+            cfg=cfg,
+        )
+
+    if slice_contains_back_edge(bslice, cfg):
+        return AtomClassification(
+            classification="ambiguous",
+            schema=schema,
+            primary=primary,
+            reason="loop_back_edge",
+            reject_evaluation=reject_evaluation,
+            lifecycles=monitoring,
+            backward_slice=bslice,
+        )
+
+    any_establish = False
+    any_non_dominating_establish = False
+    any_off_chain_establish = False
+
+    for lifecycle in monitoring.values():
+        establishes = [event for event in lifecycle.events if event.kind == "establish"]
+        losses = [event for event in lifecycle.events if event.kind == "loss"]
+
+        if establishes:
+            any_establish = True
+
+        dominating_establishes: list[LifecycleEvent] = []
+        for establish in establishes:
+            if error_insn.insn_idx in dominators.get(establish.insn_idx, set()):
+                dominating_establishes.append(establish)
+            else:
+                any_non_dominating_establish = True
+
+        dominating_losses = [
+            loss
+            for loss in losses
+            if error_insn.insn_idx in dominators.get(loss.insn_idx, set())
+        ]
+
+        for establish in dominating_establishes:
+            if establish.insn_idx not in bslice.full_slice:
+                any_off_chain_establish = True
+                continue
+
+            later_on_chain_loss = next(
+                (
+                    loss
+                    for loss in dominating_losses
+                    if loss.trace_pos > establish.trace_pos
+                    and loss.insn_idx in bslice.full_slice
+                ),
+                None,
+            )
+            if later_on_chain_loss is not None:
+                return AtomClassification(
+                    classification="established_then_lost",
+                    schema=schema,
+                    primary=primary,
+                    carrier=lifecycle.carrier,
+                    establish=establish,
+                    loss=later_on_chain_loss,
+                    reject_evaluation=reject_evaluation,
+                    lifecycles=monitoring,
+                    backward_slice=bslice,
+                )
+
+    if any_non_dominating_establish:
+        return AtomClassification(
+            classification="ambiguous",
+            schema=schema,
+            primary=primary,
+            reason="branch_local_establish",
+            reject_evaluation=reject_evaluation,
+            lifecycles=monitoring,
+            backward_slice=bslice,
+        )
+
+    if any_off_chain_establish:
+        return AtomClassification(
+            classification="lowering_artifact",
+            schema=schema,
+            primary=primary,
+            reject_evaluation=reject_evaluation,
+            lifecycles=monitoring,
+            backward_slice=bslice,
+        )
+
+    if not any_establish:
+        return AtomClassification(
+            classification="source_bug",
+            schema=schema,
+            primary=primary,
+            reject_evaluation=reject_evaluation,
+            lifecycles=monitoring,
+            backward_slice=bslice,
+        )
+
+    return AtomClassification(
+        classification="ambiguous",
+        schema=schema,
+        primary=primary,
+        reason="incomplete_temporal_story",
+        reject_evaluation=reject_evaluation,
+        lifecycles=monitoring,
+        backward_slice=bslice,
+    )
+
+
+def aggregate_atom_classes(atom_classes: list[str]) -> str:
+    active = [atom_class for atom_class in atom_classes if atom_class != "inactive"]
+    if not active:
+        return "ambiguous"
+    if "ambiguous" in active:
+        return "ambiguous"
+    if "source_bug" in active:
+        return "source_bug"
+    if len(set(active)) == 1:
+        return active[0]
+    return "ambiguous"
+
+
+def _atom_classification_to_dict(result: AtomClassification) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "classification": result.classification,
+        "reason": result.reason,
+        "reject_evaluation": result.reject_evaluation,
+        "schema": _schema_to_dict(result.schema),
+    }
+    if result.primary is not None:
+        payload["primary"] = _carrier_to_dict(result.primary)
+    if result.carrier is not None:
+        payload["carrier"] = _carrier_to_dict(result.carrier)
+    if result.establish is not None:
+        payload["establish"] = _event_to_dict(result.establish)
+    if result.loss is not None:
+        payload["loss"] = _event_to_dict(result.loss)
+    if result.lifecycles:
+        payload["carrier_lifecycles"] = {
+            register: _lifecycle_to_dict(lifecycle)
+            for register, lifecycle in result.lifecycles.items()
+        }
+    if result.backward_slice is not None:
+        payload["backward_slice"] = {
+            "criterion_insn": result.backward_slice.criterion_insn,
+            "criterion_register": result.backward_slice.criterion_register,
+            "full_slice": sorted(result.backward_slice.full_slice),
+            "data_deps": sorted(result.backward_slice.data_deps),
+            "control_deps": sorted(result.backward_slice.control_deps),
+        }
+    return payload
+
+
+def _schema_to_dict(schema: SafetySchema) -> dict[str, Any]:
+    return {
+        "domain": schema.domain.value,
+        "role": schema.role.value,
+        "access_size": schema.access_size,
+        "pointer_kind": schema.pointer_kind,
+        "expected_types": list(schema.expected_types),
+        "allow_null": schema.allow_null,
+        "requires_range": schema.requires_range,
+        "requires_writable": schema.requires_writable,
+        "helper_id": schema.helper_id,
+        "helper_name": schema.helper_name,
+        "helper_arg_index": schema.helper_arg_index,
+        "constraint": schema.constraint,
+    }
+
+
+def _carrier_to_dict(carrier: CarrierSpec) -> dict[str, Any]:
+    return {
+        "register": carrier.register,
+        "role": carrier.role.value,
+        "pointer_kind": carrier.pointer_kind,
+        "provenance_id": carrier.provenance_id,
+        "reject_type": carrier.reject_type,
+        "is_primary": carrier.is_primary,
+    }
+
+
+def _event_to_dict(event: LifecycleEvent) -> dict[str, Any]:
+    return {
+        "kind": event.kind,
+        "trace_pos": event.trace_pos,
+        "insn_idx": event.insn_idx,
+        "gap_before": event.gap_before,
+        "gap_after": event.gap_after,
+        "reason": event.reason,
+    }
+
+
+def _lifecycle_to_dict(lifecycle: CarrierLifecycle) -> dict[str, Any]:
+    return {
+        "carrier": (
+            _carrier_to_dict(lifecycle.carrier)
+            if lifecycle.carrier is not None
+            else None
+        ),
+        "events": [_event_to_dict(event) for event in lifecycle.events],
+        "establish_site": lifecycle.establish_site,
+        "loss_site": lifecycle.loss_site,
+        "final_gap": lifecycle.final_gap,
+        "proof_status": lifecycle.proof_status,
+    }
 
 
 # ---------------------------------------------------------------------------

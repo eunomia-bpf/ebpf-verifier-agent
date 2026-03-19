@@ -14,18 +14,33 @@ Public API:
 
 from __future__ import annotations
 
-from .monitor import MonitorResult, TraceMonitor
+from .monitor import (
+    CarrierBoundPredicate,
+    CarrierLifecycle,
+    LifecycleEvent,
+    MonitorResult,
+    TraceMonitor,
+    monitor_carriers,
+)
 from .opcode_safety import (
+    CarrierSpec,
     OpcodeClass,
     OpcodeConditionPredicate,
     OpcodeInfo,
+    OperandRole,
     SafetyCondition,
     SafetyDomain,
+    SafetySchema,
     decode_opcode,
+    discover_compatible_carriers,
     derive_safety_conditions,
     evaluate_condition,
     find_violated_condition,
     infer_conditions_from_error_insn,
+    infer_safety_schemas,
+    instantiate_primary_carrier,
+    instantiate_schema,
+    normalize_pointer_kind,
 )
 from .predicate import (
     ClassificationOnlyPredicate,
@@ -58,7 +73,14 @@ __all__ = [
     # Monitor
     "TraceMonitor",
     "MonitorResult",
+    "LifecycleEvent",
+    "CarrierLifecycle",
+    "CarrierBoundPredicate",
+    "monitor_carriers",
     # Opcode-driven safety analysis (primary path)
+    "OperandRole",
+    "SafetySchema",
+    "CarrierSpec",
     "OpcodeClass",
     "OpcodeConditionPredicate",
     "OpcodeInfo",
@@ -69,6 +91,11 @@ __all__ = [
     "evaluate_condition",
     "find_violated_condition",
     "infer_conditions_from_error_insn",
+    "infer_safety_schemas",
+    "instantiate_primary_carrier",
+    "instantiate_schema",
+    "discover_compatible_carriers",
+    "normalize_pointer_kind",
     # Predicates (kept for backward compatibility and structural errors)
     "Predicate",
     "IntervalContainment",
