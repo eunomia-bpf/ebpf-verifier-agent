@@ -589,7 +589,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | 71 | Full code review | ✅ | 7 阶段 pipeline; 109/241 catalog override. `docs/tmp/full-code-review.md` |
 | 72 | Strategic review | ✅ | `docs/tmp/strategic-review-2026-03-12.md` |
 | 73 | Eval infrastructure audit | ✅ | `docs/tmp/eval-infrastructure-audit-2026-03-18.md` |
-| 74 | **修 broken Makefile targets** | ❌ | `eval-pv` 和 `eval-language` 硬编码了不存在的 `batch_diagnostic_results_v4.json`，改为读当前 `batch_diagnostic_results.json` |
+| 74 | **修 broken Makefile targets** | ✅ | v4/v5→current。`make eval-all` 通过。commit `135e50a` |
 | 75 | **统一 corpus manifest** | ❌ | 当前 262 vs 263 vs 302 不一致。建 `case_study/eval_manifest.yaml` 统一定义 eligible cases |
 | 76 | **合并 ground truth 到一个文件** | ❌ | 当前分散在 `ground_truth_labels.yaml`（taxonomy only）+ `docs/tmp/manual-labeling-30cases.md`（markdown）。合并为一个 versioned YAML，含 taxonomy + error_id + fix_text |
 | 77 | **补 7 个缺 label 的 eligible cases** | ❌ | `stackoverflow-68815540`, `69413427`, `79812509`, `github-aya-*-1104/1324/546`, `katran-149` |
