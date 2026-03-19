@@ -1,4 +1,4 @@
-# Repair Experiment V4: Raw Verifier Log vs OBLIGE Diagnostic (Qwen3.5-122B-A10B)
+# Repair Experiment V4: Raw Verifier Log vs BPFix Diagnostic (Qwen3.5-122B-A10B)
 
 - Generated: `2026-03-13T19:00:26+00:00`
 - Model: Qwen3.5-122B-A10B (MoE, ~10B active params) via llama.cpp `-hf` loading
@@ -15,7 +15,7 @@ Scoring rubric per condition: `location/fix_type/root_cause`, each binary in `{0
 | Condition | Location | Fix type | Root cause |
 | --- | ---: | ---: | ---: |
 | A (raw verifier log only) | 1/56 (1.8%) | 0/56 (0.0%) | 4/56 (7.1%) |
-| B (raw log + OBLIGE diagnostic) | 1/56 (1.8%) | 1/56 (1.8%) | 5/56 (8.9%) |
+| B (raw log + BPFix diagnostic) | 1/56 (1.8%) | 1/56 (1.8%) | 5/56 (8.9%) |
 
 ## Summary By Taxonomy
 
@@ -28,7 +28,7 @@ Scoring rubric per condition: `location/fix_type/root_cause`, each binary in `{0
 
 ## BTF-Suppression Analysis
 
-- Cases where OBLIGE diagnostic was BTF-misleading → suppressed: `1`
+- Cases where BPFix diagnostic was BTF-misleading → suppressed: `1`
 - Cases with clean proof-analysis diagnostic: `55`
 
 | Subset | Condition | Fix type | Location |
@@ -46,15 +46,15 @@ Scoring rubric per condition: `location/fix_type/root_cause`, each binary in `{0
 
 ## Comparison: V3 (20B GPT-OSS) vs V4 (Qwen3.5-122B-A10B)
 
-| Metric | V3-A (20B) | V4-A (Qwen3.5) | V3-B (20B+OBLIGE) | V4-B (Qwen3.5+OBLIGE) |
+| Metric | V3-A (20B) | V4-A (Qwen3.5) | V3-B (20B+BPFix) | V4-B (Qwen3.5+BPFix) |
 | --- | ---: | ---: | ---: | ---: |
 | Fix-type accuracy | 12/56 (21.4%) | 0/56 (0.0%) | 16/56 (28.6%) | 1/56 (1.8%) |
 | Location accuracy | 21/56 (37.5%) | 1/56 (1.8%) | 22/56 (39.3%) | 1/56 (1.8%) |
 | Semantic accuracy | 45/56 (80.4%) | 4/56 (7.1%) | 47/56 (83.9%) | 5/56 (8.9%) |
 
-**OBLIGE improvement delta**: V3: +7.1pp (+4 cases), V4: +1.8pp (+1 cases)
+**BPFix improvement delta**: V3: +7.1pp (+4 cases), V4: +1.8pp (+1 cases)
 
-**Interpretation**: The stronger Qwen3.5 model shows a smaller or similar OBLIGE benefit compared to the 20B baseline. This suggests the 20B model may gain more from structured guidance, or the larger model is already better at interpreting raw logs.
+**Interpretation**: The stronger Qwen3.5 model shows a smaller or similar BPFix benefit compared to the 20B baseline. This suggests the 20B model may gain more from structured guidance, or the larger model is already better at interpreting raw logs.
 
 ## Per-Case Results
 
@@ -134,6 +134,6 @@ Scoring rubric per condition: `location/fix_type/root_cause`, each binary in `{0
 - None in this run.
 ## Overall Conclusion
 
-Condition B (OBLIGE) improved fix-type accuracy by +1.8pp (+1 cases).
+Condition B (BPFix) improved fix-type accuracy by +1.8pp (+1 cases).
 For lowering_artifact (11 cases): A=0/11, B=1/11 (delta +9.1pp).
 BTF-suppression affected 1 cases: A=0/1 (0.0%), B=0/1 (0.0%).

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Expanded Pretty Verifier vs OBLIGE comparison over the full 262-case corpus.
+"""Expanded Pretty Verifier vs BPFix comparison over the full 262-case corpus.
 
 This script characterizes what Pretty Verifier (PV) CAN and CANNOT do
 based on its architecture (single error-line regex-only), and compares
-against OBLIGE's full trace analysis on 262 cases from
-eval/results/batch_diagnostic_results_v4.json (OBLIGE) and
+against BPFix's full trace analysis on 262 cases from
+eval/results/batch_diagnostic_results_v4.json (BPFix) and
 eval/results/pretty_verifier_comparison.json (PV execution results).
 
 Key architectural constraint of Pretty Verifier:
@@ -65,16 +65,16 @@ class CaseRow:
     pv_causal_chain: bool   # structurally impossible for PV
     pv_handler_name: str | None
     pv_error_number: int | None
-    # OBLIGE columns (from v4 pipeline)
-    oblige_crashed: bool    # always False; 0 crashes on 262 cases
-    oblige_num_spans: int
-    oblige_multi_span: bool
-    oblige_btf_source: bool
-    oblige_causal_chain: bool
-    oblige_root_cause_earlier: bool  # proof_lost span differs from rejected span
-    oblige_error_id: str | None
-    oblige_proof_lost: bool
-    oblige_proof_established: bool
+    # BPFix columns (from v4 pipeline)
+    bpfix_crashed: bool    # always False; 0 crashes on 262 cases
+    bpfix_num_spans: int
+    bpfix_multi_span: bool
+    bpfix_btf_source: bool
+    bpfix_causal_chain: bool
+    bpfix_root_cause_earlier: bool  # proof_lost span differs from rejected span
+    bpfix_error_id: str | None
+    bpfix_proof_lost: bool
+    bpfix_proof_established: bool
 
 
 def load_v4_results(path: Path) -> dict[str, Any]:
@@ -125,15 +125,15 @@ def build_rows(
                 pv_causal_chain=False,
                 pv_handler_name=pv.get("handler_name"),
                 pv_error_number=pv.get("error_number"),
-                oblige_crashed=False,
-                oblige_num_spans=v4r["num_spans"],
-                oblige_multi_span=v4r["num_spans"] > 1,
-                oblige_btf_source=v4r["has_btf_file_line"],
-                oblige_causal_chain=v4r["has_proof_lost_span"] and v4r["has_rejected_span"],
-                oblige_root_cause_earlier=root_cause_earlier,
-                oblige_error_id=v4r.get("error_id"),
-                oblige_proof_lost=v4r["has_proof_lost_span"],
-                oblige_proof_established=v4r["has_proof_established_span"],
+                bpfix_crashed=False,
+                bpfix_num_spans=v4r["num_spans"],
+                bpfix_multi_span=v4r["num_spans"] > 1,
+                bpfix_btf_source=v4r["has_btf_file_line"],
+                bpfix_causal_chain=v4r["has_proof_lost_span"] and v4r["has_rejected_span"],
+                bpfix_root_cause_earlier=root_cause_earlier,
+                bpfix_error_id=v4r.get("error_id"),
+                bpfix_proof_lost=v4r["has_proof_lost_span"],
+                bpfix_proof_established=v4r["has_proof_established_span"],
             )
         )
     return rows
@@ -153,13 +153,13 @@ def aggregate_overall(rows: list[CaseRow]) -> dict[str, Any]:
         "pv_root_cause": 0,   # architecturally impossible
         "pv_multi_span": 0,   # architecturally impossible
         "pv_causal_chain": 0, # architecturally impossible
-        # OBLIGE metrics
-        "oblige_crashed": 0,  # 0 crashes observed
-        "oblige_multi_span": sum(1 for r in rows if r.oblige_multi_span),
-        "oblige_btf_source": sum(1 for r in rows if r.oblige_btf_source),
-        "oblige_causal_chain": sum(1 for r in rows if r.oblige_causal_chain),
-        "oblige_root_cause_earlier": sum(1 for r in rows if r.oblige_root_cause_earlier),
-        "oblige_proof_established_then_lost": sum(
+        # BPFix metrics
+        "bpfix_crashed": 0,  # 0 crashes observed
+        "bpfix_multi_span": sum(1 for r in rows if r.bpfix_multi_span),
+        "bpfix_btf_source": sum(1 for r in rows if r.bpfix_btf_source),
+        "bpfix_causal_chain": sum(1 for r in rows if r.bpfix_causal_chain),
+        "bpfix_root_cause_earlier": sum(1 for r in rows if r.bpfix_root_cause_earlier),
+        "bpfix_proof_established_then_lost": sum(
             1 for r in rows if r.proof_status == "established_then_lost"
         ),
     }
@@ -179,10 +179,10 @@ def aggregate_by_taxonomy(rows: list[CaseRow]) -> list[dict[str, Any]]:
             "pv_crashed": sum(1 for r in subset if r.pv_crashed),
             "pv_coverage_pct": round(100 * sum(1 for r in subset if r.pv_handled) / n, 1),
             "pv_crash_pct": round(100 * sum(1 for r in subset if r.pv_crashed) / n, 1),
-            "oblige_multi_span": sum(1 for r in subset if r.oblige_multi_span),
-            "oblige_btf_source": sum(1 for r in subset if r.oblige_btf_source),
-            "oblige_causal_chain": sum(1 for r in subset if r.oblige_causal_chain),
-            "oblige_root_cause_earlier": sum(1 for r in subset if r.oblige_root_cause_earlier),
+            "bpfix_multi_span": sum(1 for r in subset if r.bpfix_multi_span),
+            "bpfix_btf_source": sum(1 for r in subset if r.bpfix_btf_source),
+            "bpfix_causal_chain": sum(1 for r in subset if r.bpfix_causal_chain),
+            "bpfix_root_cause_earlier": sum(1 for r in subset if r.bpfix_root_cause_earlier),
         })
     return result
 
@@ -199,27 +199,27 @@ def aggregate_by_source(rows: list[CaseRow]) -> list[dict[str, Any]]:
             "cases": n,
             "pv_handled": sum(1 for r in subset if r.pv_handled),
             "pv_crashed": sum(1 for r in subset if r.pv_crashed),
-            "oblige_multi_span": sum(1 for r in subset if r.oblige_multi_span),
-            "oblige_btf_source": sum(1 for r in subset if r.oblige_btf_source),
-            "oblige_causal_chain": sum(1 for r in subset if r.oblige_causal_chain),
+            "bpfix_multi_span": sum(1 for r in subset if r.bpfix_multi_span),
+            "bpfix_btf_source": sum(1 for r in subset if r.bpfix_btf_source),
+            "bpfix_causal_chain": sum(1 for r in subset if r.bpfix_causal_chain),
         })
     return result
 
 
-def cases_where_oblige_adds_value(rows: list[CaseRow]) -> dict[str, list[str]]:
-    """Cases where OBLIGE provides something PV fundamentally cannot."""
+def cases_where_bpfix_adds_value(rows: list[CaseRow]) -> dict[str, list[str]]:
+    """Cases where BPFix provides something PV fundamentally cannot."""
     return {
         "multi_span_not_handled_by_pv": [
-            r.case_id for r in rows if r.oblige_multi_span and not r.pv_handled
+            r.case_id for r in rows if r.bpfix_multi_span and not r.pv_handled
         ],
         "causal_chain_with_pv_crash": [
-            r.case_id for r in rows if r.oblige_causal_chain and r.pv_crashed
+            r.case_id for r in rows if r.bpfix_causal_chain and r.pv_crashed
         ],
         "btf_source_with_pv_unhandled": [
-            r.case_id for r in rows if r.oblige_btf_source and r.pv_status == "unhandled"
+            r.case_id for r in rows if r.bpfix_btf_source and r.pv_status == "unhandled"
         ],
         "root_cause_earlier_than_rejection": [
-            r.case_id for r in rows if r.oblige_root_cause_earlier
+            r.case_id for r in rows if r.bpfix_root_cause_earlier
         ],
         "lowering_artifact_with_pv_crash": [
             r.case_id
@@ -265,10 +265,10 @@ def build_report(
     arch_rows = [
         ["Handles log without crash", ratio(overall["pv_no_crash"], n), ratio(n, n)],
         ["Produces recognized output (not 'Error not managed')", ratio(overall["pv_handled"], n), ratio(n, n)],
-        ["Root-cause localization (proof_lost ≠ rejected site)", "0 (architecturally impossible)", ratio(overall["oblige_root_cause_earlier"], n)],
-        ["Multi-span diagnostic output", "0 (architecturally impossible)", ratio(overall["oblige_multi_span"], n)],
-        ["Causal chain (proof_lost + rejected spans)", "0 (architecturally impossible)", ratio(overall["oblige_causal_chain"], n)],
-        ["BTF source correlation", "0 (no .o files in corpus)", ratio(overall["oblige_btf_source"], n)],
+        ["Root-cause localization (proof_lost ≠ rejected site)", "0 (architecturally impossible)", ratio(overall["bpfix_root_cause_earlier"], n)],
+        ["Multi-span diagnostic output", "0 (architecturally impossible)", ratio(overall["bpfix_multi_span"], n)],
+        ["Causal chain (proof_lost + rejected spans)", "0 (architecturally impossible)", ratio(overall["bpfix_causal_chain"], n)],
+        ["BTF source correlation", "0 (no .o files in corpus)", ratio(overall["bpfix_btf_source"], n)],
         ["Full trace analysis (register state transitions)", "No", "Yes"],
         ["Proof obligation inference", "No", "Yes"],
         ["Backward slicing from error site", "No", "Yes"],
@@ -282,10 +282,10 @@ def build_report(
             str(row["cases"]),
             f"{ratio(row['pv_handled'], row['cases'])} ({row['pv_coverage_pct']}%)",
             f"{ratio(row['pv_crashed'], row['cases'])} ({row['pv_crash_pct']}%)",
-            ratio(row["oblige_multi_span"], row["cases"]),
-            ratio(row["oblige_btf_source"], row["cases"]),
-            ratio(row["oblige_causal_chain"], row["cases"]),
-            ratio(row["oblige_root_cause_earlier"], row["cases"]),
+            ratio(row["bpfix_multi_span"], row["cases"]),
+            ratio(row["bpfix_btf_source"], row["cases"]),
+            ratio(row["bpfix_causal_chain"], row["cases"]),
+            ratio(row["bpfix_root_cause_earlier"], row["cases"]),
         ])
 
     # Table 3: Per-source breakdown
@@ -296,13 +296,13 @@ def build_report(
             str(row["cases"]),
             ratio(row["pv_handled"], row["cases"]),
             ratio(row["pv_crashed"], row["cases"]),
-            ratio(row["oblige_multi_span"], row["cases"]),
-            ratio(row["oblige_btf_source"], row["cases"]),
-            ratio(row["oblige_causal_chain"], row["cases"]),
+            ratio(row["bpfix_multi_span"], row["cases"]),
+            ratio(row["bpfix_btf_source"], row["cases"]),
+            ratio(row["bpfix_causal_chain"], row["cases"]),
         ])
 
     lines = [
-        "# PV vs OBLIGE: Expanded Comparison (262-Case Corpus)",
+        "# PV vs BPFix: Expanded Comparison (262-Case Corpus)",
         "",
         "Date: 2026-03-12",
         "",
@@ -310,7 +310,7 @@ def build_report(
         "",
         f"This report extends the 30-case manual comparison (Table 5 in the paper) to the full "
         f"{n}-case corpus. It characterizes what Pretty Verifier (PV) can and cannot do based "
-        f"on its documented architecture, and compares against OBLIGE v4 pipeline results.",
+        f"on its documented architecture, and compares against BPFix v4 pipeline results.",
         "",
         "**Key architectural fact**: Pretty Verifier selects a single final error line from the "
         f"verifier log (`output_raw[-2]`) and matches it against one of 91 regex patterns. It "
@@ -321,21 +321,21 @@ def build_report(
         "## Table 1: Architectural Capability Comparison",
         "",
         markdown_table(
-            ["Capability", "Pretty Verifier", "OBLIGE"],
+            ["Capability", "Pretty Verifier", "BPFix"],
             arch_rows,
         ),
         "",
         "## Table 2: Coverage and Crash Rate by Taxonomy Class",
         "",
         markdown_table(
-            ["Taxonomy", "Cases", "PV handled", "PV crashed", "OBLIGE multi-span", "OBLIGE BTF source", "OBLIGE causal chain", "OBLIGE root cause earlier"],
+            ["Taxonomy", "Cases", "PV handled", "PV crashed", "BPFix multi-span", "BPFix BTF source", "BPFix causal chain", "BPFix root cause earlier"],
             tax_rows,
         ),
         "",
         "## Table 3: Coverage by Corpus Source",
         "",
         markdown_table(
-            ["Source", "Cases", "PV handled", "PV crashed", "OBLIGE multi-span", "OBLIGE BTF source", "OBLIGE causal chain"],
+            ["Source", "Cases", "PV handled", "PV crashed", "BPFix multi-span", "BPFix BTF source", "BPFix causal chain"],
             src_rows,
         ),
         "",
@@ -351,31 +351,31 @@ def build_report(
         f"- Multi-span output: 0/{n} (0.0%) — architecturally impossible",
         f"- Causal chain: 0/{n} (0.0%) — architecturally impossible",
         "",
-        f"**OBLIGE** ({n} cases, 0 crashes):",
+        f"**BPFix** ({n} cases, 0 crashes):",
         f"- Crash rate: 0/{n} (0.0%)",
-        f"- Multi-span diagnostic: {ratio(overall['oblige_multi_span'], n)} ({pct(overall['oblige_multi_span'], n)})",
-        f"- BTF source correlation: {ratio(overall['oblige_btf_source'], n)} ({pct(overall['oblige_btf_source'], n)})",
-        f"- Causal chain (proof_lost + rejected spans): {ratio(overall['oblige_causal_chain'], n)} ({pct(overall['oblige_causal_chain'], n)})",
-        f"- Root-cause earlier than rejection site: {ratio(overall['oblige_root_cause_earlier'], n)} ({pct(overall['oblige_root_cause_earlier'], n)})",
-        f"- Established-then-lost (non-trivial proof trajectory): {ratio(overall['oblige_proof_established_then_lost'], n)} ({pct(overall['oblige_proof_established_then_lost'], n)})",
+        f"- Multi-span diagnostic: {ratio(overall['bpfix_multi_span'], n)} ({pct(overall['bpfix_multi_span'], n)})",
+        f"- BTF source correlation: {ratio(overall['bpfix_btf_source'], n)} ({pct(overall['bpfix_btf_source'], n)})",
+        f"- Causal chain (proof_lost + rejected spans): {ratio(overall['bpfix_causal_chain'], n)} ({pct(overall['bpfix_causal_chain'], n)})",
+        f"- Root-cause earlier than rejection site: {ratio(overall['bpfix_root_cause_earlier'], n)} ({pct(overall['bpfix_root_cause_earlier'], n)})",
+        f"- Established-then-lost (non-trivial proof trajectory): {ratio(overall['bpfix_proof_established_then_lost'], n)} ({pct(overall['bpfix_proof_established_then_lost'], n)})",
         "",
-        "## Cases Where OBLIGE Adds Value PV Cannot Provide",
+        "## Cases Where BPFix Adds Value PV Cannot Provide",
         "",
         f"**Multi-span output on cases PV does not handle**: {len(added_value['multi_span_not_handled_by_pv'])} cases",
-        f"_(OBLIGE provides structured multi-span diagnostic where PV outputs 'Error not managed')_",
+        f"_(BPFix provides structured multi-span diagnostic where PV outputs 'Error not managed')_",
         "",
         f"**Causal chain on cases where PV crashed**: {len(added_value['causal_chain_with_pv_crash'])} cases",
-        f"_(OBLIGE gives root-cause trace where PV throws a Python exception)_",
+        f"_(BPFix gives root-cause trace where PV throws a Python exception)_",
         "",
         f"**BTF source correlation on cases PV leaves unhandled**: {len(added_value['btf_source_with_pv_unhandled'])} cases",
-        f"_(OBLIGE maps failure to source line; PV reports 'Error not managed')_",
+        f"_(BPFix maps failure to source line; PV reports 'Error not managed')_",
         "",
         f"**Root cause located earlier than rejection site**: {len(added_value['root_cause_earlier_than_rejection'])} cases",
         f"_(proof_lost span at an earlier instruction than the final rejected span — "
         f"PV can only report the final rejection line)_",
         "",
         f"**Lowering artifact cases where PV crashed**: {len(added_value['lowering_artifact_with_pv_crash'])} cases",
-        f"_(Lowering artifacts are the most important class for OBLIGE; PV crashes on them due to brittle `output_raw[-2]` selection)_",
+        f"_(Lowering artifacts are the most important class for BPFix; PV crashes on them due to brittle `output_raw[-2]` selection)_",
         "",
         "## Analysis",
         "",
@@ -387,8 +387,8 @@ def build_report(
         "final verifier output line only — it cannot distinguish where in the execution the "
         "proof was lost from where it was eventually rejected.",
         "",
-        "OBLIGE parses the full abstract interpreter trace. When a program is rejected at "
-        "instruction N but the proof was already lost at instruction M < N, OBLIGE reports both: "
+        "BPFix parses the full abstract interpreter trace. When a program is rejected at "
+        "instruction N but the proof was already lost at instruction M < N, BPFix reports both: "
         "a `proof_lost` span at M and a `rejected` span at N, producing a multi-span diagnostic "
         "with a causal chain. PV reports only the rejection at N.",
         "",
@@ -397,10 +397,10 @@ def build_report(
         f"Of the {sum(1 for r in rows if r.taxonomy_class == 'lowering_artifact')} lowering-artifact cases, "
         f"PV handled {sum(1 for r in rows if r.taxonomy_class == 'lowering_artifact' and r.pv_handled)} "
         f"and crashed on {sum(1 for r in rows if r.taxonomy_class == 'lowering_artifact' and r.pv_crashed)}. "
-        f"OBLIGE produced a multi-span diagnostic on "
-        f"{sum(1 for r in rows if r.taxonomy_class == 'lowering_artifact' and r.oblige_multi_span)} "
+        f"BPFix produced a multi-span diagnostic on "
+        f"{sum(1 for r in rows if r.taxonomy_class == 'lowering_artifact' and r.bpfix_multi_span)} "
         f"and found an earlier causal site on "
-        f"{sum(1 for r in rows if r.taxonomy_class == 'lowering_artifact' and r.oblige_causal_chain)}.",
+        f"{sum(1 for r in rows if r.taxonomy_class == 'lowering_artifact' and r.bpfix_causal_chain)}.",
         "",
         "Lowering artifacts are cases where the compiler (Clang/LLVM) or language runtime "
         "(Rust/Go BPF libraries) introduces a source-level construct that the verifier rejects "
@@ -412,8 +412,8 @@ def build_report(
         "",
         "### BTF Source Correlation",
         "",
-        f"OBLIGE found BTF source line annotations in {ratio(overall['oblige_btf_source'], n)} cases "
-        f"({pct(overall['oblige_btf_source'], n)}). PV's source localization depends on `llvm-objdump` "
+        f"BPFix found BTF source line annotations in {ratio(overall['bpfix_btf_source'], n)} cases "
+        f"({pct(overall['bpfix_btf_source'], n)}). PV's source localization depends on `llvm-objdump` "
         f"and compiled `.o` files that are not preserved in this corpus, yielding 0/262 source hits. "
         f"This is not a corpus artifact — real-world users typically do not have `.o` files "
         f"available when they receive a verifier error log from a CI system or production machine.",
@@ -424,18 +424,18 @@ def build_report(
         f"({pct(overall['pv_crashed'], n)}). These crashes are caused by the brittle `output_raw[-2]` "
         f"line selector: many logs place `stack depth`, `verification time`, or other trailer lines "
         f"after the true rejection line, causing the handler to index into an unexpected position "
-        f"in the stack it builds. OBLIGE crashed on 0/262 cases.",
+        f"in the stack it builds. BPFix crashed on 0/262 cases.",
         "",
         "### Comparison to 30-Case Manual Subset",
         "",
         "The 30-case manual comparison (paper Table 5) reported:",
-        "- OBLIGE classification: 25/30 (83%) vs PV: 19/30 (63%)",
-        "- OBLIGE root-cause localization: 12/30 (40%) vs PV: 0/30 (0%)",
+        "- BPFix classification: 25/30 (83%) vs PV: 19/30 (63%)",
+        "- BPFix root-cause localization: 12/30 (40%) vs PV: 0/30 (0%)",
         "",
         "The full 262-case corpus confirms and strengthens these findings:",
         f"- PV produces recognized output on only {pct(overall['pv_handled'], n)} of cases",
-        f"- OBLIGE provides multi-span output on {pct(overall['oblige_multi_span'], n)} of cases",
-        f"- OBLIGE finds an earlier causal root cause on {pct(overall['oblige_root_cause_earlier'], n)} of cases",
+        f"- BPFix provides multi-span output on {pct(overall['bpfix_multi_span'], n)} of cases",
+        f"- BPFix finds an earlier causal root cause on {pct(overall['bpfix_root_cause_earlier'], n)} of cases",
         f"- PV root-cause localization: 0% (architecturally impossible across all 262 cases)",
         "",
         "## Honest Assessment",
@@ -445,7 +445,7 @@ def build_report(
         "protocol failures, dynptr misuse, known helper-argument type errors — it provides "
         "quick human-readable guidance without requiring trace analysis.",
         "",
-        "OBLIGE's advantage is structural: it analyzes the full abstract interpreter trace "
+        "BPFix's advantage is structural: it analyzes the full abstract interpreter trace "
         "to find where the proof was lost (not just where it was rejected), produces multi-span "
         "diagnostics with causal chains, and correlates failures to BTF source annotations. "
         "These capabilities are absent from PV by architectural design, not implementation "
@@ -470,8 +470,8 @@ def build_json_payload(
         "method": (
             "PV data from eval/results/pretty_verifier_comparison.json "
             "(actual PV execution on 263 corpus cases). "
-            "OBLIGE data from eval/results/batch_diagnostic_results_v4.json "
-            "(OBLIGE v4 pipeline on 262 eligible cases). "
+            "BPFix data from eval/results/batch_diagnostic_results_v4.json "
+            "(BPFix v4 pipeline on 262 eligible cases). "
             "PV architectural limits (root_cause, multi_span, causal_chain) are "
             "set to False/0 based on documented PV architecture, not inferred from output."
         ),
@@ -503,7 +503,7 @@ def main() -> int:
     overall = aggregate_overall(rows)
     by_taxonomy = aggregate_by_taxonomy(rows)
     by_source = aggregate_by_source(rows)
-    added_value = cases_where_oblige_adds_value(rows)
+    added_value = cases_where_bpfix_adds_value(rows)
 
     payload = build_json_payload(rows, overall, by_taxonomy, by_source, added_value)
     report = build_report(rows, overall, by_taxonomy, by_source, added_value)

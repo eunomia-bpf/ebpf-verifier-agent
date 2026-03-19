@@ -9,12 +9,12 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_python_m_oblige_emits_json_for_case_manifest() -> None:
+def test_python_m_bpfix_emits_json_for_case_manifest() -> None:
     result = subprocess.run(
         [
             sys.executable,
             "-m",
-            "oblige",
+            "bpfix",
             str(ROOT / "case_study" / "cases" / "stackoverflow" / "stackoverflow-60053570.yaml"),
             "--format",
             "json",
@@ -27,5 +27,5 @@ def test_python_m_oblige_emits_json_for_case_manifest() -> None:
 
     assert result.returncode == 0, result.stderr
     payload = json.loads(result.stdout)
-    assert payload["error_id"] == "OBLIGE-E001"
+    assert payload["error_id"] == "BPFIX-E001"
     assert payload["failure_class"] == "source_bug"

@@ -26,7 +26,7 @@ except ImportError as exc:  # pragma: no cover - import error is fatal at runtim
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_TIMEOUT_SECONDS = 30
-DEFAULT_USER_AGENT = "OBLIGE benchmark collector/0.1"
+DEFAULT_USER_AGENT = "BPFix benchmark collector/0.1"
 FIX_KEYWORDS = (
     "fix",
     "fixed",

@@ -1,4 +1,4 @@
-# OBLIGE Maintainability Review
+# BPFix Maintainability Review
 
 Date: 2026-03-12
 
@@ -7,7 +7,7 @@ Date: 2026-03-12
 - Read the active extractor stack in `interface/extractor/`, including `proof_engine.py`, `trace_parser.py`, `rust_diagnostic.py`, `diagnoser.py`, `source_correlator.py`, `renderer.py`, `log_parser.py`, `proof_analysis.py`, `obligation.py`, `btf_mapper.py`, and `bpftool_parser.py`.
 - Reviewed packaging, docs, tests, entry points, and import surfaces.
 - Ran `python -m pytest tests/ -x -q` after fixes.
-- Verified packaging in a throwaway virtualenv with `pip install -e .` and `python -m oblige --help`.
+- Verified packaging in a throwaway virtualenv with `pip install -e .` and `python -m bpfix --help`.
 
 ## Executive summary
 
@@ -19,7 +19,7 @@ Date: 2026-03-12
 
 - `P0 fixed`: `interface/api/__init__.py:22` now delegates to the real `generate_diagnostic()` pipeline instead of emitting the stale scaffold payload. `build_diagnostic()` now returns a schema-valid record and preserves `case_id`, `kernel_release`, and a caller-supplied fallback `source_path`.
 - `P0 fixed`: added `pyproject.toml:1` so the project can be installed with `pip install -e .`.
-- `P0 fixed`: added a clean entry point in `oblige/cli.py:16` and `oblige/__main__.py:1`, so users can run `python -m oblige` or the installed `oblige` console script.
+- `P0 fixed`: added a clean entry point in `oblige/cli.py:16` and `oblige/__main__.py:1`, so users can run `python -m bpfix` or the installed `bpfix` console script.
 - `P0 fixed`: added explicit package surfaces in `interface/__init__.py`, `interface/extractor/__init__.py`, `interface/schema/__init__.py`, `taxonomy/__init__.py`, and `oblige/__init__.py`.
 - `P0 fixed`: rewrote the README install and usage sections in `README.md:7` to match the real repo structure and current entry points.
 - `P0 fixed`: added regression coverage in `tests/test_api.py:29`, `tests/test_cli.py:12`, and `tests/test_smoke.py:15`.
@@ -108,7 +108,7 @@ Date: 2026-03-12
 ## C. Usability
 
 - `P0 fixed`: before this pass, there was no installable package and no top-level CLI.
-- `P0 fixed`: `python -m oblige` and the `oblige` console script now work through `oblige/cli.py`.
+- `P0 fixed`: `python -m bpfix` and the `bpfix` console script now work through `oblige/cli.py`.
 - `P0 fixed`: the README now shows a real install path, CLI examples, and Python usage.
 - `P1`: the project now installs cleanly, but there are two dependency declarations: `requirements.txt` and `pyproject.toml`. These can drift.
   Suggestion: choose `pyproject.toml` as canonical and either generate `requirements.txt` or limit it to contributor convenience.
@@ -150,4 +150,4 @@ Date: 2026-03-12
 
 - `python -m pytest tests/ -x -q` -> `110 passed`
 - Editable install verified in a temporary virtualenv.
-- `python -m oblige --help` works from source and after editable install.
+- `python -m bpfix --help` works from source and after editable install.

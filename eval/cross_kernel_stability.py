@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prototype cross-kernel stability runner for OBLIGE."""
+"""Prototype cross-kernel stability runner for BPFix."""
 
 from __future__ import annotations
 
@@ -29,13 +29,13 @@ from case_study.capture_kernel_selftests_verifier_logs import (
     ensure_libbpf_headers,
     host_arch_macro,
 )
-from eval.pretty_verifier_comparison import ObligeResult, run_oblige
+from eval.pretty_verifier_comparison import BPFixResult, run_bpfix
 from interface.extractor.log_parser import parse_log
 
 
 DEFAULT_KERNEL_ROOT = Path("/tmp/ebpf-eval-repos/linux")
 DEFAULT_RUNTIME_DIR = ROOT / ".kernels"
-DEFAULT_WORK_DIR = Path("/tmp/oblige-cross-kernel")
+DEFAULT_WORK_DIR = Path("/tmp/bpfix-cross-kernel")
 DEFAULT_CATALOG_PATH = ROOT / "taxonomy" / "error_catalog.yaml"
 HOST_VMLINUX_BTF = Path("/sys/kernel/btf/vmlinux")
 TOKEN_RE = re.compile(r"[a-zA-Z_]+")
@@ -104,7 +104,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Compile a kernel selftest case against one or more kernel runtimes, "
-            "capture verifier logs, run OBLIGE diagnosis, and compare stability."
+            "capture verifier logs, run BPFix diagnosis, and compare stability."
         )
     )
     parser.add_argument("case_yaml", type=Path, help="Path to a case YAML.")
@@ -410,7 +410,7 @@ def select_human_error_line(log_text: str, *candidates: str | None) -> str | Non
     return best_line
 
 
-def stable_root_cause(result: ObligeResult) -> str | None:
+def stable_root_cause(result: BPFixResult) -> str | None:
     for candidate in (result.causal_chain_summary, result.critical_transition, result.error_line):
         if candidate:
             return candidate
@@ -502,26 +502,26 @@ def execute_case_for_kernel(
         error_message = completed.stderr.strip() or completed.stdout.strip() or None
 
     parsed = parse_log(verifier_log) if verifier_log else None
-    oblige_result = run_oblige(verifier_log, catalog_path=catalog_path) if verifier_log else None
+    bpfix_result = run_bpfix(verifier_log, catalog_path=catalog_path) if verifier_log else None
     error_line = None
     raw_tokens: list[str] = []
     error_id = None
     taxonomy_class = None
     root_cause = None
     source_mapping = None
-    if oblige_result is not None:
+    if bpfix_result is not None:
         error_line = select_human_error_line(
             verifier_log,
-            oblige_result.error_line,
+            bpfix_result.error_line,
             parsed.error_line if parsed is not None else None,
         )
         raw_tokens = tokenize_error_line(error_line)
-        error_id = oblige_result.error_id
-        taxonomy_class = oblige_result.taxonomy_class
-        root_cause = stable_root_cause(oblige_result) or error_line
+        error_id = bpfix_result.error_id
+        taxonomy_class = bpfix_result.taxonomy_class
+        root_cause = stable_root_cause(bpfix_result) or error_line
         if root_cause is not None and is_low_signal_line(root_cause) and error_line is not None:
             root_cause = error_line
-        source_mapping = oblige_result.source_mapping
+        source_mapping = bpfix_result.source_mapping
 
     return KernelRunResult(
         kernel=runtime.requested_version,
@@ -612,7 +612,7 @@ def markdown_table(case: CaseSpec, results: list[KernelRunResult], pairs: list[P
     lines.append("")
     lines.append("## Per-kernel results")
     lines.append("")
-    lines.append("| Kernel | Available | Compile | Load | Raw error line | OBLIGE error_id | Taxonomy | Root-cause proxy |")
+    lines.append("| Kernel | Available | Compile | Load | Raw error line | BPFix error_id | Taxonomy | Root-cause proxy |")
     lines.append("| --- | --- | --- | --- | --- | --- | --- | --- |")
     for result in results:
         lines.append(

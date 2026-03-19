@@ -3,9 +3,9 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "oblige"
+name = "bpfix"
 version = "0.1.0"
-description = "OBLIGE diagnostics for eBPF verifier failures."
+description = "BPFix diagnostics for eBPF verifier failures."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -18,10 +18,11 @@ btf = ["pyelftools>=0.32"]
 dev = ["pytest>=8.0"]
 
 [project.scripts]
-oblige = "oblige.cli:main"
+bpfix = "bpfix:main"
 
 [tool.setuptools]
 include-package-data = true
+py-modules = ["bpfix"]
 
 [tool.setuptools.packages.find]
 include = ["oblige*", "interface*", "taxonomy*"]

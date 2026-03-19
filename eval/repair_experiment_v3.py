@@ -733,7 +733,7 @@ def infer_taxonomy(
         if scores[taxonomy] > 0:
             return taxonomy, "fix_tag_heuristic"
     if diagnosis_taxonomy in ALLOWED_TAXONOMIES:
-        return str(diagnosis_taxonomy), "oblige_diagnosis"
+        return str(diagnosis_taxonomy), "bpfix_diagnosis"
     return "source_bug", "default"
 
 
@@ -873,7 +873,7 @@ def build_candidate(path: Path, manual_labels: dict[str, ManualLabel]) -> CaseCa
         diagnostic_text = diag_out.text
         diagnostic_json = diag_out.json_data
     except Exception as exc:
-        diagnostic_text = f"OBLIGE diagnostic generation failed: {type(exc).__name__}: {exc}"
+        diagnostic_text = f"BPFix diagnostic generation failed: {type(exc).__name__}: {exc}"
         diagnostic_json = {}
 
     btf_misleading = is_btf_misleading(diagnostic_text)
@@ -1065,7 +1065,7 @@ SYSTEM_PROMPT = (
 def build_prompt(candidate: CaseCandidate, condition: str) -> str:
     """Build the LLM prompt for condition A or B.
 
-    v3 improvement: for condition B, skip the OBLIGE diagnostic if it is
+    v3 improvement: for condition B, skip the BPFix diagnostic if it is
     BTF-misleading (detected by is_btf_misleading), so we don't push the LLM
     away from the correct source-bug repair.
     """
@@ -1081,11 +1081,11 @@ def build_prompt(candidate: CaseCandidate, condition: str) -> str:
         if candidate.diagnostic_btf_misleading:
             # Suppress the misleading BTF diagnostic; add a note instead
             diagnostic_to_use = (
-                "[OBLIGE: diagnostic suppressed — output contained BTF metadata advice "
+                "[BPFix: diagnostic suppressed — output contained BTF metadata advice "
                 "not supported by this trace. Focus on the verifier log above.]"
             )
         lines.extend([
-            "Here is OBLIGE's diagnostic analysis:",
+            "Here is BPFix's diagnostic analysis:",
             "```text",
             diagnostic_to_use,
             "```",
@@ -1548,7 +1548,7 @@ def build_report(
     taxonomy_counts = Counter(c.taxonomy_class for c in selected_cases)
 
     lines = [
-        "# Repair Experiment V3: Raw Verifier Log vs OBLIGE Diagnostic (Local 20B Model)",
+        "# Repair Experiment V3: Raw Verifier Log vs BPFix Diagnostic (Local 20B Model)",
         "",
         f"- Generated: `{now_iso()}`",
         f"- Model: local llama.cpp GPT-OSS 20B",
@@ -1571,7 +1571,7 @@ def build_report(
             f"{format_acc(a['semantic_correct'], a['semantic_available'])} |"
         ),
         (
-            f"| B (raw log + OBLIGE diagnostic) | "
+            f"| B (raw log + BPFix diagnostic) | "
             f"{format_acc(b['location_correct'], b['location_available'])} | "
             f"{format_acc(b['fix_type_correct'], b['cases'])} | "
             f"{format_acc(b['semantic_correct'], b['semantic_available'])} |"
@@ -1603,7 +1603,7 @@ def build_report(
         "",
         "## BTF-Suppression Analysis",
         "",
-        f"- Cases where OBLIGE diagnostic was BTF-misleading → suppressed: `{btf_n}`",
+        f"- Cases where BPFix diagnostic was BTF-misleading → suppressed: `{btf_n}`",
         f"- Cases with clean proof-analysis diagnostic: `{btf_ok_n}`",
     ])
     if btf_n > 0:
@@ -1660,7 +1660,7 @@ def build_report(
             f"{_oracle_rate(oa, 'verifier_pass', 'verifier_available')} |"
         )
         lines.append(
-            f"| B (raw log + OBLIGE diagnostic) | "
+            f"| B (raw log + BPFix diagnostic) | "
             f"{_oracle_rate(ob, 'compile_ok', 'compile_available')} | "
             f"{_oracle_rate(ob, 'verifier_pass', 'verifier_available')} |"
         )
@@ -1766,9 +1766,9 @@ def build_report(
     delta_fix = b["fix_type_correct"] - a["fix_type_correct"]
     pct_delta = percentage(delta_fix, a["cases"])
     if delta_fix > 0:
-        lines.append(f"Condition B (OBLIGE) improved fix-type accuracy by {pct_delta:+.1f}pp ({delta_fix:+d} cases).")
+        lines.append(f"Condition B (BPFix) improved fix-type accuracy by {pct_delta:+.1f}pp ({delta_fix:+d} cases).")
     elif delta_fix < 0:
-        lines.append(f"Condition B (OBLIGE) regressed fix-type accuracy by {pct_delta:.1f}pp ({delta_fix:d} cases).")
+        lines.append(f"Condition B (BPFix) regressed fix-type accuracy by {pct_delta:.1f}pp ({delta_fix:d} cases).")
     else:
         lines.append("Condition A and B achieved equal fix-type accuracy in this run.")
 

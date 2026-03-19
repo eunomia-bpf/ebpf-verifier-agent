@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Skeleton collector for assembling the OBLIGE benchmark corpus."""
+"""Skeleton collector for assembling the BPFix benchmark corpus."""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Collect, normalize, and validate verifier failure cases for the "
-            "OBLIGE benchmark corpus."
+            "BPFix benchmark corpus."
         )
     )
     parser.add_argument(

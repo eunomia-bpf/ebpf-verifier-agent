@@ -154,7 +154,7 @@ class RepairSynthesizer:
             reg_desc = " / ".join(target_regs[:2])
             # Find a variable that might correspond to the error register
             var_name = self._guess_variable_name(source_code, target_regs)
-            patch = f"if (!{var_name})\n    return -EINVAL;  /* NULL check added by OBLIGE */\n"
+            patch = f"if (!{var_name})\n    return -EINVAL;  /* NULL check added by BPFix */\n"
             return RepairSuggestion(
                 repair_type="insert_null_check",
                 description=(
@@ -169,7 +169,7 @@ class RepairSynthesizer:
         elif isinstance(predicate, PacketAccessPredicate):
             patch = (
                 "if (data + sizeof(*hdr) > data_end)\n"
-                "    return XDP_DROP;  /* bounds check added by OBLIGE */\n"
+                "    return XDP_DROP;  /* bounds check added by BPFix */\n"
             )
             return RepairSuggestion(
                 repair_type="insert_bounds_check",
@@ -185,7 +185,7 @@ class RepairSynthesizer:
         elif isinstance(predicate, IntervalContainment):
             patch = (
                 "if (off + size > map_value_size)\n"
-                "    return -E2BIG;  /* bounds check added by OBLIGE */\n"
+                "    return -E2BIG;  /* bounds check added by BPFix */\n"
             )
             return RepairSuggestion(
                 repair_type="insert_bounds_check",
@@ -202,7 +202,7 @@ class RepairSynthesizer:
             limit = predicate.umax_limit or "MAX"
             patch = (
                 f"if (idx >= {limit})\n"
-                f"    return -ERANGE;  /* bound check added by OBLIGE */\n"
+                f"    return -ERANGE;  /* bound check added by BPFix */\n"
             )
             return RepairSuggestion(
                 repair_type="insert_range_check",
@@ -263,7 +263,7 @@ class RepairSynthesizer:
 
         # The standard fix for this is to re-check after the spill/fill
         patch = (
-            f"/* OBLIGE: Re-assert null check after spill/fill */\n"
+            f"/* BPFix: Re-assert null check after spill/fill */\n"
             f"if (!{var_name})\n"
             f"    return -EINVAL;\n"
         )
@@ -304,7 +304,7 @@ class RepairSynthesizer:
         access_type = "packet" if is_packet else "map value"
 
         patch = (
-            f"/* OBLIGE: Re-assert {access_type} bounds check */\n"
+            f"/* BPFix: Re-assert {access_type} bounds check */\n"
         )
         if is_packet:
             patch += (
@@ -349,7 +349,7 @@ class RepairSynthesizer:
         var_name = self._guess_variable_name(source_code, target_regs)
 
         patch = (
-            f"/* OBLIGE: Re-assert type check — {reg_desc} must be {allowed} */\n"
+            f"/* BPFix: Re-assert type check — {reg_desc} must be {allowed} */\n"
             f"if (!{var_name})\n"
             f"    return -EINVAL;\n"
         )
@@ -383,7 +383,7 @@ class RepairSynthesizer:
         reg_desc = " / ".join(target_regs[:2])
 
         patch = (
-            f"/* OBLIGE: Re-assert scalar bound for {reg_desc} */\n"
+            f"/* BPFix: Re-assert scalar bound for {reg_desc} */\n"
             f"if (idx >= {limit})\n"
             f"    return -ERANGE;\n"
         )

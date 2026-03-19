@@ -12,7 +12,7 @@ Scope and conventions:
 - Surface split: **78 `int`**, **11 `bool`**, **1 `void`**.
 - Main inventory below covers the **77 errno-returning or errno-propagating `check_*` validators** that participate directly in rejection. A short appendix covers non-errno helper predicates.
 - `verbose()` counts are **direct calls inside the named function body**, not delegated helper calls.
-- `E00x?` means “nearest current OBLIGE fit, but not a clean catalog hit.” `-` means uncatalogued under the current `E001-E018` catalog.
+- `E00x?` means “nearest current BPFix fit, but not a clean catalog hit.” `-` means uncatalogued under the current `E001-E018` catalog.
 
 Impact weighting used later comes from the current benchmark coverage report:
 
@@ -23,7 +23,7 @@ Impact weighting used later comes from the current benchmark coverage report:
 
 ### Register, Stack, Memory, and Access Validators
 
-| Function | Lines | What it checks | Failure reporting | OBLIGE IDs | Taxonomy class(es) | `verbose()` |
+| Function | Lines | What it checks | Failure reporting | BPFix IDs | Taxonomy class(es) | `verbose()` |
 | --- | ---: | --- | --- | --- | --- | ---: |
 | `check_reg_arg` | 3966-3973 | Source/destination register usability via `__check_reg_arg()` | No direct log; delegates to `R%d is invalid`, `R%d !read_ok`, `frame pointer is read only` | `-` | `source_bug` | 0 |
 | `check_stack_write_fixed_off` | 5226-5351 | Fixed-offset stack writes, spill layout, caller-frame spill restrictions | `attempt to corrupt spilled pointer on stack`; `invalid size of register spill`; `cannot spill pointers ... into stack frame of the caller` | `E006?`, `E012?` | `source_bug`, `lowering_artifact` | 3 |
@@ -68,7 +68,7 @@ Impact weighting used later comes from the current benchmark coverage report:
 
 ### Helper, Kfunc, and Call-Interface Validators
 
-| Function | Lines | What it checks | Failure reporting | OBLIGE IDs | Taxonomy class(es) | `verbose()` |
+| Function | Lines | What it checks | Failure reporting | BPFix IDs | Taxonomy class(es) | `verbose()` |
 | --- | ---: | --- | --- | --- | --- | ---: |
 | `check_reg_type` | 9422-9567 | Canonical register-type matcher for helper/kfunc args and nullable/trusted pointer expectations | `R%d type=%s expected=...`; nullable/trusted-pointer mismatch strings | `E002`, `E011`, `E015` | `source_bug` | 8 |
 | `check_func_arg_reg_off` | 9586-9655 | Allowed fixed/variable offsets for helper/kfunc args, especially release/trusted args | `R%d must have zero offset when passed to release func or trusted arg to kfunc`; plus delegated ptr-offset stems | `E004?`, `E011`, `E015` | `source_bug` | 1 |
@@ -90,7 +90,7 @@ Impact weighting used later comes from the current benchmark coverage report:
 
 ### Instruction, CFG, BTF, and Attach Validators
 
-| Function | Lines | What it checks | Failure reporting | OBLIGE IDs | Taxonomy class(es) | `verbose()` |
+| Function | Lines | What it checks | Failure reporting | BPFix IDs | Taxonomy class(es) | `verbose()` |
 | --- | ---: | --- | --- | --- | --- | ---: |
 | `check_subprogs` | 3679-3733 | Early subprogram partitioning and jump-target sanity across subprog boundaries | `jump out of range from insn ...`; `last insn is not an exit or jmp` | `-` | `source_bug` | 2 |
 | `check_stack_access_for_ptr_arithmetic` | 14780-14802 | Non-root stack pointer arithmetic must stay constant and in range | `variable stack access prohibited for !root`; `stack pointer arithmetic goes out of range ...` | `E005?` | `source_bug`, `lowering_artifact` | 2 |
@@ -133,7 +133,7 @@ These are not part of the main errno-returning rejection table, but they matter 
 | `check_scalar_ids` | `bool` | Scalar-ID equivalence helper | No user-facing `verbose()` |
 | `check_non_sleepable_error_inject` | `int` (`0/1`) | Sleepability allowlist predicate for tracing attach | User-visible failure is logged elsewhere |
 
-## OBLIGE Error-ID Crosswalk
+## BPFix Error-ID Crosswalk
 
 This is the practical “which source check owns which catalog bucket?” summary.
 
@@ -207,7 +207,7 @@ Interpretation:
 
 Ranked by a mix of:
 
-- coverage of high-frequency OBLIGE IDs from `docs/tmp/taxonomy-coverage-report.md`
+- coverage of high-frequency BPFix IDs from `docs/tmp/taxonomy-coverage-report.md`
 - centrality in the verifier call graph
 - density and specificity of user-visible `verbose()` diagnostics
 
@@ -274,6 +274,6 @@ Ranked by a mix of:
 
 Bottom line:
 
-- If OBLIGE wants the best first-pass obligation extraction yield, the highest-value semantic cut is **memory/type/call protocol** rather than CFG or metadata.
-- If OBLIGE wants the best first-pass environment diagnosis yield, the highest-value cut is **attach + helper/kfunc availability + map/prog compatibility**.
-- If OBLIGE wants faithful message-to-obligation attribution, it should capture both the **top-level rejecting `check_*`** and the **non-`check_*` helper that actually emits the canonical string**.
+- If BPFix wants the best first-pass obligation extraction yield, the highest-value semantic cut is **memory/type/call protocol** rather than CFG or metadata.
+- If BPFix wants the best first-pass environment diagnosis yield, the highest-value cut is **attach + helper/kfunc availability + map/prog compatibility**.
+- If BPFix wants faithful message-to-obligation attribution, it should capture both the **top-level rejecting `check_*`** and the **non-`check_*` helper that actually emits the canonical string**.

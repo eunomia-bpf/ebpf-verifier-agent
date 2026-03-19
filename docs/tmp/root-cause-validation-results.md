@@ -60,7 +60,7 @@ Generated: 2026-03-14T01:39:46+00:00
   AND (b) we have a before/after code diff.
 
 ### What This Means for the Paper
-- The backtracking rate shows OBLIGE successfully identifies the proof obligation
+- The backtracking rate shows BPFix successfully identifies the proof obligation
   that was lost BEFORE the rejection site — i.e., it's not just pointing at the
   error line like most tools do.
 - Text token match provides a signal even without exact source lines.

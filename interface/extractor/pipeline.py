@@ -37,14 +37,14 @@ from .trace_parser import ParsedTrace, parse_trace
 
 
 _STRUCTURAL_TAXONOMY_BY_ERROR_ID = {
-    "OBLIGE-E007": "verifier_limit",
-    "OBLIGE-E008": "verifier_limit",
-    "OBLIGE-E009": "env_mismatch",
-    "OBLIGE-E010": "verifier_bug",
-    "OBLIGE-E016": "env_mismatch",
-    "OBLIGE-E018": "verifier_limit",
-    "OBLIGE-E021": "env_mismatch",
-    "OBLIGE-E022": "env_mismatch",
+    "BPFIX-E007": "verifier_limit",
+    "BPFIX-E008": "verifier_limit",
+    "BPFIX-E009": "env_mismatch",
+    "BPFIX-E010": "verifier_bug",
+    "BPFIX-E016": "env_mismatch",
+    "BPFIX-E018": "verifier_limit",
+    "BPFIX-E021": "env_mismatch",
+    "BPFIX-E022": "env_mismatch",
 }
 
 
@@ -213,7 +213,7 @@ def generate_diagnostic(
         ]
 
     output = render_diagnostic(
-        error_id=parsed_log.error_id or "OBLIGE-UNKNOWN",
+        error_id=parsed_log.error_id or "BPFIX-UNKNOWN",
         taxonomy_class=taxonomy_class,
         proof_status=proof_status,
         spans=spans,
@@ -558,7 +558,7 @@ def _build_note(
     if taxonomy_class == "lowering_artifact" and proof_status == "established_then_lost":
         return "A verifier-visible proof existed earlier but was lost before the rejected instruction."
 
-    if parsed_log.error_id == "OBLIGE-E002":
+    if parsed_log.error_id == "BPFIX-E002":
         return "The dereference happens while the pointer is still nullable on this control-flow path."
 
     specific_contract = extract_specific_contract_mismatch(parsed_log.error_line)
@@ -596,7 +596,7 @@ def _build_help_text(
         and (
             proof_status == "never_established"
             or obl_type == "helper_arg"
-            or parsed_log.error_id == "OBLIGE-E023"
+            or parsed_log.error_id == "BPFIX-E023"
         )
     ):
         specific_help = specific_contract_help(parsed_log, specific_contract)

@@ -26,7 +26,7 @@ All checks performed on this machine (Linux 6.15.11, Ubuntu):
 
 **Chosen approach: bpftool prog load (level b)**
 - Compile with `clang -target bpf -O2 -I/usr/include`
-- Load with `sudo bpftool -d prog load obj.o /sys/fs/bpf/oblige_<pid>_<n>`
+- Load with `sudo bpftool -d prog load obj.o /sys/fs/bpf/bpfix_<pid>_<n>`
 - `bpftool -d` captures the full verifier log in stderr (with BEGIN/END PROG LOAD LOG markers)
 - Exit code 0 = verifier pass; 255 = verifier rejection
 - Pin path cleaned up immediately after load
@@ -220,7 +220,7 @@ Current metric (text similarity) is noisy:
 
 Oracle provides ground truth:
 - A fix that compiles + passes verifier is objectively better than one that doesn't
-- Can measure: "does OBLIGE diagnostic actually help the LLM generate code the kernel accepts?"
+- Can measure: "does BPFix diagnostic actually help the LLM generate code the kernel accepts?"
 
 ---
 

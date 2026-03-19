@@ -39,7 +39,7 @@ def test_generate_rust_style_lowering_artifact_with_btf_and_backtracking() -> No
         _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
     )
 
-    assert "error[OBLIGE-E005]" in output.text
+    assert "error[BPFIX-E005]" in output.text
     assert "lowering_artifact" in output.text
     assert "proof lost: OR operation destroys bounds" in output.text
     assert "if (data_end < (data + ext_len)) {" in output.text
@@ -80,7 +80,7 @@ def test_generate_rust_style_source_bug_with_btf() -> None:
         )
     )
 
-    assert "error[OBLIGE-E002]" in output.text
+    assert "error[BPFIX-E002]" in output.text
     assert "dynptr_fail.c" in output.text
     assert "*data2 = 3;" in output.text
     assert output.json_data["failure_class"] == "source_bug"
@@ -126,7 +126,7 @@ def test_renderer_emits_rejected_span_when_trace_has_no_instructions() -> None:
 
 def test_renderer_uses_structured_state_fields_without_reparsing_state_change() -> None:
     output = render_diagnostic(
-        error_id="OBLIGE-TEST",
+        error_id="BPFIX-TEST",
         taxonomy_class="lowering_artifact",
         proof_status="established_then_lost",
         spans=[
@@ -172,7 +172,7 @@ def test_renderer_crypto_acquire_b8afbe98_produces_rejected_span() -> None:
     assert "rejected" in roles
     # The real error is Unreleased reference (E004 / source_bug), not env_mismatch
     assert output.json_data["failure_class"] == "source_bug"
-    assert output.json_data["error_id"] == "OBLIGE-E004"
+    assert output.json_data["error_id"] == "BPFIX-E004"
 
 
 def test_renderer_caps_redundant_spans_at_five() -> None:
@@ -288,7 +288,7 @@ def test_renderer_drops_false_satisfied_status_for_round2_zero_trace_cases() -> 
 
 
 def test_renderer_preserves_engine_inferred_obligation_when_formal_analysis_returns_none() -> None:
-    """OBLIGE-E022 env_mismatch: 'only read from bpf_array is supported'.
+    """BPFIX-E022 env_mismatch: 'only read from bpf_array is supported'.
 
     With the heuristics removed from the critical path, structural
     env_mismatch cases without an explicit error instruction keep
@@ -308,7 +308,7 @@ def test_renderer_preserves_engine_inferred_obligation_when_formal_analysis_retu
 
 
 def test_renderer_keeps_engine_obligation_when_unknown_engine_status_is_ignored() -> None:
-    """OBLIGE-E021 env_mismatch: BTF reference type error (no explicit error instruction).
+    """BPFIX-E021 env_mismatch: BTF reference type error (no explicit error instruction).
 
     With opcode-driven analysis: no instruction is explicitly marked as is_error=True,
     so the opcode-driven lifecycle analysis does not apply. The proof_status is

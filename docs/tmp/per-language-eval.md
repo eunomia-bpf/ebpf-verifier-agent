@@ -1,10 +1,10 @@
-# Per-Language OBLIGE Evaluation
+# Per-Language BPFix Evaluation
 
 Date: 2026-03-12
 
 ## Summary
 
-OBLIGE is evaluated on 302 eBPF verifier failure cases spanning three source languages:
+BPFix is evaluated on 302 eBPF verifier failure cases spanning three source languages:
 C (kernel selftests + most Stack Overflow + other GitHub repos), Rust/Aya (GitHub issues),
 and Go/Cilium (GitHub issues).
 
@@ -46,11 +46,11 @@ families without any language-specific modifications:
 
 - **C**: operates on kernel-compiled .c programs (200 kernel_selftests + 76 SO + 6 GitHub)
 - **Rust/Aya**: Aya's codegen produces standard BPF bytecode; the verifier log is identical
-  in structure to C-compiled programs. OBLIGE processes these without modification.
+  in structure to C-compiled programs. BPFix processes these without modification.
 - **Go/Cilium**: Cilium's eBPF Go library compiles to BPF bytecode; again the verifier log
-  is language-agnostic. OBLIGE processes these without modification.
+  is language-agnostic. BPFix processes these without modification.
 
-The key claim is that OBLIGE analyzes at the **BPF bytecode / verifier-log level**, not
+The key claim is that BPFix analyzes at the **BPF bytecode / verifier-log level**, not
 at the source-language level. Language independence is therefore structural: any language
 that compiles to BPF bytecode and triggers LOG_LEVEL2 output is supported.
 
@@ -60,7 +60,7 @@ that compiles to BPF bytecode and triggers LOG_LEVEL2 output is supported.
 \begin{table}[t]
 \centering
 \small
-\caption{Per-language OBLIGE diagnostic performance across 302 eBPF verifier failure cases.
+\caption{Per-language BPFix diagnostic performance across 302 eBPF verifier failure cases.
   \emph{Diag Success} = diagnostic generated successfully;
   \emph{Obligation} = obligation inferred (specific type);
   \emph{BTF} = source-location annotations present in verifier log;

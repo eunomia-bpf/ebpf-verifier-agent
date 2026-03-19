@@ -39,7 +39,7 @@ deterministic from the error type:
 
 1. If the case has an `error_id` field, map via the error catalog.
 2. Otherwise, pattern-match the expected message strings against 50+ regex patterns
-   covering all 23 OBLIGE error IDs.
+   covering all 23 BPFix error IDs.
 3. Fall back to scanning the full `verifier_log` field.
 
 ### Stack Overflow and GitHub Issue Cases (confidence: medium)

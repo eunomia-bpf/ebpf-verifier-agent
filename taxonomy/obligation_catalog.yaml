@@ -1,7 +1,7 @@
 # Proof-obligation templates extracted from verifier failures.
 version: 0.1.0
 templates:
-  - obligation_id: OBLIGE-O001
+  - obligation_id: BPFIX-O001
     taxonomy_class: source_bug
     title: Packet access must be dominated by an in-bounds proof
     expected_state: For every packet dereference, the verifier can prove `ptr + size <= data_end`.
@@ -13,9 +13,9 @@ templates:
       - Insert a guard using `data_end`.
       - Reload packet pointers after helper calls or branch joins if precision was lost.
     related_error_ids:
-      - OBLIGE-E001
+      - BPFIX-E001
 
-  - obligation_id: OBLIGE-O002
+  - obligation_id: BPFIX-O002
     taxonomy_class: source_bug
     title: Nullable pointers must be refined to non-null before dereference
     expected_state: Control flow proves a `map_value_or_null` or kptr is non-null on the dereference path.
@@ -26,9 +26,9 @@ templates:
       - Add a null check in the same control-flow region.
       - Avoid storing the refined pointer in a way that loses the non-null fact.
     related_error_ids:
-      - OBLIGE-E002
+      - BPFIX-E002
 
-  - obligation_id: OBLIGE-O003
+  - obligation_id: BPFIX-O003
     taxonomy_class: source_bug
     title: Stack slots passed to helpers or read locally must be initialized
     expected_state: Every byte read from the stack has a dominating write or zero-initialization.
@@ -39,9 +39,9 @@ templates:
       - Zero the full struct or stack region before use.
       - Narrow helper argument size to the initialized prefix.
     related_error_ids:
-      - OBLIGE-E003
+      - BPFIX-E003
 
-  - obligation_id: OBLIGE-O004
+  - obligation_id: BPFIX-O004
     taxonomy_class: source_bug
     title: Reference-typed objects require balanced lifetime management
     expected_state: Every acquired reference is released exactly once on all exiting paths.
@@ -52,9 +52,9 @@ templates:
       - Restructure exits so release occurs on all paths.
       - Duplicate cleanup before early returns when necessary.
     related_error_ids:
-      - OBLIGE-E004
+      - BPFIX-E004
 
-  - obligation_id: OBLIGE-O005
+  - obligation_id: BPFIX-O005
     taxonomy_class: lowering_artifact
     title: Scalar ranges must remain tight enough after lowering to prove safety
     expected_state: The verifier tracks a bounded, non-negative scalar range through the failing access.
@@ -66,9 +66,9 @@ templates:
       - Add masking or explicit casts.
       - Refactor expressions to keep range-tight values in distinct temporaries.
     related_error_ids:
-      - OBLIGE-E005
+      - BPFIX-E005
 
-  - obligation_id: OBLIGE-O006
+  - obligation_id: BPFIX-O006
     taxonomy_class: lowering_artifact
     title: Pointer provenance must survive spills, reloads, and helper boundaries
     expected_state: Registers used as pointers preserve their verifier type and provenance.
@@ -79,9 +79,9 @@ templates:
       - Avoid passing the pointer through generic temporaries.
       - Reconstruct the pointer from a fresh verified base.
     related_error_ids:
-      - OBLIGE-E006
+      - BPFIX-E006
 
-  - obligation_id: OBLIGE-O007
+  - obligation_id: BPFIX-O007
     taxonomy_class: verifier_limit
     title: Control flow must stay within verifier state-exploration limits
     expected_state: The verifier explores a tractable number of distinct abstract states.
@@ -93,9 +93,9 @@ templates:
       - Hoist shared checks and reduce branching fan-out.
       - Split the program into smaller helpers or tail calls.
     related_error_ids:
-      - OBLIGE-E007
+      - BPFIX-E007
 
-  - obligation_id: OBLIGE-O008
+  - obligation_id: BPFIX-O008
     taxonomy_class: verifier_limit
     title: Loop iterations require a visible bound and monotonic progress
     expected_state: The verifier proves an induction variable or explicit trip count decreases toward termination.
@@ -106,9 +106,9 @@ templates:
       - Add an explicit max-iteration counter.
       - Simplify loop-carried state and exit conditions.
     related_error_ids:
-      - OBLIGE-E008
+      - BPFIX-E008
 
-  - obligation_id: OBLIGE-O009
+  - obligation_id: BPFIX-O009
     taxonomy_class: env_mismatch
     title: Helper, kfunc, and attach assumptions must match the running kernel environment
     expected_state: The target kernel exports the required helper, kfunc, BTF info, and attach target.
@@ -120,9 +120,9 @@ templates:
       - Gate features by kernel version or probe capability at runtime.
       - Swap to a helper available for the selected program type.
     related_error_ids:
-      - OBLIGE-E009
+      - BPFIX-E009
 
-  - obligation_id: OBLIGE-O010
+  - obligation_id: BPFIX-O010
     taxonomy_class: verifier_bug
     title: Equivalent programs should produce stable verifier behavior across kernel versions
     expected_state: The verifier rejects or accepts consistently and without internal warnings.
@@ -134,9 +134,9 @@ templates:
       - Minimize the reproducer.
       - Capture kernel version, config, and commit range for a bug report.
     related_error_ids:
-      - OBLIGE-E010
+      - BPFIX-E010
 
-  - obligation_id: OBLIGE-O011
+  - obligation_id: BPFIX-O011
     taxonomy_class: source_bug
     title: Memory accesses require a register the verifier still tracks as a pointer
     expected_state: The access register retains pointer, trusted-pointer, or RCU-pointer type with a proven offset at the dereference site.
@@ -148,9 +148,9 @@ templates:
       - Re-derive the pointer from a verified base immediately before dereference.
       - Keep pointer values separate from scalar arithmetic that widens or erases type information.
     related_error_ids:
-      - OBLIGE-E011
+      - BPFIX-E011
 
-  - obligation_id: OBLIGE-O012
+  - obligation_id: BPFIX-O012
     taxonomy_class: source_bug
     title: Dynptr objects must stay initialized, correctly typed, and live for the required scope
     expected_state: Each dynptr argument refers to an initialized stack slot of the expected dynptr type, and referenced dynptr state is not clobbered before release.
@@ -162,9 +162,9 @@ templates:
       - Initialize the dynptr in the same control-flow region where it is consumed.
       - Avoid overwriting or partially reusing stack slots that still carry dynptr state.
     related_error_ids:
-      - OBLIGE-E012
+      - BPFIX-E012
 
-  - obligation_id: OBLIGE-O013
+  - obligation_id: BPFIX-O013
     taxonomy_class: source_bug
     title: Critical sections must be balanced and free of disallowed operations
     expected_state: On every path, lock, IRQ, and RCU state is acquired and released in order before exit or before any operation forbidden inside the protected region.
@@ -178,9 +178,9 @@ templates:
       - Balance save and restore operations on all control-flow paths.
       - Move exits, helper calls, or sleepable work outside the critical section.
     related_error_ids:
-      - OBLIGE-E013
+      - BPFIX-E013
 
-  - obligation_id: OBLIGE-O014
+  - obligation_id: BPFIX-O014
     taxonomy_class: source_bug
     title: Iterator state must follow the expected stack-based lifecycle
     expected_state: Iterator objects live in the expected stack slot and are passed only in the initialized or uninitialized state required by the called helper or kfunc.
@@ -192,9 +192,9 @@ templates:
       - Keep iterator storage on the stack location expected by the API.
       - Call constructor, next, and destroy operations in the required order without reusing stale iterator state.
     related_error_ids:
-      - OBLIGE-E014
+      - BPFIX-E014
 
-  - obligation_id: OBLIGE-O015
+  - obligation_id: BPFIX-O015
     taxonomy_class: source_bug
     title: Trusted pointer arguments must be proven non-null at the call site
     expected_state: The verifier can prove the trusted pointer argument is non-null on the exact path that reaches the helper or kfunc call.
@@ -206,9 +206,9 @@ templates:
       - Add a dominating null check immediately before the call.
       - Avoid storing or merging the refined pointer in ways that lose the non-null proof.
     related_error_ids:
-      - OBLIGE-E015
+      - BPFIX-E015
 
-  - obligation_id: OBLIGE-O016
+  - obligation_id: BPFIX-O016
     taxonomy_class: env_mismatch
     title: Helper and kfunc usage must match the active program type and execution context
     expected_state: The selected helper or kfunc is available for the running kernel, program type, callback context, and sleepability constraints.
@@ -221,9 +221,9 @@ templates:
       - Switch to an API that is valid for the current program type or callback context.
       - Gate the feature or refactor control flow so the call runs only in a compatible context.
     related_error_ids:
-      - OBLIGE-E016
+      - BPFIX-E016
 
-  - obligation_id: OBLIGE-O017
+  - obligation_id: BPFIX-O017
     taxonomy_class: source_bug
     title: Map value accesses must stay within the verifier-proven object bounds
     expected_state: The verifier can prove `off + size` stays inside the retrieved map value object on every access path.
@@ -234,9 +234,9 @@ templates:
       - Add explicit bounds checks around computed offsets and sizes.
       - Use narrower copies or a struct layout that keeps accesses inside the proven object.
     related_error_ids:
-      - OBLIGE-E017
+      - BPFIX-E017
 
-  - obligation_id: OBLIGE-O018
+  - obligation_id: BPFIX-O018
     taxonomy_class: verifier_limit
     title: Program structure must remain within verifier analysis and stack budgets
     expected_state: Control flow, loop structure, and stacked call frames stay inside the verifier's bounded exploration model.
@@ -250,9 +250,9 @@ templates:
       - Split the program into smaller helpers or tail-call stages.
       - Reduce branching, stack usage, or loop-carried state so the proof shape is simpler.
     related_error_ids:
-      - OBLIGE-E018
+      - BPFIX-E018
 
-  - obligation_id: OBLIGE-O019
+  - obligation_id: BPFIX-O019
     taxonomy_class: source_bug
     title: Dynptr handles must remain in the required stack slot and be released exactly once
     expected_state: Each dynptr stays at a verifier-visible constant stack offset or required register form, and every acquired dynptr-backed reference is consumed or released exactly once.
@@ -265,9 +265,9 @@ templates:
       - Keep dynptr values in a dedicated stack slot at a constant offset until the helper or kfunc consumes them.
       - Release dynptr-backed references exactly once and avoid reusing the slot while the verifier still tracks live dynptr state.
     related_error_ids:
-      - OBLIGE-E019
+      - BPFIX-E019
 
-  - obligation_id: OBLIGE-O020
+  - obligation_id: BPFIX-O020
     taxonomy_class: source_bug
     title: IRQ save and restore must use the expected stack-backed flag state
     expected_state: The IRQ flag object lives in the required stack slot, transitions between uninitialized and initialized states in order, and is restored only from a valid saved state.
@@ -280,9 +280,9 @@ templates:
       - Keep the saved IRQ flag in a dedicated stack variable and do not partially overwrite it.
       - Pair save and restore operations in order and move disallowed calls outside the IRQ-disabled region.
     related_error_ids:
-      - OBLIGE-E020
+      - BPFIX-E020
 
-  - obligation_id: OBLIGE-O021
+  - obligation_id: BPFIX-O021
     taxonomy_class: env_mismatch
     title: BTF-backed reference arguments require complete runtime metadata
     expected_state: The target kernel exposes the BTF and reference-size metadata needed to validate the argument and attach context.
@@ -295,9 +295,9 @@ templates:
       - Regenerate or ship the BTF artifacts expected by the target kernel and toolchain.
       - Align kernel, BTF, and compiled program metadata so reference-typed arguments can be validated.
     related_error_ids:
-      - OBLIGE-E021
+      - BPFIX-E021
 
-  - obligation_id: OBLIGE-O022
+  - obligation_id: BPFIX-O022
     taxonomy_class: env_mismatch
     title: Mutable global state assumptions must match the deployed BPF data model
     expected_state: The target environment supports the intended mutable global or static data access pattern.
@@ -308,9 +308,9 @@ templates:
       - Move mutable state into an explicit map or another supported runtime storage primitive.
       - Gate the feature on kernel or loader capabilities before selecting the mutable-global code path.
     related_error_ids:
-      - OBLIGE-E022
+      - BPFIX-E022
 
-  - obligation_id: OBLIGE-O023
+  - obligation_id: BPFIX-O023
     taxonomy_class: source_bug
     title: Registers, stack slots, and helper arguments must preserve the verifier type required at use time
     expected_state: The register or stack slot used at the failing access or call site still has the expected pointer kind, reference state, readability, and alignment.
@@ -324,4 +324,4 @@ templates:
       - Re-derive the required pointer or reference from a verified source immediately before the failing use site.
       - Keep stack accesses aligned and avoid type-erasing casts or helper boundaries that degrade the tracked register state.
     related_error_ids:
-      - OBLIGE-E023
+      - BPFIX-E023

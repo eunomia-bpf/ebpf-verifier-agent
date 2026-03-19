@@ -723,7 +723,7 @@ def infer_taxonomy(
         if scores[taxonomy] > 0:
             return taxonomy, "fix_tag_heuristic"
     if diagnosis_taxonomy in ALLOWED_TAXONOMIES:
-        return str(diagnosis_taxonomy), "oblige_diagnosis"
+        return str(diagnosis_taxonomy), "bpfix_diagnosis"
     return "source_bug", "default"
 
 
@@ -863,7 +863,7 @@ def build_candidate(path: Path, manual_labels: dict[str, ManualLabel]) -> CaseCa
         diagnostic_text = diag_out.text
         diagnostic_json = diag_out.json_data
     except Exception as exc:
-        diagnostic_text = f"OBLIGE diagnostic generation failed: {type(exc).__name__}: {exc}"
+        diagnostic_text = f"BPFix diagnostic generation failed: {type(exc).__name__}: {exc}"
         diagnostic_json = {}
 
     btf_misleading = is_btf_misleading(diagnostic_text)
@@ -1066,11 +1066,11 @@ def build_prompt(candidate: CaseCandidate, condition: str) -> str:
         if candidate.diagnostic_btf_misleading:
             # Suppress the misleading BTF diagnostic; add a note instead
             diagnostic_to_use = (
-                "[OBLIGE: diagnostic suppressed — output contained BTF metadata advice "
+                "[BPFix: diagnostic suppressed — output contained BTF metadata advice "
                 "not supported by this trace. Focus on the verifier log above.]"
             )
         lines.extend([
-            "Here is OBLIGE's diagnostic analysis:",
+            "Here is BPFix's diagnostic analysis:",
             "```text",
             diagnostic_to_use,
             "```",
@@ -1390,7 +1390,7 @@ def build_report(
     taxonomy_counts = Counter(c.taxonomy_class for c in selected_cases)
 
     lines = [
-        "# Repair Experiment V4: Raw Verifier Log vs OBLIGE Diagnostic (Qwen3.5-122B-A10B)",
+        "# Repair Experiment V4: Raw Verifier Log vs BPFix Diagnostic (Qwen3.5-122B-A10B)",
         "",
         f"- Generated: `{now_iso()}`",
         f"- Model: Qwen3.5-122B-A10B (MoE, ~10B active params) via llama.cpp `-hf` loading",
@@ -1413,7 +1413,7 @@ def build_report(
             f"{format_acc(a['semantic_correct'], a['semantic_available'])} |"
         ),
         (
-            f"| B (raw log + OBLIGE diagnostic) | "
+            f"| B (raw log + BPFix diagnostic) | "
             f"{format_acc(b['location_correct'], b['location_available'])} | "
             f"{format_acc(b['fix_type_correct'], b['cases'])} | "
             f"{format_acc(b['semantic_correct'], b['semantic_available'])} |"
@@ -1445,7 +1445,7 @@ def build_report(
         "",
         "## BTF-Suppression Analysis",
         "",
-        f"- Cases where OBLIGE diagnostic was BTF-misleading → suppressed: `{btf_n}`",
+        f"- Cases where BPFix diagnostic was BTF-misleading → suppressed: `{btf_n}`",
         f"- Cases with clean proof-analysis diagnostic: `{btf_ok_n}`",
     ])
     if btf_n > 0:
@@ -1483,7 +1483,7 @@ def build_report(
             "",
             "## Comparison: V3 (20B GPT-OSS) vs V4 (Qwen3.5-122B-A10B)",
             "",
-            "| Metric | V3-A (20B) | V4-A (Qwen3.5) | V3-B (20B+OBLIGE) | V4-B (Qwen3.5+OBLIGE) |",
+            "| Metric | V3-A (20B) | V4-A (Qwen3.5) | V3-B (20B+BPFix) | V4-B (Qwen3.5+BPFix) |",
             "| --- | ---: | ---: | ---: | ---: |",
             (
                 f"| Fix-type accuracy | "
@@ -1507,21 +1507,21 @@ def build_report(
                 f"{format_acc(b['semantic_correct'], b['semantic_available'])} |"
             ),
         ])
-        # OBLIGE delta comparison
+        # BPFix delta comparison
         v3_delta = v3b.get("fix_type_correct", 0) - v3a.get("fix_type_correct", 0)
         v4_delta = b["fix_type_correct"] - a["fix_type_correct"]
         v3_pct = percentage(v3_delta, v3a.get("cases", 1))
         v4_pct = percentage(v4_delta, a["cases"])
         lines.extend([
             "",
-            f"**OBLIGE improvement delta**: V3: {v3_pct:+.1f}pp ({v3_delta:+d} cases), V4: {v4_pct:+.1f}pp ({v4_delta:+d} cases)",
+            f"**BPFix improvement delta**: V3: {v3_pct:+.1f}pp ({v3_delta:+d} cases), V4: {v4_pct:+.1f}pp ({v4_delta:+d} cases)",
             "",
             "**Interpretation**: "
             + (
-                f"The stronger Qwen3.5 model {'shows a larger OBLIGE benefit' if v4_pct > v3_pct else 'shows a smaller or similar OBLIGE benefit'} "
+                f"The stronger Qwen3.5 model {'shows a larger BPFix benefit' if v4_pct > v3_pct else 'shows a smaller or similar BPFix benefit'} "
                 f"compared to the 20B baseline. "
                 + (
-                    "This suggests OBLIGE's structured diagnostics are more useful for more capable models."
+                    "This suggests BPFix's structured diagnostics are more useful for more capable models."
                     if v4_delta > v3_delta else
                     "This suggests the 20B model may gain more from structured guidance, or the larger model is already better at interpreting raw logs."
                 )
@@ -1602,9 +1602,9 @@ def build_report(
     delta_fix = b["fix_type_correct"] - a["fix_type_correct"]
     pct_delta = percentage(delta_fix, a["cases"])
     if delta_fix > 0:
-        lines.append(f"Condition B (OBLIGE) improved fix-type accuracy by {pct_delta:+.1f}pp ({delta_fix:+d} cases).")
+        lines.append(f"Condition B (BPFix) improved fix-type accuracy by {pct_delta:+.1f}pp ({delta_fix:+d} cases).")
     elif delta_fix < 0:
-        lines.append(f"Condition B (OBLIGE) regressed fix-type accuracy by {pct_delta:.1f}pp ({delta_fix:d} cases).")
+        lines.append(f"Condition B (BPFix) regressed fix-type accuracy by {pct_delta:.1f}pp ({delta_fix:d} cases).")
     else:
         lines.append("Condition A and B achieved equal fix-type accuracy in this run.")
 
@@ -1912,7 +1912,7 @@ def main() -> int:
         print(f"  V4-B (Q+OB):   {b_sum['fix_type_correct']}/{b_sum['cases']} ({b_sum['fix_type_accuracy']:.1f}%)")
         v3_delta = v3b.get("fix_type_correct", 0) - v3a.get("fix_type_correct", 0)
         v4_delta = b_sum["fix_type_correct"] - a_sum["fix_type_correct"]
-        print(f"  OBLIGE delta:  V3={v3_delta:+d} cases, V4={v4_delta:+d} cases")
+        print(f"  BPFix delta:  V3={v3_delta:+d} cases, V4={v4_delta:+d} cases")
 
     cleanup()
     return 0

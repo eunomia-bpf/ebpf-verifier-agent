@@ -99,12 +99,12 @@ def test_cli_help_commands_work() -> None:
         assert result.returncode == 0, result.stderr
         assert "usage" in result.stdout.lower()
 
-    oblige_result = subprocess.run(
-        [sys.executable, "-m", "oblige", "--help"],
+    bpfix_result = subprocess.run(
+        [sys.executable, "-m", "bpfix", "--help"],
         check=False,
         capture_output=True,
         text=True,
         cwd=ROOT,
     )
-    assert oblige_result.returncode == 0, oblige_result.stderr
-    assert "usage" in oblige_result.stdout.lower()
+    assert bpfix_result.returncode == 0, bpfix_result.stderr
+    assert "usage" in bpfix_result.stdout.lower()

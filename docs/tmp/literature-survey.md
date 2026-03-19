@@ -1,6 +1,6 @@
-# Literature Survey for OBLIGE
+# Literature Survey for BPFix
 
-This survey focuses on prior work most relevant to OBLIGE: structured, source-aware, machine-usable diagnostics for the Linux eBPF verifier. The recurring pattern across the literature is consistent: verifier failures are a real developer bottleneck; existing systems either consume the verifier's raw text heuristically, avoid the verifier through DSLs, or redesign the programming model entirely. OBLIGE fits into the gap between those approaches by targeting the current verifier stack directly and turning existing low-level signals into structured diagnostics.
+This survey focuses on prior work most relevant to BPFix: structured, source-aware, machine-usable diagnostics for the Linux eBPF verifier. The recurring pattern across the literature is consistent: verifier failures are a real developer bottleneck; existing systems either consume the verifier's raw text heuristically, avoid the verifier through DSLs, or redesign the programming model entirely. BPFix fits into the gap between those approaches by targeting the current verifier stack directly and turning existing low-level signals into structured diagnostics.
 
 Unless noted otherwise, citations below use primary sources. For two 2025 projects, the publicly accessible sources I could verify were project papers/repos rather than a formal venue page; I call that out explicitly.
 
@@ -10,7 +10,7 @@ Unless noted otherwise, citations below use primary sources. For two 2025 projec
 Paper: https://doi.org/10.1145/3672197.3673429  
 Official workshop slides with detailed figures: https://pchaigno.github.io/assets/ebpf24-slides/ebpf24_slides-deokar.pdf
 
-**Key findings relevant to OBLIGE.**
+**Key findings relevant to BPFix.**
 
 - The study analyzes **743 Stack Overflow questions** tagged `bpf`.
 - The authors classify questions along four dimensions: **hook point type**, **ecosystem**, **development process**, and **programming language**.
@@ -29,17 +29,17 @@ Official workshop slides with detailed figures: https://pchaigno.github.io/asset
 - The study identifies pain points, but it does not provide a new diagnostic mechanism.
 - It shows that verifier-related pain is substantial, but it stops at categorization rather than converting verifier failures into structured, actionable, source-linked output.
 
-**How OBLIGE positions against it.**
+**How BPFix positions against it.**
 
-- This paper is evidence that OBLIGE is solving a real, community-observed problem, not an edge case.
-- OBLIGE directly targets the verifier/error-message slice that the study isolates, while also helping with adjacent tooling pain by producing diagnostics that IDEs, CLIs, agents, and documentation systems can consume.
+- This paper is evidence that BPFix is solving a real, community-observed problem, not an edge case.
+- BPFix directly targets the verifier/error-message slice that the study isolates, while also helping with adjacent tooling pain by producing diagnostics that IDEs, CLIs, agents, and documentation systems can consume.
 
 ## 2. HotOS 2023: *Kernel Extension Verification is Untenable*
 
 **Citation.** Jinghao Jia, Raj Sahu, Adam Oswald, Dan Williams, Michael V. Le, and Tianyin Xu. *Kernel Extension Verification is Untenable.* In *Proceedings of the 19th Workshop on Hot Topics in Operating Systems (HotOS '23)*, 2023, pp. 150-157. DOI: `10.1145/3593856.3595892`.  
 DOI page: https://doi.org/10.1145/3593856.3595892
 
-**Key findings relevant to OBLIGE.**
+**Key findings relevant to BPFix.**
 
 - The paper frames kernel-extension systems as a four-way tradeoff among **safety**, **development burden**, **performance**, and **functionality**.
 - Its central argument is that eBPF's verifier-centric model is hitting **diminishing returns**: as the extension surface grows, the verifier must become more complex, and that complexity raises both implementation risk and developer burden.
@@ -51,10 +51,10 @@ DOI page: https://doi.org/10.1145/3593856.3595892
 - The paper is fundamentally a critique and a design argument; it does not improve today's verifier UX.
 - It does not help developers who must still ship against the current Linux verifier, current loaders, and current C/Rust eBPF workflows.
 
-**How OBLIGE positions against it.**
+**How BPFix positions against it.**
 
-- OBLIGE is **complementary**, not contradictory.
-- HotOS argues that verifier-centric ecosystems do not scale indefinitely; OBLIGE addresses the near-term reality that the verifier exists today, is widely deployed, and remains a central source of friction.
+- BPFix is **complementary**, not contradictory.
+- HotOS argues that verifier-centric ecosystems do not scale indefinitely; BPFix addresses the near-term reality that the verifier exists today, is widely deployed, and remains a central source of friction.
 - If the ecosystem moves toward more language-based safety, structured diagnostics are still useful for compilers, language runtimes, migration tools, and mixed low-level/high-level extension stacks.
 
 ## 3. Rex (USENIX ATC 2025)
@@ -62,7 +62,7 @@ DOI page: https://doi.org/10.1145/3593856.3595892
 **Citation.** Jinghao Jia, Ruowen Qin, Milo Craun, Egor Lukiyanov, Ayush Bansal, Minh Phan, Michael V. Le, Hubertus Franke, Hani Jamjoom, Tianyin Xu, and Dan Williams. *Rex: Closing the Language-Verifier Gap with Safe and Usable Kernel Extensions.* In *2025 USENIX Annual Technical Conference (USENIX ATC 25)*, 2025, pp. 325-342.  
 USENIX page: https://www.usenix.org/conference/atc25/presentation/jia
 
-**Key findings relevant to OBLIGE.**
+**Key findings relevant to BPFix.**
 
 - Rex studies **72 verifier-workaround commits** collected over **12 years**.
 - The paper's Table 1 classifies workarounds into four main groups:
@@ -78,10 +78,10 @@ USENIX page: https://www.usenix.org/conference/atc25/presentation/jia
 - Rex reduces pain by designing a safer, verifier-aware extension language and compilation strategy, but it does not solve diagnostics for the huge installed base of handwritten eBPF programs.
 - It does not replace the need to explain verifier rejections in existing C/libbpf/bpftool workflows.
 
-**How OBLIGE positions against it.**
+**How BPFix positions against it.**
 
-- Rex is strong motivation for OBLIGE: its workaround study shows that verifier rejection is often not a simple "bug in the program," but a mismatch between intent and verifier reasoning.
-- OBLIGE complements Rex by exposing that mismatch explicitly and structurally.
+- Rex is strong motivation for BPFix: its workaround study shows that verifier rejection is often not a simple "bug in the program," but a mismatch between intent and verifier reasoning.
+- BPFix complements Rex by exposing that mismatch explicitly and structurally.
 - Even in a Rex-like future, structured diagnostics remain useful for compiler debugging, fallback paths, unsupported patterns, and mixed-language ecosystems.
 
 ## 4. Pretty Verifier (Politecnico di Torino, 2025)
@@ -89,9 +89,9 @@ USENIX page: https://www.usenix.org/conference/atc25/presentation/jia
 **Citation.** Sebastiano Miano, Roberto Lezzi, Gabriele Lospinoso, and Fulvio Risso. *Pretty Verifier: Towards Friendly eBPF Verification Errors.* Politecnico di Torino project paper and implementation repository, 2025. I could verify the title/authors from the publicly accessible project paper and the implementation from the public repository, but I did **not** find a separate venue page in the accessible sources.  
 Implementation repository: https://github.com/netgroup-polito/pretty-verifier
 
-**Key findings relevant to OBLIGE.**
+**Key findings relevant to BPFix.**
 
-- Pretty Verifier is the closest prior work in spirit to OBLIGE's user-facing goal.
+- Pretty Verifier is the closest prior work in spirit to BPFix's user-facing goal.
 - It improves verifier UX by combining:
   - the original **`.c` source**
   - the compiled **`.o` object file**
@@ -106,7 +106,7 @@ Implementation repository: https://github.com/netgroup-polito/pretty-verifier
 - The implementation is largely **pattern driven**: `handler.py` matches raw verifier strings with regular expressions and routes them to error-specific renderers.
 - The source mapper in `utils.py` reconstructs source locations from the object's debug/disassembly view and stitches those locations back into the reported verifier trace.
 
-**Limitations relevant to OBLIGE.**
+**Limitations relevant to BPFix.**
 
 - The README states that the tool works best on **kernel 6.8** and only **partially** on older/newer kernels.
 - Because it is fundamentally driven by **raw verifier text patterns**, it is vulnerable to kernel-version wording changes.
@@ -118,17 +118,17 @@ Implementation repository: https://github.com/netgroup-polito/pretty-verifier
 - Pretty Verifier improves presentation, but the diagnostic substrate is still **unstructured text** plus heuristics.
 - It does not define a stable schema for failure class, source span, verifier state, semantic expectation, or repair metadata.
 
-**How OBLIGE positions against it.**
+**How BPFix positions against it.**
 
 - Pretty Verifier is best viewed as a strong precursor on the **consumer side** of the problem.
-- OBLIGE should position itself as a more fundamental, **producer-side** improvement: structured diagnostics emitted from or near the verifier/runtime boundary itself, so tools like Pretty Verifier no longer need to reverse-engineer unstable text logs.
+- BPFix should position itself as a more fundamental, **producer-side** improvement: structured diagnostics emitted from or near the verifier/runtime boundary itself, so tools like Pretty Verifier no longer need to reverse-engineer unstable text logs.
 
 ## 5. Kgent (eBPF Workshop 2024)
 
 **Citation.** Yusheng Zheng, Yiwei Yang, Maolin Chen, and Andrew Quinn. *Kgent: Kernel Extensions Large Language Model Agent.* In *Proceedings of the SIGCOMM Workshop on eBPF and Kernel Extensions*, 2024, pp. 30-36. DOI: `10.1145/3672197.3673434`.  
 DOI page: https://doi.org/10.1145/3672197.3673434
 
-**Key findings relevant to OBLIGE.**
+**Key findings relevant to BPFix.**
 
 - Kgent is an early agentic eBPF synthesis system that places the verifier directly inside an **LLM synthesis loop**.
 - Its architecture has four relevant pieces:
@@ -139,9 +139,9 @@ DOI page: https://doi.org/10.1145/3672197.3673434
 - On failure, Kgent appends the **previous code** and **all verifier error messages** to the next prompt and asks the model to try again.
 - The paper reports that Kgent can generate roughly **1.2K lines of eBPF code in about three minutes**, solves **9/10 tasks**, and averages about **30% success across 10 runs**.
 
-**Why the verifier-feedback mechanism matters to OBLIGE.**
+**Why the verifier-feedback mechanism matters to BPFix.**
 
-- Kgent treats verifier output as a repair signal, which is directly aligned with OBLIGE's research direction.
+- Kgent treats verifier output as a repair signal, which is directly aligned with BPFix's research direction.
 - But the feedback channel is just **raw text appended verbatim** to the next prompt.
 
 **Limitations of raw text feedback.**
@@ -155,9 +155,9 @@ DOI page: https://doi.org/10.1145/3672197.3673434
 
 - Kgent demonstrates demand for machine-consumable verifier feedback, but it does not change the feedback substrate itself.
 
-**How OBLIGE positions against it.**
+**How BPFix positions against it.**
 
-- OBLIGE is not another synthesis agent; it is infrastructure that could make Kgent-like systems materially better.
+- BPFix is not another synthesis agent; it is infrastructure that could make Kgent-like systems materially better.
 - A structured diagnostic schema would let an agent consume fields such as source span, failing instruction, pointer/register state, missing check, map/helper/context assumptions, and repair hints directly instead of re-parsing prose logs.
 
 ## 6. SimpleBPF (2025)
@@ -165,7 +165,7 @@ DOI page: https://doi.org/10.1145/3672197.3673434
 **Citation.** Xiangyu Gao, Xiangfeng Zhu, Bhavana Vannarth Shobhana, Yiwei Yang, Arvind Krishnamurthy, and Ratul Mahajan. *Offloading the Tedious Task of Writing eBPF Programs.* In *Proceedings of the 3rd Workshop on eBPF and Kernel Extensions*, 2025, pp. 63-69. DOI: `10.1145/3748355.3748369`. The paper introduces the **SimpleBPF** system.  
 DOI page: https://doi.org/10.1145/3748355.3748369
 
-**Key findings relevant to OBLIGE.**
+**Key findings relevant to BPFix.**
 
 - SimpleBPF takes a different route from diagnostic tooling: it tries to **avoid** verifier debugging by moving developers into a **high-level DSL**.
 - Its pipeline is:
@@ -187,18 +187,18 @@ DOI page: https://doi.org/10.1145/3748355.3748369
 - SimpleBPF is domain- and abstraction-specific; it does not improve diagnostics for arbitrary handwritten eBPF programs.
 - Its own evaluation effectively confirms that raw verifier logs are a poor repair substrate for LLM workflows.
 
-**How OBLIGE positions against it.**
+**How BPFix positions against it.**
 
-- OBLIGE complements DSL systems like SimpleBPF rather than competing with them.
+- BPFix complements DSL systems like SimpleBPF rather than competing with them.
 - If structured verifier diagnostics existed, systems like SimpleBPF could use them for targeted repair instead of discarding a failed attempt and restarting generation.
-- OBLIGE also addresses the much broader population of existing C/libbpf/bpftool users that DSLs do not replace.
+- BPFix also addresses the much broader population of existing C/libbpf/bpftool users that DSLs do not replace.
 
 ## 7. Verifier-safe DSL proposals (2025)
 
 **Citation.** Franco Solleza, Justus Adam, Akshay Narayan, Malte Schwarzkopf, Andrew Crotty, and Nesime Tatbul. *Kernel Extension DSLs Should Be Verifier-Safe!* In *Proceedings of the 3rd Workshop on eBPF and Kernel Extensions*, 2025, pp. 55-62. DOI: `10.1145/3748355.3748368`.  
 DOI page: https://doi.org/10.1145/3748355.3748368
 
-**Key findings relevant to OBLIGE.**
+**Key findings relevant to BPFix.**
 
 - This paper makes the argument that a kernel-extension DSL compiler should generate code that is **not merely semantically correct**, but specifically **accepted by the verifier**.
 - The paper points out that conventional compiler optimizations can transform DSL programs into low-level eBPF that is still semantically equivalent but becomes **verifier-hostile**.
@@ -210,18 +210,18 @@ DOI page: https://doi.org/10.1145/3748355.3748368
 - This approach helps when a DSL owns the entire frontend and code-generation pipeline.
 - It does not help the enormous amount of existing handwritten eBPF code, nor does it help explain verifier failures when they do occur.
 
-**How OBLIGE positions against it.**
+**How BPFix positions against it.**
 
-- OBLIGE is broader and lower-level.
-- Verifier-safe DSLs are one way to reduce failures; OBLIGE makes failures understandable and machine-usable when they still happen.
-- OBLIGE could also support verifier-safe compilers by providing a structured signal about exactly which verifier invariant or dataflow fact was violated.
+- BPFix is broader and lower-level.
+- Verifier-safe DSLs are one way to reduce failures; BPFix makes failures understandable and machine-usable when they still happen.
+- BPFix could also support verifier-safe compilers by providing a structured signal about exactly which verifier invariant or dataflow fact was violated.
 
 ## 8. DepSurf (2025)
 
 **Citation.** Junxiao Zhang, Samantha Mathews, Hiep Nguyen, Ryan Stutsman, and Asaf Cidon. *DepSurf: Measuring and Analyzing the Dependency Surface of Kernel Extensions.* Public project paper and project site, 2025. I verified the title/authors and key claims from the public project materials and paper PDF, but I did **not** find a separate formal venue page in the accessible sources.  
 Project site: https://sites.google.com/view/depsurf-bpf/home
 
-**Key findings relevant to OBLIGE.**
+**Key findings relevant to BPFix.**
 
 - DepSurf studies the **dependency surface** of kernel extensions: not just explicit eBPF API usage, but also the hidden assumptions extensions make about kernel behavior and surrounding infrastructure.
 - Its headline result is that **83%** of the evaluated extensions are affected by at least one **kernel mismatch**.
@@ -241,17 +241,17 @@ Project site: https://sites.google.com/view/depsurf-bpf/home
 
 - DepSurf identifies the compatibility problem, but it does not define a verifier-facing diagnostic format that exposes these dependencies at load time.
 
-**How OBLIGE positions against it.**
+**How BPFix positions against it.**
 
-- OBLIGE can position itself as the **diagnostic complement** to DepSurf's analysis.
-- DepSurf explains why cross-kernel failures are common; OBLIGE can make those failures inspectable by surfacing structured kernel-version- and dependency-aware metadata instead of a flat log string.
+- BPFix can position itself as the **diagnostic complement** to DepSurf's analysis.
+- DepSurf explains why cross-kernel failures are common; BPFix can make those failures inspectable by surfacing structured kernel-version- and dependency-aware metadata instead of a flat log string.
 
 ## 9. NCC / Linux Foundation 2024 verifier audit
 
 **Citation.** NCC Group. *eBPF Verifier Code Audit.* Sponsored by The Linux Foundation, 2024.  
 Linux Foundation announcement and report link: https://www.linuxfoundation.org/press/linux-foundation-releases-open-source-technology-security-audit-of-the-ebpf-verifier
 
-**Key findings relevant to OBLIGE.**
+**Key findings relevant to BPFix.**
 
 - The audit's documentation finding is directly relevant: it says that additional details on **what the verifier enforces and why** should be added to the documentation.
 - The report explicitly notes that verifier documentation already exists, but is often **incomplete** or **too specific**.
@@ -261,10 +261,10 @@ Linux Foundation announcement and report link: https://www.linuxfoundation.org/p
 
 - The audit diagnoses the clarity problem, but it does not propose a concrete runtime/tooling interface for solving it.
 
-**How OBLIGE positions against it.**
+**How BPFix positions against it.**
 
-- OBLIGE can be framed as **executable documentation** for verifier reasoning.
-- Instead of only expanding prose docs, OBLIGE would expose the verifier's reasoning as structured data at the point where developers actually need it: compile/load/debug time.
+- BPFix can be framed as **executable documentation** for verifier reasoning.
+- Instead of only expanding prose docs, BPFix would expose the verifier's reasoning as structured data at the point where developers actually need it: compile/load/debug time.
 
 ## 10. `ebpf-verifier-errors` GitHub repository
 
@@ -289,7 +289,7 @@ Repository: https://github.com/parttimenerd/ebpf-verifier-errors
 
 - The README states that verifier errors, code context, and resolutions should be collected so they can be **searched by others** and used as a **data source for tooling**.
 
-**Why it matters to OBLIGE.**
+**Why it matters to BPFix.**
 
 - This repository is evidence that the community already sees verifier failures as a reusable **diagnostic corpus** rather than a purely local debugging nuisance.
 - It is especially relevant for AI- and tool-oriented work because it pairs failures with **before/after code** and remediation narratives.
@@ -300,13 +300,13 @@ Repository: https://github.com/parttimenerd/ebpf-verifier-errors
 - The data is not emitted from the verifier in a stable schema, so quality and completeness vary by submitter.
 - It is excellent as a seed corpus, but not a replacement for a structured diagnostic interface.
 
-**How OBLIGE positions against it.**
+**How BPFix positions against it.**
 
-- OBLIGE can use such repositories as evaluation data or training data, but its main contribution is different: generate structured diagnostics **at source**, not after ad hoc manual reporting.
+- BPFix can use such repositories as evaluation data or training data, but its main contribution is different: generate structured diagnostics **at source**, not after ad hoc manual reporting.
 
-## 11. Kernel infrastructure relevant to OBLIGE
+## 11. Kernel infrastructure relevant to BPFix
 
-This section matters because OBLIGE does not need to invent all of its plumbing from scratch. Linux and libbpf already expose several ingredients that are diagnostic-adjacent, but they are fragmented.
+This section matters because BPFix does not need to invent all of its plumbing from scratch. Linux and libbpf already expose several ingredients that are diagnostic-adjacent, but they are fragmented.
 
 ### 11.1 BTF `line_info` and `.BTF.ext`
 
@@ -330,10 +330,10 @@ Docs: https://docs.kernel.org/bpf/btf.html
 - The same documentation states that `bpf_prog_info` can later return **line info** for translated bytecode and **jited_line_info** for JIT output.
 - The BTF docs explicitly say line info can help **debugging verification failure**.
 
-**Why this matters to OBLIGE.**
+**Why this matters to BPFix.**
 
 - This is a kernel-supported path from instruction offsets to source locations.
-- OBLIGE can build on BTF line info to make diagnostics source-aware without relying only on post hoc text parsing.
+- BPFix can build on BTF line info to make diagnostics source-aware without relying only on post hoc text parsing.
 
 ### 11.2 `BPF_PROG_LOAD` verifier log interface
 
@@ -351,10 +351,10 @@ Man page: https://man7.org/linux/man-pages/man2/bpf.2.html
 - If the buffer is too small, the call can fail with **`ENOSPC`**.
 - The man page explicitly warns that verifier output is intended for program authors and may evolve over time; in other words, it is **not a stable structured API**.
 
-**Why this matters to OBLIGE.**
+**Why this matters to BPFix.**
 
 - This is the current de facto interface that all higher-level tools consume.
-- OBLIGE should be framed as an improvement over this unstable text channel, not a reinvention of how programs are loaded.
+- BPFix should be framed as an improvement over this unstable text channel, not a reinvention of how programs are loaded.
 
 ### 11.3 libbpf line-info helpers
 
@@ -372,10 +372,10 @@ Docs: https://docs.ebpf.io/ebpf-library/libbpf/userspace/bpf_prog_linfo__new/
   - record sizes and total counts
 - The documentation notes that the original line-info instruction offsets are relative to the **program before loading**, while JITed line info refers to the **JITed program**.
 
-**Why this matters to OBLIGE.**
+**Why this matters to BPFix.**
 
 - libbpf already exposes a convenient userspace wrapper for the line-info machinery.
-- OBLIGE can leverage this instead of rebuilding raw `bpf_prog_info` parsing itself.
+- BPFix can leverage this instead of rebuilding raw `bpf_prog_info` parsing itself.
 
 ### 11.4 `BPF_MAP_TYPE_INSN_ARRAY`
 
@@ -391,10 +391,10 @@ Docs: https://docs.ebpf.io/linux/map-type/BPF_MAP_TYPE_INSN_ARRAY/
 - The current docs say it is useful for mapping **JITed instructions back to original eBPF instructions**, which can then be tied further back to source using **BTF line info and/or DWARF**.
 - The docs mark it as a **v6.19** feature and note that the documentation is still incomplete because more kernel use cases are expected.
 
-**Why this matters to OBLIGE.**
+**Why this matters to BPFix.**
 
 - This is highly relevant to future-proof structured diagnostics, especially for correlating verifier/load-time reasoning with post-load profiling or JIT-level observations.
-- It gives OBLIGE a path toward richer instruction identity across compilation stages.
+- It gives BPFix a path toward richer instruction identity across compilation stages.
 
 ## Research Gap Summary
 
@@ -407,7 +407,7 @@ Across these papers and projects, the gap is now clear.
 - DepSurf and the NCC audit add a second requirement: diagnostics must be not only human-readable, but also **kernel-aware**, **dependency-aware**, and useful across versions and environments.
 - Linux already exposes useful primitives such as `log_buf`, BTF `line_info`, libbpf line-info helpers, and instruction-offset mapping infrastructure, but these are not assembled into a coherent structured diagnostic interface.
 
-**OBLIGE's research niche** is therefore not "yet another prettier log parser," not "yet another eBPF DSL," and not "replace the verifier." Its niche is:
+**BPFix's research niche** is therefore not "yet another prettier log parser," not "yet another eBPF DSL," and not "replace the verifier." Its niche is:
 
 - turning verifier failures into **structured diagnostics**
 - making them **source-aware**

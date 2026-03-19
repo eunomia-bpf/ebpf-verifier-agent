@@ -20,29 +20,29 @@ Generated at: `2026-03-11T16:39:56+00:00`
 
 | Error ID | Count |
 | --- | ---: |
-| `OBLIGE-E001` | 18 |
-| `OBLIGE-E002` | 8 |
-| `OBLIGE-E003` | 9 |
-| `OBLIGE-E004` | 17 |
-| `OBLIGE-E005` | 23 |
-| `OBLIGE-E006` | 0 |
-| `OBLIGE-E007` | 1 |
-| `OBLIGE-E008` | 1 |
-| `OBLIGE-E009` | 3 |
-| `OBLIGE-E010` | 1 |
-| `OBLIGE-E011` | 38 |
-| `OBLIGE-E012` | 22 |
-| `OBLIGE-E013` | 19 |
-| `OBLIGE-E014` | 10 |
-| `OBLIGE-E015` | 9 |
-| `OBLIGE-E016` | 21 |
-| `OBLIGE-E017` | 1 |
-| `OBLIGE-E018` | 3 |
-| `OBLIGE-E019` | 13 |
-| `OBLIGE-E020` | 9 |
-| `OBLIGE-E021` | 2 |
-| `OBLIGE-E022` | 1 |
-| `OBLIGE-E023` | 34 |
+| `BPFIX-E001` | 18 |
+| `BPFIX-E002` | 8 |
+| `BPFIX-E003` | 9 |
+| `BPFIX-E004` | 17 |
+| `BPFIX-E005` | 23 |
+| `BPFIX-E006` | 0 |
+| `BPFIX-E007` | 1 |
+| `BPFIX-E008` | 1 |
+| `BPFIX-E009` | 3 |
+| `BPFIX-E010` | 1 |
+| `BPFIX-E011` | 38 |
+| `BPFIX-E012` | 22 |
+| `BPFIX-E013` | 19 |
+| `BPFIX-E014` | 10 |
+| `BPFIX-E015` | 9 |
+| `BPFIX-E016` | 21 |
+| `BPFIX-E017` | 1 |
+| `BPFIX-E018` | 3 |
+| `BPFIX-E019` | 13 |
+| `BPFIX-E020` | 9 |
+| `BPFIX-E021` | 2 |
+| `BPFIX-E022` | 1 |
+| `BPFIX-E023` | 34 |
 
 ## Distribution by Taxonomy Class
 

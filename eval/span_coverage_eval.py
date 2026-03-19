@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate whether OBLIGE spans cover known fix locations."""
+"""Evaluate whether BPFix spans cover known fix locations."""
 
 from __future__ import annotations
 

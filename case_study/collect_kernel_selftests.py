@@ -104,7 +104,7 @@ class KernelSelftestsCollector:
         self.client = HttpClient(
             min_interval_seconds=1.0,
             logger=self.logger,
-            user_agent="OBLIGE kernel selftests collector/0.1",
+            user_agent="BPFix kernel selftests collector/0.1",
         )
 
     def run(self) -> int:
@@ -232,7 +232,7 @@ class KernelSelftestsCollector:
             shutil.rmtree(extract_root)
         ensure_directory(extract_root)
         self.logger.info(f"Extracting {SELFTESTS_SUBDIR} from tarball")
-        with tempfile.TemporaryDirectory(prefix="oblige-linux-tarball-") as temp_dir:
+        with tempfile.TemporaryDirectory(prefix="bpfix-linux-tarball-") as temp_dir:
             temp_extract = Path(temp_dir)
             with tarfile.open(archive_path, "r:gz") as archive:
                 archive.extractall(temp_extract, filter="data")

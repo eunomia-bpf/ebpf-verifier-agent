@@ -101,9 +101,9 @@ transition (OR destroying tracked bounds) is buried in the 60-line register
 dump.
 
 
-## 2.3 What OBLIGE Shows
+## 2.3 What BPFix Shows
 
-OBLIGE parses the complete verifier trace, detects the critical state
+BPFix parses the complete verifier trace, detects the critical state
 transition where bounds information was destroyed, and correlates it back to
 the source via BTF line annotations.  It produces:
 
@@ -158,12 +158,12 @@ minimal source fix.
 
 ## 2.4 Why This Matters
 
-This example illustrates three properties that distinguish OBLIGE from
+This example illustrates three properties that distinguish BPFix from
 line-oriented error tools:
 
 **Causal chain, not error annotation.**  Pretty Verifier and LLM-based tools
 annotate the *rejection site* (line 8) with the verifier's error message.
-OBLIGE traces the full causal chain from proof establishment (line 3) through
+BPFix traces the full causal chain from proof establishment (line 3) through
 proof destruction (line 7) to rejection (line 8).  The developer immediately
 sees that the bounds check IS recognized, something at line 7 breaks it, and
 exactly what to fix.
@@ -186,5 +186,5 @@ lowering or analysis.  The most common patterns are `__always_inline`
 annotations (preventing cross-function state loss), `volatile` temporaries
 (preventing LLVM from merging loads), explicit `& MASK` clamps (re-bounding
 scalars after destructive operations), and loop unrolling.  These workarounds
-are exactly the kind of repairs that OBLIGE's proof-lifecycle analysis can
+are exactly the kind of repairs that BPFix's proof-lifecycle analysis can
 diagnose and suggest automatically.

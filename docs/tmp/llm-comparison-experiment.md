@@ -31,7 +31,7 @@ TL;DR. From the verifier's point of view, ext_len is unbounded because of how it
 {
   "causal_chain": "Unavailable",
   "critical_transition": "BOUNDS_COLLAPSE at insn 22: R0 lost scalar bounds at insn 22: inv,id=0,umax=65280,var_off=(0x0; 0xff00) -> inv,id=0",
-  "error_classification": "OBLIGE-E005 (lowering_artifact)",
+  "error_classification": "BPFIX-E005 (lowering_artifact)",
   "error_line": "math between pkt pointer and register with unbounded min value is not allowed",
   "source_mapping": "if (data_end < (data + ext_len)) {"
 }
@@ -299,7 +299,7 @@ Ignore that data does not point to the beginning of the extension length field o
         - Critical state transition: BOUNDS_COLLAPSE at insn 22: R0 lost scalar bounds at insn 22: inv,id=0,umax=65280,var_off=(0x0; 0xff00) -> inv,id=0
         - Causal chain: Unavailable
         - Source mapping: if (data_end < (data + ext_len)) {
-        - Error classification: OBLIGE-E005 (lowering_artifact)
+        - Error classification: BPFIX-E005 (lowering_artifact)
 
         Raw verifier log (for reference):
         19: R0=pkt(id=0,off=2,r=6,imm=0) R1=inv(id=0) R2=pkt_end(id=0,off=0,imm=0) R3=inv0 R4=inv17179869184 R5_w=pkt(id=0,off=6,r=6,imm=0) R6_w=inv(id=0,umax_value=255,var_off=(0x0; 0xff)) R7_w=inv(id=0) R10=fp0
@@ -389,7 +389,7 @@ It asserts that there must at least be 254 bytes bytes in the packet after offse
 {
   "causal_chain": "insn 76 (R1): R1 was updated by `r1 += -16` and became fp,off=-16 -> propagates through insn 91 (R2), insn 111 (R0) -> fails at insn 83 (R2): invalid access to packet, off=62 size=254, R2(id=0,off=62,r=63)",
   "critical_transition": "RANGE_LOSS at insn 14: R1 lost packet range proof at insn 14: r=8 -> r=0",
-  "error_classification": "OBLIGE-E001 (source_bug)",
+  "error_classification": "BPFIX-E001 (source_bug)",
   "error_line": "invalid access to packet, off=62 size=254, R2(id=0,off=62,r=63)",
   "source_mapping": "PARSE_FUNC_DECLARATION(ethhdr)"
 }
@@ -630,7 +630,7 @@ You are an eBPF expert. The following BPF program fails verification.
         - Critical state transition: RANGE_LOSS at insn 14: R1 lost packet range proof at insn 14: r=8 -> r=0
         - Causal chain: insn 76 (R1): R1 was updated by `r1 += -16` and became fp,off=-16 -> propagates through insn 91 (R2), insn 111 (R0) -> fails at insn 83 (R2): invalid access to packet, off=62 size=254, R2(id=0,off=62,r=63)
         - Source mapping: PARSE_FUNC_DECLARATION(ethhdr)
-        - Error classification: OBLIGE-E001 (source_bug)
+        - Error classification: BPFIX-E001 (source_bug)
 
         Raw verifier log (for reference):
         xdp-loader load -vvv -m skb lo xdp-dns/xdp_dns.bpf.o
@@ -720,7 +720,7 @@ The verifier errors because it thinks R7 is outside the packet's known bounds. I
 {
   "causal_chain": "insn 2940 (R7): R7 still carried pkt,id=68,off=26,r=0,umax=73851,var_off=(0x0; 0xffffffff) at `if r7 >= r6 goto pc-2881` -> fails at insn 2948 (R7): invalid access to packet, off=26 size=1, R7(id=68,off=26,r=0)",
   "critical_transition": "RANGE_LOSS at insn 2940: R7 lost packet range proof at insn 2940: r=27 -> r=0",
-  "error_classification": "OBLIGE-E001 (source_bug)",
+  "error_classification": "BPFIX-E001 (source_bug)",
   "error_line": "invalid access to packet, off=26 size=1, R7(id=68,off=26,r=0)",
   "source_mapping": "if (nh->pos + size < data_end)"
 }
@@ -1033,7 +1033,7 @@ char _license[] SEC("license") = "GPL";
         - Critical state transition: RANGE_LOSS at insn 2940: R7 lost packet range proof at insn 2940: r=27 -> r=0
         - Causal chain: insn 2940 (R7): R7 still carried pkt,id=68,off=26,r=0,umax=73851,var_off=(0x0; 0xffffffff) at `if r7 >= r6 goto pc-2881` -> fails at insn 2948 (R7): invalid access to packet, off=26 size=1, R7(id=68,off=26,r=0)
         - Source mapping: if (nh->pos + size < data_end)
-        - Error classification: OBLIGE-E001 (source_bug)
+        - Error classification: BPFIX-E001 (source_bug)
 
         Raw verifier log (for reference):
         ; if (nh->pos + size < data_end)
@@ -1123,7 +1123,7 @@ Now, to fix this we need to change the code so data can't exceed 65536. We do th
 {
   "causal_chain": "insn 28 (R3): R3 was updated by `r3 += r4` and became inv,id=0,umax=65535,var_off=(0x0; 0xffff) -> propagates through insn 31 (R0) -> fails at insn 14 (R0): invalid access to packet, off=90 size=1, R0(id=22,off=90,r=0)",
   "critical_transition": "BOUNDS_COLLAPSE at insn 31: R3 lost scalar bounds at insn 31: inv,id=0,umax=65535,var_off=(0x0; 0xffff) -> inv,id=0,umax=131071,var_off=(0x0; 0x1ffff)",
-  "error_classification": "OBLIGE-E001 (source_bug)",
+  "error_classification": "BPFIX-E001 (source_bug)",
   "error_line": "invalid access to packet, off=90 size=1, R0(id=22,off=90,r=0)",
   "source_mapping": "if (ext->type == SERVER_NAME_EXTENSION) {"
 }
@@ -1630,7 +1630,7 @@ from 31 to 12: R0_w=pkt(id=14,off=58,r=0,umax_value=42000,var_off=(0x0; 0xffffff
         - Critical state transition: BOUNDS_COLLAPSE at insn 31: R3 lost scalar bounds at insn 31: inv,id=0,umax=65535,var_off=(0x0; 0xffff) -> inv,id=0,umax=131071,var_off=(0x0; 0x1ffff)
         - Causal chain: insn 28 (R3): R3 was updated by `r3 += r4` and became inv,id=0,umax=65535,var_off=(0x0; 0xffff) -> propagates through insn 31 (R0) -> fails at insn 14 (R0): invalid access to packet, off=90 size=1, R0(id=22,off=90,r=0)
         - Source mapping: if (ext->type == SERVER_NAME_EXTENSION) {
-        - Error classification: OBLIGE-E001 (source_bug)
+        - Error classification: BPFIX-E001 (source_bug)
 
         Raw verifier log (for reference):
         from 31 to 12: R0_w=pkt(id=14,off=58,r=0,umax_value=42000,var_off=(0x0; 0xffffffff)) R1=inv(id=0) R2=pkt_end(id=0,off=0,imm=0) R3_w=inv(id=0,umin_value=56,umax_value=42056,var_off=(0x0; 0xffff),s32_min_value=0,s32_max_value=65535,u32_max_value=65535) R4=inv17179869184 R5_w=pkt(id=14,off=58,r=0,umax_value=42000,var_off=(0x0; 0xffffffff)) R6_w=inv(id=0,umax_value=255,var_off=(0x0; 0xff)) R7_w=inv(id=0) R10=fp0
@@ -1720,7 +1720,7 @@ The verifier complains on the packet access because the access seems to be out o
 {
   "causal_chain": "insn 46 (R0): R0 was updated by `r0 += 2` and became map_value,id=0,off=0 -> propagates through insn 0 (R6), insn 11 (R2) -> fails at insn 48 (R5): invalid access to packet, off=0 size=2, R5(id=6,off=0,r=0)",
   "critical_transition": "RANGE_LOSS at insn 36: R5 lost packet range proof at insn 36: r=2 -> r=0",
-  "error_classification": "OBLIGE-E001 (source_bug)",
+  "error_classification": "BPFIX-E001 (source_bug)",
   "error_line": "invalid access to packet, off=0 size=2, R5(id=6,off=0,r=0)",
   "source_mapping": "x = *((uint16_t*) (data + field_offset));"
 }
@@ -2092,7 +2092,7 @@ As can be seen in the code above, I do check for bounds just above that particul
         - Critical state transition: RANGE_LOSS at insn 36: R5 lost packet range proof at insn 36: r=2 -> r=0
         - Causal chain: insn 46 (R0): R0 was updated by `r0 += 2` and became map_value,id=0,off=0 -> propagates through insn 0 (R6), insn 11 (R2) -> fails at insn 48 (R5): invalid access to packet, off=0 size=2, R5(id=6,off=0,r=0)
         - Source mapping: x = *((uint16_t*) (data + field_offset));
-        - Error classification: OBLIGE-E001 (source_bug)
+        - Error classification: BPFIX-E001 (source_bug)
 
         Raw verifier log (for reference):
         libbpf: load bpf program failed: Permission denied

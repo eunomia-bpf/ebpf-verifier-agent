@@ -1,1 +1,1 @@
-"""Packaged JSON schema resources for OBLIGE diagnostics."""
+"""Packaged JSON schema resources for BPFix diagnostics."""

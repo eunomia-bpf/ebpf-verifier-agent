@@ -1,7 +1,7 @@
 ---
-taxonomy_name: oblige_failure_taxonomy
+taxonomy_name: bpfix_failure_taxonomy
 taxonomy_version: 0.1.0
-title: OBLIGE 5-Class Verifier Failure Taxonomy
+title: BPFix 5-Class Verifier Failure Taxonomy
 description: |
   Compact taxonomy used to label benchmark cases and structured diagnostics.
   The goal is not to encode every verifier message, but to separate failures by

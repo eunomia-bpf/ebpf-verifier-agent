@@ -1,12 +1,12 @@
-# OBLIGE
+# BPFix
 
-OBLIGE stands for Obligation-Oriented Diagnostics for eBPF Verifier Failures. The project treats verifier feedback as a systems interface problem: instead of relying on unstable free-text logs, it aims to build a stable, structured diagnostic layer that exposes what proof obligation failed, where it failed, and what kind of repair is appropriate.
+BPFix stands for Obligation-Oriented Diagnostics for eBPF Verifier Failures. The project treats verifier feedback as a systems interface problem: instead of relying on unstable free-text logs, it aims to build a stable, structured diagnostic layer that exposes what proof obligation failed, where it failed, and what kind of repair is appropriate.
 
 The repository contains the current extractor pipeline, taxonomy/catalog data, case-study corpus utilities, and evaluation scripts used to analyze verifier failures.
 
 ## Install
 
-Create a virtual environment and install OBLIGE in editable mode:
+Create a virtual environment and install BPFix in editable mode:
 
 ```bash
 python -m venv .venv
@@ -34,7 +34,7 @@ interface/extractor/
 interface/schema/
   diagnostic.json    Structured diagnostic output schema
 oblige/
-  cli.py             `python -m oblige` / `oblige` entry point
+  cli.py             `python -m bpfix` / `bpfix` entry point
 tests/
   test_*.py          Extractor, renderer, schema, and CLI coverage
 docs/
@@ -47,25 +47,25 @@ docs/
 Generate a human-readable diagnostic from a raw verifier log:
 
 ```bash
-python -m oblige path/to/verifier.log
+python -m bpfix path/to/verifier.log
 ```
 
 Generate JSON instead:
 
 ```bash
-python -m oblige path/to/verifier.log --format json
+python -m bpfix path/to/verifier.log --format json
 ```
 
 The CLI also accepts a case-study YAML manifest and extracts its `verifier_log` automatically:
 
 ```bash
-python -m oblige case_study/cases/stackoverflow/stackoverflow-60053570.yaml --format both
+python -m bpfix case_study/cases/stackoverflow/stackoverflow-60053570.yaml --format both
 ```
 
 You can also pipe a log over stdin:
 
 ```bash
-cat verifier.log | python -m oblige --format json
+cat verifier.log | python -m bpfix --format json
 ```
 
 ## Python Usage
@@ -73,7 +73,7 @@ cat verifier.log | python -m oblige --format json
 ```python
 from pathlib import Path
 
-from oblige import build_diagnostic, generate_diagnostic
+from bpfix import build_diagnostic, generate_diagnostic
 
 raw_log = Path("verifier.log").read_text()
 
@@ -95,7 +95,7 @@ python -m pytest tests/ -q
 Inspect the CLI:
 
 ```bash
-python -m oblige --help
+python -m bpfix --help
 ```
 
 ## Project Scope

@@ -1,4 +1,4 @@
-# Repair Experiment V3: Raw Verifier Log vs OBLIGE Diagnostic (Local 20B Model)
+# Repair Experiment V3: Raw Verifier Log vs BPFix Diagnostic (Local 20B Model)
 
 - Generated: `2026-03-13T04:13:09+00:00`
 - Model: local llama.cpp GPT-OSS 20B
@@ -15,7 +15,7 @@ Scoring rubric per condition: `location/fix_type/root_cause`, each binary in `{0
 | Condition | Location | Fix type | Root cause |
 | --- | ---: | ---: | ---: |
 | A (raw verifier log only) | 21/56 (37.5%) | 12/56 (21.4%) | 45/56 (80.4%) |
-| B (raw log + OBLIGE diagnostic) | 22/56 (39.3%) | 16/56 (28.6%) | 47/56 (83.9%) |
+| B (raw log + BPFix diagnostic) | 22/56 (39.3%) | 16/56 (28.6%) | 47/56 (83.9%) |
 
 ## Summary By Taxonomy
 
@@ -28,7 +28,7 @@ Scoring rubric per condition: `location/fix_type/root_cause`, each binary in `{0
 
 ## BTF-Suppression Analysis
 
-- Cases where OBLIGE diagnostic was BTF-misleading → suppressed: `1`
+- Cases where BPFix diagnostic was BTF-misleading → suppressed: `1`
 - Cases with clean proof-analysis diagnostic: `55`
 
 | Subset | Condition | Fix type | Location |
@@ -171,6 +171,6 @@ Scoring rubric per condition: `location/fix_type/root_cause`, each binary in `{0
 
 ## Overall Conclusion
 
-Condition B (OBLIGE) improved fix-type accuracy by +7.1pp (+4 cases).
+Condition B (BPFix) improved fix-type accuracy by +7.1pp (+4 cases).
 For lowering_artifact (11 cases): A=1/11, B=2/11 (delta +9.1pp).
 BTF-suppression affected 1 cases: A=0/1 (0.0%), B=0/1 (0.0%).

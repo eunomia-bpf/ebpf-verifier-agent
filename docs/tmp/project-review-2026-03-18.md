@@ -1,10 +1,10 @@
-# OBLIGE Project Review
+# BPFix Project Review
 
 Date: 2026-03-18
 
 ## Executive Verdict
 
-OBLIGE is now a credible research prototype, but it is not OSDI/ATC-ready in its current state.
+BPFix is now a credible research prototype, but it is not OSDI/ATC-ready in its current state.
 
 The strongest part of the codebase is the new middle-end: CFG reconstruction, control dependence, dataflow, and slicing are substantially more principled than the older proof-engine story. The weakest part is the front-end and narrative layer: taxonomy classification, reject specialization, error-line selection, and parts of the transition story still depend on regexes, scoring rules, or legacy fallback logic. That is good enough for an engineering prototype, but not good enough to support the current paper framing.
 
@@ -251,7 +251,7 @@ My judgment:
 
 The strongest honest claim is an engineering systems claim, not a theory claim:
 
-OBLIGE is an end-to-end userspace diagnostic pipeline that turns verbose eBPF verifier traces into structured multi-span diagnostics by combining trace parsing, opcode-guided obligation inference, lightweight proof-lifecycle monitoring, backward slicing, and source correlation.
+BPFix is an end-to-end userspace diagnostic pipeline that turns verbose eBPF verifier traces into structured multi-span diagnostics by combining trace parsing, opcode-guided obligation inference, lightweight proof-lifecycle monitoring, backward slicing, and source correlation.
 
 That is useful and plausibly publishable in some venue if the evaluation is solid.
 
@@ -495,7 +495,7 @@ The current `engine/synthesizer.py` plus the current repair artifacts are nowher
 There are only two realistic strategies:
 
 1. **Diagnostics-only, but honest and rigorous**
-   Cut the theory-heavy language, present OBLIGE as a practical diagnostic system, and win on output quality, source correlation, root-cause precision, and baseline comparison.
+   Cut the theory-heavy language, present BPFix as a practical diagnostic system, and win on output quality, source correlation, root-cause precision, and baseline comparison.
 
 2. **Path A + Path B, for a stronger top-tier story**
    Finish the analysis story properly, then use it to drive verifier-validated repair.
@@ -604,4 +604,4 @@ The honest assessment is:
 
 If forced to summarize in one sentence:
 
-OBLIGE currently looks like a strong prototype searching for a paper, not yet a finished top-venue paper backed by synchronized implementation and evaluation.
+BPFix currently looks like a strong prototype searching for a paper, not yet a finished top-venue paper backed by synchronized implementation and evaluation.

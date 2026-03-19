@@ -1,4 +1,4 @@
-# OBLIGE Eval Infrastructure Audit
+# BPFix Eval Infrastructure Audit
 
 Date: 2026-03-18
 
@@ -99,7 +99,7 @@ Skip reasons:
 | `tests/test_batch_correctness.py` | 15 | Regression | Batch-level invariants and known-answer regressions for the diagnostic pipeline | Scans all 66 SO cases with non-empty logs; explicit cases `70750259`, `70729664`, `70841631`, `60053570`, `77462271` |
 | `tests/test_bpftool_parser.py` | 1 | Unit | `bpftool` instruction/source mapping parser | Inline sample only |
 | `tests/test_cfg_builder.py` | 16 | Unit + regression | Branch-target extraction and CFG construction | Inline traces plus `stackoverflow-70750259.yaml` |
-| `tests/test_cli.py` | 1 | Integration | `python -m oblige ... --format json` CLI smoke | Subprocess on `stackoverflow-60053570.yaml` |
+| `tests/test_cli.py` | 1 | Integration | `python -m bpfix ... --format json` CLI smoke | Subprocess on `stackoverflow-60053570.yaml` |
 | `tests/test_control_dep.py` | 9 | Unit + regression | Control-dependence and IPDOM behavior | Inline graphs plus `stackoverflow-70750259.yaml` |
 | `tests/test_dataflow.py` | 49 | Unit + regression | Def/use extraction, reaching definitions, data slicing | Local fixture `chain_and_trace`; `stackoverflow-70750259.yaml` |
 | `tests/test_diagnostic_schema.py` | 1 | Integration | Generated diagnostic JSON matches the declared schema | `stackoverflow-70750259.yaml` |
@@ -157,7 +157,7 @@ Test data patterns:
 | `llm_multi_model_results.json` | 757,011 B | Multi-model LLM eval output; `22` cases |
 | `per_language_eval.json` | 2,449 B | Stored per-language summary; references missing v4 input |
 | `pretty_verifier_comparison.json` | 480,624 B | Raw Pretty Verifier comparison; `263` cases |
-| `pv_comparison_expanded.json` | 237,490 B | Post-processed PV vs OBLIGE comparison; `262` cases |
+| `pv_comparison_expanded.json` | 237,490 B | Post-processed PV vs BPFix comparison; `262` cases |
 | `repair_experiment_results_v3.json` | 2,057,038 B | A/B repair experiment, version 3; `56` selected cases |
 | `repair_experiment_results_v5.json` | 1,762,895 B | Repair results bundle version 5; no matching `repair_experiment_v5.py` script |
 | `root_cause_validation.json` | 299,870 B | Root-cause validation bundle |
@@ -290,7 +290,7 @@ The file has top-level keys:
 
 Metadata:
 - `generated: 2026-03-13`
-- `description: Ground truth taxonomy labels for OBLIGE evaluation`
+- `description: Ground truth taxonomy labels for BPFix evaluation`
 - `total_cases: 292`
 - `by_source: {manual: 30, selftest_auto: 189, so_auto: 58, gh_auto: 15}`
 - `by_taxonomy: {verifier_limit: 6, source_bug: 193, env_mismatch: 47, lowering_artifact: 44, verifier_bug: 2}`
@@ -401,8 +401,8 @@ There is no `eval/batch_eval.py`. The current batch driver is `eval/batch_diagno
 | `span_coverage_eval.py` | Compare emitted spans against inferred/manual fix locations | `eval/results/span_coverage_results.json` | Current, but uses a different corpus threshold |
 | `root_cause_validation.py` | Compare `proof_lost` spans against code diffs/fix text where available | `eval/results/root_cause_validation.json` | Current, but weakly supported by data |
 | `taxonomy_coverage.py` | Catalog/error-ID coverage over the logged corpus | `eval/results/taxonomy_coverage.json` | Current |
-| `pretty_verifier_comparison.py` | Raw PV vs OBLIGE corpus comparison | `eval/results/pretty_verifier_comparison.json` | Current raw comparison |
-| `pv_comparison_expanded.py` | Post-process PV vs OBLIGE using PV output plus batch output | `eval/results/pv_comparison_expanded.json` | Broken: hardcoded missing `batch_diagnostic_results_v4.json` |
+| `pretty_verifier_comparison.py` | Raw PV vs BPFix corpus comparison | `eval/results/pretty_verifier_comparison.json` | Current raw comparison |
+| `pv_comparison_expanded.py` | Post-process PV vs BPFix using PV output plus batch output | `eval/results/pv_comparison_expanded.json` | Broken: hardcoded missing `batch_diagnostic_results_v4.json` |
 | `per_language_eval.py` | Language-level post-processing of batch results | `eval/results/per_language_eval.json` | Broken: hardcoded missing `batch_diagnostic_results_v4.json` |
 | `llm_comparison.py` | Multi-condition LLM diagnosis experiment | `eval/results/llm_multi_model_results.json` | Uses manual-label doc, not YAML labels |
 | `repair_experiment_v3.py` | A/B repair experiment with local model and verifier oracle | `eval/results/repair_experiment_results_v3.json` | Current for Makefile `eval-repair-20b` |
@@ -523,7 +523,7 @@ By script:
 
 - `pretty_verifier_comparison.py` / `pv_comparison_expanded.py`
   - PV handled/unhandled/crash rates
-  - OBLIGE multi-span/BTF/causal-chain rates
+  - BPFix multi-span/BTF/causal-chain rates
   - by-taxonomy and by-source aggregates
 
 - `repair_experiment_v3.py` / `repair_experiment_v4.py`

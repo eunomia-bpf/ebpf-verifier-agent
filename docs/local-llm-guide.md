@@ -96,13 +96,13 @@ response = requests.post("http://127.0.0.1:8080/v1/chat/completions", json={
 print(response.json()["choices"][0]["message"]["content"])
 ```
 
-## Running OBLIGE Diagnostic Evaluation
+## Running BPFix Diagnostic Evaluation
 
 Use `scripts/local_llm_eval.py` to run the full evaluation pipeline. The script:
 - Optionally starts the llama-server subprocess automatically
 - Waits for the health check to confirm readiness
 - Loads cases from `eval/results/batch_diagnostic_results_v4.json`
-- Sends each case's verifier log + OBLIGE diagnostic to the LLM
+- Sends each case's verifier log + BPFix diagnostic to the LLM
 - Records classification, root-cause localization, and fix suggestions
 - Saves results to `eval/results/local_llm_eval_results.json`
 - Cleans up the server subprocess on exit (SIGINT/SIGTERM handled)
@@ -140,11 +140,11 @@ python scripts/local_llm_eval.py \
   --output eval/results/local_llm_eval_results.json
 ```
 
-### Ablation: raw log only (no OBLIGE diagnostic)
+### Ablation: raw log only (no BPFix diagnostic)
 
 ```bash
 python scripts/local_llm_eval.py \
-  --no-oblige \
+  --no-bpfix \
   --output eval/results/local_llm_eval_raw_log_only.json
 ```
 
@@ -159,7 +159,7 @@ python scripts/local_llm_eval.py \
 | `--output` | `eval/results/local_llm_eval_results.json` | Output results file |
 | `--max-cases` | (all) | Limit number of cases for testing |
 | `--no-start-server` | false | Skip launching llama-server (use existing) |
-| `--no-oblige` | false | Ablation: send raw log only, no OBLIGE diagnostic |
+| `--no-bpfix` | false | Ablation: send raw log only, no BPFix diagnostic |
 | `--load-log-from-yaml` | false | Load verifier logs from YAML case files |
 | `--max-tokens` | 1024 | Max tokens in LLM response |
 | `--startup-timeout` | 120 | Seconds to wait for server ready |
@@ -196,7 +196,7 @@ Results are saved to JSON with the following structure:
 ```json
 {
   "generated_at": "2026-03-12T...",
-  "config": { "model": "...", "include_oblige": true, ... },
+  "config": { "model": "...", "include_bpfix": true, ... },
   "aggregates": {
     "total_cases": 302,
     "api_success": 300,

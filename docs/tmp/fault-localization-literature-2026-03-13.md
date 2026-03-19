@@ -1,21 +1,21 @@
-# Fault Localization Literature Survey for OBLIGE
+# Fault Localization Literature Survey for BPFix
 ## Date: 2026-03-13
 
-This document surveys the formal methods and program analysis literature for work that OBLIGE relates to, might be reinventing, should cite, or could borrow techniques from. It is organized by research community and intended to answer: **What is the right framing for OBLIGE's contribution?**
+This document surveys the formal methods and program analysis literature for work that BPFix relates to, might be reinventing, should cite, or could borrow techniques from. It is organized by research community and intended to answer: **What is the right framing for BPFix's contribution?**
 
 ---
 
 ## Executive Summary
 
-OBLIGE's core operation — evaluating a safety predicate at each step of an abstract interpreter's execution trace to find where the proof broke — maps most cleanly to **runtime verification applied to abstract traces**. The nearest intellectual neighbors are:
+BPFix's core operation — evaluating a safety predicate at each step of an abstract interpreter's execution trace to find where the proof broke — maps most cleanly to **runtime verification applied to abstract traces**. The nearest intellectual neighbors are:
 
-1. **Runtime verification / trace monitoring** (Havelund & Rosu 2001; Bauer et al. 2011) — OBLIGE does property monitoring, but over an *abstract* trace rather than a concrete execution.
-2. **Counterexample explanation in model checking** (Clarke et al. 2001; Gurfinkel & Chechik 2003) — These papers explain *why* a counterexample is spurious or genuine; OBLIGE explains *where* the proof broke.
+1. **Runtime verification / trace monitoring** (Havelund & Rosu 2001; Bauer et al. 2011) — BPFix does property monitoring, but over an *abstract* trace rather than a concrete execution.
+2. **Counterexample explanation in model checking** (Clarke et al. 2001; Gurfinkel & Chechik 2003) — These papers explain *why* a counterexample is spurious or genuine; BPFix explains *where* the proof broke.
 3. **Error trace analysis / fault localization** (Zeller 2002; BugAssist 2011; SNIPER 2015) — These localize bugs using delta debugging, MAX-SAT over bounded model checker traces, or UNSAT core extraction.
-4. **Compiler diagnostics / multi-span errors** (Rust's diagnostic system; Elm's error messages) — OBLIGE's output format is most similar to the Rust compiler's multi-span approach.
-5. **Program slicing for debugging** (Weiser 1981) — OBLIGE's backward slice from the transition point is a simplified version of Weiser slicing.
+4. **Compiler diagnostics / multi-span errors** (Rust's diagnostic system; Elm's error messages) — BPFix's output format is most similar to the Rust compiler's multi-span approach.
+5. **Program slicing for debugging** (Weiser 1981) — BPFix's backward slice from the transition point is a simplified version of Weiser slicing.
 
-**Key finding**: OBLIGE is doing something genuinely new *in combination*, but each individual sub-technique is classical. The paper should frame this explicitly: "We apply trace monitoring over abstract states (classical technique) to the novel domain of eBPF verifier output (new application), and show that the resulting lifecycle classification (proof established → proof lost) provides information no existing tool provides for eBPF diagnostics."
+**Key finding**: BPFix is doing something genuinely new *in combination*, but each individual sub-technique is classical. The paper should frame this explicitly: "We apply trace monitoring over abstract states (classical technique) to the novel domain of eBPF verifier output (new application), and show that the resulting lifecycle classification (proof established → proof lost) provides information no existing tool provides for eBPF diagnostics."
 
 ---
 
@@ -27,14 +27,14 @@ OBLIGE's core operation — evaluating a safety predicate at each step of an abs
 
 **Approach**: BugAssist encodes a bounded model checker's error trace as a MAX-SAT problem. Each statement in the program is associated with a Boolean literal. BugAssist finds the *minimum set of statements* that must be "faulty" (i.e., whose semantics need to change) to make the trace infeasible — i.e., to eliminate the error. Statements in the MAX-SAT solution are flagged as likely fault locations.
 
-**Relation to OBLIGE**: BugAssist works on *concrete counterexample traces* from CBMC-style bounded model checkers. OBLIGE works on *abstract execution traces* from an abstract interpreter. Both are "trace-based fault localization," but:
+**Relation to BPFix**: BugAssist works on *concrete counterexample traces* from CBMC-style bounded model checkers. BPFix works on *abstract execution traces* from an abstract interpreter. Both are "trace-based fault localization," but:
 - BugAssist requires a concrete failing execution and computes which statements caused it.
-- OBLIGE is given the abstract states at each instruction (already computed by the verifier) and finds the transition where the safety proof breaks.
-- BugAssist uses MAX-SAT; OBLIGE uses direct predicate evaluation.
+- BPFix is given the abstract states at each instruction (already computed by the verifier) and finds the transition where the safety proof breaks.
+- BugAssist uses MAX-SAT; BPFix uses direct predicate evaluation.
 
-**Should OBLIGE cite this?** Yes. BugAssist is the closest prior work on fault localization from verification tool outputs. The key difference to emphasize: BugAssist operates on *concrete* traces from CBMC (requiring a compilable, runnable program); OBLIGE operates on *abstract* traces already logged by the eBPF verifier (no re-execution needed, pure userspace).
+**Should BPFix cite this?** Yes. BugAssist is the closest prior work on fault localization from verification tool outputs. The key difference to emphasize: BugAssist operates on *concrete* traces from CBMC (requiring a compilable, runnable program); BPFix operates on *abstract* traces already logged by the eBPF verifier (no re-execution needed, pure userspace).
 
-**Could OBLIGE use this technique?** Partially. MAX-SAT localization could be applied if OBLIGE had a formal specification of the verifier's transition function. Currently infeasible because the eBPF verifier's abstract domain is complex and not formalized in a SAT-friendly way. Not a near-term opportunity.
+**Could BPFix use this technique?** Partially. MAX-SAT localization could be applied if BPFix had a formal specification of the verifier's transition function. Currently infeasible because the eBPF verifier's abstract domain is complex and not formalized in a SAT-friendly way. Not a near-term opportunity.
 
 ---
 
@@ -44,15 +44,15 @@ OBLIGE's core operation — evaluating a safety predicate at each step of an abs
 
 **Approach**: SNIPER computes *error invariants* — predicates that hold at a program point along a failing trace and remain invariant under all "plausible" executions that still lead to the error. An error invariant at point p is a necessary condition for the failure to occur starting from p. The technique is backward: starting from the error, it weakens the precondition needed to reach the error using Craig interpolants from a SAT/SMT solver.
 
-**Relation to OBLIGE**: SNIPER's error invariants are conceptually similar to OBLIGE's "what was the minimal state change that made the proof fail?" But:
+**Relation to BPFix**: SNIPER's error invariants are conceptually similar to BPFix's "what was the minimal state change that made the proof fail?" But:
 - SNIPER uses interpolant-based backward reasoning from a concrete counterexample.
-- OBLIGE uses forward predicate evaluation over abstract states logged by the verifier.
+- BPFix uses forward predicate evaluation over abstract states logged by the verifier.
 - SNIPER requires an SMT solver and a formal program model.
-- OBLIGE requires only the verifier's LOG_LEVEL2 text output.
+- BPFix requires only the verifier's LOG_LEVEL2 text output.
 
-**Should OBLIGE cite this?** Yes, as a contrasting approach. SNIPER requires re-running a model checker over a formal program model; OBLIGE operates on existing verifier output, making it deployable without additional tooling.
+**Should BPFix cite this?** Yes, as a contrasting approach. SNIPER requires re-running a model checker over a formal program model; BPFix operates on existing verifier output, making it deployable without additional tooling.
 
-**Could OBLIGE use this technique?** The interpolant idea is appealing for generating *explanations* of why the proof broke (not just where). Future work could use interpolants to generate the "why" narrative in the diagnostic. Not tractable for the current paper scope.
+**Could BPFix use this technique?** The interpolant idea is appealing for generating *explanations* of why the proof broke (not just where). Future work could use interpolants to generate the "why" narrative in the diagnostic. Not tractable for the current paper scope.
 
 ---
 
@@ -62,14 +62,14 @@ OBLIGE's core operation — evaluating a safety predicate at each step of an abs
 
 **Approach**: Delta debugging (DD) takes a failing test input and applies a "divide-and-conquer" minimization to find the minimal subset of the input that still triggers the failure. The cause-effect chain approach extends this to program states: by systematically varying the program state at a given program point and observing whether the failure occurs, DD identifies which variables (and which values) are causally responsible for the failure.
 
-**Relation to OBLIGE**: Delta debugging and OBLIGE both ask "which part of the execution is responsible for the failure?" But they work at different levels:
+**Relation to BPFix**: Delta debugging and BPFix both ask "which part of the execution is responsible for the failure?" But they work at different levels:
 - DD requires re-executing the program repeatedly with modified inputs or states.
-- OBLIGE works from a single execution trace (the verifier log) without re-execution.
-- For eBPF, re-execution would require loading the program into a kernel — expensive and not always possible. OBLIGE's "no re-execution needed" property is a significant practical advantage.
+- BPFix works from a single execution trace (the verifier log) without re-execution.
+- For eBPF, re-execution would require loading the program into a kernel — expensive and not always possible. BPFix's "no re-execution needed" property is a significant practical advantage.
 
-**Should OBLIGE cite this?** Yes. Delta debugging is foundational. OBLIGE should note that its approach is more like static trace analysis than dynamic failure isolation — it uses the verifier's pre-computed abstract states rather than re-running to probe state changes.
+**Should BPFix cite this?** Yes. Delta debugging is foundational. BPFix should note that its approach is more like static trace analysis than dynamic failure isolation — it uses the verifier's pre-computed abstract states rather than re-running to probe state changes.
 
-**Could OBLIGE use this technique?** Delta debugging over verifier traces would mean: remove instructions from the eBPF program, resubmit to verifier, observe if failure changes. This is actually feasible and could be a useful complementary technique for identifying the *minimal* program that triggers a given error. Not done currently, but worth noting as future work.
+**Could BPFix use this technique?** Delta debugging over verifier traces would mean: remove instructions from the eBPF program, resubmit to verifier, observe if failure changes. This is actually feasible and could be a useful complementary technique for identifying the *minimal* program that triggers a given error. Not done currently, but worth noting as future work.
 
 ---
 
@@ -81,14 +81,14 @@ And: "A Framework for Counterexample Generation and Exploration." *FASE 2005*.
 
 **Approach**: In CEGAR, counterexamples arise when an abstraction is too coarse — the abstract model contains a spurious trace that doesn't correspond to a real execution. The challenge is distinguishing *real* counterexamples (genuine bugs) from *spurious* ones (abstraction artifacts). Proof-like counterexamples annotate the counterexample with the reason it might be spurious, helping the abstraction refinement choose better predicates.
 
-**Relation to OBLIGE**: There is a deep structural analogy between CEGAR and OBLIGE's framing:
+**Relation to BPFix**: There is a deep structural analogy between CEGAR and BPFix's framing:
 - In CEGAR: abstract model → abstract trace → is this trace real or spurious?
-- In OBLIGE: abstract interpreter → abstract state sequence → did the proof actually fail, or did the verifier just not track the invariant?
-- OBLIGE's distinction between "proof never established" (verifier correctly rejected a genuinely unsafe program) versus "proof established then lost" (verifier's abstraction lost track of a valid invariant) is analogous to "real counterexample" vs. "spurious counterexample."
+- In BPFix: abstract interpreter → abstract state sequence → did the proof actually fail, or did the verifier just not track the invariant?
+- BPFix's distinction between "proof never established" (verifier correctly rejected a genuinely unsafe program) versus "proof established then lost" (verifier's abstraction lost track of a valid invariant) is analogous to "real counterexample" vs. "spurious counterexample."
 
-**Should OBLIGE cite this?** Strongly yes. This analogy is intellectually precise and worth drawing explicitly in the paper. The "proof established → proof lost" classification maps to "spurious rejection" — the program may be safe, but the verifier's abstract domain lost the proof. The analogy strengthens the framing of OBLIGE's contribution.
+**Should BPFix cite this?** Strongly yes. This analogy is intellectually precise and worth drawing explicitly in the paper. The "proof established → proof lost" classification maps to "spurious rejection" — the program may be safe, but the verifier's abstract domain lost the proof. The analogy strengthens the framing of BPFix's contribution.
 
-**Could OBLIGE use this technique?** CEGAR-style abstraction refinement for eBPF would be a major contribution on its own — each "spurious rejection" would trigger a request to add a verifier hint (BTF annotation, bpf_loop(), explicit cast) to help the verifier recover the proof. This is actually how expert eBPF developers work today (adding hints to guide the verifier). Formalizing this as a CEGAR loop is a major future direction.
+**Could BPFix use this technique?** CEGAR-style abstraction refinement for eBPF would be a major contribution on its own — each "spurious rejection" would trigger a request to add a verifier hint (BTF annotation, bpf_loop(), explicit cast) to help the verifier recover the proof. This is actually how expert eBPF developers work today (adding hints to guide the verifier). Formalizing this as a CEGAR loop is a major future direction.
 
 ---
 
@@ -98,9 +98,9 @@ And: "A Framework for Counterexample Generation and Exploration." *FASE 2005*.
 
 **Approach**: CBMC unrolls program loops up to a bound and encodes the resulting path as a SAT/SMT formula. When the formula is unsatisfiable (no error), the proof is complete up to the bound. When satisfiable, the model returns a concrete counterexample trace showing the failing execution.
 
-**Relation to OBLIGE**: The eBPF verifier is more like a *bounded model checker* than a traditional abstract interpreter in one important way: it explores all paths up to a bounded depth (instruction count limit) and either accepts (proof complete) or rejects (found a potential violation). OBLIGE's analysis of the proof trace is therefore analogous to analyzing a BMC counterexample — finding where the proof diverged from safety.
+**Relation to BPFix**: The eBPF verifier is more like a *bounded model checker* than a traditional abstract interpreter in one important way: it explores all paths up to a bounded depth (instruction count limit) and either accepts (proof complete) or rejects (found a potential violation). BPFix's analysis of the proof trace is therefore analogous to analyzing a BMC counterexample — finding where the proof diverged from safety.
 
-**Should OBLIGE cite this?** Yes, to establish the relationship between the eBPF verifier's architecture and bounded model checking. This helps reviewers from the formal methods community understand the setting.
+**Should BPFix cite this?** Yes, to establish the relationship between the eBPF verifier's architecture and bounded model checking. This helps reviewers from the formal methods community understand the setting.
 
 ---
 
@@ -112,9 +112,9 @@ And: "A Framework for Counterexample Generation and Exploration." *FASE 2005*.
 
 **Approach**: Given a failing test case, compute which program variables and statements are causally linked to the failure by modifying program state at each program point and observing whether the failure still occurs. The result is a "cause" (a set of variable assignments) that distinguishes passing from failing runs.
 
-**Relation to OBLIGE**: OBLIGE's backward slice from the proof-loss instruction is essentially static "cause analysis" — which prior instructions wrote to the registers whose values caused the proof to fail? Cleve & Zeller's dynamic version finds the same information by probing state changes. OBLIGE finds it statically by following def-use edges in the logged trace.
+**Relation to BPFix**: BPFix's backward slice from the proof-loss instruction is essentially static "cause analysis" — which prior instructions wrote to the registers whose values caused the proof to fail? Cleve & Zeller's dynamic version finds the same information by probing state changes. BPFix finds it statically by following def-use edges in the logged trace.
 
-**Should OBLIGE cite this?** Yes, briefly. OBLIGE's backward slice is a simpler, static approximation of Cleve & Zeller's dynamic causal analysis.
+**Should BPFix cite this?** Yes, briefly. BPFix's backward slice is a simpler, static approximation of Cleve & Zeller's dynamic causal analysis.
 
 ---
 
@@ -124,7 +124,7 @@ And: "A Framework for Counterexample Generation and Exploration." *FASE 2005*.
 
 **Approach**: Uses object field access patterns (Daikon-style invariant mining) at the level of method call sequences to find anomalous object behavior. Defects are identified as deviations from normal method-call patterns.
 
-**Relation to OBLIGE**: Not directly applicable (OBLIGE works at the instruction level, not object level). But the "deviation from normal behavior" framing is analogous — OBLIGE looks for deviations in the abstract state sequence (bounds collapse, type downgrade) as signals of failure.
+**Relation to BPFix**: Not directly applicable (BPFix works at the instruction level, not object level). But the "deviation from normal behavior" framing is analogous — BPFix looks for deviations in the abstract state sequence (bounds collapse, type downgrade) as signals of failure.
 
 ---
 
@@ -134,9 +134,9 @@ And: "A Framework for Counterexample Generation and Exploration." *FASE 2005*.
 
 **Approach**: Minimize the test input that triggers a failure. The reduced input is easier to analyze. Widely used for compiler bugs (C-Reduce, Perses).
 
-**Relation to OBLIGE**: C-Reduce (Regehr et al., *PLDI 2012*) applies delta debugging to C programs to minimize compiler bugs. There is a direct analog for eBPF: given a failing eBPF program, apply program reduction to find the minimal eBPF program that still triggers the same verifier error. This would be a clean, useful tool. Nobody has built this for eBPF.
+**Relation to BPFix**: C-Reduce (Regehr et al., *PLDI 2012*) applies delta debugging to C programs to minimize compiler bugs. There is a direct analog for eBPF: given a failing eBPF program, apply program reduction to find the minimal eBPF program that still triggers the same verifier error. This would be a clean, useful tool. Nobody has built this for eBPF.
 
-**Could OBLIGE use this technique?** Yes. An "eBPF-Reduce" tool that applies structural program reduction while preserving the verifier error ID would help with: (a) documenting minimal reproducer cases, (b) identifying verifier bugs, (c) simplifying diagnostic analysis. This is a concrete, buildable future work item.
+**Could BPFix use this technique?** Yes. An "eBPF-Reduce" tool that applies structural program reduction while preserving the verifier error ID would help with: (a) documenting minimal reproducer cases, (b) identifying verifier bugs, (c) simplifying diagnostic analysis. This is a concrete, buildable future work item.
 
 ---
 
@@ -149,16 +149,16 @@ Also: Blanchet, Bruno, et al. "A Static Analyzer for Large Safety-Critical Softw
 
 **Approach**: Astrée is an abstract interpreter for C programs targeting safety-critical embedded software. Its goal is *zero false alarms*: every alarm it raises corresponds to a genuine potential error. When Astrée raises an alarm, it provides: the source location, the abstract state at that location (numerical domain values), and the path sensitivity information showing which branch conditions led to the alarm.
 
-**Relation to OBLIGE**: Astrée's alarm format is the closest analog to what OBLIGE produces. Both:
+**Relation to BPFix**: Astrée's alarm format is the closest analog to what BPFix produces. Both:
 - Are triggered by an abstract interpreter finding a potential violation.
 - Report the source location of the violation.
 - Show the abstract state (register values / variable bounds) at the alarm point.
 
-**The key difference**: Astrée raises *potential* violations (the abstract state shows the value might be out of bounds). The eBPF verifier raises *definite* rejections (the abstract domain knows the value is unsafe). OBLIGE's task is not to report the violation (the verifier already does this) but to explain *why* the abstract domain reached the unsafe state.
+**The key difference**: Astrée raises *potential* violations (the abstract state shows the value might be out of bounds). The eBPF verifier raises *definite* rejections (the abstract domain knows the value is unsafe). BPFix's task is not to report the violation (the verifier already does this) but to explain *why* the abstract domain reached the unsafe state.
 
-**Should OBLIGE cite this?** Yes, as the closest static analysis diagnostic system. The framing should be: "Astrée and similar analyzers produce alarms with abstract state context. OBLIGE extends this by adding causal history — tracing the state backward from the alarm to the instruction where the safety property was established and then lost."
+**Should BPFix cite this?** Yes, as the closest static analysis diagnostic system. The framing should be: "Astrée and similar analyzers produce alarms with abstract state context. BPFix extends this by adding causal history — tracing the state backward from the alarm to the instruction where the safety property was established and then lost."
 
-**Could OBLIGE use these techniques?** Astrée's approach to presenting alarms (source location + abstract state) is already what OBLIGE does. OBLIGE adds the lifecycle (establish/lost) dimension. Worth citing as evidence that the "abstract state at alarm point" format is established practice.
+**Could BPFix use these techniques?** Astrée's approach to presenting alarms (source location + abstract state) is already what BPFix does. BPFix adds the lifecycle (establish/lost) dimension. Worth citing as evidence that the "abstract state at alarm point" format is established practice.
 
 ---
 
@@ -175,14 +175,14 @@ Also: Calcagno, Cristiano, et al. "Moving Fast with Software Verification." *NAS
 - A "trace" showing the call stack and intermediate steps that led to the error
 - The specific variable/heap cell that caused the problem
 
-**Relation to OBLIGE**: Infer's error trace format is inspirational for OBLIGE's diagnostic output. The key differences:
-- Infer's traces are *interprocedural* (across function calls). OBLIGE's traces are *intrafunction* (within a single eBPF program).
-- Infer uses *separation logic* and *heap shapes*. OBLIGE uses *scalar bounds, type lattice, and pointer ranges*.
-- Infer provides a *callee summary* approach. OBLIGE has no function call abstraction (eBPF helpers are treated as side-effecting black boxes).
+**Relation to BPFix**: Infer's error trace format is inspirational for BPFix's diagnostic output. The key differences:
+- Infer's traces are *interprocedural* (across function calls). BPFix's traces are *intrafunction* (within a single eBPF program).
+- Infer uses *separation logic* and *heap shapes*. BPFix uses *scalar bounds, type lattice, and pointer ranges*.
+- Infer provides a *callee summary* approach. BPFix has no function call abstraction (eBPF helpers are treated as side-effecting black boxes).
 
-**Should OBLIGE cite this?** Yes, as the state of the art in abstract interpretation error reporting. Infer's error trace format is closer to what OBLIGE targets than most systems.
+**Should BPFix cite this?** Yes, as the state of the art in abstract interpretation error reporting. Infer's error trace format is closer to what BPFix targets than most systems.
 
-**Could OBLIGE use these techniques?** OBLIGE could borrow Infer's "trace step" format for explaining the causal chain. Currently, OBLIGE shows "proof established at line 38, proof lost at line 42." Infer would show each intermediate step with the abstract state change. Adopting a step-by-step trace format would make OBLIGE's output more similar to Infer's and easier to validate.
+**Could BPFix use these techniques?** BPFix could borrow Infer's "trace step" format for explaining the causal chain. Currently, BPFix shows "proof established at line 38, proof lost at line 42." Infer would show each intermediate step with the abstract state change. Adopting a step-by-step trace format would make BPFix's output more similar to Infer's and easier to validate.
 
 ---
 
@@ -193,9 +193,9 @@ Also: Kirchner, Florent, et al. "Frama-C: A Software Analysis Perspective." *FAC
 
 **Approach**: Frama-C's Value plugin is an abstract interpreter for C using an interval + congruence domain. It emits *alarms* at program points where the abstract value might violate a safety property (out-of-bounds access, integer overflow, etc.). Each alarm includes the abstract state at the alarm point.
 
-**Relation to OBLIGE**: Same relationship as Astrée. Frama-C's Value produces point-in-time alarms with abstract state context; OBLIGE adds the causal lifecycle.
+**Relation to BPFix**: Same relationship as Astrée. Frama-C's Value produces point-in-time alarms with abstract state context; BPFix adds the causal lifecycle.
 
-**One specific Frama-C technique of interest**: Frama-C's *alarm reduction* feature uses abstract interpretation to prove that some alarms are unreachable given additional context. This is analogous to OBLIGE's challenge of distinguishing "proof never established" (genuine missing check) from "proof lost by lowering" (valid check that the verifier can't track). A future OBLIGE could adopt alarm classification to distinguish these more precisely.
+**One specific Frama-C technique of interest**: Frama-C's *alarm reduction* feature uses abstract interpretation to prove that some alarms are unreachable given additional context. This is analogous to BPFix's challenge of distinguishing "proof never established" (genuine missing check) from "proof lost by lowering" (valid check that the verifier can't track). A future BPFix could adopt alarm classification to distinguish these more precisely.
 
 ---
 
@@ -205,15 +205,15 @@ Also: Kirchner, Florent, et al. "Frama-C: A Software Analysis Perspective." *FAC
 
 **Approach**: Defines the abstract interpretation framework: abstract domains (lattice-based overapproximations of program states), Galois connections between concrete and abstract domains, transfer functions, and fixpoint computation. The standard reference for any analysis that operates over per-instruction abstract states.
 
-**Relation to OBLIGE**: The eBPF verifier is an abstract interpreter in exactly the Cousot-Cousot sense:
+**Relation to BPFix**: The eBPF verifier is an abstract interpreter in exactly the Cousot-Cousot sense:
 - Abstract domain: {type_tag × scalar_bounds × tnum × pointer_offset × pointer_range}
 - Transfer functions: one per BPF opcode
 - Fixpoint computation: for loops (with limits)
 - Safety property: type safety + memory safety + register type constraints
 
-OBLIGE's "proof obligation evaluation" is monitoring a property over the output of this abstract interpreter. Citing Cousot-Cousot establishes the theoretical foundation.
+BPFix's "proof obligation evaluation" is monitoring a property over the output of this abstract interpreter. Citing Cousot-Cousot establishes the theoretical foundation.
 
-**Should OBLIGE cite this?** Yes, briefly, to connect the eBPF verifier to the standard abstract interpretation literature.
+**Should BPFix cite this?** Yes, briefly, to connect the eBPF verifier to the standard abstract interpretation literature.
 
 ---
 
@@ -223,11 +223,11 @@ OBLIGE's "proof obligation evaluation" is monitoring a property over the output 
 
 **Approach**: Introduces a framework for measuring *how much* imprecision an abstract interpreter introduces — quantifying the gap between what the abstract domain can prove and what the concrete semantics requires. Defines "partial completeness" as a bound on false alarms.
 
-**Relation to OBLIGE**: OBLIGE's "proof established → proof lost" classification is essentially measuring partial completeness: the verifier's domain was *complete enough* to establish the proof at the bounds check, but became *incomplete* (imprecise) after the OR instruction. Citing this work would strengthen the theoretical framing: OBLIGE detects *completeness loss events* in the verifier's abstract interpretation.
+**Relation to BPFix**: BPFix's "proof established → proof lost" classification is essentially measuring partial completeness: the verifier's domain was *complete enough* to establish the proof at the bounds check, but became *incomplete* (imprecise) after the OR instruction. Citing this work would strengthen the theoretical framing: BPFix detects *completeness loss events* in the verifier's abstract interpretation.
 
-**Should OBLIGE cite this?** Yes, for the OSDI/ATC version. This gives OBLIGE a precise theoretical vocabulary: the "proof loss" event is a *completeness loss* in the abstract domain. This is a stronger framing than "abstract state transition."
+**Should BPFix cite this?** Yes, for the OSDI/ATC version. This gives BPFix a precise theoretical vocabulary: the "proof loss" event is a *completeness loss* in the abstract domain. This is a stronger framing than "abstract state transition."
 
-**Could OBLIGE use this technique?** Yes. Campion et al.'s framework could provide formal language for measuring how often OBLIGE detects completeness loss vs. genuine safety violations. This could be a metric: "OBLIGE identifies N completeness-loss events in our 262-case dataset, corresponding to M lowering artifacts where the verifier's domain is incomplete relative to the compiler's transformations."
+**Could BPFix use this technique?** Yes. Campion et al.'s framework could provide formal language for measuring how often BPFix detects completeness loss vs. genuine safety violations. This could be a metric: "BPFix identifies N completeness-loss events in our 262-case dataset, corresponding to M lowering artifacts where the verifier's domain is incomplete relative to the compiler's transformations."
 
 ---
 
@@ -244,17 +244,17 @@ Key survey: Bartocci, Ezio, et al. "Lectures on Runtime Verification." *Springer
 - *Safety properties*: the monitor catches the first point where the trace violates the property.
 - Three-valued semantics (Bauer, Leucker, Schallhart 2006): a trace that hasn't violated a property yet has verdict ⊤ (definitely good), ⊥ (definitely bad), or ? (inconclusive).
 
-**Relation to OBLIGE**: OBLIGE is *exactly* a monitor for a safety property over an abstract trace:
+**Relation to BPFix**: BPFix is *exactly* a monitor for a safety property over an abstract trace:
 1. The "trace" is the eBPF verifier's LOG_LEVEL2 output: the sequence of per-instruction abstract states.
 2. The "property" is a proof obligation P (e.g., `pkt_ptr has established range bound`).
 3. The "verdict" is: proof_established (⊤), proof_lost (⊥), or never_established (?).
 4. The "transition witness" w (the first instruction where P flips from ⊤ to ⊥) is the classic "first violation point" in RV.
 
-**Critical distinction**: Standard RV monitors *concrete* execution traces. OBLIGE monitors an *abstract* trace. This distinction is what gives OBLIGE Proposition 1 (soundness): because the abstract states overapproximate the concrete states, if P holds on the abstract state at instruction i, it holds on all concrete states in γ(s_i).
+**Critical distinction**: Standard RV monitors *concrete* execution traces. BPFix monitors an *abstract* trace. This distinction is what gives BPFix Proposition 1 (soundness): because the abstract states overapproximate the concrete states, if P holds on the abstract state at instruction i, it holds on all concrete states in γ(s_i).
 
-**Should OBLIGE cite this?** Strongly yes. This is the most direct technical framing for OBLIGE's core algorithm. The paper should say explicitly: "OBLIGE is a safety property monitor over the abstract trace produced by the eBPF verifier. Monitoring abstract traces rather than concrete ones gives soundness by the Galois connection."
+**Should BPFix cite this?** Strongly yes. This is the most direct technical framing for BPFix's core algorithm. The paper should say explicitly: "BPFix is a safety property monitor over the abstract trace produced by the eBPF verifier. Monitoring abstract traces rather than concrete ones gives soundness by the Galois connection."
 
-**Novelty over RV**: Applying RV to abstract traces is the novel application. Standard RV assumes concrete traces (every state value is precise). OBLIGE's contribution in this framing is showing that property monitoring over abstract traces (a) is feasible from verifier log output, (b) provides soundness guarantees from abstract interpretation theory, and (c) enables a useful lifecycle classification for eBPF diagnostics.
+**Novelty over RV**: Applying RV to abstract traces is the novel application. Standard RV assumes concrete traces (every state value is precise). BPFix's contribution in this framing is showing that property monitoring over abstract traces (a) is feasible from verifier log output, (b) provides soundness guarantees from abstract interpretation theory, and (c) enables a useful lifecycle classification for eBPF diagnostics.
 
 ---
 
@@ -265,9 +265,9 @@ Also: "Runtime Verification for LTL and TLTL." *ACM TOSEM*, 2011.
 
 **Approach**: Extends LTL monitoring with a three-valued semantics (true, false, inconclusive) where "inconclusive" means the trace so far is consistent with both satisfaction and violation. This is LTL_3 monitoring.
 
-**Relation to OBLIGE**: OBLIGE uses an analogous three-valued status for proof obligations: {unknown, satisfied, violated}. The semantics match: "unknown" is Bauer et al.'s "inconclusive" — the verifier hasn't encountered the relevant instruction yet. "Satisfied" is "currently holding." "Violated" is "property definitively broken."
+**Relation to BPFix**: BPFix uses an analogous three-valued status for proof obligations: {unknown, satisfied, violated}. The semantics match: "unknown" is Bauer et al.'s "inconclusive" — the verifier hasn't encountered the relevant instruction yet. "Satisfied" is "currently holding." "Violated" is "property definitively broken."
 
-**Should OBLIGE cite this?** Yes, briefly. The three-valued status in OBLIGE's proof obligation framework has a direct formal analog in LTL_3 monitoring. Citing Bauer et al. provides the theoretical grounding for the {unknown, satisfied, violated} lattice.
+**Should BPFix cite this?** Yes, briefly. The three-valued status in BPFix's proof obligation framework has a direct formal analog in LTL_3 monitoring. Citing Bauer et al. provides the theoretical grounding for the {unknown, satisfied, violated} lattice.
 
 ---
 
@@ -278,9 +278,9 @@ Also: Fischler, Dana, and Orna Grumberg. "Model Checking Abstract Traces." *TACA
 
 **Approach**: Extends runtime verification to work with abstract representations of system behavior. Checks properties against abstractions of concrete traces rather than the concrete traces themselves. The key insight is that abstraction can be exploited to reduce monitoring overhead or to apply verification tools to imprecise trace data.
 
-**Relation to OBLIGE**: Fischler & Grumberg's "model checking abstract traces" is the most directly related work in the RV literature. They check temporal properties against abstract traces (where some states are approximated). OBLIGE's monitoring of the abstract eBPF verifier trace is an instance of this framework.
+**Relation to BPFix**: Fischler & Grumberg's "model checking abstract traces" is the most directly related work in the RV literature. They check temporal properties against abstract traces (where some states are approximated). BPFix's monitoring of the abstract eBPF verifier trace is an instance of this framework.
 
-**Should OBLIGE cite this?** Yes. This establishes that monitoring abstract traces is a recognized research direction, not an ad hoc trick. Citing it gives OBLIGE formal grounding.
+**Should BPFix cite this?** Yes. This establishes that monitoring abstract traces is a recognized research direction, not an ad hoc trick. Citing it gives BPFix formal grounding.
 
 **Note**: This work is relatively obscure compared to standard RV. If reviewers from the systems community are the primary audience (OSDI/ATC), this citation adds credibility but should be used concisely.
 
@@ -295,20 +295,20 @@ Also: Abreu, Rui, Peter Zoeteweij, and Arjan JC Van Gemund. "On the Accuracy of 
 
 **Approach**: Spectrum-based fault localization (SBFL) uses test coverage information: which tests pass and which fail, and which statements each test executes. Statements executed more often by failing tests and less often by passing tests get higher "suspiciousness" scores. Tarantula and Ochiai are specific metrics for computing this score.
 
-**Relation to OBLIGE**: SBFL requires *multiple test executions* (both passing and failing) to compute coverage statistics. For eBPF:
+**Relation to BPFix**: SBFL requires *multiple test executions* (both passing and failing) to compute coverage statistics. For eBPF:
 - There is typically only one "execution" per program submission (the verifier either accepts or rejects).
 - There is no "passing run" of a failing eBPF program to contrast with.
 - SBFL does not naturally apply to single-execution failure diagnosis.
 
-**Could OBLIGE use this technique?** SBFL could apply if one defines "test executions" as different eBPF programs submitted to the verifier (e.g., systematically varying bounds constants) and observes which paths through the abstract state trace are taken by accepting vs. rejecting programs. This is an interesting research direction but is far from the current OBLIGE scope.
+**Could BPFix use this technique?** SBFL could apply if one defines "test executions" as different eBPF programs submitted to the verifier (e.g., systematically varying bounds constants) and observes which paths through the abstract state trace are taken by accepting vs. rejecting programs. This is an interesting research direction but is far from the current BPFix scope.
 
-**Should OBLIGE cite this?** Briefly, to acknowledge SBFL exists and explain why it doesn't apply to OBLIGE's setting (single-execution, no passing run available).
+**Should BPFix cite this?** Briefly, to acknowledge SBFL exists and explain why it doesn't apply to BPFix's setting (single-execution, no passing run available).
 
 ---
 
 ### 5.2 Spectrum-Based Localization Applied to Abstract Interpretations
 
-There is no known prior work that applies SBFL to abstract interpreter output. This would be a novel application if someone computed "which abstract domain operations are executed more often in failing configurations than in passing ones." Not relevant to OBLIGE currently but a potential gap to claim.
+There is no known prior work that applies SBFL to abstract interpreter output. This would be a novel application if someone computed "which abstract domain operations are executed more often in failing configurations than in passing ones." Not relevant to BPFix currently but a potential gap to claim.
 
 ---
 
@@ -320,15 +320,15 @@ There is no known prior work that applies SBFL to abstract interpreter output. T
 
 **Approach**: C-Reduce applies a set of Clang-based transformations to reduce a failing C program to a minimal version that still triggers the same compiler bug. Uses the "interesting" predicate (does the reduced program still trigger the same error?).
 
-**Relation to OBLIGE**: Directly analogous to OBLIGE's problem domain. An "eBPF-Reduce" tool would:
+**Relation to BPFix**: Directly analogous to BPFix's problem domain. An "eBPF-Reduce" tool would:
 1. Start with a failing eBPF program + verifier error.
 2. Apply eBPF-specific transformations (remove instructions, simplify expressions, specialize constants).
 3. Keep reducing while the verifier still produces the same error ID.
 4. Return a minimal eBPF program that isolates the cause.
 
-**Should OBLIGE cite this?** Yes, as evidence that program reduction for compiler/verifier bugs is a validated technique and to position an eBPF reducer as a concrete future work direction.
+**Should BPFix cite this?** Yes, as evidence that program reduction for compiler/verifier bugs is a validated technique and to position an eBPF reducer as a concrete future work direction.
 
-**Could OBLIGE use this technique?** Building an eBPF-Reduce would be a distinct contribution. The "interesting" predicate would be: `verifier produces error ID X`. Unlike C-Reduce which must respect C semantics, eBPF programs are already simple sequential bytecode — reduction is likely easier.
+**Could BPFix use this technique?** Building an eBPF-Reduce would be a distinct contribution. The "interesting" predicate would be: `verifier produces error ID X`. Unlike C-Reduce which must respect C semantics, eBPF programs are already simple sequential bytecode — reduction is likely easier.
 
 ---
 
@@ -339,7 +339,7 @@ Nobody has built delta debugging for eBPF verifier failures. Given the popularit
 - Systematically minimize it while preserving the verifier failure
 - Return a ~10-instruction program that clearly shows the failure
 
-**OBLIGE opportunity**: OBLIGE's error ID classification provides the "interesting" predicate for free — keep reducing while the same OBLIGE-E0xx is produced. This is a concrete future work item worth mentioning in the paper.
+**BPFix opportunity**: BPFix's error ID classification provides the "interesting" predicate for free — keep reducing while the same BPFIX-E0xx is produced. This is a concrete future work item worth mentioning in the paper.
 
 ---
 
@@ -357,7 +357,7 @@ Nobody has built delta debugging for eBPF verifier failures. Given the popularit
 
 The format was explicitly inspired by Elm's error messages (Czaplicki 2015) which emphasized: show the developer's own code, not abstract compiler internals.
 
-**Relation to OBLIGE**: OBLIGE's output format is modeled directly on Rust's multi-span approach. The paper's example:
+**Relation to BPFix**: BPFix's output format is modeled directly on Rust's multi-span approach. The paper's example:
 ```
 38 │  if (data + ext_len <= data_end) {  ← "proof established"
 42 │  __u16 ext_len = __bpf_htons(...)   ← "proof lost: OR destroys bounds"
@@ -365,9 +365,9 @@ The format was explicitly inspired by Elm's error messages (Czaplicki 2015) whic
 ```
 Is structurally identical to Rust's three-span pattern (where + how + consequence).
 
-**Should OBLIGE cite this?** Yes, explicitly. The diagnostic format is inspired by Rust's multi-span approach. This citation also helps reviewers understand what "structured diagnostics" means concretely.
+**Should BPFix cite this?** Yes, explicitly. The diagnostic format is inspired by Rust's multi-span approach. This citation also helps reviewers understand what "structured diagnostics" means concretely.
 
-**Key difference**: Rust's diagnostics are generated by the compiler itself, with full knowledge of the AST and type system. OBLIGE generates its diagnostics by *post-processing* the verifier's external log output. This is harder (must parse unstructured text, must reconstruct the causal chain retroactively) but more general (works with any verifier version, no kernel modifications needed).
+**Key difference**: Rust's diagnostics are generated by the compiler itself, with full knowledge of the AST and type system. BPFix generates its diagnostics by *post-processing* the verifier's external log output. This is harder (must parse unstructured text, must reconstruct the causal chain retroactively) but more general (works with any verifier version, no kernel modifications needed).
 
 ---
 
@@ -381,13 +381,13 @@ Is structurally identical to Rust's three-span pattern (where + how + consequenc
 3. Use color and whitespace to make the message scannable.
 4. Where possible, suggest a fix.
 
-**Relation to OBLIGE**: OBLIGE follows all four Elm principles:
+**Relation to BPFix**: BPFix follows all four Elm principles:
 1. Shows BTF-annotated source lines, not bytecode.
 2. Labels like "proof established" and "proof lost" are specific and meaningful.
 3. Multi-span format uses visual structure.
 4. `= help:` suggestions are generated based on the failure class.
 
-**Should OBLIGE cite this?** Yes, briefly. Positioning OBLIGE as applying "Rust/Elm-quality diagnostics to eBPF verification" is an effective framing that resonates with systems audience.
+**Should BPFix cite this?** Yes, briefly. Positioning BPFix as applying "Rust/Elm-quality diagnostics to eBPF verification" is an effective framing that resonates with systems audience.
 
 ---
 
@@ -398,9 +398,9 @@ Also: Heeren, Bastiaan, et al. "Helium, for Learning Haskell." *Haskell Workshop
 
 **Approach**: Type error messages in Haskell are notoriously difficult to understand. These papers improved them by: (1) using constraint solving with blame assignment to identify the most likely source of the mismatch, (2) using multiple source locations instead of a single error point, (3) reporting which term "introduced" the type constraint rather than just where the constraint is violated.
 
-**Relation to OBLIGE**: The *blame assignment* problem in type inference is structurally similar to OBLIGE's root cause identification: both must find the source of an abstract invariant (type constraint / safety invariant) and explain how it was violated. Heeren et al.'s constraint graph approach (annotating each constraint with its origin) has a direct analog in OBLIGE's proof obligation annotation (labeling each state transition with whether it establishes or violates the obligation).
+**Relation to BPFix**: The *blame assignment* problem in type inference is structurally similar to BPFix's root cause identification: both must find the source of an abstract invariant (type constraint / safety invariant) and explain how it was violated. Heeren et al.'s constraint graph approach (annotating each constraint with its origin) has a direct analog in BPFix's proof obligation annotation (labeling each state transition with whether it establishes or violates the obligation).
 
-**Should OBLIGE cite this?** Yes, briefly. The type error improvement literature predates OBLIGE's goal by two decades and establishes that "blame assignment in an abstract interpreter" is a recognized research problem.
+**Should BPFix cite this?** Yes, briefly. The type error improvement literature predates BPFix's goal by two decades and establishes that "blame assignment in an abstract interpreter" is a recognized research problem.
 
 ---
 
@@ -412,14 +412,14 @@ Also: Heeren, Bastiaan, et al. "Helium, for Learning Haskell." *Haskell Workshop
 
 **Approach**: Pattern-matches raw verifier strings to 83 handlers; uses `llvm-objdump` to map instruction addresses to source lines; emits human-readable reformatted errors.
 
-**How OBLIGE differs**:
+**How BPFix differs**:
 - Pretty Verifier: error message → regex match → handler → reformatted message. Operates only on the error line.
-- OBLIGE: full LOG_LEVEL2 trace → abstract state sequence → predicate evaluation → lifecycle classification → multi-span diagnostic. Analyzes the entire proof trace.
-- Pretty Verifier is vulnerable to kernel-version wording changes (regex-based). OBLIGE parses the structured per-instruction state format, which is more stable.
-- Pretty Verifier requires source file + debuggable object. OBLIGE only requires the verifier log (BTF-annotated for source lines).
-- Pretty Verifier does not produce structured machine-readable output. OBLIGE produces JSON-schema diagnostics.
+- BPFix: full LOG_LEVEL2 trace → abstract state sequence → predicate evaluation → lifecycle classification → multi-span diagnostic. Analyzes the entire proof trace.
+- Pretty Verifier is vulnerable to kernel-version wording changes (regex-based). BPFix parses the structured per-instruction state format, which is more stable.
+- Pretty Verifier requires source file + debuggable object. BPFix only requires the verifier log (BTF-annotated for source lines).
+- Pretty Verifier does not produce structured machine-readable output. BPFix produces JSON-schema diagnostics.
 
-**Key claim**: OBLIGE detects root causes that Pretty Verifier *cannot detect* — specifically, lowering artifacts where the error location is remote from the root cause. In a lowering artifact, the error message points to instruction 45 (memory access), Pretty Verifier reformats that instruction's error, but the root cause is at instruction 42 (the htons() expansion that destroyed bounds). Only analyzing the full trace reveals this.
+**Key claim**: BPFix detects root causes that Pretty Verifier *cannot detect* — specifically, lowering artifacts where the error location is remote from the root cause. In a lowering artifact, the error message points to instruction 45 (memory access), Pretty Verifier reformats that instruction's error, but the root cause is at instruction 42 (the htons() expansion that destroyed bounds). Only analyzing the full trace reveals this.
 
 ---
 
@@ -429,9 +429,9 @@ Also: Heeren, Bastiaan, et al. "Helium, for Learning Haskell." *Haskell Workshop
 
 **Approach**: Formally specifies the eBPF verifier's `tnum` (tristate number) abstract domain for bitwise uncertainty tracking. Proves soundness of addition, subtraction, and proposes an improved multiplication algorithm. The paper contributed an improved tnum multiplication algorithm that was merged into the Linux kernel.
 
-**Relation to OBLIGE**: The tnum domain is one of the abstract domains OBLIGE reads from the verifier's LOG_LEVEL2 output. Citing Vishwanathan et al. acknowledges that the eBPF verifier's abstract domains are receiving formal treatment. OBLIGE's abstract state parser (`log_parser.py`) must handle tnum-format values (hex masks) in addition to scalar bounds.
+**Relation to BPFix**: The tnum domain is one of the abstract domains BPFix reads from the verifier's LOG_LEVEL2 output. Citing Vishwanathan et al. acknowledges that the eBPF verifier's abstract domains are receiving formal treatment. BPFix's abstract state parser (`log_parser.py`) must handle tnum-format values (hex masks) in addition to scalar bounds.
 
-**Should OBLIGE cite this?** Yes. As the primary formal treatment of eBPF verifier abstract domains, it establishes the theoretical grounding for OBLIGE's use of abstract state values.
+**Should BPFix cite this?** Yes. As the primary formal treatment of eBPF verifier abstract domains, it establishes the theoretical grounding for BPFix's use of abstract state values.
 
 ---
 
@@ -441,7 +441,7 @@ Also: Heeren, Bastiaan, et al. "Helium, for Learning Haskell." *Haskell Workshop
 
 **Approach**: Domain-specific language that compiles to eBPF bytecode such that the compiled output is guaranteed to pass the verifier. The key design is a type system that matches the verifier's abstract domain, eliminating the need for ad hoc verifier workarounds.
 
-**Relation to OBLIGE**: BeePL takes the opposite approach to OBLIGE — eliminate verifier failures by construction rather than explain them. However, the two are complementary: BeePL addresses new development; OBLIGE addresses existing programs, debugging, and the inevitable cases where BeePL's type system rejects something the developer believes is safe.
+**Relation to BPFix**: BeePL takes the opposite approach to BPFix — eliminate verifier failures by construction rather than explain them. However, the two are complementary: BeePL addresses new development; BPFix addresses existing programs, debugging, and the inevitable cases where BeePL's type system rejects something the developer believes is safe.
 
 ---
 
@@ -451,7 +451,7 @@ Also: Heeren, Bastiaan, et al. "Helium, for Learning Haskell." *Haskell Workshop
 
 **Approach**: Fuzzes eBPF programs to find runtime vulnerabilities. Finds 4 CVEs. Key challenge: the verifier rejects most fuzz-generated programs, making it hard to get interesting programs into the kernel.
 
-**Relation to OBLIGE**: BRF and OBLIGE work in opposite directions — BRF tries to bypass the verifier, OBLIGE tries to help developers satisfy it. But BRF's observation that "the verifier rejects most fuzzing inputs" validates the difficulty of the verifier's acceptance conditions. OBLIGE's diagnostics could help fuzzer developers understand *why* their inputs are rejected and generate better test cases.
+**Relation to BPFix**: BRF and BPFix work in opposite directions — BRF tries to bypass the verifier, BPFix tries to help developers satisfy it. But BRF's observation that "the verifier rejects most fuzzing inputs" validates the difficulty of the verifier's acceptance conditions. BPFix's diagnostics could help fuzzer developers understand *why* their inputs are rejected and generate better test cases.
 
 ---
 
@@ -463,24 +463,24 @@ Also: Heeren, Bastiaan, et al. "Helium, for Learning Haskell." *Haskell Workshop
 
 **Approach**: A program slice is the subset of a program that can affect the value of a variable at a given program point. Backward slices (from a use backward to all definitions that might affect it) use a program dependence graph (PDG) with both data and control dependence edges.
 
-**Relation to OBLIGE**: OBLIGE's backward slice from the proof-loss instruction (collecting all instructions that wrote to registers in the failed predicate) is a simplified backward slice:
-- Data dependence: OBLIGE follows def-use chains in the instruction trace (including value lineage tracking for reg copies and stack spills).
-- Control dependence: OBLIGE does NOT reconstruct the CFG and does NOT include control dependence.
+**Relation to BPFix**: BPFix's backward slice from the proof-loss instruction (collecting all instructions that wrote to registers in the failed predicate) is a simplified backward slice:
+- Data dependence: BPFix follows def-use chains in the instruction trace (including value lineage tracking for reg copies and stack spills).
+- Control dependence: BPFix does NOT reconstruct the CFG and does NOT include control dependence.
 
-OBLIGE's slice is weaker than Weiser's because it:
+BPFix's slice is weaker than Weiser's because it:
 1. Is path-insensitive (no CFG reconstruction)
 2. Omits control dependence
 3. Works on a flat instruction list, not a PDG
 
-**Should OBLIGE cite this?** Yes, to acknowledge that the backward slice is a simplified version of the classical technique and to clarify its limitations. "Our backward slice follows data dependence edges over the logged instruction trace; we leave CFG reconstruction and control dependence to future work."
+**Should BPFix cite this?** Yes, to acknowledge that the backward slice is a simplified version of the classical technique and to clarify its limitations. "Our backward slice follows data dependence edges over the logged instruction trace; we leave CFG reconstruction and control dependence to future work."
 
 ---
 
 ### 9.2 Mark-Precise Chain as Native Verifier Slicing
 
-**Novel observation**: The eBPF verifier already performs a form of backward slicing internally. The `mark_precise` backtracking mechanism (kernel 5.5+, Alexei Starovoitov, 2019) is a backward pass from a rejected instruction through the `r.id` precision chain, marking registers that must be tracked precisely. OBLIGE extracts and structures this chain from LOG_LEVEL2 output.
+**Novel observation**: The eBPF verifier already performs a form of backward slicing internally. The `mark_precise` backtracking mechanism (kernel 5.5+, Alexei Starovoitov, 2019) is a backward pass from a rejected instruction through the `r.id` precision chain, marking registers that must be tracked precisely. BPFix extracts and structures this chain from LOG_LEVEL2 output.
 
-**The mark_precise chain IS the verifier's own root-cause analysis**. It is a precision-propagating backward slice that the verifier performs for efficiency reasons (to avoid tracking all registers precisely at all times). OBLIGE's key engineering contribution is parsing this chain from unstructured log text and presenting it as a structured causal annotation.
+**The mark_precise chain IS the verifier's own root-cause analysis**. It is a precision-propagating backward slice that the verifier performs for efficiency reasons (to avoid tracking all registers precisely at all times). BPFix's key engineering contribution is parsing this chain from unstructured log text and presenting it as a structured causal annotation.
 
 **Related citation**: Starovoitov, Alexei. "bpf: precise scalar tracking." Linux kernel commit (2019). The first-level design rationale is in the kernel BPF selftest comments and the bpf@ mailing list discussions.
 
@@ -488,9 +488,9 @@ OBLIGE's slice is weaker than Weiser's because it:
 
 ## Part 10: Framing Analysis
 
-### What is OBLIGE, precisely?
+### What is BPFix, precisely?
 
-Based on the literature above, OBLIGE is best described as:
+Based on the literature above, BPFix is best described as:
 
 > **A safety property monitor for the abstract execution trace of the eBPF verifier, producing structured multi-span diagnostics with causal lifecycle annotations.**
 
@@ -514,9 +514,9 @@ Each **individual technique** is well-established:
 - Backward slicing: Weiser 1981
 - Multi-span diagnostics: Rust 2016
 
-### What should OBLIGE NOT claim?
+### What should BPFix NOT claim?
 
-- "Novel abstract interpretation technique" — OBLIGE does not perform a new abstract interpretation; it reads the verifier's output.
+- "Novel abstract interpretation technique" — BPFix does not perform a new abstract interpretation; it reads the verifier's output.
 - "Novel fault localization algorithm" — the techniques are adapted from prior work.
 - "Proof of correctness" — the soundness claim (Proposition 1) is a consequence of the Galois connection, not a new theorem.
 
@@ -524,13 +524,13 @@ Each **individual technique** is well-established:
 
 **Section 2 (Background + Related Work)** should include:
 1. Abstract interpretation (Cousot 1977) — establish the eBPF verifier as an abstract interpreter.
-2. Runtime verification (Havelund & Rosu 2002; Bauer et al. 2011) — OBLIGE's core algorithm is RV over abstract traces.
-3. Fault localization in model checking (BugAssist 2011; Zeller 2002) — OBLIGE is a trace-based fault localization tool.
+2. Runtime verification (Havelund & Rosu 2002; Bauer et al. 2011) — BPFix's core algorithm is RV over abstract traces.
+3. Fault localization in model checking (BugAssist 2011; Zeller 2002) — BPFix is a trace-based fault localization tool.
 4. CEGAR counterexample classification (Clarke et al. 2000; Gurfinkel & Chechik 2003) — "proof established then lost" = spurious rejection analogy.
-5. Compiler diagnostics (Rust 2016; Elm 2015) — OBLIGE's output format.
+5. Compiler diagnostics (Rust 2016; Elm 2015) — BPFix's output format.
 6. Pretty Verifier (Miano et al. 2025) — direct comparison in the eBPF ecosystem.
 7. Infer (Calcagno et al. 2011) — prior work on abstract interpretation diagnostics.
-8. Weiser slicing (1981) — OBLIGE's backward slice is a simplified version.
+8. Weiser slicing (1981) — BPFix's backward slice is a simplified version.
 
 **The key novelty claims** should be:
 1. Application: First tool to apply safety property monitoring to the eBPF verifier's abstract trace.
@@ -548,9 +548,9 @@ Each **individual technique** is well-established:
 
 **Approach**: Extends Hoare logic with "under-approximate" semantics for reasoning about bugs. While Hoare logic proves programs correct (overapproximate), incorrectness logic proves bugs are reachable (underapproximate). Used as the foundation for Meta Infer's "Pulse" analyzer.
 
-**Relation to OBLIGE**: The eBPF verifier uses overapproximation (it may reject safe programs). Incorrectness logic is underapproximation. The interesting connection: OBLIGE's "proof never established" cases correspond to programs that incorrectness logic would prove as reachably unsafe. The "proof established then lost" cases are where the verifier's overapproximation is *too coarse* — it cannot track the invariant. This is not a soundness issue but a precision issue.
+**Relation to BPFix**: The eBPF verifier uses overapproximation (it may reject safe programs). Incorrectness logic is underapproximation. The interesting connection: BPFix's "proof never established" cases correspond to programs that incorrectness logic would prove as reachably unsafe. The "proof established then lost" cases are where the verifier's overapproximation is *too coarse* — it cannot track the invariant. This is not a soundness issue but a precision issue.
 
-**Should OBLIGE cite this?** Briefly, for completeness. The O'Hearn incorrectness logic framing could help explain the distinction between "genuine bug" and "spurious rejection" in a theoretically rigorous way.
+**Should BPFix cite this?** Briefly, for completeness. The O'Hearn incorrectness logic framing could help explain the distinction between "genuine bug" and "spurious rejection" in a theoretically rigorous way.
 
 ---
 
@@ -560,9 +560,9 @@ Each **individual technique** is well-established:
 
 **Approach**: Weakest precondition calculus computes, for a program S and postcondition Q, the weakest predicate P such that {P} S {Q}. Used in VCGen tools (ESC/Java, Dafny, etc.) to generate verification conditions.
 
-**Relation to OBLIGE**: OBLIGE's proof obligation can be viewed as: given an error state Q (the verifier's rejection condition), what is the weakest precondition that must hold at some earlier instruction for the program to be safe? This is exactly WP(S, Q). OBLIGE finds the instruction where this precondition *stopped holding* by scanning forward.
+**Relation to BPFix**: BPFix's proof obligation can be viewed as: given an error state Q (the verifier's rejection condition), what is the weakest precondition that must hold at some earlier instruction for the program to be safe? This is exactly WP(S, Q). BPFix finds the instruction where this precondition *stopped holding* by scanning forward.
 
-**Should OBLIGE cite this?** Briefly. The WP connection gives a formal semantics for the "proof obligation" concept and could strengthen the theoretical framing.
+**Should BPFix cite this?** Briefly. The WP connection gives a formal semantics for the "proof obligation" concept and could strengthen the theoretical framing.
 
 ---
 
@@ -572,31 +572,31 @@ Each **individual technique** is well-established:
 
 **Approach**: Extends DPLL-T/CDCL SAT solving to abstract domains. When a conflict is found in the abstract space, the learned clause corresponds to an abstract constraint rather than a concrete clause.
 
-**Relation to OBLIGE**: The conflict detection analogy: in ACDL, a "conflict" occurs when the abstract state leads to a contradiction. OBLIGE identifies the "conflict point" where the abstract safety predicate becomes violated. The ACDL conflict analysis (generating a learned clause that explains why the conflict occurred) is analogous to OBLIGE's backward slice (finding which earlier instructions contributed to the conflict).
+**Relation to BPFix**: The conflict detection analogy: in ACDL, a "conflict" occurs when the abstract state leads to a contradiction. BPFix identifies the "conflict point" where the abstract safety predicate becomes violated. The ACDL conflict analysis (generating a learned clause that explains why the conflict occurred) is analogous to BPFix's backward slice (finding which earlier instructions contributed to the conflict).
 
-**Should OBLIGE cite this?** For a full OSDI/ATC paper, probably not necessary. For a PL venue (PLDI, OOPSLA), this connection would strengthen the theoretical depth.
+**Should BPFix cite this?** For a full OSDI/ATC paper, probably not necessary. For a PL venue (PLDI, OOPSLA), this connection would strengthen the theoretical depth.
 
 ---
 
 ## Summary Table
 
-| Related Work | Domain | What it does | OBLIGE relationship | Cite? |
+| Related Work | Domain | What it does | BPFix relationship | Cite? |
 |---|---|---|---|---|
-| BugAssist (2011) | Model checking | MAX-SAT fault localization from bounded MC trace | Closest prior work; OBLIGE = RV over abstract trace instead of MAX-SAT over concrete trace | Yes |
+| BugAssist (2011) | Model checking | MAX-SAT fault localization from bounded MC trace | Closest prior work; BPFix = RV over abstract trace instead of MAX-SAT over concrete trace | Yes |
 | SNIPER (2015) | Model checking | Interpolant-based error invariant computation | Same goal (error localization), different mechanism (interpolants vs. predicate eval) | Yes |
-| Zeller delta debugging (2002) | Testing | Minimize failure-inducing input via re-execution | OBLIGE analog but no re-execution needed | Yes |
+| Zeller delta debugging (2002) | Testing | Minimize failure-inducing input via re-execution | BPFix analog but no re-execution needed | Yes |
 | Clarke et al. CEGAR (2000) | Model checking | Distinguishes real vs. spurious counterexamples | "Proof lost" = spurious rejection analogy | Yes |
 | Gurfinkel & Chechik (2003) | Model checking | Proof-like counterexamples | "Proof established" = genuine proof fragment | Yes |
-| Havelund & Rosu RV (2002) | Runtime verif. | Safety property monitoring over execution traces | OBLIGE IS this, applied to abstract traces | Strongly yes |
-| Bauer et al. LTL_3 (2011) | Runtime verif. | Three-valued LTL monitoring | OBLIGE's {unknown, satisfied, violated} status | Yes |
+| Havelund & Rosu RV (2002) | Runtime verif. | Safety property monitoring over execution traces | BPFix IS this, applied to abstract traces | Strongly yes |
+| Bauer et al. LTL_3 (2011) | Runtime verif. | Three-valued LTL monitoring | BPFix's {unknown, satisfied, violated} status | Yes |
 | Cousot & Cousot (1977) | Abstract interp. | Abstract interpretation framework | eBPF verifier is an abstract interpreter | Yes (brief) |
 | Campion et al. (POPL 2022) | Abstract interp. | Partial completeness measurement | "Proof loss" = completeness loss event | Yes |
-| Astrée / Frama-C | Abstract interp. | Abstract interpreter alarm reporting | OBLIGE's alarm format is inspired by this | Yes |
+| Astrée / Frama-C | Abstract interp. | Abstract interpreter alarm reporting | BPFix's alarm format is inspired by this | Yes |
 | Infer (Calcagno et al. 2011) | Static analysis | Bi-abduction, error traces | Closest existing error trace format | Yes |
-| Rust multi-span diagnostics (2016) | Compiler | Multi-span error messages | OBLIGE's output format is modeled on this | Yes |
-| Elm error messages (2015) | Compiler | Human-friendly error messages | Philosophy behind OBLIGE's diagnostic design | Brief |
-| Weiser slicing (1981) | Program analysis | Program dependence graph slicing | OBLIGE's backward slice is a simplification | Yes |
+| Rust multi-span diagnostics (2016) | Compiler | Multi-span error messages | BPFix's output format is modeled on this | Yes |
+| Elm error messages (2015) | Compiler | Human-friendly error messages | Philosophy behind BPFix's diagnostic design | Brief |
+| Weiser slicing (1981) | Program analysis | Program dependence graph slicing | BPFix's backward slice is a simplification | Yes |
 | C-Reduce (2012) | Testing | Program minimization for compiler bugs | Analogous tool needed for eBPF verifier bugs | Future work |
-| Pretty Verifier (2025) | eBPF | Regex-based verifier message reformatter | Direct comparison; OBLIGE analyzes full trace | Yes |
+| Pretty Verifier (2025) | eBPF | Regex-based verifier message reformatter | Direct comparison; BPFix analyzes full trace | Yes |
 | Vishwanathan tnum (CGO 2022) | eBPF | Formal tnum domain specification | Foundation for eBPF abstract domain theory | Yes |
 | O'Hearn incorrectness logic (2020) | Logic | Under-approximate bug reachability | Theoretical grounding for "genuine bug" vs. "spurious rejection" | Brief |

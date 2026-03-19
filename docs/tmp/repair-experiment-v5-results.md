@@ -1,4 +1,4 @@
-# Repair Experiment V3: Raw Verifier Log vs OBLIGE Diagnostic (Local 20B Model)
+# Repair Experiment V3: Raw Verifier Log vs BPFix Diagnostic (Local 20B Model)
 
 - Generated: `2026-03-13T22:37:57+00:00`
 - Model: local llama.cpp GPT-OSS 20B
@@ -15,7 +15,7 @@ Scoring rubric per condition: `location/fix_type/root_cause`, each binary in `{0
 | Condition | Location | Fix type | Root cause |
 | --- | ---: | ---: | ---: |
 | A (raw verifier log only) | 5/56 (8.9%) | 1/56 (1.8%) | 14/56 (25.0%) |
-| B (raw log + OBLIGE diagnostic) | 4/56 (7.1%) | 3/56 (5.4%) | 10/56 (17.9%) |
+| B (raw log + BPFix diagnostic) | 4/56 (7.1%) | 3/56 (5.4%) | 10/56 (17.9%) |
 
 ## Summary By Taxonomy
 
@@ -28,7 +28,7 @@ Scoring rubric per condition: `location/fix_type/root_cause`, each binary in `{0
 
 ## BTF-Suppression Analysis
 
-- Cases where OBLIGE diagnostic was BTF-misleading → suppressed: `1`
+- Cases where BPFix diagnostic was BTF-misleading → suppressed: `1`
 - Cases with clean proof-analysis diagnostic: `55`
 
 | Subset | Condition | Fix type | Location |
@@ -51,7 +51,7 @@ The verifier oracle compiled and/or loaded LLM-generated `patched_code` into the
 | Condition | Compile rate | Verifier pass rate |
 | --- | ---: | ---: |
 | A (raw verifier log only) | 4/15 (26.7%) | 1/4 (25.0%) |
-| B (raw log + OBLIGE diagnostic) | 2/13 (15.4%) | 0/2 (0.0%) |
+| B (raw log + BPFix diagnostic) | 2/13 (15.4%) | 0/2 (0.0%) |
 
 - `verifier_pass_rate_A`: 25.0%
 - `verifier_pass_rate_B`: 0.0%
@@ -146,6 +146,6 @@ The verifier oracle compiled and/or loaded LLM-generated `patched_code` into the
 - None in this run.
 ## Overall Conclusion
 
-Condition B (OBLIGE) improved fix-type accuracy by +3.6pp (+2 cases).
+Condition B (BPFix) improved fix-type accuracy by +3.6pp (+2 cases).
 For lowering_artifact (11 cases): A=0/11, B=0/11 (delta +0.0pp).
 BTF-suppression affected 1 cases: A=0/1 (0.0%), B=0/1 (0.0%).

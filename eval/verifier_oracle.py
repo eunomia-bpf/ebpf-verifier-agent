@@ -17,7 +17,7 @@ Design notes:
   - We use /usr/include/vmlinux.h (system vmlinux.h from BTF) for a self-contained
     include that does not require kernel build headers.
   - Multiple template variants are tried in order; the first that compiles wins.
-  - BPF programs are pinned to /sys/fs/bpf/oblige_<pid>_<n> and cleaned up immediately
+  - BPF programs are pinned to /sys/fs/bpf/bpfix_<pid>_<n> and cleaned up immediately
     after loading.
 """
 
@@ -218,7 +218,7 @@ def _unique_pin_path() -> str:
         _pin_counter += 1
         n = _pin_counter
     pid = os.getpid()
-    return f"{BPF_PIN_DIR}/oblige_{pid}_{n}_{uuid.uuid4().hex[:6]}"
+    return f"{BPF_PIN_DIR}/bpfix_{pid}_{n}_{uuid.uuid4().hex[:6]}"
 
 
 # ── source preparation ────────────────────────────────────────────────────────
@@ -335,7 +335,7 @@ def _make_candidates(source_code: str, prog_type: str) -> list[tuple[str, str, l
 def _compile(source_code: str, out_obj: str, flags: list[str]) -> tuple[bool, str]:
     """Compile source_code to out_obj. Return (success, stderr)."""
     with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".c", prefix="oblige_", delete=False
+        mode="w", suffix=".c", prefix="bpfix_", delete=False
     ) as tmp:
         tmp.write(source_code)
         src_path = tmp.name
@@ -443,7 +443,7 @@ def verify_fix(
 
     candidates = _make_candidates(source_code, prog_type)
 
-    with tempfile.TemporaryDirectory(prefix="oblige_oracle_") as tmpdir:
+    with tempfile.TemporaryDirectory(prefix="bpfix_oracle_") as tmpdir:
         for label, candidate_src, flags, was_wrapped in candidates:
             obj_path = str(Path(tmpdir) / f"prog_{label}.o")
             success, stderr = _compile(candidate_src, obj_path, flags)
@@ -600,7 +600,7 @@ def _cli() -> None:
     import yaml
 
     parser = argparse.ArgumentParser(
-        description="OBLIGE verifier-pass oracle: compile + verify eBPF programs"
+        description="BPFix verifier-pass oracle: compile + verify eBPF programs"
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 

@@ -1,4 +1,4 @@
-# OBLIGE — Proof Trace Analysis for eBPF Verifier Failures
+# BPFix — Proof Trace Analysis for eBPF Verifier Failures
 # Root-level Makefile providing one-command access to all key project operations.
 #
 # Usage:
@@ -39,7 +39,7 @@ PORT_QWEN       := 8081
 .PHONY: help
 help:
 	@echo ""
-	@echo "OBLIGE — eBPF Verifier Proof Trace Analyzer"
+	@echo "BPFix — eBPF Verifier Proof Trace Analyzer"
 	@echo "============================================="
 	@echo ""
 	@echo "Testing"
@@ -49,7 +49,7 @@ help:
 	@echo "Batch evaluations (no LLM needed)"
 	@echo "  make eval-batch        Batch diagnostic eval on 302 cases → results/batch_diagnostic_results.json"
 	@echo "  make eval-latency      Latency benchmark → results/latency_benchmark.json"
-	@echo "  make eval-pv           PV vs OBLIGE comparison → results/pv_comparison_expanded.json"
+	@echo "  make eval-pv           PV vs BPFix comparison → results/pv_comparison_expanded.json"
 	@echo "  make eval-language     Per-language breakdown → results/per_language_eval.json"
 	@# eval-formal removed (formal_engine_comparison.py script deleted)
 	@echo "  make eval-all          Run all non-LLM evaluations above"
@@ -104,7 +104,7 @@ eval-latency:
 
 .PHONY: eval-pv
 eval-pv:
-	@echo "[eval-pv] Running Pretty Verifier vs OBLIGE comparison…"
+	@echo "[eval-pv] Running Pretty Verifier vs BPFix comparison…"
 	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/pv_comparison_expanded.py \
 		--output-json $(RESULTS_DIR)/pv_comparison_expanded.json \
 		--output-md $(TMP_DIR)/pv-comparison-expanded.md

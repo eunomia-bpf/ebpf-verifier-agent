@@ -2,7 +2,7 @@
 
 ## Design Document
 
-**Goal**: Transform OBLIGE from "structured reading of verifier output" to "genuine program analysis on top of verifier output." All analysis must use ZERO keyword heuristics — only structural data from the trace (opcode bytes, instruction indices, branch offsets, register states, `from X to Y` annotations, backtracking chains).
+**Goal**: Transform BPFix from "structured reading of verifier output" to "genuine program analysis on top of verifier output." All analysis must use ZERO keyword heuristics — only structural data from the trace (opcode bytes, instruction indices, branch offsets, register states, `from X to Y` annotations, backtracking chains).
 
 ---
 
@@ -690,7 +690,7 @@ The new system adds:
 3. **The end-to-end impact**: Does better root-cause identification lead to better repairs? If the backward slice consistently identifies the root cause, and the repair synthesizer uses this to produce correct fixes, that's a systems result.
 
 For OSDI/ATC, the CFG + dataflow analysis is necessary infrastructure but needs to be combined with:
-- Strong evaluation against baselines (PV, raw LLM, OBLIGE without slice)
+- Strong evaluation against baselines (PV, raw LLM, BPFix without slice)
 - Demonstrated impact on repair quality (not just diagnostic quality)
 - Scale (302 cases, multiple kernel versions, multiple LLM backends)
 - Possibly: a user study or integration with real development tools

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Skeleton metrics utilities for OBLIGE evaluation."""
+"""Skeleton metrics utilities for BPFix evaluation."""
 
 from __future__ import annotations
 
@@ -89,7 +89,7 @@ def summarize(results: list[TrialResult], group_by: str) -> dict[str, Any]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Compute aggregate metrics for OBLIGE evaluations.")
+    parser = argparse.ArgumentParser(description="Compute aggregate metrics for BPFix evaluations.")
     parser.add_argument("results", type=Path, help="Path to a JSON or JSONL results file.")
     parser.add_argument(
         "--group-by",

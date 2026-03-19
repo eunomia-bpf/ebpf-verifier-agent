@@ -1,6 +1,6 @@
 # interface/extractor
 
-Proof trace analysis pipeline for the OBLIGE system. Takes a raw eBPF verifier
+Proof trace analysis pipeline for the BPFix system. Takes a raw eBPF verifier
 verbose log (LOG_LEVEL2) and produces Rust-style multi-span diagnostics: a
 stable error ID, taxonomy class, proof obligation, source/bytecode spans, and
 structured JSON output. Pure Python, no kernel involvement.

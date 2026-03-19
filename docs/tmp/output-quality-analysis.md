@@ -1,4 +1,4 @@
-# OBLIGE Output Quality Analysis
+# BPFix Output Quality Analysis
 
 Batch analyzed: `eval/results/batch_diagnostic_results.json`
 
@@ -115,20 +115,20 @@ Current count: 14
 
 | case_id | current selected error line | likely classification | action |
 | --- | --- | --- | --- |
-| `kernel-selftest-dynptr-fail-dynptr-slice-var-len1` | `arg#2 arg#3 memory, len pair leads to invalid memory access` | likely `OBLIGE-E005` / `lowering_artifact` | Add E005 pattern for `unbounded memory access` and/or the len-pair message. |
-| `kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly` | `; int invalid_slice_rdwr_rdonly(struct __sk_buff *skb) @ dynptr_fail.c:1391` | likely `OBLIGE-E019` / `source_bug` | Fix error-line scoring. Real line is `the prog does not allow writes to packet data`; add that to E019. |
-| `kernel-selftest-irq-irq-flag-overwrite-partial` | `expected an initialized irq flag as arg#0` | `OBLIGE-E020` / `source_bug` | Widen E020 pattern to match full `irq flag as arg#0` message. |
-| `kernel-selftest-irq-irq-flag-overwrite` | `expected an initialized irq flag as arg#0` | `OBLIGE-E020` / `source_bug` | Same fix as above. |
-| `kernel-selftest-irq-irq-restore-iter` | `expected an initialized irq flag as arg#0` | `OBLIGE-E020` / `source_bug` | Same fix as above. |
-| `kernel-selftest-irq-irq-save-invalid` | `; int irq_save_invalid(struct __sk_buff *ctx) @ irq.c:340` | `OBLIGE-E020` / `source_bug` | Fix error-line scoring. Real line is `expected uninitialized irq flag as arg#0`; add full-message regex to E020. |
-| `stackoverflow-60506220` | `R2 pointer arithmetic on PTR_TO_PACKET_END prohibited` | likely `OBLIGE-E006` / `lowering_artifact` | Broaden E006 `pkt_end` regex to match `PTR_TO_PACKET_END prohibited`. |
-| `stackoverflow-67402772` | `invalid bpf_context access off=92 size=4` | likely `OBLIGE-E023` / `source_bug` | Add `invalid bpf_context access ...` to E023 or add a dedicated source-bug ID. |
+| `kernel-selftest-dynptr-fail-dynptr-slice-var-len1` | `arg#2 arg#3 memory, len pair leads to invalid memory access` | likely `BPFIX-E005` / `lowering_artifact` | Add E005 pattern for `unbounded memory access` and/or the len-pair message. |
+| `kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly` | `; int invalid_slice_rdwr_rdonly(struct __sk_buff *skb) @ dynptr_fail.c:1391` | likely `BPFIX-E019` / `source_bug` | Fix error-line scoring. Real line is `the prog does not allow writes to packet data`; add that to E019. |
+| `kernel-selftest-irq-irq-flag-overwrite-partial` | `expected an initialized irq flag as arg#0` | `BPFIX-E020` / `source_bug` | Widen E020 pattern to match full `irq flag as arg#0` message. |
+| `kernel-selftest-irq-irq-flag-overwrite` | `expected an initialized irq flag as arg#0` | `BPFIX-E020` / `source_bug` | Same fix as above. |
+| `kernel-selftest-irq-irq-restore-iter` | `expected an initialized irq flag as arg#0` | `BPFIX-E020` / `source_bug` | Same fix as above. |
+| `kernel-selftest-irq-irq-save-invalid` | `; int irq_save_invalid(struct __sk_buff *ctx) @ irq.c:340` | `BPFIX-E020` / `source_bug` | Fix error-line scoring. Real line is `expected uninitialized irq flag as arg#0`; add full-message regex to E020. |
+| `stackoverflow-60506220` | `R2 pointer arithmetic on PTR_TO_PACKET_END prohibited` | likely `BPFIX-E006` / `lowering_artifact` | Broaden E006 `pkt_end` regex to match `PTR_TO_PACKET_END prohibited`. |
+| `stackoverflow-67402772` | `invalid bpf_context access off=92 size=4` | likely `BPFIX-E023` / `source_bug` | Add `invalid bpf_context access ...` to E023 or add a dedicated source-bug ID. |
 | `stackoverflow-68815540` | truncated register-state dump only | still `unknown` | Raw log does not contain a recoverable terminal verifier error line. |
-| `stackoverflow-69192685` | `libbpf: load bpf program failed: Invalid argument` | likely `OBLIGE-E021` / `env_mismatch` | Prefer `number of funcs in func_info doesn't match number of subprogs` as the error line; add it to E021. |
-| `stackoverflow-71351495` | `R3 pointer comparison prohibited` | likely `OBLIGE-E023` / `source_bug` | Add `pointer comparison prohibited` to E023 or add a dedicated source-bug ID. |
-| `stackoverflow-77462271` | `processed 54 insns (limit 1000000) ...` | likely `OBLIGE-E021` / `env_mismatch` | Prefer `failed to find kernel BTF type ID ...`; add that pattern to E021. |
+| `stackoverflow-69192685` | `libbpf: load bpf program failed: Invalid argument` | likely `BPFIX-E021` / `env_mismatch` | Prefer `number of funcs in func_info doesn't match number of subprogs` as the error line; add it to E021. |
+| `stackoverflow-71351495` | `R3 pointer comparison prohibited` | likely `BPFIX-E023` / `source_bug` | Add `pointer comparison prohibited` to E023 or add a dedicated source-bug ID. |
+| `stackoverflow-77462271` | `processed 54 insns (limit 1000000) ...` | likely `BPFIX-E021` / `env_mismatch` | Prefer `failed to find kernel BTF type ID ...`; add that pattern to E021. |
 | `stackoverflow-78633443` | `libbpf: failed to load object 'work/switch/switch.o'` | still `unknown` | `Argument list too long` + `processed 0 insns` is too loader-specific to classify confidently from current data. |
-| `github-aya-rs-aya-1490` | `[30] UNION MaybeUninit<u8> size=1 vlen=2 Invalid name` | likely `OBLIGE-E021` / `env_mismatch` | Add BTF `Invalid name` / BTF-load invalid-name pattern to E021. |
+| `github-aya-rs-aya-1490` | `[30] UNION MaybeUninit<u8> size=1 vlen=2 Invalid name` | likely `BPFIX-E021` / `env_mismatch` | Add BTF `Invalid name` / BTF-load invalid-name pattern to E021. |
 
 ### Concrete catalog/parser changes
 
@@ -140,7 +140,7 @@ Recommended updates:
   - Penalize `processed ...` summary lines more aggressively.
   - Prefer exact verifier symptom lines over lines that merely contain words like `invalid` inside function names.
 - [`taxonomy/error_catalog.yaml`](../../taxonomy/error_catalog.yaml)
-  - Expand `OBLIGE-E005`, `OBLIGE-E006`, `OBLIGE-E019`, `OBLIGE-E020`, `OBLIGE-E021`, and `OBLIGE-E023` with the patterns listed above.
+  - Expand `BPFIX-E005`, `BPFIX-E006`, `BPFIX-E019`, `BPFIX-E020`, `BPFIX-E021`, and `BPFIX-E023` with the patterns listed above.
 - [`interface/extractor/diagnoser.py`](../../interface/extractor/diagnoser.py) `_classify(...)`
   - Add small fallback heuristics for:
     - `invalid bpf_context access`
@@ -167,7 +167,7 @@ SO BTF correlation: 1.5%
 | `stackoverflow-60506220` | no | tc-style verifier analysis only. No BTF/source annotations present. |
 | `stackoverflow-67402772` | no | tc-style verifier analysis only. No BTF/source annotations present. |
 | `stackoverflow-77568308` | no | Single-line abbreviated error with omitted lines. No file/line information exists to recover. |
-| `stackoverflow-79812509` | yes | Contains `@ provenance_tracing_programs.bpf.c:139/141`, and OBLIGE successfully correlates to file/line. |
+| `stackoverflow-79812509` | yes | Contains `@ provenance_tracing_programs.bpf.c:139/141`, and BPFix successfully correlates to file/line. |
 
 ### Conclusion
 

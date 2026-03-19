@@ -25,29 +25,29 @@ OUTPUT_REPORT = REPO / "docs" / "tmp" / "ground-truth-expansion-report.md"
 # ──────────────────────────────────────────────────────────────────────────────
 
 ERROR_ID_TO_TAXONOMY = {
-    "OBLIGE-E001": "source_bug",          # packet_bounds_missing
-    "OBLIGE-E002": "source_bug",          # nullable_map_value_dereference
-    "OBLIGE-E003": "source_bug",          # uninitialized_stack_read
-    "OBLIGE-E004": "source_bug",          # reference_lifetime_violation
-    "OBLIGE-E005": "lowering_artifact",   # scalar_range_too_wide_after_lowering
-    "OBLIGE-E006": "lowering_artifact",   # provenance_lost_across_spill
-    "OBLIGE-E007": "verifier_limit",      # verifier_state_explosion
-    "OBLIGE-E008": "verifier_limit",      # bounded_loop_not_proved
-    "OBLIGE-E009": "env_mismatch",        # helper_or_kfunc_unavailable
-    "OBLIGE-E010": "verifier_bug",        # verifier_regression_or_internal_bug
-    "OBLIGE-E011": "source_bug",          # scalar_pointer_dereference
-    "OBLIGE-E012": "source_bug",          # dynptr_protocol_violation
-    "OBLIGE-E013": "source_bug",          # execution_context_discipline_violation
-    "OBLIGE-E014": "source_bug",          # iterator_state_protocol_violation
-    "OBLIGE-E015": "source_bug",          # trusted_arg_nullability
-    "OBLIGE-E016": "env_mismatch",        # helper_or_kfunc_context_restriction
-    "OBLIGE-E017": "source_bug",          # map_value_bounds_violation
-    "OBLIGE-E018": "verifier_limit",      # verifier_analysis_budget_limit
-    "OBLIGE-E019": "source_bug",          # dynptr_storage_or_release_contract_violation
-    "OBLIGE-E020": "source_bug",          # irq_flag_state_protocol_violation
-    "OBLIGE-E021": "env_mismatch",        # btf_reference_metadata_missing
-    "OBLIGE-E022": "env_mismatch",        # mutable_global_state_unsupported
-    "OBLIGE-E023": "source_bug",          # register_or_stack_contract_violation
+    "BPFIX-E001": "source_bug",          # packet_bounds_missing
+    "BPFIX-E002": "source_bug",          # nullable_map_value_dereference
+    "BPFIX-E003": "source_bug",          # uninitialized_stack_read
+    "BPFIX-E004": "source_bug",          # reference_lifetime_violation
+    "BPFIX-E005": "lowering_artifact",   # scalar_range_too_wide_after_lowering
+    "BPFIX-E006": "lowering_artifact",   # provenance_lost_across_spill
+    "BPFIX-E007": "verifier_limit",      # verifier_state_explosion
+    "BPFIX-E008": "verifier_limit",      # bounded_loop_not_proved
+    "BPFIX-E009": "env_mismatch",        # helper_or_kfunc_unavailable
+    "BPFIX-E010": "verifier_bug",        # verifier_regression_or_internal_bug
+    "BPFIX-E011": "source_bug",          # scalar_pointer_dereference
+    "BPFIX-E012": "source_bug",          # dynptr_protocol_violation
+    "BPFIX-E013": "source_bug",          # execution_context_discipline_violation
+    "BPFIX-E014": "source_bug",          # iterator_state_protocol_violation
+    "BPFIX-E015": "source_bug",          # trusted_arg_nullability
+    "BPFIX-E016": "env_mismatch",        # helper_or_kfunc_context_restriction
+    "BPFIX-E017": "source_bug",          # map_value_bounds_violation
+    "BPFIX-E018": "verifier_limit",      # verifier_analysis_budget_limit
+    "BPFIX-E019": "source_bug",          # dynptr_storage_or_release_contract_violation
+    "BPFIX-E020": "source_bug",          # irq_flag_state_protocol_violation
+    "BPFIX-E021": "env_mismatch",        # btf_reference_metadata_missing
+    "BPFIX-E022": "env_mismatch",        # mutable_global_state_unsupported
+    "BPFIX-E023": "source_bug",          # register_or_stack_contract_violation
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -167,13 +167,13 @@ SO_KEYWORDS = [
 
 
 def label_from_error_id(error_id: str):
-    """Map OBLIGE-Exxx to taxonomy class."""
+    """Map BPFIX-Exxx to taxonomy class."""
     if not error_id:
         return None
     # Normalize: strip prefix variants
     normalized = error_id.strip()
-    if not normalized.startswith("OBLIGE-"):
-        normalized = "OBLIGE-" + normalized
+    if not normalized.startswith("BPFIX-"):
+        normalized = "BPFIX-" + normalized
     return ERROR_ID_TO_TAXONOMY.get(normalized)
 
 
@@ -490,14 +490,14 @@ def save_yaml(cases: list[dict]):
         by_taxonomy[t] = by_taxonomy.get(t, 0) + 1
 
     doc = {
-        "# Ground truth taxonomy labels for OBLIGE evaluation": None,
+        "# Ground truth taxonomy labels for BPFix evaluation": None,
         "# Generated": str(date.today()),
     }
 
     output = {
         "metadata": {
             "generated": str(date.today()),
-            "description": "Ground truth taxonomy labels for OBLIGE evaluation",
+            "description": "Ground truth taxonomy labels for BPFix evaluation",
             "total_cases": len(cases),
             "by_source": {
                 "manual": manual_count,
@@ -581,7 +581,7 @@ def write_report(cases: list[dict]):
         f"",
         f"1. If the case has an `error_id` field, map via the error catalog.",
         f"2. Otherwise, pattern-match the expected message strings against 50+ regex patterns",
-        f"   covering all 23 OBLIGE error IDs.",
+        f"   covering all 23 BPFix error IDs.",
         f"3. Fall back to scanning the full `verifier_log` field.",
         f"",
         f"### Stack Overflow and GitHub Issue Cases (confidence: medium)",

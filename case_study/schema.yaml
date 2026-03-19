@@ -1,11 +1,11 @@
 ---
-# Benchmark Case Schema for OBLIGE
+# Benchmark Case Schema for BPFix
 # Each case represents one verifier failure instance.
 schema_name: benchmark_case
 schema_version: 0.1.0
-title: Benchmark Case Schema for OBLIGE
+title: Benchmark Case Schema for BPFix
 description: |
-  Canonical schema for a single benchmark case in the OBLIGE corpus.
+  Canonical schema for a single benchmark case in the BPFix corpus.
   The unit of data is one reproducible verifier failure paired with enough
   context to re-run the failure, classify it, explain it, and validate a fix.
 required:

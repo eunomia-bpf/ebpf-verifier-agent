@@ -101,16 +101,16 @@ For each of the 22 established_then_lost cases, manually verify:
 If 18+/22 are correct, you have a strong (small) precision story. If many are wrong, the opcode engine has deeper problems.
 
 ### Priority 2: Fix taxonomy for dynptr/kfunc cases (1 day)
-Fix the 57 source_bug-as-env_mismatch misclassifications. This is low-hanging fruit: update error_catalog.yaml patterns for OBLIGE-E012 (dynptr), E013 (irq), E014 (iterator), E015 (trusted arg) to classify as source_bug instead of env_mismatch. Re-run batch eval. This should bring taxonomy accuracy from 56% to ~90%.
+Fix the 57 source_bug-as-env_mismatch misclassifications. This is low-hanging fruit: update error_catalog.yaml patterns for BPFIX-E012 (dynptr), E013 (irq), E014 (iterator), E015 (trusted arg) to classify as source_bug instead of env_mismatch. Re-run batch eval. This should bring taxonomy accuracy from 56% to ~90%.
 
 ### Priority 3: A/B repair experiment with stronger model (2-3 days)
-The v3 experiment used GPT-OSS 20B (weak model), got +7.1pp overall but p=0.22. A stronger model (Qwen3.5-122B or GPT-4-class) would give more meaningful results. Focus on the 22 lifecycle cases specifically -- these are where OBLIGE adds the most value. If OBLIGE-assisted repair is significantly better on lifecycle cases, that's the paper's evaluation story.
+The v3 experiment used GPT-OSS 20B (weak model), got +7.1pp overall but p=0.22. A stronger model (Qwen3.5-122B or GPT-4-class) would give more meaningful results. Focus on the 22 lifecycle cases specifically -- these are where BPFix adds the most value. If BPFIX-assisted repair is significantly better on lifecycle cases, that's the paper's evaluation story.
 
 ### Priority 4: PV comparison on the full 171-case set (1 day)
-The PV comparison was done on 30 cases. Running it on 171 would give more convincing numbers and might reveal interesting patterns (OBLIGE root-cause 20% vs PV 0% on 262 cases is already reported but needs the full methodology).
+The PV comparison was done on 30 cases. Running it on 171 would give more convincing numbers and might reveal interesting patterns (BPFix root-cause 20% vs PV 0% on 262 cases is already reported but needs the full methodology).
 
 ### Priority 5: Root-cause precision study (2 days)
-For the 22 lifecycle cases + a sample of non-lifecycle cases, compare OBLIGE's indicated root cause against expert judgment. This directly measures whether the analysis helps developers.
+For the 22 lifecycle cases + a sample of non-lifecycle cases, compare BPFix's indicated root cause against expert judgment. This directly measures whether the analysis helps developers.
 
 ### Experiments to skip:
 - Cross-kernel stability (nice to have, not needed for the paper)
@@ -144,7 +144,7 @@ For the 22 lifecycle cases + a sample of non-lifecycle cases, compare OBLIGE's i
 
 1. **CFG reconstruction from traces + proper backward slice (Path A from research plan).** This is the missing technical depth. The current system reads per-instruction states linearly. A real contribution would reconstruct the control flow graph from the trace, compute reaching definitions and control dependences on that CFG, and do a proper program slice from the error point backward. This would find root causes that the linear scan misses (e.g., a missing null check on a different path that dominates the error path).
 
-2. **Synthesis (Path B from research plan).** Generating verifier-passing repairs automatically would be a strong empirical result. "OBLIGE correctly repairs X% of lowering artifacts with no human intervention" is a headline number that reviewers care about. But this is a large implementation effort.
+2. **Synthesis (Path B from research plan).** Generating verifier-passing repairs automatically would be a strong empirical result. "BPFix correctly repairs X% of lowering artifacts with no human intervention" is a headline number that reviewers care about. But this is a large implementation effort.
 
 3. **Significantly stronger evaluation.** At minimum: 50+ cases with expert-validated root cause labels, A/B with p<0.05, and a clear demonstration that lifecycle analysis (not just error classification) improves repair outcomes.
 
@@ -252,6 +252,6 @@ After steps 1-5 (about 2 weeks), assess:
 
 ## 9. What I Would Tell a Program Committee
 
-"OBLIGE is a well-engineered diagnostic tool for eBPF verifier failures that parses complete verifier traces, identifies where safety proofs are established and lost, and renders Rust-style multi-span diagnostics. It handles 171 real-world cases with zero crashes and sub-100ms latency. For the 13% of cases where a concrete proof lifecycle is identified, the diagnostics are qualitatively superior to existing tools. The main limitation is coverage: the system only performs genuine proof lifecycle analysis when it can (a) identify the error instruction's opcode, (b) derive a concrete safety predicate, and (c) find that predicate satisfied and then violated in the trace. For the remaining 87%, the system provides structured error classification and single-span output comparable to existing tools."
+"BPFix is a well-engineered diagnostic tool for eBPF verifier failures that parses complete verifier traces, identifies where safety proofs are established and lost, and renders Rust-style multi-span diagnostics. It handles 171 real-world cases with zero crashes and sub-100ms latency. For the 13% of cases where a concrete proof lifecycle is identified, the diagnostics are qualitatively superior to existing tools. The main limitation is coverage: the system only performs genuine proof lifecycle analysis when it can (a) identify the error instruction's opcode, (b) derive a concrete safety predicate, and (c) find that predicate satisfied and then violated in the trace. For the remaining 87%, the system provides structured error classification and single-span output comparable to existing tools."
 
 This is honest. It's also not enough for OSDI. To get there, you need Path A (CFG reconstruction + backward slice) to turn the 87% from "structured error display" into "causal analysis via program slicing."

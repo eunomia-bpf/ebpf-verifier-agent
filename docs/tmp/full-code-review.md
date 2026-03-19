@@ -271,7 +271,7 @@ Important architectural fact: the main engine does not use `interface/extractor/
   - This module reparses the raw log instead of accepting `ParsedLog` / `ParsedTrace` from the caller.
   - `_assess_proof()` labels any surviving relevant transition as `established_then_lost`. That is a strong assumption and can over-trigger lowering-artifact diagnoses.
   - `_select_relevant_transitions()` falls back to the full prefix of the trace when no transition is near the symptom instruction. `_select_root_transition()` then chooses the earliest high-priority transition. This can let very early generic type downgrades dominate a much later concrete reject site.
-  - Catalog override policy is aggressive. In the current corpus, there are `109` cases where a catalog-seeded ID/class is overridden by the final diagnosis, mostly from various source-bug IDs to `OBLIGE-E005` / `OBLIGE-E006`.
+  - Catalog override policy is aggressive. In the current corpus, there are `109` cases where a catalog-seeded ID/class is overridden by the final diagnosis, mostly from various source-bug IDs to `BPFIX-E005` / `BPFIX-E006`.
   - The quality-fix Round 2 report already flags a downstream symptom of this kind of sensitivity: `7` cases shifted from `established_then_lost` to `never_established` and were not yet audited.
 - Performance concerns:
   - second complete parse of the raw log
@@ -293,7 +293,7 @@ Important architectural fact: the main engine does not use `interface/extractor/
 - Code quality issues:
   - Several entries intentionally overlap. Because `log_parser._match_catalog()` is first-match wins, ordering is semantic. `E007` / `E018`, `E008` / `E018`, and several source-bug vs env-mismatch patterns are only separated by order and later fallback heuristics.
   - The catalog is richer than what the final renderer exposes. `likely_obligation` and `example_fix_actions` are not surfaced directly in the main JSON.
-  - Error IDs are uppercase `OBLIGE-E...`, while `interface/schema/diagnostic.json` currently requires lowercase-ish `[a-z0-9_.:-]+`; the repository’s own schema and catalog disagree.
+  - Error IDs are uppercase `BPFIX-E...`, while `interface/schema/diagnostic.json` currently requires lowercase-ish `[a-z0-9_.:-]+`; the repository’s own schema and catalog disagree.
 - Performance concerns:
   - Linear scan over all patterns per parse. Fine today, but still fully dynamic because regexes are not precompiled at load time.
 

@@ -301,7 +301,7 @@ def _apply_patch(source: str, patch: str) -> str:
         return source[:insert_pos] + "\n    " + patch.replace("\n", "\n    ") + "\n" + source[insert_pos:]
 
     # Fallback: append to end
-    return source + "\n\n/* OBLIGE repair suggestion */\n" + patch
+    return source + "\n\n/* BPFix repair suggestion */\n" + patch
 
 
 if __name__ == "__main__":

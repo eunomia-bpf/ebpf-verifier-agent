@@ -1,4 +1,4 @@
-"""Batch-level and known-answer regression tests for the OBLIGE diagnostic pipeline.
+"""Batch-level and known-answer regression tests for the BPFix diagnostic pipeline.
 
 Tests in this module:
   - Batch correctness: run generate_diagnostic() on all 66 SO cases with verifier
@@ -29,7 +29,7 @@ VALID_PROOF_STATUSES = {"never_established", "established_then_lost", "establish
 VALID_TAXONOMY_CLASSES = {
     "source_bug", "lowering_artifact", "verifier_limit", "env_mismatch", "verifier_bug", "unknown",
 }
-ERROR_ID_PATTERN = re.compile(r"^OBLIGE-E\d{3}$|^OBLIGE-UNKNOWN$")
+ERROR_ID_PATTERN = re.compile(r"^BPFIX-E\d{3}$|^BPFIX-UNKNOWN$")
 
 
 def _load_verifier_log(relative_path: str) -> str:
@@ -127,7 +127,7 @@ def test_batch_so_established_then_lost_count_above_baseline() -> None:
 
 
 def test_batch_so_all_outputs_have_valid_error_id() -> None:
-    """Every diagnostic output must have an error_id matching OBLIGE-E\\d{{3}} or OBLIGE-UNKNOWN."""
+    """Every diagnostic output must have an error_id matching BPFIX-E\\d{{3}} or BPFIX-UNKNOWN."""
     cases = _so_cases_with_logs()
     bad: list[tuple[str, str]] = []
     for case_path in cases:
@@ -159,7 +159,7 @@ def test_known_answer_lowering_artifact_70750259() -> None:
     spans = meta.get("proof_spans", [])
     span_roles = {s["role"] for s in spans}
 
-    assert data["error_id"] == "OBLIGE-E005"
+    assert data["error_id"] == "BPFIX-E005"
     assert data["failure_class"] == "lowering_artifact"
     assert meta["proof_status"] == "never_established"
     assert "proof_lost" in span_roles
@@ -171,7 +171,7 @@ def test_known_answer_lowering_artifact_70729664_large_trace() -> None:
 
     Gap-based establishment removes the old vacuous establish site for this
     trace, so the proof status is now never_established. The log_parser still
-    classifies it as source_bug (OBLIGE-E001). Since we removed the taxonomy
+    classifies it as source_bug (BPFIX-E001). Since we removed the taxonomy
     override that forced established_then_lost → lowering_artifact,
     the failure_class now reflects the log_parser classification.
     """
@@ -194,7 +194,7 @@ def test_known_answer_verifier_limit_70841631() -> None:
     )
     data = out.json_data
 
-    assert data["error_id"] == "OBLIGE-E018"
+    assert data["error_id"] == "BPFIX-E018"
     assert data["failure_class"] == "verifier_limit"
     assert data.get("metadata", {}).get("proof_status") == "unknown"
 
@@ -206,7 +206,7 @@ def test_known_answer_source_bug_60053570() -> None:
     )
     data = out.json_data
 
-    assert data["error_id"] == "OBLIGE-E001"
+    assert data["error_id"] == "BPFIX-E001"
     assert data["failure_class"] == "source_bug"
     assert data.get("metadata", {}).get("proof_status") == "never_established"
 
@@ -218,7 +218,7 @@ def test_known_answer_env_mismatch_77462271() -> None:
     )
     data = out.json_data
 
-    assert data["error_id"] == "OBLIGE-E021"
+    assert data["error_id"] == "BPFIX-E021"
     assert data["failure_class"] == "env_mismatch"
 
 

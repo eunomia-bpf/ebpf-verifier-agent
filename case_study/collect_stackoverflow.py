@@ -109,7 +109,7 @@ class StackOverflowCollector:
         self.client = HttpClient(
             min_interval_seconds=args.min_interval_seconds,
             logger=self.logger,
-            user_agent="OBLIGE stackoverflow collector/0.1",
+            user_agent="BPFix stackoverflow collector/0.1",
         )
 
     def run(self) -> int:

@@ -1,1 +1,1 @@
-"""Packaged taxonomy resources for OBLIGE."""
+"""Packaged taxonomy resources for BPFix."""

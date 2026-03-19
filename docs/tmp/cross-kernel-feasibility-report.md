@@ -8,7 +8,7 @@ The experiment is **partially feasible now** and **not yet feasible end-to-end**
 
 - What works now:
   - host-side compile/load/log-capture for `kernel_selftests` cases on the current kernel
-  - OBLIGE diagnosis over captured logs
+  - BPFix diagnosis over captured logs
   - offline comparison on existing multi-log GitHub/Stack Overflow cases
 - What is missing:
   - runnable `5.15`, `6.1`, and `6.6` kernels
@@ -58,7 +58,7 @@ The right execution vehicle is **QEMU/KVM VMs**, not Docker. Docker can isolate 
   - QEMU launch scripts
   - a disk image and initramfs
   - a built kernel image `6.19.0-rc5`
-- This proves that VM-based execution is plausible on this machine, but it is **not wired into OBLIGE** and it does **not** provide the target kernels `5.15`, `6.1`, `6.6`, `6.15`.
+- This proves that VM-based execution is plausible on this machine, but it is **not wired into BPFix** and it does **not** provide the target kernels `5.15`, `6.1`, `6.6`, `6.15`.
 
 ## What already works in the repo
 
@@ -75,7 +75,7 @@ The repo already has a usable single-kernel selftest runtime path.
   - calls `bpf_object__load()`
   - prints JSON with `load_ok`, `error_message`, and `verifier_log`
 - `eval/pretty_verifier_comparison.py`
-  - already contains the OBLIGE-side diagnosis logic needed after log capture
+  - already contains the BPFIX-side diagnosis logic needed after log capture
 
 I also ran a smoke test on the current host using:
 
@@ -99,12 +99,12 @@ These are useful because they already contain multiple verifier-log blocks or ex
 
 | Case | Evidence already in corpus | Why useful |
 | --- | --- | --- |
-| `github-cilium-cilium-37478` | 5 verifier-log blocks; raw error line varies (`R1` vs `R3 invalid mem access 'map_value_or_null'`) | Good example where raw wording/register naming changes while OBLIGE still maps to one error family |
-| `github-cilium-cilium-36936` | 4 verifier-log blocks; 3 distinct raw error lines | Similar multi-log drift case with stable OBLIGE `error_id` |
+| `github-cilium-cilium-37478` | 5 verifier-log blocks; raw error line varies (`R1` vs `R3 invalid mem access 'map_value_or_null'`) | Good example where raw wording/register naming changes while BPFix still maps to one error family |
+| `github-cilium-cilium-36936` | 4 verifier-log blocks; 3 distinct raw error lines | Similar multi-log drift case with stable BPFix `error_id` |
 | `github-cilium-cilium-41996` | explicit kernel refs `4.18.0-553...`, `5.15.0-67`, fix note says upgrade to `6.8.x` | Strong motivation/example for kernel-sensitive verifier behavior |
 | `stackoverflow-75515263` | 2 verifier logs from the same question; kernel shown as `5.10.0-20-arm64` / `5.10.158-2` | Good structured-diagnosis stability case for map-value bounds/layout errors |
 | `stackoverflow-69413427` | 3 log variants; raw line changes from `R2 type=inv` to `R2 type=ptr_` | Nice example of message drift with the same underlying type-mismatch diagnosis |
-| `github-aya-rs-aya-1233` | 2 log blocks with very different surface text | Good case where raw logs are noisy but OBLIGE still stabilizes the classification |
+| `github-aya-rs-aya-1233` | 2 log blocks with very different surface text | Good case where raw logs are noisy but BPFix still stabilizes the classification |
 
 ### Version-referenced eval cases
 
@@ -155,11 +155,11 @@ Use the 12 selftest cases above.
 - For each case:
   - compile the same program against each kernel runtime
   - capture the verbose verifier log
-  - run OBLIGE diagnosis
+  - run BPFix diagnosis
 - Metrics:
   - pairwise Jaccard similarity of raw error-line tokens
-  - exact-match of OBLIGE `error_id`
-  - exact-match of OBLIGE `taxonomy_class`
+  - exact-match of BPFix `error_id`
+  - exact-match of BPFix `taxonomy_class`
   - optional exact-match of a root-cause proxy
 
 This phase is the fastest path to a convincing figure because the cases are already negative selftests.
@@ -235,7 +235,7 @@ What it does:
 - compiles `kernel_selftests` cases using the existing selftest harness logic
 - loads them through a pluggable per-kernel `load_command`
 - captures verifier logs
-- runs OBLIGE diagnosis
+- runs BPFix diagnosis
 - emits:
   - a per-kernel comparison table
   - pairwise raw-token Jaccard

@@ -1,6 +1,6 @@
-# Paper Outline v2: OBLIGE
+# Paper Outline v2: BPFix
 
-**Working Title**: OBLIGE: Rust-Quality Diagnostics for eBPF Verifier Failures via Proof Trace Analysis
+**Working Title**: BPFix: Rust-Quality Diagnostics for eBPF Verifier Failures via Proof Trace Analysis
 
 **Target Venue**: ATC / EuroSys / ASPLOS (systems, 12-14 pages)
 
@@ -10,7 +10,7 @@
 
 ## Scope Discipline (Read Before Writing)
 
-**We claim**: OBLIGE performs meta-analysis on the eBPF verifier's abstract interpretation output to produce Rust-quality multi-span diagnostics that locate *where* proof was lost, *why*, and *how* to fix it. Strongest story: lowering artifacts where source code has correct bounds checks but LLVM lowering breaks verifier-visible proof.
+**We claim**: BPFix performs meta-analysis on the eBPF verifier's abstract interpretation output to produce Rust-quality multi-span diagnostics that locate *where* proof was lost, *why*, and *how* to fix it. Strongest story: lowering artifacts where source code has correct bounds checks but LLVM lowering breaks verifier-visible proof.
 
 **We do NOT claim**:
 - Coverage of all verifier failures (60% obligation coverage; be honest)
@@ -48,10 +48,10 @@
 **Key claims in the abstract** (each must be supported):
 
 1. The eBPF verifier at LOG_LEVEL2 outputs a complete per-instruction abstract state trace -- effectively the full execution trace of an abstract interpreter -- but this trace is hundreds of lines of flat text and no existing tool analyzes it.
-2. OBLIGE performs meta-analysis on this trace: tracking formal predicates over verifier state to identify exactly where proof obligations are established, propagated, and lost.
-3. OBLIGE produces Rust-quality multi-span source-level diagnostics with causal labels (proof-established, proof-lost, rejected).
-4. Across 241 real cases, OBLIGE produces structured diagnostics with 60% proof obligation coverage, 63% BTF source correlation, and median 33ms latency.
-5. On lowering artifacts (correct source code, broken by LLVM lowering), OBLIGE's diagnostics improve LLM repair success by 25 percentage points over raw verifier output.
+2. BPFix performs meta-analysis on this trace: tracking formal predicates over verifier state to identify exactly where proof obligations are established, propagated, and lost.
+3. BPFix produces Rust-quality multi-span source-level diagnostics with causal labels (proof-established, proof-lost, rejected).
+4. Across 241 real cases, BPFix produces structured diagnostics with 60% proof obligation coverage, 63% BTF source correlation, and median 33ms latency.
+5. On lowering artifacts (correct source code, broken by LLVM lowering), BPFix's diagnostics improve LLM repair success by 25 percentage points over raw verifier output.
 
 **Evidence**: batch eval (241/241), latency benchmark, A/B repair experiment.
 
@@ -66,7 +66,7 @@
 Three panels:
 - **Panel A: What the developer sees** -- `error: math between pkt pointer and register with unbounded min value is not allowed` (1 line, names the symptom, not the cause)
 - **Panel B: What Pretty Verifier says** -- enhanced error message pointing at the same symptom instruction (or crashes)
-- **Panel C: What OBLIGE says** -- Rust-style multi-span output showing (1) proof established at line 38, (2) proof lost at line 42 due to OR operation, (3) rejected at line 45
+- **Panel C: What BPFix says** -- Rust-style multi-span output showing (1) proof established at line 38, (2) proof lost at line 42 due to OR operation, (3) rejected at line 45
 
 **Claim**: Same error message ("unbounded min value") can mean "add a bounds check" (source bug) or "your bounds check exists but LLVM broke it" (lowering artifact). These require completely different fixes. No existing tool distinguishes them.
 
@@ -89,17 +89,17 @@ Three observations, each with evidence:
 
 ### 1.3 Key Insight (~0.25 pages)
 
-The eBPF verifier *is* an abstract interpreter. Its LOG_LEVEL2 output is the complete execution trace of that abstract interpreter. OBLIGE treats this trace as a first-class data structure and performs *meta-analysis* -- evaluating predicates over the verifier's own abstract state to reconstruct the proof lifecycle.
+The eBPF verifier *is* an abstract interpreter. Its LOG_LEVEL2 output is the complete execution trace of that abstract interpreter. BPFix treats this trace as a first-class data structure and performs *meta-analysis* -- evaluating predicates over the verifier's own abstract state to reconstruct the proof lifecycle.
 
-Analogy: Rust's borrow checker cannot prove memory safety, then points to multiple source locations with causal labels ("borrow occurs here", "conflict here"). OBLIGE does the same for eBPF safety proofs.
+Analogy: Rust's borrow checker cannot prove memory safety, then points to multiple source locations with causal labels ("borrow occurs here", "conflict here"). BPFix does the same for eBPF safety proofs.
 
 ### 1.4 Contributions (~0.25 pages)
 
-1. **Proof trace meta-analysis**: A technique for second-order analysis of abstract interpretation output. OBLIGE tracks formal predicates (e.g., `reg.off + size <= reg.range` for packet access) over verifier state at each instruction, identifies the transition witness where a predicate changes from satisfied to violated, and reconstructs proof lifecycle (established / propagated / lost / never-established).
+1. **Proof trace meta-analysis**: A technique for second-order analysis of abstract interpretation output. BPFix tracks formal predicates (e.g., `reg.off + size <= reg.range` for packet access) over verifier state at each instruction, identifies the transition witness where a predicate changes from satisfied to violated, and reconstructs proof lifecycle (established / propagated / lost / never-established).
 
-2. **OBLIGE diagnostic engine**: A userspace tool that parses verifier LOG_LEVEL2 traces, infers proof obligations from 10 obligation families, tracks predicates across instruction boundaries, correlates with BTF source annotations, and renders Rust-quality multi-span diagnostics. Median latency 33ms. Pure userspace, no kernel patches.
+2. **BPFix diagnostic engine**: A userspace tool that parses verifier LOG_LEVEL2 traces, infers proof obligations from 10 obligation families, tracks predicates across instruction boundaries, correlates with BTF source annotations, and renders Rust-quality multi-span diagnostics. Median latency 33ms. Pure userspace, no kernel patches.
 
-3. **Empirical findings**: (a) Batch evaluation on 241 cases shows 100% diagnostic generation, 60% obligation coverage, 63% BTF source correlation. (b) On lowering artifacts, OBLIGE diagnostics improve LLM repair by +25pp. (c) Analysis of 591 production commits confirms 64% are proof-reshaping workarounds, validating the importance of distinguishing lowering artifacts from source bugs.
+3. **Empirical findings**: (a) Batch evaluation on 241 cases shows 100% diagnostic generation, 60% obligation coverage, 63% BTF source correlation. (b) On lowering artifacts, BPFix diagnostics improve LLM repair by +25pp. (c) Analysis of 591 production commits confirms 64% are proof-reshaping workarounds, validating the importance of distinguishing lowering artifacts from source bugs.
 
 ---
 
@@ -130,7 +130,7 @@ Show a real 20-line excerpt with annotations highlighting each element.
 
 **Table 1**: Feature comparison of diagnostic approaches.
 
-| Feature | Raw error | Pretty Verifier | Kgent/LLM | OBLIGE |
+| Feature | Raw error | Pretty Verifier | Kgent/LLM | BPFix |
 |---------|:---------:|:---------------:|:----------:|:------:|
 | Error message parsing | partial | 91 regex | LLM | 23 error IDs |
 | State trace analysis | -- | -- | raw text to LLM | formal predicate tracking |
@@ -141,15 +141,15 @@ Show a real 20-line excerpt with annotations highlighting each element.
 | Deterministic, reproducible | -- | yes | no | yes |
 | Latency | -- | <100ms | 1-10s | 33ms median |
 
-Key point: Pretty Verifier processes 1 line (the error message). LLMs process the full log but without structure. OBLIGE is the first to perform structured analysis on the full state trace.
+Key point: Pretty Verifier processes 1 line (the error message). LLMs process the full log but without structure. BPFix is the first to perform structured analysis on the full state trace.
 
 ---
 
-## 3. Design: The OBLIGE Diagnostic Engine (4.0 pages)
+## 3. Design: The BPFix Diagnostic Engine (4.0 pages)
 
 ### 3.1 Architecture Overview (~0.5 pages)
 
-**Figure 4**: OBLIGE architecture (full pipeline).
+**Figure 4**: BPFix architecture (full pipeline).
 
 ```
 Verifier LOG_LEVEL2 trace
@@ -190,7 +190,7 @@ Five-stage pipeline. Each stage is independent and testable. Total 85 unit tests
 
 ### 3.3 Proof Obligation Inference (~1.0 page)
 
-**Core idea**: From the error message and the register state at the rejection point, OBLIGE infers what the verifier *needed* to see -- the *proof obligation* -- expressed as a formal predicate over register state.
+**Core idea**: From the error message and the register state at the rejection point, BPFix infers what the verifier *needed* to see -- the *proof obligation* -- expressed as a formal predicate over register state.
 
 **Table 2**: Proof obligation families (10 families, covering 60% of cases).
 
@@ -207,7 +207,7 @@ Five-stage pipeline. Each stage is independent and testable. Total 85 unit tests
 | alignment | `reg.off % align == 0` | "misaligned access" |
 | type_safety | `reg.type matches expected` | "R1 type=inv expected=fp" |
 
-**How inference works**: The error message identifies the obligation *family*. The register state at the rejection point provides the concrete parameters (which register, what offset, what size). OBLIGE instantiates the predicate template with these concrete values.
+**How inference works**: The error message identifies the obligation *family*. The register state at the rejection point provides the concrete parameters (which register, what offset, what size). BPFix instantiates the predicate template with these concrete values.
 
 **Claim**: This is not pattern matching on error text -- it is predicate instantiation from the verifier's type system. The same error message with different register states produces different predicates.
 
@@ -215,7 +215,7 @@ Five-stage pipeline. Each stage is independent and testable. Total 85 unit tests
 
 ### 3.4 Formal Predicate Tracking (~1.0 page)
 
-**Core idea**: Given the instantiated predicate from Section 3.3, OBLIGE evaluates it at *every instruction* in the trace, producing a boolean sequence: `[unknown, ..., satisfied, satisfied, ..., violated, ..., violated]`. The *transition witness* is the instruction where the predicate changes from satisfied to violated (or from unknown to violated if never satisfied).
+**Core idea**: Given the instantiated predicate from Section 3.3, BPFix evaluates it at *every instruction* in the trace, producing a boolean sequence: `[unknown, ..., satisfied, satisfied, ..., violated, ..., violated]`. The *transition witness* is the instruction where the predicate changes from satisfied to violated (or from unknown to violated if never satisfied).
 
 **Algorithm**:
 ```
@@ -237,19 +237,19 @@ label final error instruction as "rejected"
 
 **Key distinction from heuristic approaches**: This is not "detect bounds collapse" as a pattern. It is "evaluate the specific predicate that the verifier needed, and find where it broke." Different predicates produce different transition witnesses even on the same trace.
 
-**Register value lineage**: Predicates reference registers, but register names are reused. OBLIGE tracks value identity across register moves and copies. If R3 is copied to R5, and the predicate references R3's bounds, OBLIGE continues tracking the bounds on R5.
+**Register value lineage**: Predicates reference registers, but register names are reused. BPFix tracks value identity across register moves and copies. If R3 is copied to R5, and the predicate references R3's bounds, BPFix continues tracking the bounds on R5.
 
-**Evidence**: In 34% of cases with obligation coverage, OBLIGE identifies a proof-lost transition. In 40% it identifies proof-established. These are not the same instruction as the final error point.
+**Evidence**: In 34% of cases with obligation coverage, BPFix identifies a proof-lost transition. In 40% it identifies proof-established. These are not the same instruction as the final error point.
 
 ### 3.5 Source Correlation via BTF (~0.5 pages)
 
 **What BTF provides**: The BTF `line_info` section maps bytecode instruction indices to source file, line number, and column. The verifier emits these as `; source_text` annotations in the trace.
 
-**What OBLIGE does**: Each proof lifecycle event (established, lost, rejected) is mapped to its source location via BTF. Multiple consecutive bytecode instructions from the same source line are merged into a single source-level span.
+**What BPFix does**: Each proof lifecycle event (established, lost, rejected) is mapped to its source location via BTF. Multiple consecutive bytecode instructions from the same source line are merged into a single source-level span.
 
 **Result**: 3-5 source-level spans, each labeled with a proof lifecycle role and annotated with the register state change.
 
-**Coverage**: 63% of 241 cases have BTF source annotations. For cases without BTF, OBLIGE falls back to bytecode-level spans (instruction indices only).
+**Coverage**: 63% of 241 cases have BTF source annotations. For cases without BTF, BPFix falls back to bytecode-level spans (instruction indices only).
 
 ### 3.6 Diagnostic Rendering (~0.5 pages)
 
@@ -257,7 +257,7 @@ Two output formats, same information:
 
 **Human-readable (Rust-style)**: Multi-span output modeled on Rust compiler diagnostics:
 ```
-error[OBLIGE-E005]: lowering_artifact — packet access with lost bounds proof
+error[BPFIX-E005]: lowering_artifact — packet access with lost bounds proof
   --> xdp_prog.c
    |
 38 |     if (data + ext_len <= data_end) {
@@ -277,7 +277,7 @@ error[OBLIGE-E005]: lowering_artifact — packet access with lost bounds proof
 
 **Structured JSON**: Machine-readable format for CI/CD integration, LLM consumption, and programmatic analysis. Contains error_id, taxonomy_class, proof_status, array of spans with roles, obligation predicate, notes, and help text.
 
-**Figure 5**: Side-by-side comparison of raw verifier output (~30 lines of trace) vs. OBLIGE Rust-style output (~15 lines, 3 labeled spans) for the same failure.
+**Figure 5**: Side-by-side comparison of raw verifier output (~30 lines of trace) vs. BPFix Rust-style output (~15 lines, 3 labeled spans) for the same failure.
 
 ---
 
@@ -287,11 +287,11 @@ error[OBLIGE-E005]: lowering_artifact — packet access with lost bounds proof
 
 | # | Question | Section |
 |---|----------|---------|
-| Q1 | Does OBLIGE produce diagnostics reliably at scale? | 4.1 |
-| Q2 | How much of the trace does OBLIGE actually analyze (obligation coverage)? | 4.2 |
-| Q3 | Do OBLIGE's source spans cover the actual fix locations? | 4.3 |
-| Q4 | Do OBLIGE diagnostics improve LLM-assisted repair? | 4.4 |
-| Q5 | How does OBLIGE compare to existing tools? | 4.5 |
+| Q1 | Does BPFix produce diagnostics reliably at scale? | 4.1 |
+| Q2 | How much of the trace does BPFix actually analyze (obligation coverage)? | 4.2 |
+| Q3 | Do BPFix's source spans cover the actual fix locations? | 4.3 |
+| Q4 | Do BPFix diagnostics improve LLM-assisted repair? | 4.4 |
+| Q5 | How does BPFix compare to existing tools? | 4.5 |
 | Q6 | What is the runtime overhead? | 4.6 |
 
 ### 4.1 Corpus and Methodology (~0.5 pages)
@@ -313,7 +313,7 @@ error[OBLIGE-E005]: lowering_artifact — packet access with lost bounds proof
 
 ### 4.2 Batch Reliability and Coverage (Q1, Q2) (~0.75 pages)
 
-**Experiment**: Run OBLIGE on all 241 eval_commit cases end-to-end.
+**Experiment**: Run BPFix on all 241 eval_commit cases end-to-end.
 
 **Table 4**: Batch evaluation results.
 
@@ -328,7 +328,7 @@ error[OBLIGE-E005]: lowering_artifact — packet access with lost bounds proof
 | Proof-lost span identified | 82/241 (34.0%) |
 | Unknown taxonomy | 2/241 (0.8%) |
 
-**Claim**: OBLIGE is reliable (zero crashes on 241 cases) and produces meaningful proof lifecycle analysis for the majority of cases. Obligation coverage of 60% reflects honest scope -- the remaining 40% involve obligation families not yet modeled (e.g., complex callback protocols, iterator state machines).
+**Claim**: BPFix is reliable (zero crashes on 241 cases) and produces meaningful proof lifecycle analysis for the majority of cases. Obligation coverage of 60% reflects honest scope -- the remaining 40% involve obligation families not yet modeled (e.g., complex callback protocols, iterator state machines).
 
 **Evidence**: `eval/batch_proof_engine_eval.py`, `docs/tmp/batch-diagnostic-eval.md`.
 
@@ -343,9 +343,9 @@ error[OBLIGE-E005]: lowering_artifact — packet access with lost bounds proof
 
 ### 4.3 Span Coverage (Q3) (~0.5 pages)
 
-**Question**: Do OBLIGE's source spans actually point to where the developer needs to make changes?
+**Question**: Do BPFix's source spans actually point to where the developer needs to make changes?
 
-**Methodology**: For cases with known fixes, check whether any OBLIGE span (proof_established, proof_lost, rejected) overlaps with the actual fix location (file + line range from the commit diff).
+**Methodology**: For cases with known fixes, check whether any BPFix span (proof_established, proof_lost, rejected) overlaps with the actual fix location (file + line range from the commit diff).
 
 **Results**:
 - Overall: 101/263 evaluable cases (38%) have span overlap with fix location
@@ -359,11 +359,11 @@ error[OBLIGE-E005]: lowering_artifact — packet access with lost bounds proof
 
 ### 4.4 LLM Repair Experiment (Q4) (~0.75 pages)
 
-**Experiment design**: A/B comparison. Same LLM (GPT-4), same buggy code, same verifier log. Condition A: raw verifier log only. Condition B: raw log + OBLIGE Rust-style diagnostic.
+**Experiment design**: A/B comparison. Same LLM (GPT-4), same buggy code, same verifier log. Condition A: raw verifier log only. Condition B: raw log + BPFix Rust-style diagnostic.
 
 **Table 5**: A/B repair experiment results (30 cases).
 
-| Metric | Condition A (raw log) | Condition B (raw + OBLIGE) | Delta |
+| Metric | Condition A (raw log) | Condition B (raw + BPFix) | Delta |
 |--------|:---------------------:|:--------------------------:|:-----:|
 | Overall repair success | 10/30 (33%) | 10/30 (33%) | 0 |
 | **Lowering artifact** | **0/4 (0%)** | **1/4 (25%)** | **+25pp** |
@@ -371,24 +371,24 @@ error[OBLIGE-E005]: lowering_artifact — packet access with lost bounds proof
 | Root-cause localization | 3/30 (10%) | 5/30 (17%) | +7pp |
 | Semantic correctness | 2/30 (7%) | 4/30 (13%) | +7pp |
 
-**Key finding**: The headline numbers are flat overall, but the *per-class* results tell the story. On lowering artifacts -- the class where raw error messages are most misleading -- OBLIGE diagnostics enable repair that raw logs cannot. The source_bug regression in v1 was traced to a specific parsing issue (now fixed; v2 experiment pending).
+**Key finding**: The headline numbers are flat overall, but the *per-class* results tell the story. On lowering artifacts -- the class where raw error messages are most misleading -- BPFix diagnostics enable repair that raw logs cannot. The source_bug regression in v1 was traced to a specific parsing issue (now fixed; v2 experiment pending).
 
-**Claim (scoped)**: OBLIGE diagnostics are most valuable for the hardest cases -- lowering artifacts where the error message actively misleads the developer (and the LLM). We do NOT claim OBLIGE helps across all failure classes equally.
+**Claim (scoped)**: BPFix diagnostics are most valuable for the hardest cases -- lowering artifacts where the error message actively misleads the developer (and the LLM). We do NOT claim BPFix helps across all failure classes equally.
 
 **Evidence**: `eval/repair_experiment.py`, `eval/results/repair_experiment_results.json`.
 
 ### 4.5 Comparison with Pretty Verifier (Q5) (~0.5 pages)
 
-**Table 6**: OBLIGE vs Pretty Verifier on 30 manually labeled cases.
+**Table 6**: BPFix vs Pretty Verifier on 30 manually labeled cases.
 
-| Metric | Pretty Verifier | OBLIGE |
+| Metric | Pretty Verifier | BPFix |
 |--------|:--------------:|:------:|
 | Overall classification | 19/30 (63%) | 25/30 (83%) |
 | Lowering artifact detection | 1/6 (17%) | 4/6 (67%) |
 | Root-cause localization | 0/30 (0%) | 12/30 (40%) |
 | Crash-free operation | 22/30 (73%) | 30/30 (100%) |
 
-**Key distinction**: Pretty Verifier processes 1 line (the error message) with 91 regex patterns. OBLIGE processes the entire state trace (~500 lines) with formal predicate tracking. This is not a marginal improvement on the same approach -- it is a fundamentally different level of analysis.
+**Key distinction**: Pretty Verifier processes 1 line (the error message) with 91 regex patterns. BPFix processes the entire state trace (~500 lines) with formal predicate tracking. This is not a marginal improvement on the same approach -- it is a fundamentally different level of analysis.
 
 **Evidence**: `docs/tmp/pretty-verifier-comparison.md`.
 
@@ -404,7 +404,7 @@ error[OBLIGE-E005]: lowering_artifact — packet access with lost bounds proof
 | Max | 116 ms |
 | Pct < 50ms | 96.3% |
 
-OBLIGE adds negligible overhead to the development workflow. For comparison, a single LLM API call takes 1-10 seconds.
+BPFix adds negligible overhead to the development workflow. For comparison, a single LLM API call takes 1-10 seconds.
 
 **Evidence**: `docs/tmp/latency-benchmark-report.md`.
 
@@ -418,20 +418,20 @@ Full walkthrough of a case where:
 - Source code has `if (data + len <= data_end)` -- correct bounds check
 - LLVM lowers `htons()` using OR/shift, which destroys scalar bounds in verifier state
 - Verifier rejects with "unbounded min value" -- which sounds like a missing bounds check
-- OBLIGE identifies: proof established at the `if` (line 38), proof lost at the `htons` lowering (line 42, OR instruction), rejected at the access (line 45)
+- BPFix identifies: proof established at the `if` (line 38), proof lost at the `htons` lowering (line 42, OR instruction), rejected at the access (line 45)
 - Correct fix: add explicit scalar clamp after byte swap (not another bounds check)
 
-Show OBLIGE output (Rust-style) alongside the relevant trace excerpt.
+Show BPFix output (Rust-style) alongside the relevant trace excerpt.
 
 ### 5.2 Case Study: Source Bug -- Missing Null Check (~0.5 pages)
 
 Contrast case: a genuine source bug where the proof was *never established*.
 - `bpf_map_lookup_elem` returns `map_value_or_null`
 - Developer dereferences without null check
-- OBLIGE: proof obligation is `reg.type != map_value_or_null`; predicate is *never satisfied* in the trace; diagnosis = source_bug
-- OBLIGE diagnostic correctly says "proof never established" and recommends "add null check after map lookup"
+- BPFix: proof obligation is `reg.type != map_value_or_null`; predicate is *never satisfied* in the trace; diagnosis = source_bug
+- BPFix diagnostic correctly says "proof never established" and recommends "add null check after map lookup"
 
-This case shows OBLIGE correctly distinguishes "proof lost" (lowering artifact) from "proof never established" (source bug) -- which raw error messages cannot.
+This case shows BPFix correctly distinguishes "proof lost" (lowering artifact) from "proof never established" (source bug) -- which raw error messages cannot.
 
 ---
 
@@ -440,14 +440,14 @@ This case shows OBLIGE correctly distinguishes "proof lost" (lowering artifact) 
 ### 6.1 Scope and Honest Limitations
 
 - **60% obligation coverage**: 10 obligation families cover 60% of cases. The remaining 40% include complex protocol violations (iterator state machines, dynptr protocols, callback contexts) that require richer state machine modeling. This is an engineering limitation, not a fundamental one.
-- **BTF dependency**: 63% of cases have BTF annotations. Without BTF, OBLIGE produces bytecode-level spans (instruction indices) instead of source-level spans. This degrades human readability but not the underlying analysis.
+- **BTF dependency**: 63% of cases have BTF annotations. Without BTF, BPFix produces bytecode-level spans (instruction indices) instead of source-level spans. This degrades human readability but not the underlying analysis.
 - **Manual label set size**: 30 manually labeled cases is small. We mitigate with the 241-case batch evaluation (no manual labels needed for reliability/coverage metrics) and 591-commit production analysis.
 - **No cross-kernel evaluation yet**: Verifier output format varies across kernel versions. We have not yet evaluated stability across versions (feasibility study shows it is possible but requires QEMU infrastructure).
 - **LLM repair experiment is preliminary**: 30 cases, v1 results. The source_bug regression was traced to a parsing bug (now fixed). Full v2 experiment pending.
 
 ### 6.2 Upstream Potential
 
-- OBLIGE's error IDs and structured JSON could become a kernel-side structured diagnostic output (libbpf integration)
+- BPFix's error IDs and structured JSON could become a kernel-side structured diagnostic output (libbpf integration)
 - The proof obligation catalog could inform verifier error message improvements
 - Rust-style rendering could be integrated into `bpftool` or IDE plugins
 
@@ -457,32 +457,32 @@ This case shows OBLIGE correctly distinguishes "proof lost" (lowering artifact) 
 
 ### 7.1 eBPF Verifier Complexity and Developer Pain
 
-- **Nelson et al. (HotOS '23)**: "Kernel extension verification is untenable" -- argues verifier complexity is a fundamental problem. OBLIGE addresses the symptom (bad diagnostics) not the cause (verifier complexity).
+- **Nelson et al. (HotOS '23)**: "Kernel extension verification is untenable" -- argues verifier complexity is a fundamental problem. BPFix addresses the symptom (bad diagnostics) not the cause (verifier complexity).
 - **Deokar et al. (eBPF '24)**: Studies 743 SO questions, finds 19.3% are verifier-related. Quantifies pain but proposes no tool.
-- **Rex (ATC '25)**: Analyzes 72 verifier workaround commits from 3 projects. Retrospective classification; OBLIGE automates the diagnosis at failure time. Our 591-commit analysis extends Rex's methodology.
+- **Rex (ATC '25)**: Analyzes 72 verifier workaround commits from 3 projects. Retrospective classification; BPFix automates the diagnosis at failure time. Our 591-commit analysis extends Rex's methodology.
 
 ### 7.2 Diagnostic Tools
 
-- **Pretty Verifier (2025, GitHub, unpublished)**: 91 regex patterns on the error message line. Single-span, no trace analysis, no root-cause localization. Crashes on 27% of our corpus. OBLIGE operates on a fundamentally different input (full trace vs. error line).
+- **Pretty Verifier (2025, GitHub, unpublished)**: 91 regex patterns on the error message line. Single-span, no trace analysis, no root-cause localization. Crashes on 27% of our corpus. BPFix operates on a fundamentally different input (full trace vs. error line).
 - **ebpf-verifier-errors (community)**: Crowdsourced collection of verifier logs with fixes. Manual curation, no automated analysis.
 
 ### 7.3 LLM-Based eBPF Tools
 
-- **Kgent (SIGCOMM '24)**: Feeds raw verifier text to LLM in a repair loop. Limited by unstructured input. OBLIGE could serve as Kgent's diagnostic front-end.
+- **Kgent (SIGCOMM '24)**: Feeds raw verifier text to LLM in a repair loop. Limited by unstructured input. BPFix could serve as Kgent's diagnostic front-end.
 - **Agni (EuroSys '24)**: LLM-based eBPF program generation. Orthogonal (generation vs. diagnosis).
 - **K2 (SIGCOMM '23)**: Synthesis-based eBPF optimization. Different problem (optimization vs. diagnosis).
 
 ### 7.4 Program Analysis Diagnostics
 
-- **Rust borrow checker diagnostics**: Direct inspiration for OBLIGE's multi-span output format. Rust pioneered the idea that a static analysis rejection should show multiple source locations with causal roles.
+- **Rust borrow checker diagnostics**: Direct inspiration for BPFix's multi-span output format. Rust pioneered the idea that a static analysis rejection should show multiple source locations with causal roles.
 - **ebpf-se (ICSE '25)**: Symbolic execution of eBPF programs. Complementary approach (dynamic analysis vs. static trace analysis).
-- **Model checking counterexample analysis**: OBLIGE's proof lifecycle reconstruction is analogous to counterexample explanation in model checking, but applied to abstract interpretation traces rather than concrete counterexamples.
+- **Model checking counterexample analysis**: BPFix's proof lifecycle reconstruction is analogous to counterexample explanation in model checking, but applied to abstract interpretation traces rather than concrete counterexamples.
 
 ---
 
 ## 8. Conclusion (0.2 pages)
 
-The eBPF verifier already computes and emits everything needed to understand why a program is rejected. OBLIGE demonstrates that meta-analysis of this abstract interpretation output -- tracking formal predicates over verifier state to reconstruct proof lifecycle -- enables Rust-quality multi-span diagnostics that distinguish root causes from symptoms and lowering artifacts from source bugs. As eBPF programs grow in complexity and the gap between source-level intent and bytecode-level proof widens, structured proof trace analysis will become essential infrastructure.
+The eBPF verifier already computes and emits everything needed to understand why a program is rejected. BPFix demonstrates that meta-analysis of this abstract interpretation output -- tracking formal predicates over verifier state to reconstruct proof lifecycle -- enables Rust-quality multi-span diagnostics that distinguish root causes from symptoms and lowering artifacts from source bugs. As eBPF programs grow in complexity and the gap between source-level intent and bytecode-level proof widens, structured proof trace analysis will become essential infrastructure.
 
 ---
 
@@ -492,23 +492,23 @@ The eBPF verifier already computes and emits everything needed to understand why
 
 | # | Description | Section | Type |
 |---|-------------|---------|------|
-| F1 | Three-panel motivating example: raw error vs. Pretty Verifier vs. OBLIGE | 1.1 | Full-width example |
+| F1 | Three-panel motivating example: raw error vs. Pretty Verifier vs. BPFix | 1.1 | Full-width example |
 | F2 | eBPF pipeline with proof information flow annotations | 2.1 | Architecture diagram |
 | F3 | Annotated LOG_LEVEL2 trace excerpt | 2.2 | Code listing with annotations |
-| F4 | OBLIGE architecture (5-stage pipeline) | 3.1 | Architecture diagram |
-| F5 | Side-by-side: raw trace vs. OBLIGE Rust-style output | 3.6 | Split code listing |
+| F4 | BPFix architecture (5-stage pipeline) | 3.1 | Architecture diagram |
+| F5 | Side-by-side: raw trace vs. BPFix Rust-style output | 3.6 | Split code listing |
 | F6 | Span coverage breakdown by source and taxonomy class | 4.3 | Bar chart |
 
 ### Tables (7)
 
 | # | Description | Section | Data source |
 |---|-------------|---------|-------------|
-| T1 | Feature comparison: Raw / PV / LLM / OBLIGE | 2.3 | Analysis |
+| T1 | Feature comparison: Raw / PV / LLM / BPFix | 2.3 | Analysis |
 | T2 | Proof obligation families (10 families) | 3.3 | obligation_catalog.yaml |
 | T3 | Evaluation corpus summary | 4.1 | Case corpus |
 | T4 | Batch evaluation results (241 cases) | 4.2 | batch_proof_engine_eval.py |
 | T5 | A/B repair experiment results | 4.4 | repair_experiment.py |
-| T6 | OBLIGE vs Pretty Verifier (30 cases) | 4.5 | pretty-verifier-comparison.md |
+| T6 | BPFix vs Pretty Verifier (30 cases) | 4.5 | pretty-verifier-comparison.md |
 | T7 | Runtime latency | 4.6 | latency-benchmark-report.md |
 
 ---
@@ -527,7 +527,7 @@ The eBPF verifier already computes and emits everything needed to understand why
 | 64% production commits are workarounds | 591-commit analysis | HAVE |
 | 86% span coverage on manual subset | span coverage eval | HAVE |
 | 5-class taxonomy validated | 30 manual labels, kappa=0.652 | HAVE |
-| OBLIGE distinguishes source_bug from lowering_artifact | predicate tracking proof lifecycle | HAVE (case studies) |
+| BPFix distinguishes source_bug from lowering_artifact | predicate tracking proof lifecycle | HAVE (case studies) |
 | No cross-kernel stability evaluation | -- | NOT YET |
 | v2 repair experiment (source_bug regression fixed) | -- | NOT YET |
 | Information compression (500 lines -> 3-5 spans) qualitative expert eval | -- | NOT YET |
@@ -536,12 +536,12 @@ The eBPF verifier already computes and emits everything needed to understand why
 
 ## Writing Strategy Notes
 
-1. **Lead with the lowering artifact story**: This is OBLIGE's strongest differentiator. The motivating example, the key evaluation finding (+25pp), and the 64% production workaround statistic all reinforce the same narrative: developers are systematically misled by error messages that name the symptom, not the cause.
+1. **Lead with the lowering artifact story**: This is BPFix's strongest differentiator. The motivating example, the key evaluation finding (+25pp), and the 64% production workaround statistic all reinforce the same narrative: developers are systematically misled by error messages that name the symptom, not the cause.
 
-2. **Formal predicates, not heuristics**: Emphasize that OBLIGE evaluates machine-checkable predicates derived from the verifier's type system, not pattern-matching on state changes. This is the key novelty over both regex-based tools (Pretty Verifier) and LLM-based approaches (Kgent).
+2. **Formal predicates, not heuristics**: Emphasize that BPFix evaluates machine-checkable predicates derived from the verifier's type system, not pattern-matching on state changes. This is the key novelty over both regex-based tools (Pretty Verifier) and LLM-based approaches (Kgent).
 
 3. **Be honest about coverage**: 60% obligation coverage is a strength, not a weakness, if framed correctly. "We cover 10 obligation families; here is the explicit list. The remaining 40% require richer protocol modeling." Reviewers respect honesty and explicit scope boundaries.
 
 4. **LLM repair is secondary**: Present it as "one application of structured diagnostics" rather than "the point of the paper." The core contribution is the diagnostic technique itself.
 
-5. **Rust analogy is a hook, not a crutch**: Use it in the intro and conclusion. Do not overuse it in the technical sections. The connection is: both Rust and OBLIGE analyze a static checker's rejection and produce multi-span source-level diagnostics with causal labels. The techniques are completely different.
+5. **Rust analogy is a hook, not a crutch**: Use it in the intro and conclusion. Do not overuse it in the technical sections. The connection is: both Rust and BPFix analyze a static checker's rejection and produce multi-span source-level diagnostics with causal labels. The techniques are completely different.

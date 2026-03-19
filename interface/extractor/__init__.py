@@ -1,4 +1,4 @@
-"""Extractor entry points for OBLIGE."""
+"""Extractor entry points for BPFix."""
 
 from __future__ import annotations
 

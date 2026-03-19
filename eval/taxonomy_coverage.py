@@ -301,19 +301,19 @@ RECOMMENDATION_RULES: list[tuple[str, str, str, str, list[str]]] = [
 EXPANSION_RULES: list[tuple[str, str, str, list[str]]] = [
     (
         r"unreleased reference",
-        "OBLIGE-E004",
+        "BPFIX-E004",
         "Expand E004 to match shorter `Unreleased reference` forms without an explicit `id=` suffix.",
         [r"Unreleased reference(?: id=\d+)?"],
     ),
     (
         r"invalid (?:indirect )?read from stack",
-        "OBLIGE-E003",
+        "BPFIX-E003",
         "Expand E003 to cover both `invalid indirect read from stack` and the shorter `invalid read from stack` wording.",
         [r"invalid (?:indirect )?read from stack"],
     ),
     (
         r"invalid mem access '(?:map_value_or_null|mem_or_null)'",
-        "OBLIGE-E002",
+        "BPFIX-E002",
         "Expand E002 to include nullable memory aliases beyond `map_value_or_null`.",
         [
             r"invalid mem access 'map_value_or_null'",
@@ -322,7 +322,7 @@ EXPANSION_RULES: list[tuple[str, str, str, list[str]]] = [
     ),
     (
         r"math between .* pointer and register with unbounded|(?:min|max)? value is outside of the allowed memory range",
-        "OBLIGE-E005",
+        "BPFIX-E005",
         "Broaden E005 to catch scalar-range failures currently phrased as allowed-memory-range violations.",
         [
             r"math between .* pointer and register with unbounded.*",
@@ -331,7 +331,7 @@ EXPANSION_RULES: list[tuple[str, str, str, list[str]]] = [
     ),
     (
         r"program of this type cannot use helper|helper call is not allowed|unknown func",
-        "OBLIGE-E009",
+        "BPFIX-E009",
         "Expand E009 to cover helper restrictions phrased in program-type-specific wording.",
         [
             r"program of this type cannot use helper .*",
@@ -805,7 +805,7 @@ def make_report(
     for short_name, payload in sorted_recommendations:
         recommendations.append(
             {
-                "proposed_error_id": f"OBLIGE-E{next_id:03d}",
+                "proposed_error_id": f"BPFIX-E{next_id:03d}",
                 "short_name": short_name,
                 "taxonomy_class": payload["taxonomy_class"],
                 "title": payload["title"],

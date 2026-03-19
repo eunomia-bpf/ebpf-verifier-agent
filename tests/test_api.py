@@ -36,7 +36,7 @@ def test_build_diagnostic_emits_schema_valid_payload() -> None:
     assert diagnostic["case_id"] == "so-70750259"
     assert diagnostic["kernel_release"] == "6.8.0-test"
     assert diagnostic["failure_class"] == "lowering_artifact"
-    assert diagnostic["error_id"] == "OBLIGE-E005"
+    assert diagnostic["error_id"] == "BPFIX-E005"
 
 
 def test_load_schema_matches_packaged_schema_file() -> None:

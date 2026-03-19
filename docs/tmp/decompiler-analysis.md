@@ -1,4 +1,4 @@
-# eBPF Decompiler / Disassembly Analysis for OBLIGE
+# eBPF Decompiler / Disassembly Analysis for BPFix
 
 - Local check: `which bpftool` -> `/usr/local/sbin/bpftool`
 - Local version: `bpftool v7.7.0` (`libbpf v1.7`)
@@ -16,14 +16,14 @@
   `ebpf-disasm`, `rbpf`, and GoBPFLD expose disassembly / decoding functionality.
   I did not find a mature standalone BPF-to-C decompiler beyond Ghidra's decompiler path.
 
-## Relevance to OBLIGE
+## Relevance to BPFix
 
-- For OBLIGE's main path, original source files are not required if the verbose verifier log already contains BTF source annotations.
+- For BPFix's main path, original source files are not required if the verbose verifier log already contains BTF source annotations.
 - The parser treats `; ... @ file:line` lines as source annotations and attaches them to subsequent instructions.
   See `interface/extractor/trace_parser.py`.
 - Proof events are then correlated back to source spans via those inline annotations.
   See `interface/extractor/source_correlator.py`.
-- If no source annotation is available, OBLIGE already falls back to bytecode-level spans (`<bytecode>`), rather than failing.
+- If no source annotation is available, BPFix already falls back to bytecode-level spans (`<bytecode>`), rather than failing.
   This behavior is implemented in `source_correlator.py` and exercised in `tests/test_renderer.py`.
 - If even the trace is too sparse, `rust_diagnostic.py` synthesizes a placeholder rejected span from the verifier headline/error text.
 
@@ -33,9 +33,9 @@
 - In the kernel-upgrade failure case, the interesting artifact is usually a program that now fails during `BPF_PROG_LOAD`, so there may be no loaded program ID to dump on the new kernel.
 - Practical workflow:
   1. Re-run the production loader on the target kernel with verbose verifier logging enabled and capture the full verifier log.
-  2. Feed that log to OBLIGE.
-  3. If BTF line annotations are present, OBLIGE can localize the failure without source files.
-  4. If annotations are absent, OBLIGE still produces bytecode-indexed spans.
+  2. Feed that log to BPFix.
+  3. If BTF line annotations are present, BPFix can localize the failure without source files.
+  4. If annotations are absent, BPFix still produces bytecode-indexed spans.
   5. Use `bpftool dump xlated linum` only as a supplemental view for a successfully loaded reference instance (old kernel, staging, or another host), not as the primary artifact for the failed load.
   6. Use Ghidra only when no useful verifier log is available and offline object-file reverse engineering is necessary.
 
@@ -44,16 +44,16 @@
 - Both rely on BTF `line_info`.
 - `bpftool dump xlated linum` gives a static translated-instruction listing plus source/filename/line metadata.
 - Verifier logs give the same kind of source anchors, but also include abstract register state, control-flow context, and the actual rejection/error text.
-- For OBLIGE, verifier logs are strictly more valuable than `bpftool` dumps because OBLIGE reasons over verifier state transitions, not just instruction listings.
+- For BPFix, verifier logs are strictly more valuable than `bpftool` dumps because BPFix reasons over verifier state transitions, not just instruction listings.
 
 ## Recommendation for the paper
 
 - Decompiler integration is probably not worth implementing as a core paper feature.
-- The main reason is that OBLIGE already handles the no-source case in the most relevant deployment mode:
+- The main reason is that BPFix already handles the no-source case in the most relevant deployment mode:
   verbose verifier log with BTF annotations -> source spans;
   no annotations -> bytecode spans.
 - `bpftool` is useful but only for already loaded programs, so it does not solve the key production failure mode by itself.
-- Ghidra is useful for offline reverse engineering, but it is heavyweight, manual, and orthogonal to OBLIGE's verifier-log-driven analysis.
+- Ghidra is useful for offline reverse engineering, but it is heavyweight, manual, and orthogonal to BPFix's verifier-log-driven analysis.
 - Best paper framing:
   treat decompiler / offline reverse-engineering support as future work or a deployment aid, not as part of the core contribution.
 

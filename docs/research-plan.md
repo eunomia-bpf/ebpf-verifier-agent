@@ -1,12 +1,12 @@
 # BPFix：计划与进度
 
-> **项目名称**：BPFix（原 OBLIGE）— Automated Diagnosis and Repair of eBPF Verifier Failures
+> **项目名称**：BPFix（原 BPFix）— Automated Diagnosis and Repair of eBPF Verifier Failures
 
 > ## **第一优先级：实现必须配得上 claims，不是降 claims 配实现。目标 OSDI/ATC。**
 >
 > Critical review (2026-03-13) 发现论文 claims 与代码严重脱节。方向不是降低 claims，而是**重新实现核心引擎**使其配得上 OSDI/ATC level 的 novelty。具体见 §10 Implementation Gap Closure Plan。
 
-> 本文档是 OBLIGE 项目的单一 hub。
+> 本文档是 BPFix 项目的单一 hub。
 > **编辑规则**：
 > - 任何 TODO/实验/文档引用条目被取代时，必须至少保留一行并标注状态，不得直接删除。
 > - 每个任务做完 → 立即更新本文档（任务条目状态 + 关键数据 + 文档路径）。
@@ -27,7 +27,7 @@
 - Formal engine comparison：v3→v4 +21 eligible cases, +21 causal chains, obligation 94.19%→94.27%
 - Per-language：C 274 / Rust 21 / Go 7，全部成功
 - Paper：**9 pages**, **ACM SIGPLAN format**, **compiled**（`docs/paper/main.tex`）。6 个数字不一致待修
-- Title：`OBLIGE: Fast, Precise Root-Cause Diagnosis of eBPF Verification Failures`
+- Title：`BPFix: Fast, Precise Root-Cause Diagnosis of eBPF Verification Failures`
 - Framing：**abstract state transition analysis**（第四次调整）
 - 文件清理完成：deprecated files → `eval/results/deprecated/`, `eval/deprecated/`, `docs/tmp/deprecated/`
 - 新增：`value_lineage.py`, `Makefile`（根目录一键操作）
@@ -47,21 +47,21 @@
 
 > **当前 thesis**：
 > eBPF verifier 的 LOG_LEVEL2 trace 是完整的 proof attempt 记录（per-instruction abstract state）。
-> OBLIGE 从 BPF ISA specification（opcode byte）推断 rejection 处的 safety condition，
+> BPFix 从 BPF ISA specification（opcode byte）推断 rejection 处的 safety condition，
 > 然后通过 **(1) 全局监控该 condition 的 proof lifecycle** 和 **(2) 从 rejection 点的 backward slice** 交叉比较，精确定位 root cause 并分类 failure mode：
 > - Establishment_global ∩ Slice ≠ ∅ → proof 在 causal chain 上建立后被破坏 → **established_then_lost**
 > - Establishment_global ≠ ∅ 但 ∩ Slice = ∅ → proof 存在但编译器断开了连接 → **lowering_artifact**
 > - Establishment_global = ∅ → 从未有任何 register 满足 condition → **source_bug**
 >
-> 在此诊断基础上，OBLIGE 合成修复并通过 verifier oracle 验证，实现端到端自动化修复。
+> 在此诊断基础上，BPFix 合成修复并通过 verifier oracle 验证，实现端到端自动化修复。
 >
 > **Safety condition 推断是 ISA-driven**（opcode byte → required property），不是 error message pattern matching（Pretty Verifier 的 91 regex 做法）。Opcode 是 ABI 稳定的，跨 kernel 版本不变。
 >
 > 纯 userspace，不需要改 kernel。
 
-**OBLIGE 输出示例**：
+**BPFix 输出示例**：
 ```
-error[OBLIGE-E005]: lowering_artifact — packet access with lost bounds proof
+error[BPFIX-E005]: lowering_artifact — packet access with lost bounds proof
   ┌─ xdp_prog.c
    │
 38 │     if (data + ext_len <= data_end) {
@@ -97,7 +97,7 @@ unbounded min value is not allowed
 
 **已有**：per-instruction register state (type/bounds/offset/range/var_off)、BTF source lines、backtracking annotations、control flow merge points
 
-**缺失的（OBLIGE 要提取的）**：
+**缺失的（BPFix 要提取的）**：
 1. Critical state transition — 在哪条指令 proof 丢失了（上例：insn 22 的 OR）
 2. Causal chain — 从 error point 反向追溯到 root cause instruction
 3. Source mapping — critical transition 对应源码哪一行
@@ -110,14 +110,14 @@ unbounded min value is not allowed
 |------|------|----------|----------|
 | Pretty Verifier (GitHub tool, 未发表) | error message 那一行 | regex 匹配 + source mapping | 不分析 state trace，跨版本 break |
 | Model checking counterexample analysis | counterexample trace | 提取 property violation 原因 | 不适用于 eBPF abstract interpreter |
-| **OBLIGE** | **完整 verifier state trace** | **state transition analysis + causal chain** | — |
+| **BPFix** | **完整 verifier state trace** | **state transition analysis + causal chain** | — |
 
 #### 论文逻辑链条（2026-03-18 更新）
 
 1. **Context + Problem (Para 1)**: eBPF critical → verifier rejection = 500-line trace → last line = symptom, root cause buried 30-500 lines earlier
 2. **Evidence + Why existing fails (Para 2)**: 591 commits → 63.6% 是 proof-reshaping workarounds（根因是 verifier over-approximation）。修复需要知道 proof *在哪里*断了。PV regex on final line; LLMs treat as text; neither finds the state transition that broke the proof
 3. **Key insight (Para 3)**: Verifier trace = proof attempt record。从 ISA spec 推断 safety condition，全局监控其 proof lifecycle，backward slice 找 causal chain，交叉比较判定 failure mode。Cross-analysis 能区分 source_bug、lowering_artifact、established_then_lost
-4. **Example (Para 4)**: Figure 1 — bounds check established on R5 (line 3), but LLVM uses R3 for access → proof exists but not on causal chain → lowering_artifact。OBLIGE 诊断 + 合成修复 + verifier oracle 验证
+4. **Example (Para 4)**: Figure 1 — bounds check established on R5 (line 3), but LLVM uses R3 for access → proof exists but not on causal chain → lowering_artifact。BPFix 诊断 + 合成修复 + verifier oracle 验证
 5. **System + Results + Contributions (Para 5)**: Cross-analysis classification + end-to-end repair pipeline + evaluation
 
 ### 1.2 Novelty（2026-03-18 第五次调整）
@@ -131,7 +131,7 @@ unbounded min value is not allowed
 
 **与 Pretty Verifier 的本质差异**：
 - Pretty Verifier：parse **1 行** error message（91 regex）→ 1 个 enhanced text + 1 个建议
-- OBLIGE：parse **500 行** state trace → cross-analysis classification + **多个源码位置** + 因果链 + 合成修复
+- BPFix：parse **500 行** state trace → cross-analysis classification + **多个源码位置** + 因果链 + 合成修复
 
 **Safety condition 的角色（诚实说明）**：
 - Safety condition 从 BPF ISA specification（opcode byte + helper signature table）推断，是 Layer 2 的**显式输入**
@@ -261,7 +261,7 @@ Layer 4: REPAIR（主要 novelty，待实现 #66-#68）
 
 ### 3.2 Error Catalog
 
-当前 23 个 stable error IDs（OBLIGE-E001 ~ E023），覆盖率 87.1%（263/302）。
+当前 23 个 stable error IDs（BPFIX-E001 ~ E023），覆盖率 87.1%（263/302）。
 
 | ID | Short Name | Class | Matches | 典型 verifier message |
 |----|-----------|-------|:---:|----------------------|
@@ -309,7 +309,7 @@ BTF source lines：
 42: (bf) r3 = r1
 ```
 
-### 3.4 OBLIGE 输出格式示例
+### 3.4 BPFix 输出格式示例
 
 **Pipeline**：raw verifier log → 5 步 → Rust-style multi-span output
 
@@ -346,7 +346,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 **Structured JSON**（供 LLM/CI 消费）：
 ```json
 {
-  "error_id": "OBLIGE-E005",
+  "error_id": "BPFIX-E005",
   "taxonomy_class": "lowering_artifact",
   "proof_status": "established_then_lost",
   "spans": [
@@ -430,7 +430,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 - Type error messages: Marceau, Morrisett, Findler (OOPSLA 2011)
 - Program slicing: Weiser (1981) — 已引用但需更明确
 
-与 OBLIGE 的区分：vs CEGAR（不 refine abstraction）、vs SFL（单 trace 不需多 trace）、vs SNIPER/BugAssist（CFG slicing 不是 MAX-SAT）
+与 BPFix 的区分：vs CEGAR（不 refine abstraction）、vs SFL（单 trace 不需多 trace）、vs SNIPER/BugAssist（CFG slicing 不是 MAX-SAT）
 
 ---
 
@@ -467,7 +467,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 
 - **B1**: `raw_verbose_log` — 原始 verifier LOG_LEVEL2 verbose output（500-1000+ 行）
 - **B2**: `pretty_verifier` — PV 的 1 行 error + 1 条 suggestion（existing tool baseline）
-- **B3**: `oblige_diagnostic` — OBLIGE Rust-style multi-span output
+- **B3**: `bpfix_diagnostic` — BPFix Rust-style multi-span output
 
 ### 5.4 Eval 脚本使用方式
 
@@ -479,7 +479,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | 直接运行 | `eval/span_coverage_eval.py` | span 覆盖 fix location | `eval/results/span_coverage_results.json` |
 | 直接运行 | `eval/root_cause_validation.py` | proof_lost vs diff | `eval/results/root_cause_validation.json` |
 | 直接运行 | `eval/taxonomy_coverage.py` | catalog 覆盖率 | `eval/results/taxonomy_coverage.json` |
-| 直接运行 | `eval/pretty_verifier_comparison.py` | raw PV vs OBLIGE | `eval/results/pretty_verifier_comparison.json` |
+| 直接运行 | `eval/pretty_verifier_comparison.py` | raw PV vs BPFix | `eval/results/pretty_verifier_comparison.json` |
 | `make eval-repair-20b` | `eval/repair_experiment_v3.py` | A/B repair (本地 20B) | `eval/results/repair_experiment_results_v3.json` |
 
 **Batch eval 流程**: case YAML → extract verifier_log → `generate_diagnostic()` → record results JSON。注意：batch eval **不比较** ground truth，只生成诊断结果；ground truth 对比在下游脚本中。
@@ -488,7 +488,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 
 | 维度 | Condition A | Condition B |
 |------|-------------|-------------|
-| 输入 | buggy code + raw verifier log | buggy code + raw log + OBLIGE diagnostic |
+| 输入 | buggy code + raw verifier log | buggy code + raw log + BPFix diagnostic |
 | LLM 任务 | 生成修复代码 | 生成修复代码 |
 | 测量 | verifier pass rate, fix-type accuracy, root-cause targeting | 同左 |
 | 关键预测 | lowering_artifact: A 在 symptom site patch（错） | B 在 root cause site 修复（对） |
@@ -509,8 +509,8 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | 1 | Repo scaffold + CLAUDE.md | ✅ | `CLAUDE.md` |
 | 2 | 文献综述 | ✅ | `docs/tmp/literature-survey.md` |
 | 3 | Taxonomy 定义（5 classes） | ✅ | `taxonomy/taxonomy.yaml` |
-| 4 | Error catalog（23 IDs, 两轮扩展） | ✅ | OBLIGE-E001~E023, 87.1% coverage. `taxonomy/error_catalog.yaml`, `docs/tmp/catalog-expansion-round2-report.md` |
-| 5 | Obligation catalog | ✅ | OBLIGE-O001~O023. `taxonomy/obligation_catalog.yaml` |
+| 4 | Error catalog（23 IDs, 两轮扩展） | ✅ | BPFIX-E001~E023, 87.1% coverage. `taxonomy/error_catalog.yaml`, `docs/tmp/catalog-expansion-round2-report.md` |
+| 5 | Obligation catalog | ✅ | BPFIX-O001~O023. `taxonomy/obligation_catalog.yaml` |
 | 6 | 诊断 JSON schema | ✅ | `interface/schema/diagnostic.json` |
 | 7 | Log parser | ✅ | catalog-backed error line selection. `interface/extractor/log_parser.py` |
 | 8 | Case collectors（3 scripts） | ✅ | `case_study/collect_{stackoverflow,kernel_selftests,github_issues}.py` |
@@ -544,7 +544,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | 36 | **Backward slice (data + control dep)** | ✅ | Weiser 1981 on trace CFG. `engine/slicer.py`. commit `dd975e4` |
 | 37 | **Pipeline: remove heuristics from critical path** | ✅ | taxonomy/proof_status from engine only. commit `77848f9`. `docs/tmp/heuristic-removal-2026-03-18.md` |
 | 38 | **Transition analyzer** | ✅ | per-instruction NARROWING/WIDENING/DESTROYING. `engine/transition_analyzer.py` |
-| 39 | PV comparison (30 cases) | ✅ | OBLIGE 25/30 vs PV 19/30; root-cause 12/30 vs 0/30. `docs/tmp/pretty-verifier-comparison.md` |
+| 39 | PV comparison (30 cases) | ✅ | BPFix 25/30 vs PV 19/30; root-cause 12/30 vs 0/30. `docs/tmp/pretty-verifier-comparison.md` |
 | 40 | LLM classification experiment | ✅ | 所有条件 95%+, confirms classification ≠ contribution. `docs/tmp/llm-multi-model-experiment.md` |
 | 41 | Cross-log stability | ✅ | 20/33 stable, 12/33 id-stable. `docs/tmp/cross-log-stability-analysis.md` |
 | 42 | Batch diagnostic eval (v3, 241 cases; 已被新引擎取代) | ✅ 需重跑 | 241/241 成功. `docs/tmp/batch-diagnostic-eval-v3.md`, `docs/tmp/batch-diagnostic-eval.md` (v1, historical) |

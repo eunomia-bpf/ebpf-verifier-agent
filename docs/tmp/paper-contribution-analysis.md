@@ -1,10 +1,10 @@
-# Paper Contribution Analysis for OBLIGE
+# Paper Contribution Analysis for BPFix
 
 Date: 2026-03-11
 
 ## Bottom line
 
-As of 2026-03-11, **OBLIGE is not OSDI/SOSP-worthy if the core claim is “we parse existing verbose logs into a nicer structure.”** That is useful engineering, but it is too close to post-processing prior art, especially now that Pretty Verifier is both public and published.
+As of 2026-03-11, **BPFix is not OSDI/SOSP-worthy if the core claim is “we parse existing verbose logs into a nicer structure.”** That is useful engineering, but it is too close to post-processing prior art, especially now that Pretty Verifier is both public and published.
 
 The project becomes interesting at a top systems level only if the paper is framed around a stronger claim:
 
@@ -40,7 +40,7 @@ Implication:
 - The good news is that Pretty Verifier appears to operate on the **final error line plus source/object metadata**, not on the **full instruction-by-instruction abstract-state trace**.
 - So your differentiator is real only if you show that **whole-trace analysis recovers root causes that message-line tools cannot**.
 
-If the paper does not show that difference clearly, reviewers will collapse OBLIGE into “Pretty Verifier with more regexes.”
+If the paper does not show that difference clearly, reviewers will collapse BPFix into “Pretty Verifier with more regexes.”
 
 ### 2. Rex already makes the motivation argument
 
@@ -218,7 +218,7 @@ Minimum:
 3. Compare:
    - raw final error message
    - Pretty Verifier
-   - OBLIGE full-trace analysis
+   - BPFix full-trace analysis
 4. Measure:
    - source localization accuracy
    - obligation specificity
@@ -273,10 +273,10 @@ Required design:
 4. Strong baselines:
    - raw log
    - Pretty Verifier-style enhanced message
-   - OBLIGE error ID only
-   - OBLIGE source span only
-   - OBLIGE source span + critical transition
-   - OBLIGE full causal chain
+   - BPFix error ID only
+   - BPFix source span only
+   - BPFix source span + critical transition
+   - BPFix full causal chain
 5. Per-taxonomy breakdown.
 
 ### OSDI-worthiness
@@ -407,7 +407,7 @@ This path needs a gold-standard evaluation on the rich-log subset.
 Must-have measurements:
 
 1. **Root-cause localization accuracy**
-   - final error site vs OBLIGE root-cause site
+   - final error site vs BPFix root-cause site
    - bytecode instruction and source-line accuracy
 2. **Critical transition accuracy**
    - does the recovered transition match expert annotation?
@@ -422,7 +422,7 @@ Must-have measurements:
    - show source-level intent is reasonable but bytecode proof is lost later
 6. **Cross-kernel stability**
    - same failing cause across kernels
-   - raw messages drift, OBLIGE error IDs stay stable
+   - raw messages drift, BPFix error IDs stay stable
 
 ### OSDI-worthiness
 
@@ -480,7 +480,7 @@ That is more honest and probably more publishable than trying to force one parse
 
 Use this:
 
-> **The eBPF verifier already emits enough low-level proof-state to explain many rejections, but the information is buried in flat instruction traces. OBLIGE recovers stable obligation-level and source-level root causes by analyzing verifier proof traces across the source/bytecode boundary.**
+> **The eBPF verifier already emits enough low-level proof-state to explain many rejections, but the information is buried in flat instruction traces. BPFix recovers stable obligation-level and source-level root causes by analyzing verifier proof traces across the source/bytecode boundary.**
 
 Do **not** use this:
 
@@ -521,7 +521,7 @@ For each rich-log case:
 
 This is the core evidence needed for E.
 
-### 2. Raw log vs Pretty Verifier vs OBLIGE
+### 2. Raw log vs Pretty Verifier vs BPFix
 
 This comparison is mandatory.
 
@@ -543,7 +543,7 @@ Measure:
 
 - final error text variability
 - trace field variability
-- OBLIGE error-ID stability
+- BPFix error-ID stability
 - consumer robustness
 
 This is where you can support the important claim that register-state structure is more stable than free-text messages.
@@ -556,7 +556,7 @@ These are the highest-value cases because they are where:
 - final verifier message is often misleading
 - a causal chain actually matters
 
-If OBLIGE cannot shine here, the cross-layer story weakens sharply.
+If BPFix cannot shine here, the cross-layer story weakens sharply.
 
 ### 5. Repair evaluation with semantic oracle
 
@@ -584,11 +584,11 @@ Then you also need:
 
 Best current title:
 
-**OBLIGE: Recovering Root Causes from eBPF Verifier Proof Traces**
+**BPFix: Recovering Root Causes from eBPF Verifier Proof Traces**
 
 Best stretch title:
 
-**OBLIGE: Obligation-Oriented Diagnostics for eBPF Verifier Failures**
+**BPFix: Obligation-Oriented Diagnostics for eBPF Verifier Failures**
 
 Fallback measurement-heavy title:
 
@@ -596,7 +596,7 @@ Fallback measurement-heavy title:
 
 ## Abstract sketch
 
-The eBPF verifier is the kernel’s admission controller for safe extensibility, but its diagnostic interface is a flat verbose log whose final error message often reports only the symptom of rejection. We observe that, for a substantial subset of failures, `LOG_LEVEL2` already contains the verifier’s instruction-level abstract-state evolution, source annotations, and backtracking hints; what is missing is not information, but structure. We present OBLIGE, a cross-layer diagnostic system that analyzes verifier proof traces to recover critical state transitions, backward causal chains, and source-level root causes. Across a corpus of real-world verifier failures and verifier-fix commits, we show that message-line diagnostics and prior post-processors leave many root causes unresolved, especially for lowering artifacts and language-verifier mismatches, while proof-trace analysis recovers stable obligation-level diagnoses that transfer better across kernels. OBLIGE improves root-cause localization and downstream repair effectiveness for both developers and automated repair agents. Our results suggest that the eBPF verifier bottleneck is increasingly an interface problem: the verifier already computes much of the needed evidence, but exposes it as unstable flat text rather than structured failure semantics.
+The eBPF verifier is the kernel’s admission controller for safe extensibility, but its diagnostic interface is a flat verbose log whose final error message often reports only the symptom of rejection. We observe that, for a substantial subset of failures, `LOG_LEVEL2` already contains the verifier’s instruction-level abstract-state evolution, source annotations, and backtracking hints; what is missing is not information, but structure. We present BPFix, a cross-layer diagnostic system that analyzes verifier proof traces to recover critical state transitions, backward causal chains, and source-level root causes. Across a corpus of real-world verifier failures and verifier-fix commits, we show that message-line diagnostics and prior post-processors leave many root causes unresolved, especially for lowering artifacts and language-verifier mismatches, while proof-trace analysis recovers stable obligation-level diagnoses that transfer better across kernels. BPFix improves root-cause localization and downstream repair effectiveness for both developers and automated repair agents. Our results suggest that the eBPF verifier bottleneck is increasingly an interface problem: the verifier already computes much of the needed evidence, but exposes it as unstable flat text rather than structured failure semantics.
 
 ## Honest venue assessment
 
@@ -637,7 +637,7 @@ That is still a good paper. It is just probably not an OSDI/SOSP paper.
 If the goal is the strongest paper from the current assets, I would do this:
 
 1. Lock the paper thesis to **cross-layer proof-trace diagnosis**.
-2. Build a gold-labeled rich-log subset and evaluate OBLIGE against Pretty Verifier and raw logs.
+2. Build a gold-labeled rich-log subset and evaluate BPFix against Pretty Verifier and raw logs.
 3. Replay a subset across kernels for stability.
 4. Keep LLM repair as secondary evidence.
 5. Decide after that whether the results justify a push toward:

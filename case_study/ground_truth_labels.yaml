@@ -1,6 +1,6 @@
 metadata:
   generated: '2026-03-13'
-  description: Ground truth taxonomy labels for OBLIGE evaluation
+  description: Ground truth taxonomy labels for BPFix evaluation
   total_cases: 292
   by_source:
     manual: 30
@@ -108,22 +108,22 @@ cases:
   taxonomy: lowering_artifact
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E005'
+  notes: 'manually labeled; error_id: BPFIX-E005'
 - case_id: github-aya-rs-aya-1233
   taxonomy: env_mismatch
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E009'
+  notes: 'manually labeled; error_id: BPFIX-E009'
 - case_id: github-aya-rs-aya-864
   taxonomy: env_mismatch
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E009'
+  notes: 'manually labeled; error_id: BPFIX-E009'
 - case_id: github-cilium-cilium-35182
   taxonomy: env_mismatch
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E021'
+  notes: 'manually labeled; error_id: BPFIX-E021'
 - case_id: github-cilium-cilium-41412
   taxonomy: verifier_limit
   source: manual
@@ -138,102 +138,102 @@ cases:
   taxonomy: verifier_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E010'
+  notes: 'manually labeled; error_id: BPFIX-E010'
 - case_id: kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda
   taxonomy: verifier_limit
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E018'
+  notes: 'manually labeled; error_id: BPFIX-E018'
 - case_id: kernel-selftest-async-stack-depth-pseudo-call-check-tc-320d654d
   taxonomy: verifier_limit
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E018'
+  notes: 'manually labeled; error_id: BPFIX-E018'
 - case_id: kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E015'
+  notes: 'manually labeled; error_id: BPFIX-E015'
 - case_id: kernel-selftest-cpumask-failure-test-populate-invalid-destination-tp-btf-task-newtask-2aa0585a
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E023'
+  notes: 'manually labeled; error_id: BPFIX-E023'
 - case_id: kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E019'
+  notes: 'manually labeled; error_id: BPFIX-E019'
 - case_id: kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E019'
+  notes: 'manually labeled; error_id: BPFIX-E019'
 - case_id: kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E019'
+  notes: 'manually labeled; error_id: BPFIX-E019'
 - case_id: kernel-selftest-exceptions-fail-reject-subprog-with-lock-tc-f038a1b8
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E013'
+  notes: 'manually labeled; error_id: BPFIX-E013'
 - case_id: kernel-selftest-iters-state-safety-destroy-without-creating-fail-raw-tp-a14b4d3a
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E014'
+  notes: 'manually labeled; error_id: BPFIX-E014'
 - case_id: kernel-selftest-iters-state-safety-leak-iter-from-subprog-fail-raw-tp-65737a09
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E004'
+  notes: 'manually labeled; error_id: BPFIX-E004'
 - case_id: kernel-selftest-iters-state-safety-read-from-iter-slot-fail-raw-tp-812dc246
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E003'
+  notes: 'manually labeled; error_id: BPFIX-E003'
 - case_id: stackoverflow-56872436
   taxonomy: verifier_limit
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E008'
+  notes: 'manually labeled; error_id: BPFIX-E008'
 - case_id: stackoverflow-61945212
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E023'
+  notes: 'manually labeled; error_id: BPFIX-E023'
 - case_id: stackoverflow-69767533
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E003'
+  notes: 'manually labeled; error_id: BPFIX-E003'
 - case_id: stackoverflow-70091221
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E023'
+  notes: 'manually labeled; error_id: BPFIX-E023'
 - case_id: stackoverflow-70750259
   taxonomy: lowering_artifact
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E005'
+  notes: 'manually labeled; error_id: BPFIX-E005'
 - case_id: stackoverflow-73088287
   taxonomy: lowering_artifact
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E005'
+  notes: 'manually labeled; error_id: BPFIX-E005'
 - case_id: stackoverflow-74178703
   taxonomy: lowering_artifact
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E005'
+  notes: 'manually labeled; error_id: BPFIX-E005'
 - case_id: stackoverflow-76160985
   taxonomy: lowering_artifact
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E005'
+  notes: 'manually labeled; error_id: BPFIX-E005'
 - case_id: stackoverflow-76441958
   taxonomy: env_mismatch
   source: manual
@@ -243,17 +243,17 @@ cases:
   taxonomy: source_bug
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E023'
+  notes: 'manually labeled; error_id: BPFIX-E023'
 - case_id: stackoverflow-78753911
   taxonomy: verifier_limit
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E007'
+  notes: 'manually labeled; error_id: BPFIX-E007'
 - case_id: stackoverflow-79530762
   taxonomy: lowering_artifact
   source: manual
   confidence: high
-  notes: 'manually labeled; error_id: OBLIGE-E005'
+  notes: 'manually labeled; error_id: BPFIX-E005'
 - case_id: kernel-selftest-cgroup-read-xattr-use-css-iter-sleepable-missing-rcu-lock-lsm-s-socket-connect-7dc81f79
   taxonomy: source_bug
   source: selftest_auto

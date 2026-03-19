@@ -4,16 +4,16 @@
 
 I screened several corpus candidates and fully closed the local reject -> diagnose -> repair -> pass loop for `stackoverflow-70760516`.
 
-This case is a good proof-of-concept for OBLIGE's repair pipeline because:
+This case is a good proof-of-concept for BPFix's repair pipeline because:
 
 - it has a real verifier log and full source in the corpus YAML;
-- the current OBLIGE diagnostic classifies it as `lowering_artifact` with `proof_status=established_then_lost`;
+- the current BPFix diagnostic classifies it as `lowering_artifact` with `proof_status=established_then_lost`;
 - a small source-level repair based on the accepted Stack Overflow answer makes the program pass the verifier on this machine.
 
 Important caveat:
 
 - the corpus ground-truth file currently auto-labels `stackoverflow-70760516` as `source_bug`;
-- the current OBLIGE pipeline, the accepted answer, and the local verifier behavior all support a loop-carried proof-loss interpretation instead.
+- the current BPFix pipeline, the accepted answer, and the local verifier behavior all support a loop-carried proof-loss interpretation instead.
 
 I also checked `stackoverflow-73088287`, which is manually labeled `lowering_artifact`, but on this machine's `6.15.11` kernel the buggy standalone repro loaded successfully, so it could not serve as the local reject/pass pilot even though it is still a useful taxonomy example.
 
@@ -24,9 +24,9 @@ I also checked `stackoverflow-73088287`, which is manually labeled `lowering_art
 - `stackoverflow-70750259`
   - canonical TLS-extension case;
   - manually labeled `lowering_artifact`;
-  - current OBLIGE result: `never_established`, so it is a "should be established_then_lost" candidate, not the cleanest local pilot.
+  - current BPFix result: `never_established`, so it is a "should be established_then_lost" candidate, not the cleanest local pilot.
 - `stackoverflow-79530762`
-  - current OBLIGE result: `established_then_lost`;
+  - current BPFix result: `established_then_lost`;
   - strong diagnostic, but the YAML has no `source_snippets`, so it is weaker for a write-up anchored in the corpus file itself.
 - `stackoverflow-73088287`
   - manually labeled `lowering_artifact`;
@@ -37,7 +37,7 @@ I also checked `stackoverflow-73088287`, which is manually labeled `lowering_art
 
 - real verifier log in the corpus YAML;
 - full source in `source_snippets`;
-- current OBLIGE output is already `established_then_lost`;
+- current BPFix output is already `established_then_lost`;
 - accepted answer provides a concrete repair strategy;
 - I reproduced verifier rejection locally and verified a repaired variant passes locally.
 
@@ -72,7 +72,7 @@ The failure is not "forgot to bounds-check before dereference". The problem is t
 
 The accepted answer explains the same core issue in terms of accumulated `umax_value`: repeated `data += ext_len` causes the verifier's worst-case packet offset to exceed the packet-offset tracking budget, and the next `ext->type` read is rejected.
 
-That is exactly the kind of "proof existed in source structure, but the verifier-visible proof was lost after lowering / loop normalization / value tracking" situation OBLIGE is meant to repair conservatively.
+That is exactly the kind of "proof existed in source structure, but the verifier-visible proof was lost after lowering / loop normalization / value tracking" situation BPFix is meant to repair conservatively.
 
 ## Corpus Verifier Error
 
@@ -85,7 +85,7 @@ invalid access to packet, off=90 size=1, R0(id=22,off=90,r=0)
 R0 offset is outside of the packet
 ```
 
-## OBLIGE Diagnostic On The Corpus Log
+## BPFix Diagnostic On The Corpus Log
 
 Command used:
 
@@ -107,7 +107,7 @@ PY
 Result:
 
 ```text
-error[OBLIGE-E001]: lowering_artifact — proof established, then lost before rejection
+error[BPFIX-E001]: lowering_artifact — proof established, then lost before rejection
   ┌─ <source>
   │
 12 │     if (data_end < (data + sizeof(struct extension))) {
@@ -234,7 +234,7 @@ end:
 
 ### Safety condition
 
-At the `ext->type` load, the verifier needs a proof that `ext` still points to a valid `struct extension` in packet memory. In OBLIGE's terms, the missing obligation is:
+At the `ext->type` load, the verifier needs a proof that `ext` still points to a valid `struct extension` in packet memory. In BPFix's terms, the missing obligation is:
 
 ```text
 R0: off + 1 <= range
@@ -311,7 +311,7 @@ Verify:
 
 ```bash
 sudo -n bpftool -d prog load /tmp/repair-pilot-70760516-buggy.o \
-  /sys/fs/bpf/oblige70760516_buggy type xdp
+  /sys/fs/bpf/bpfix70760516_buggy type xdp
 ```
 
 Result:
@@ -343,7 +343,7 @@ Verify:
 
 ```bash
 sudo -n bpftool -d prog load /tmp/repair-pilot-70760516-fixed.o \
-  /sys/fs/bpf/oblige70760516_fixed type xdp
+  /sys/fs/bpf/bpfix70760516_fixed type xdp
 ```
 
 Result:
@@ -399,9 +399,9 @@ for (int i = 0; i < MAX_EXTENSIONS; i++) {
 }
 ```
 
-This is conservative, but it is exactly the sort of source-level "clamp and restructure" repair that is practical for OBLIGE to synthesize.
+This is conservative, but it is exactly the sort of source-level "clamp and restructure" repair that is practical for BPFix to synthesize.
 
-## What OBLIGE Would Need To Synthesize Automatically
+## What BPFix Would Need To Synthesize Automatically
 
 For this case, a viable automatic repair policy would be:
 
@@ -413,7 +413,7 @@ For this case, a viable automatic repair policy would be:
    - an explicit cumulative remaining-budget variable.
 5. Clamp each per-iteration extension length before it is added to the cursor.
 
-The conservative repair OBLIGE could synthesize first is the one I verified:
+The conservative repair BPFix could synthesize first is the one I verified:
 
 - add `MAX_EXTENSIONS`;
 - add `MAX_EXTENSION_BYTES`;
@@ -427,7 +427,7 @@ A more semantics-preserving second-generation repair would track `remaining = ex
 
 ### What is proven
 
-- OBLIGE can identify a real packet-bounds proof-loss case from the corpus as `established_then_lost`.
+- BPFix can identify a real packet-bounds proof-loss case from the corpus as `established_then_lost`.
 - A simple source-level repair exists.
 - A repaired standalone translation of the case passes the verifier on this machine.
 

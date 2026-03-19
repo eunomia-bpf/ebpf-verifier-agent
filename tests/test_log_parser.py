@@ -36,9 +36,9 @@ def test_parse_log_prefers_specific_rejection_over_source_comment() -> None:
     )
 
     assert dynptr.error_line == "the prog does not allow writes to packet data"
-    assert dynptr.error_id == "OBLIGE-E019"
+    assert dynptr.error_id == "BPFIX-E019"
     assert irq.error_line == "expected uninitialized irq flag as arg#0"
-    assert irq.error_id == "OBLIGE-E020"
+    assert irq.error_id == "BPFIX-E020"
 
 
 def test_parse_log_prefers_specific_libbpf_reason_over_wrapper_and_summary() -> None:
@@ -50,9 +50,9 @@ def test_parse_log_prefers_specific_libbpf_reason_over_wrapper_and_summary() -> 
     )
 
     assert func_info.error_line == "number of funcs in func_info doesn't match number of subprogs"
-    assert func_info.error_id == "OBLIGE-E021"
+    assert func_info.error_id == "BPFIX-E021"
     assert "failed to find kernel BTF type ID" in kernel_btf.error_line
-    assert kernel_btf.error_id == "OBLIGE-E021"
+    assert kernel_btf.error_id == "BPFIX-E021"
 
 
 def test_parse_log_catalog_covers_round2_unknown_taxonomy_patterns() -> None:
@@ -81,12 +81,12 @@ def test_parse_log_catalog_covers_round2_unknown_taxonomy_patterns() -> None:
         _load_verifier_log("case_study/cases/github_issues/github-aya-rs-aya-1490.yaml")
     )
 
-    assert dynptr_slice.error_id == "OBLIGE-E005"
-    assert dynptr_const.error_id == "OBLIGE-E019"
-    assert pkt_end.error_id == "OBLIGE-E006"
-    assert ctx.error_id == "OBLIGE-E023"
-    assert comparison.error_id == "OBLIGE-E023"
-    assert btf_invalid_name.error_id == "OBLIGE-E021"
+    assert dynptr_slice.error_id == "BPFIX-E005"
+    assert dynptr_const.error_id == "BPFIX-E019"
+    assert pkt_end.error_id == "BPFIX-E006"
+    assert ctx.error_id == "BPFIX-E023"
+    assert comparison.error_id == "BPFIX-E023"
+    assert btf_invalid_name.error_id == "BPFIX-E021"
 
 
 def test_parse_log_prefers_selected_error_line_for_catalog_seed() -> None:
@@ -103,6 +103,6 @@ def test_parse_log_prefers_selected_error_line_for_catalog_seed() -> None:
     )
 
     assert dynptr_unknown.error_line == "Expected an initialized dynptr as arg #0"
-    assert dynptr_unknown.error_id == "OBLIGE-E012"
+    assert dynptr_unknown.error_id == "BPFIX-E012"
     assert dynptr_unknown.taxonomy_class == "source_bug"
     assert dynptr_unknown.catalog_confidence == "high"

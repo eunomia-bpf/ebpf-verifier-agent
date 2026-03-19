@@ -670,7 +670,7 @@ The current output tells the user "a proof exists but is insufficient," which is
 Current output:
 
 - taxonomy: `lowering_artifact`
-- error id: `OBLIGE-E005`
+- error id: `BPFIX-E005`
 - proof status: `never_established`
 - spans: one rejected placeholder span
 - help: `Restructure lowering so the verifier can preserve the earlier proof across the transformed code`

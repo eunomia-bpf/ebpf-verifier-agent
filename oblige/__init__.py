@@ -1,4 +1,4 @@
-"""User-facing API for OBLIGE."""
+"""User-facing API for BPFix."""
 
 from __future__ import annotations
 

@@ -2,7 +2,7 @@
 
 ## Bottom Line
 
-OBLIGE is no longer a toy parser. It now has a real, technically interesting proof-analysis core, a sizable corpus, a working multi-stage diagnostic pipeline, and enough evidence to support a focused paper. It is **not** ready for a broad ATC/EuroSys/ASPLOS submission under the current full-story framing.
+BPFix is no longer a toy parser. It now has a real, technically interesting proof-analysis core, a sizable corpus, a working multi-stage diagnostic pipeline, and enough evidence to support a focused paper. It is **not** ready for a broad ATC/EuroSys/ASPLOS submission under the current full-story framing.
 
 The implementation is ahead of the evaluation. The strongest current paper is a narrower one: **trace-based diagnosis of verifier proof loss, especially lowering-artifact cases, with structured multi-span diagnostics**. The weakest current story is the broad “all verifier failures + LLM repair improvement” claim.
 
@@ -66,7 +66,7 @@ Note on evidence quality:
   - It evaluates predicate atoms over trace state.
   - It finds a transition witness.
   - It builds a bounded backward slice.
-- On trace-sensitive cases, especially lowering artifacts, OBLIGE has real differentiation from Pretty Verifier:
+- On trace-sensitive cases, especially lowering artifacts, BPFix has real differentiation from Pretty Verifier:
   - Manual 30-case PV comparison reports `25/30` vs `19/30` overall.
   - Root-cause localization was `12/30` vs `0/30`.
   - The advantage is concentrated where the final verifier line is only a symptom.
@@ -117,7 +117,7 @@ But the reviewer-grade caveat is important:
 
 - It is novel **for the obligation families it actually supports**.
 - It is **not yet the dominant behavior of the whole system**.
-- With `42.3%` obligation coverage, the current implementation does not justify a broad claim that “OBLIGE performs formal proof-trace analysis for eBPF verifier failures” in general.
+- With `42.3%` obligation coverage, the current implementation does not justify a broad claim that “BPFix performs formal proof-trace analysis for eBPF verifier failures” in general.
 - Do not hide behind “Pretty Verifier is unpublished.” Reviewers will treat it as real prior art anyway.
 
 My honest verdict:
@@ -128,10 +128,10 @@ My honest verdict:
 
 ### Defensible paper claims
 
-- OBLIGE shows that existing `LOG_LEVEL2` verifier traces contain enough information to build structured, multi-span diagnostics in userspace, without kernel patches.
-- For supported failure families, OBLIGE performs obligation-tracked proof-trace analysis over verifier state traces rather than only matching the final rejection line.
-- OBLIGE can identify earlier proof-establish / proof-loss / reject sites and convert them into Rust-style labeled spans.
-- On trace-sensitive cases, especially lowering artifacts, OBLIGE provides better root-cause localization than line-oriented prior tooling such as Pretty Verifier.
+- BPFix shows that existing `LOG_LEVEL2` verifier traces contain enough information to build structured, multi-span diagnostics in userspace, without kernel patches.
+- For supported failure families, BPFix performs obligation-tracked proof-trace analysis over verifier state traces rather than only matching the final rejection line.
+- BPFix can identify earlier proof-establish / proof-loss / reject sites and convert them into Rust-style labeled spans.
+- On trace-sensitive cases, especially lowering artifacts, BPFix provides better root-cause localization than line-oriented prior tooling such as Pretty Verifier.
 - Structured diagnostics appear promising as machine-consumable repair input, but the current evidence supports this only as a **class-conditional, preliminary** finding.
 
 ### Claims that are still overstated
@@ -142,28 +142,28 @@ My honest verdict:
   - Current support is still a subset, not a full verifier-semantic model.
 - “General multi-span diagnosis for verifier failures.”
   - Many cases are correctly one-span; many others remain unsupported or under-specified.
-- “OBLIGE improves repair.”
+- “BPFix improves repair.”
   - Current A/B does not show overall improvement and does not measure actual verifier success.
 
-### What OBLIGE does that Pretty Verifier, Rex, and Kgent do not
+### What BPFix does that Pretty Verifier, Rex, and Kgent do not
 
 Against Pretty Verifier:
 
 - Pretty Verifier is line-oriented and handler/regex driven on the final error line, with optional object-file-based source mapping.
-- OBLIGE parses the full verifier state trace, extracts earlier proof-relevant transitions, and emits structured multi-span diagnostics plus JSON.
+- BPFix parses the full verifier state trace, extracts earlier proof-relevant transitions, and emits structured multi-span diagnostics plus JSON.
 - The strongest concrete delta is not “nicer wording”; it is recovering an earlier proof-loss/root-cause site when the rejection line is only a symptom.
 
 Against Rex:
 
 - Rex studies verifier workaround commits and argues the language-verifier gap; it does not diagnose arbitrary verifier failures in existing codebases.
-- OBLIGE’s distinct contribution is diagnostic infrastructure for existing eBPF workflows, not a new verifier-friendly language.
-- The clean positioning is: **Rex explains why these failures exist; OBLIGE explains an individual failure instance**.
+- BPFix’s distinct contribution is diagnostic infrastructure for existing eBPF workflows, not a new verifier-friendly language.
+- The clean positioning is: **Rex explains why these failures exist; BPFix explains an individual failure instance**.
 
 Against Kgent:
 
 - Kgent uses raw verifier output as prompt feedback inside an LLM loop.
-- OBLIGE changes the feedback substrate itself by producing structured, source-linked, machine-consumable diagnostics.
-- The clean positioning is: **Kgent is a consumer of verifier feedback; OBLIGE is a producer of richer verifier feedback**.
+- BPFix changes the feedback substrate itself by producing structured, source-linked, machine-consumable diagnostics.
+- The clean positioning is: **Kgent is a consumer of verifier feedback; BPFix is a producer of richer verifier feedback**.
 
 ## 3. Evaluation Gaps
 
@@ -173,7 +173,7 @@ Against Kgent:
   - `241/241` eligible logged cases succeed.
   - This shows the system is stable enough to evaluate.
 - PV comparison on the manual 30-case set:
-  - OBLIGE beats Pretty Verifier overall and clearly on lowering artifacts/root-cause localization.
+  - BPFix beats Pretty Verifier overall and clearly on lowering artifacts/root-cause localization.
   - This is still one of the best current pieces of evidence.
 - Span coverage evaluation:
   - Manual subset is encouraging (`12/14`).
@@ -246,7 +246,7 @@ If you want one evaluation that most improves reviewer confidence, it is this:
 
 - a gold-labeled, trace-rich subset
 - current proof engine active
-- PV vs raw log vs OBLIGE
+- PV vs raw log vs BPFix
 - root-cause localization + fix-type guidance + explanation sufficiency
 
 ## 4. Technical Debt
@@ -306,21 +306,21 @@ The three A-only wins that B turned into losses are:
 - `stackoverflow-70091221`
 - `stackoverflow-79045875`
 
-All three are source-bug/helper-contract style cases, and all three got generic `E023`-like OBLIGE messaging.
+All three are source-bug/helper-contract style cases, and all three got generic `E023`-like BPFix messaging.
 
 What happened:
 
-- `stackoverflow-61945212` looks like a real OBLIGE-induced regression: Condition A already had enough raw-log/source context to infer the queue-map API fix, while Condition B's generic reject-only `E023` framing pushed the model toward the wrong abstraction.
+- `stackoverflow-61945212` looks like a real BPFIX-induced regression: Condition A already had enough raw-log/source context to infer the queue-map API fix, while Condition B's generic reject-only `E023` framing pushed the model toward the wrong abstraction.
 - `stackoverflow-70091221` and `stackoverflow-79045875` are weaker evidence of true regression. In both cases, the B summaries are semantically close to the right source-bug family, but the experiment's fix-tag normalizer scored them as `other_refactor`.
 - So the honest answer is mixed: part diagnostic under-specificity, part evaluator brittleness.
 
 Case-specific pattern:
 
-- `61945212`: raw context pointed to the queue-map API issue; OBLIGE nudged the model toward a map declaration fix.
-- `70091221`: raw log exposed `map_value expected=map_ptr`; OBLIGE’s generic helper-arg note did not sharpen the answer, and the scorer likely under-credited a semantically similar map-declaration response.
-- `79045875`: the real issue is a stricter kfunc/type contract; OBLIGE’s reject-only generic advice did not help, and the scorer likely under-credited a semantically close pointer-type fix.
+- `61945212`: raw context pointed to the queue-map API issue; BPFix nudged the model toward a map declaration fix.
+- `70091221`: raw log exposed `map_value expected=map_ptr`; BPFix’s generic helper-arg note did not sharpen the answer, and the scorer likely under-credited a semantically similar map-declaration response.
+- `79045875`: the real issue is a stricter kfunc/type contract; BPFix’s reject-only generic advice did not help, and the scorer likely under-credited a semantically close pointer-type fix.
 
-So the root cause is **under-specific helper/source-bug diagnostics plus brittle fix-type scoring**, not “source_bug is inherently bad for OBLIGE.”
+So the root cause is **under-specific helper/source-bug diagnostics plus brittle fix-type scoring**, not “source_bug is inherently bad for BPFix.”
 
 ### Path-insensitive backward slicing: does it matter?
 
@@ -354,7 +354,7 @@ Why this is first:
 Effort: `4-7 days`
 
 - Freeze a curated gold subset of trace-rich cases.
-- Re-evaluate raw log vs Pretty Verifier vs current OBLIGE.
+- Re-evaluate raw log vs Pretty Verifier vs current BPFix.
 - Measure root-cause span accuracy, fix-type guidance accuracy, and explanation sufficiency.
 
 Why this matters:
@@ -372,7 +372,7 @@ Effort: `3-5 days`
 
 Why:
 
-- This is the most obvious current “OBLIGE can mislead” failure mode.
+- This is the most obvious current “BPFix can mislead” failure mode.
 
 ### 4. Raise proof-engine coverage to at least 60% on the logged corpus
 
@@ -421,7 +421,7 @@ Why:
 
 - A tighter claim.
 - A current, consistent evaluation on the current engine.
-- One or two undeniable motivating cases where OBLIGE finds a root cause the headline-line tools miss.
+- One or two undeniable motivating cases where BPFix finds a root cause the headline-line tools miss.
 - Fewer broad claims, more sharply validated subset claims.
 
 ## 6. Paper Readiness Assessment
@@ -466,4 +466,4 @@ I would especially bias toward:
 
 If submitted now as “a general, novel proof-analysis framework for eBPF verifier failures that improves repair,” I would lean reject.
 
-If narrowed, cleaned up, and re-evaluated around the current proof-engine core and the classes where OBLIGE is genuinely better than headline-line tools, this can become a credible systems paper.
+If narrowed, cleaned up, and re-evaluated around the current proof-engine core and the classes where BPFix is genuinely better than headline-line tools, this can become a credible systems paper.

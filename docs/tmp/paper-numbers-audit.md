@@ -1,4 +1,4 @@
-# Paper Numbers Audit — OBLIGE `docs/paper/main.tex`
+# Paper Numbers Audit — BPFix `docs/paper/main.tex`
 
 **Audit date:** 2026-03-12
 **Auditor:** Claude (automated)
@@ -16,7 +16,7 @@
 | 4 | Corpus table Total BTF = **62.7%** | **65.6%** (172/262) in v4 data | DISCREPANCY | 787 |
 | 5 | Batch table: "Proof-established span 96/262 (36.6%)" | **112/262 (42.7%)** in v4 data | DISCREPANCY | 821 |
 | 6 | PV table: "Causal chain 96/262 (36.6%)" | 96 = `proof_established_then_lost` count, not backward-slicing chains | LABEL INCONSISTENCY | 939 |
-| 7 | "23 error IDs (OBLIGE-E001 through E023)" | **23 error IDs** confirmed | OK | 405, 711 |
+| 7 | "23 error IDs (BPFIX-E001 through E023)" | **23 error IDs** confirmed | OK | 405, 711 |
 | 8 | "94.3% obligation coverage" (247/262) | **247/262 = 94.27%** from v4 data | OK | 455, 818, 831 |
 | 9 | "BTF source correlation 172/262 (65.6%)" | **172/262 = 65.6%** confirmed | OK | 819 |
 | 10 | "27 ms median latency" | **26.977 ms** median (generate_diagnostic) | OK (rounds correctly) | 139, 287, 399, 969 |
@@ -26,12 +26,12 @@
 | 14 | Repair experiment: A=53/54 (98.1%), B=48/54 (88.9%) location | Confirmed from `repair-experiment-v2-results.md` | OK | 878 |
 | 15 | Repair experiment: A=46/54 (85.2%), B=43/54 (79.6%) fix-type | Confirmed from `repair-experiment-v2-results.md` | OK | 879 |
 | 16 | Lowering fix type: A=3/10 (30%), B=6/10 (60%), +30 pp | Confirmed from `repair-experiment-v2-results.md` | OK | 880 |
-| 17 | PV comparison: PV=19/30 (63%), OBLIGE=25/30 (83%) | Confirmed from `pretty-verifier-comparison.md` | OK | 928 |
-| 18 | Root-cause localization: PV=0/30 (0%), OBLIGE=12/30 (40%) | Confirmed from `pretty-verifier-comparison.md` | OK | 930 |
+| 17 | PV comparison: PV=19/30 (63%), BPFix=25/30 (83%) | Confirmed from `pretty-verifier-comparison.md` | OK | 928 |
+| 18 | Root-cause localization: PV=0/30 (0%), BPFix=12/30 (40%) | Confirmed from `pretty-verifier-comparison.md` | OK | 930 |
 | 19 | PV crashes on 28/262 (10.7%) | **28/262 = 10.7%** confirmed | OK | 953 |
 | 20 | PV recognized output 75/262 (28.6%) | **75/262 = 28.6%** confirmed | OK | 936 |
-| 21 | OBLIGE multi-span 113/262 (43.1%) | **113/262 = 43.1%** confirmed | OK | 938, 956 |
-| 22 | OBLIGE root-cause earlier 53/262 (20.2%) | **53/262 = 20.2%** confirmed | OK | 937, 957 |
+| 21 | BPFix multi-span 113/262 (43.1%) | **113/262 = 43.1%** confirmed | OK | 938, 956 |
+| 22 | BPFix root-cause earlier 53/262 (20.2%) | **53/262 = 20.2%** confirmed | OK | 937, 957 |
 | 23 | Batch table causal chain 21/262 (8.0%) | **21/262 = 8.02%** confirmed | OK | 823 |
 | 24 | All \cite{} keys present in references.bib | **16 citations, 16 bib entries, no missing/extra** | OK | throughout |
 
@@ -174,7 +174,7 @@ Causal chain  & 0/262 (0\%)  & 96/262 (36.6\%) \\
 
 **What the data actually shows:**
 - `21/262 (8.0%)` = cases with a real `mark_precise` backward-slicing causal chain in `diagnostic_json.metadata.causal_chain` (verified from v4 data).
-- `96/262 (36.6%)` = `oblige_causal_chain` field in `pv_comparison_expanded.json`, which equals `oblige_proof_established_then_lost` (also 96) — the count of cases with `proof_status == established_then_lost`, not backward-slicing chains.
+- `96/262 (36.6%)` = `bpfix_causal_chain` field in `pv_comparison_expanded.json`, which equals `bpfix_proof_established_then_lost` (also 96) — the count of cases with `proof_status == established_then_lost`, not backward-slicing chains.
 
 **Verdict:** The two tables use the same label ("Causal chain") for different quantities. Line 939's "96/262 (36.6%)" is actually the count of cases with a proof-established-then-lost transition (i.e., multi-span diagnostics showing where the proof was established and where it was lost), not backward-slicing dependency chains. This should be relabeled in the PV table to something like "Proof-loss transitions" or "Multi-span (established+lost)."
 
@@ -216,8 +216,8 @@ These claims were verified against actual data files and are accurate:
 | PV comparison 30 cases (19/30 vs 25/30) | `docs/tmp/pretty-verifier-comparison.md` |
 | PV crashes 28/262 (10.7%) | `eval/results/pv_comparison_expanded.json` |
 | PV recognized 75/262 (28.6%) | `eval/results/pv_comparison_expanded.json` |
-| OBLIGE multi-span 113/262 (43.1%) | `eval/results/pv_comparison_expanded.json` |
-| OBLIGE root-cause earlier 53/262 (20.2%) | `eval/results/pv_comparison_expanded.json` |
+| BPFix multi-span 113/262 (43.1%) | `eval/results/pv_comparison_expanded.json` |
+| BPFix root-cause earlier 53/262 (20.2%) | `eval/results/pv_comparison_expanded.json` |
 | Causal chain extracted 21/262 (8.0%) in batch table | `eval/results/batch_diagnostic_results_v4.json` |
 | Proof-lost span 96/262 (36.6%) | `eval/results/batch_diagnostic_results_v4.json` |
 | never_established 129/262 (49.2%) | `eval/results/batch_diagnostic_results_v4.json` |

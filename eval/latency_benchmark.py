@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Benchmark end-to-end OBLIGE diagnostic latency."""
+"""Benchmark end-to-end BPFix diagnostic latency."""
 
 from __future__ import annotations
 

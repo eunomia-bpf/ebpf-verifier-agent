@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Local LLM evaluation using llama.cpp's OpenAI-compatible server.
 
-Runs OBLIGE diagnostic evaluation on cases from batch_diagnostic_results_v4.json
-by sending the verifier log + OBLIGE diagnostic to a locally-served model and
+Runs BPFix diagnostic evaluation on cases from batch_diagnostic_results_v4.json
+by sending the verifier log + BPFix diagnostic to a locally-served model and
 asking it to classify the failure, identify the root cause, and suggest a fix.
 
 Usage:
@@ -58,7 +58,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 SYSTEM_PROMPT = (
     "You are an expert in Linux eBPF programs and the kernel BPF verifier. "
-    "Analyze verifier failures using both the raw verifier log and OBLIGE's "
+    "Analyze verifier failures using both the raw verifier log and BPFix's "
     "structured diagnostic. Provide a concise, concrete analysis. "
     "Respond with valid JSON only."
 )
@@ -186,7 +186,7 @@ def load_cases(cases_path: Path, max_cases: int | None) -> list[dict[str, Any]]:
     return eligible
 
 
-def build_prompt(case: dict[str, Any], include_oblige: bool = True) -> str:
+def build_prompt(case: dict[str, Any], include_bpfix: bool = True) -> str:
     """Build the evaluation prompt for a single case."""
     verifier_log = case.get("verifier_log", "") or ""
     # If the verifier_log is not in the diagnostic results JSON, note it
@@ -204,10 +204,10 @@ def build_prompt(case: dict[str, Any], include_oblige: bool = True) -> str:
         "```",
     ]
 
-    if include_oblige and diagnostic_text:
+    if include_bpfix and diagnostic_text:
         lines.extend([
             "",
-            "## OBLIGE Diagnostic Analysis",
+            "## BPFix Diagnostic Analysis",
             "```text",
             diagnostic_text,
             "```",
@@ -224,7 +224,7 @@ def build_prompt(case: dict[str, Any], include_oblige: bool = True) -> str:
 
 def build_prompt_with_log_from_yaml(
     case: dict[str, Any],
-    include_oblige: bool = True,
+    include_bpfix: bool = True,
 ) -> tuple[str, str]:
     """Build prompt by loading the verifier log from the YAML case file."""
     case_path = case.get("case_path", "")
@@ -269,10 +269,10 @@ def build_prompt_with_log_from_yaml(
         "```",
     ]
 
-    if include_oblige and diagnostic_text:
+    if include_bpfix and diagnostic_text:
         lines.extend([
             "",
-            "## OBLIGE Diagnostic Analysis",
+            "## BPFix Diagnostic Analysis",
             "```text",
             diagnostic_text,
             "```",
@@ -372,7 +372,7 @@ def evaluate_case(
     case: dict[str, Any],
     client: OpenAI,
     model_name: str,
-    include_oblige: bool,
+    include_bpfix: bool,
     load_log_from_yaml: bool,
     max_tokens: int,
 ) -> CaseEvalResult:
@@ -382,9 +382,9 @@ def evaluate_case(
     # Build prompt
     log_source = "diagnostic_json"
     if load_log_from_yaml:
-        prompt, log_source = build_prompt_with_log_from_yaml(case, include_oblige=include_oblige)
+        prompt, log_source = build_prompt_with_log_from_yaml(case, include_bpfix=include_bpfix)
     else:
-        prompt = build_prompt(case, include_oblige=include_oblige)
+        prompt = build_prompt(case, include_bpfix=include_bpfix)
 
     t0 = time.monotonic()
     raw_response, parsed, api_error, output_tokens = call_local_llm(
@@ -495,7 +495,7 @@ def save_results(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run OBLIGE diagnostic evaluation using a local llama.cpp server.",
+        description="Run BPFix diagnostic evaluation using a local llama.cpp server.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
@@ -540,9 +540,9 @@ def parse_args() -> argparse.Namespace:
         help="Do not start a llama-server subprocess; assume one is already running",
     )
     parser.add_argument(
-        "--no-oblige",
+        "--no-bpfix",
         action="store_true",
-        help="Send only the raw verifier log, without OBLIGE diagnostic (ablation condition)",
+        help="Send only the raw verifier log, without BPFix diagnostic (ablation condition)",
     )
     parser.add_argument(
         "--load-log-from-yaml",
@@ -653,8 +653,8 @@ def main() -> int:
         cleanup()
         return 1
 
-    include_oblige = not args.no_oblige
-    condition_label = "oblige" if include_oblige else "raw_log_only"
+    include_bpfix = not args.no_bpfix
+    condition_label = "bpfix" if include_bpfix else "raw_log_only"
     print(f"[eval] Condition: {condition_label}")
     print(f"[eval] Evaluating {len(cases)} cases...")
 
@@ -667,7 +667,7 @@ def main() -> int:
             case=case,
             client=client,
             model_name=model_name,
-            include_oblige=include_oblige,
+            include_bpfix=include_bpfix,
             load_log_from_yaml=args.load_log_from_yaml,
             max_tokens=args.max_tokens,
         )
@@ -703,7 +703,7 @@ def main() -> int:
         "ctx_size": args.ctx_size,
         "cases_path": str(cases_path),
         "max_cases": args.max_cases,
-        "include_oblige": include_oblige,
+        "include_bpfix": include_bpfix,
         "condition_label": condition_label,
         "load_log_from_yaml": args.load_log_from_yaml,
         "max_tokens": args.max_tokens,

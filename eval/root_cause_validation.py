@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Root-cause validation: verify that OBLIGE proof_lost spans point to actual fix locations.
+"""Root-cause validation: verify that BPFix proof_lost spans point to actual fix locations.
 
 For cases with known fixes (SO accepted answers, GitHub commits), the fix location tells us
-where the REAL root cause is. This script compares OBLIGE's proof_lost instruction/source
+where the REAL root cause is. This script compares BPFix's proof_lost instruction/source
 location against the ground-truth fix location to measure root-cause accuracy.
 """
 
@@ -74,7 +74,7 @@ class CaseRCResult:
     verifier_log_chars: int
     diagnostic_success: bool
     exception: str | None
-    # OBLIGE output
+    # BPFix output
     proof_status: str | None
     taxonomy_class: str | None
     proof_lost_spans: list[dict[str, Any]]
@@ -724,7 +724,7 @@ def write_markdown_report(
     lines.append("  AND (b) we have a before/after code diff.")
     lines.append("")
     lines.append("### What This Means for the Paper")
-    lines.append("- The backtracking rate shows OBLIGE successfully identifies the proof obligation")
+    lines.append("- The backtracking rate shows BPFix successfully identifies the proof obligation")
     lines.append("  that was lost BEFORE the rejection site — i.e., it's not just pointing at the")
     lines.append("  error line like most tools do.")
     lines.append("- Text token match provides a signal even without exact source lines.")

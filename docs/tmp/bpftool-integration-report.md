@@ -4,7 +4,7 @@ Date: 2026-03-12
 
 ## Scope
 
-Added optional support for `bpftool prog dump xlated linum` as a supplementary source-location input for OBLIGE. The goal was to preserve source correlation when verifier logs contain instruction traces but lack inline BTF source annotations.
+Added optional support for `bpftool prog dump xlated linum` as a supplementary source-location input for BPFix. The goal was to preserve source correlation when verifier logs contain instruction traces but lack inline BTF source annotations.
 
 ## Implemented Changes
 
@@ -69,5 +69,5 @@ Result:
 
 ## Notes
 
-- This integration is intentionally supplemental. OBLIGE still relies on verifier logs for proof-state reasoning; bpftool data only restores source correlation when inline log annotations are unavailable.
+- This integration is intentionally supplemental. BPFix still relies on verifier logs for proof-state reasoning; bpftool data only restores source correlation when inline log annotations are unavailable.
 - Source columns are parsed and retained in the bpftool mapping but are not yet rendered in `SourceSpan`, which currently remains line-granular.

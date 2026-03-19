@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://oblige.dev/schema/diagnostic.json",
-  "title": "OBLIGE Structured Diagnostic",
+  "$id": "https://bpfix.dev/schema/diagnostic.json",
+  "title": "BPFix Structured Diagnostic",
   "description": "Machine-consumable representation of a verifier failure with source mapping, abstract-state evidence, and candidate repair hints.",
   "type": "object",
   "additionalProperties": false,

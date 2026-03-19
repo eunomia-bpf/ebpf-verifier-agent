@@ -1,6 +1,6 @@
 # eval/
 
-Evaluation infrastructure for OBLIGE. All scripts are standalone Python
+Evaluation infrastructure for BPFix. All scripts are standalone Python
 programs. Results are written to `eval/results/` (gitignored except
 `taxonomy_coverage.json`).
 
@@ -9,9 +9,9 @@ programs. Results are written to `eval/results/` (gitignored except
 | Script | Research Question | Output |
 |--------|------------------|--------|
 | `batch_diagnostic_eval.py` | Q1: classification accuracy; Q2: span production rate across 241-case corpus | `results/batch_diagnostic_results*.json` |
-| `span_coverage_eval.py` | Q3: do OBLIGE spans cover known fix locations? | `results/span_coverage_results.json` |
-| `repair_experiment_v2.py` | Q4: A/B LLM repair — raw log vs OBLIGE diagnostic | `results/repair_experiment_results.v2.json` |
-| `pv_comparison_v3.py` | Q5: OBLIGE vs Pretty Verifier on 30-case benchmark | `results/pv_comparison_v3.json` |
+| `span_coverage_eval.py` | Q3: do BPFix spans cover known fix locations? | `results/span_coverage_results.json` |
+| `repair_experiment_v2.py` | Q4: A/B LLM repair — raw log vs BPFix diagnostic | `results/repair_experiment_results.v2.json` |
+| `pv_comparison_v3.py` | Q5: BPFix vs Pretty Verifier on 30-case benchmark | `results/pv_comparison_v3.json` |
 | `latency_benchmark.py` | Q6: end-to-end and per-stage runtime overhead | `results/latency_benchmark*.json` |
 | `batch_proof_engine_eval.py` | Proof engine ablation (obligation coverage) | `results/batch_proof_engine_round3.json` |
 

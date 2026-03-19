@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run a reproducible Pretty Verifier vs OBLIGE comparison over the corpus."""
+"""Run a reproducible Pretty Verifier vs BPFix comparison over the corpus."""
 
 from __future__ import annotations
 
@@ -82,7 +82,7 @@ class PrettyVerifierResult:
 
 
 @dataclass(slots=True)
-class ObligeResult:
+class BPFixResult:
     error_id: str | None
     taxonomy_class: str | None
     error_line: str | None
@@ -109,7 +109,7 @@ class CaseComparison:
     log_origin: str
     log_lines: int
     pretty_verifier: PrettyVerifierResult
-    oblige: ObligeResult
+    bpfix: BPFixResult
 
 
 def parse_markdown_row(line: str) -> list[str]:
@@ -536,7 +536,7 @@ def summarize_causal_chain(trace: ParsedTrace) -> tuple[str | None, int | None]:
     return " -> ".join(parts) if parts else None, (root.insn_idx if root is not None else None)
 
 
-def run_oblige(log_text: str, catalog_path: Path) -> ObligeResult:
+def run_bpfix(log_text: str, catalog_path: Path) -> BPFixResult:
     parsed_log: ParsedLog = parse_log(log_text, catalog_path=catalog_path)
     trace: ParsedTrace = parse_trace(log_text)
     error_instruction = select_error_instruction(trace)
@@ -568,7 +568,7 @@ def run_oblige(log_text: str, catalog_path: Path) -> ObligeResult:
         )
     )
 
-    return ObligeResult(
+    return BPFixResult(
         error_id=parsed_log.error_id,
         taxonomy_class=parsed_log.taxonomy_class,
         error_line=trace.error_line or parsed_log.error_line,
@@ -625,7 +625,7 @@ def build_case_record(
         enable_enumerate=enable_enumerate,
         handler_inventory=handler_inventory,
     )
-    oblige = run_oblige(log_text, catalog_path=catalog_path)
+    bpfix = run_bpfix(log_text, catalog_path=catalog_path)
 
     return CaseComparison(
         case_id=str(case_data.get("case_id", case_path.stem)),
@@ -635,7 +635,7 @@ def build_case_record(
         log_origin=log_origin,
         log_lines=len([line for line in log_text.splitlines() if line.strip()]),
         pretty_verifier=pretty,
-        oblige=oblige,
+        bpfix=bpfix,
     )
 
 
@@ -649,7 +649,7 @@ def manual_subset_rows(
         if record is None:
             continue
         pv_class = record.pretty_verifier.predicted_taxonomy_class
-        oblige_class = record.oblige.taxonomy_class
+        bpfix_class = record.bpfix.taxonomy_class
         rows.append(
             {
                 "case_id": case_id,
@@ -658,15 +658,15 @@ def manual_subset_rows(
                 "pv_class": pv_class,
                 "pv_correct": pv_class == label.taxonomy_class,
                 "pv_summary": summarize_pretty_verifier(record.pretty_verifier),
-                "oblige_class": oblige_class,
-                "oblige_correct": oblige_class == label.taxonomy_class,
-                "oblige_summary": summarize_oblige(record.oblige),
+                "bpfix_class": bpfix_class,
+                "bpfix_correct": bpfix_class == label.taxonomy_class,
+                "bpfix_summary": summarize_bpfix(record.bpfix),
                 "pv_actionable": record.pretty_verifier.actionable,
-                "oblige_actionable": record.oblige.actionable,
+                "bpfix_actionable": record.bpfix.actionable,
                 "pv_source_localized": bool(record.pretty_verifier.source_location),
-                "oblige_source_localized": record.oblige.has_source_mapping,
+                "bpfix_source_localized": record.bpfix.has_source_mapping,
                 "pv_root_cause_found": False,
-                "oblige_root_cause_found": record.oblige.root_cause_found,
+                "bpfix_root_cause_found": record.bpfix.root_cause_found,
             }
         )
     return rows
@@ -688,7 +688,7 @@ def summarize_pretty_verifier(result: PrettyVerifierResult) -> str:
     return f"{prefix}: {message}"
 
 
-def summarize_oblige(result: ObligeResult) -> str:
+def summarize_bpfix(result: BPFixResult) -> str:
     parts: list[str] = []
     if result.error_id:
         if result.taxonomy_class:
@@ -714,7 +714,7 @@ def aggregate_metrics(
     return {
         "manual_subset_size": len(rows),
         "pv_classification_accuracy": safe_ratio(sum(row["pv_correct"] for row in rows), len(rows)),
-        "oblige_classification_accuracy": safe_ratio(sum(row["oblige_correct"] for row in rows), len(rows)),
+        "bpfix_classification_accuracy": safe_ratio(sum(row["bpfix_correct"] for row in rows), len(rows)),
         "pv_lowering_accuracy": safe_ratio(
             sum(
                 row["pv_correct"]
@@ -723,9 +723,9 @@ def aggregate_metrics(
             ),
             lowering_total,
         ),
-        "oblige_lowering_accuracy": safe_ratio(
+        "bpfix_lowering_accuracy": safe_ratio(
             sum(
-                row["oblige_correct"]
+                row["bpfix_correct"]
                 for row in rows
                 if row["manual_label"] == "lowering_artifact"
             ),
@@ -735,16 +735,16 @@ def aggregate_metrics(
             sum(row["pv_root_cause_found"] for row in rows),
             len(rows),
         ),
-        "oblige_root_cause_localization": safe_ratio(
-            sum(row["oblige_root_cause_found"] for row in rows),
+        "bpfix_root_cause_localization": safe_ratio(
+            sum(row["bpfix_root_cause_found"] for row in rows),
             len(rows),
         ),
         "pv_actionable_diagnosis": safe_ratio(
             sum(row["pv_actionable"] for row in rows),
             len(rows),
         ),
-        "oblige_actionable_diagnosis": safe_ratio(
-            sum(row["oblige_actionable"] for row in rows),
+        "bpfix_actionable_diagnosis": safe_ratio(
+            sum(row["bpfix_actionable"] for row in rows),
             len(rows),
         ),
     }
@@ -753,7 +753,7 @@ def aggregate_metrics(
 def corpus_summary(results: list[CaseComparison]) -> dict[str, Any]:
     by_source = Counter(record.source for record in results)
     pv_status = Counter(record.pretty_verifier.status for record in results)
-    oblige_classes = Counter(record.oblige.taxonomy_class or "unclassified" for record in results)
+    bpfix_classes = Counter(record.bpfix.taxonomy_class or "unclassified" for record in results)
     return {
         "cases": len(results),
         "by_source": dict(by_source),
@@ -761,24 +761,24 @@ def corpus_summary(results: list[CaseComparison]) -> dict[str, Any]:
         "pretty_verifier_source_localization": sum(
             1 for record in results if record.pretty_verifier.source_location
         ),
-        "oblige_source_localization": sum(
-            1 for record in results if record.oblige.has_source_mapping
+        "bpfix_source_localization": sum(
+            1 for record in results if record.bpfix.has_source_mapping
         ),
-        "oblige_root_cause_found": sum(
-            1 for record in results if record.oblige.root_cause_found
+        "bpfix_root_cause_found": sum(
+            1 for record in results if record.bpfix.root_cause_found
         ),
-        "oblige_classes": dict(oblige_classes),
+        "bpfix_classes": dict(bpfix_classes),
     }
 
 
 def build_mapping_summary(results: list[CaseComparison]) -> dict[str, Any]:
     by_pv_error: dict[int, list[CaseComparison]] = defaultdict(list)
-    observed_oblige_ids: set[str] = set()
-    pv_equivalent_oblige_ids: set[str] = set()
+    observed_bpfix_ids: set[str] = set()
+    pv_equivalent_bpfix_ids: set[str] = set()
 
     for record in results:
-        if record.oblige.error_id:
-            observed_oblige_ids.add(record.oblige.error_id)
+        if record.bpfix.error_id:
+            observed_bpfix_ids.add(record.bpfix.error_id)
         if record.pretty_verifier.error_number is not None and record.pretty_verifier.error_number >= 0:
             by_pv_error[record.pretty_verifier.error_number].append(record)
 
@@ -792,35 +792,35 @@ def build_mapping_summary(results: list[CaseComparison]) -> dict[str, Any]:
             ),
             None,
         )
-        oblige_ids = Counter(
-            case.oblige.error_id or "unclassified"
+        bpfix_ids = Counter(
+            case.bpfix.error_id or "unclassified"
             for case in cases
         )
         taxonomy_classes = Counter(
-            case.oblige.taxonomy_class or "unclassified"
+            case.bpfix.taxonomy_class or "unclassified"
             for case in cases
         )
-        dominant_id, dominant_count = oblige_ids.most_common(1)[0]
+        dominant_id, dominant_count = bpfix_ids.most_common(1)[0]
         if dominant_id != "unclassified":
-            pv_equivalent_oblige_ids.add(dominant_id)
+            pv_equivalent_bpfix_ids.add(dominant_id)
         rows.append(
             {
                 "error_number": error_number,
                 "handler_name": handler_name,
                 "cases": len(cases),
-                "dominant_oblige_error_id": dominant_id,
-                "dominant_oblige_count": dominant_count,
-                "distinct_oblige_error_ids": len(oblige_ids),
+                "dominant_bpfix_error_id": dominant_id,
+                "dominant_bpfix_count": dominant_count,
+                "distinct_bpfix_error_ids": len(bpfix_ids),
                 "distinct_taxonomy_classes": len(taxonomy_classes),
-                "oblige_error_ids": dict(oblige_ids),
+                "bpfix_error_ids": dict(bpfix_ids),
                 "taxonomy_classes": dict(taxonomy_classes),
-                "coarse": len(oblige_ids) > 1 or len(taxonomy_classes) > 1,
+                "coarse": len(bpfix_ids) > 1 or len(taxonomy_classes) > 1,
             }
         )
 
     return {
         "rows": rows,
-        "oblige_ids_without_pv_equivalent": sorted(observed_oblige_ids - pv_equivalent_oblige_ids),
+        "bpfix_ids_without_pv_equivalent": sorted(observed_bpfix_ids - pv_equivalent_bpfix_ids),
     }
 
 
@@ -863,9 +863,9 @@ def build_report(
             f"`{row['case_id']}`",
             f"`{row['manual_label']}`",
             row["pv_summary"].replace("|", "\\|"),
-            row["oblige_summary"].replace("|", "\\|"),
+            row["bpfix_summary"].replace("|", "\\|"),
             "Yes" if row["pv_correct"] else "No",
-            "Yes" if row["oblige_correct"] else "No",
+            "Yes" if row["bpfix_correct"] else "No",
         ]
         for row in manual_rows
     ]
@@ -878,16 +878,16 @@ def build_report(
             [
                 f"`{row['case_id']}`",
                 row["pv_summary"].replace("|", "\\|"),
-                row["oblige_summary"].replace("|", "\\|"),
-                f"PV: No; OBLIGE: {'Yes' if row['oblige_root_cause_found'] else 'No'}",
+                row["bpfix_summary"].replace("|", "\\|"),
+                f"PV: No; BPFix: {'Yes' if row['bpfix_root_cause_found'] else 'No'}",
             ]
         )
 
     aggregate_rows = [
-        ["Overall classification accuracy", metrics["pv_classification_accuracy"], metrics["oblige_classification_accuracy"]],
-        ["Lowering artifact accuracy", metrics["pv_lowering_accuracy"], metrics["oblige_lowering_accuracy"]],
-        ["Root cause localization", metrics["pv_root_cause_localization"], metrics["oblige_root_cause_localization"]],
-        ["Cases with actionable diagnosis", metrics["pv_actionable_diagnosis"], metrics["oblige_actionable_diagnosis"]],
+        ["Overall classification accuracy", metrics["pv_classification_accuracy"], metrics["bpfix_classification_accuracy"]],
+        ["Lowering artifact accuracy", metrics["pv_lowering_accuracy"], metrics["bpfix_lowering_accuracy"]],
+        ["Root cause localization", metrics["pv_root_cause_localization"], metrics["bpfix_root_cause_localization"]],
+        ["Cases with actionable diagnosis", metrics["pv_actionable_diagnosis"], metrics["bpfix_actionable_diagnosis"]],
     ]
 
     mapping_rows = [
@@ -895,8 +895,8 @@ def build_report(
             f"`{row['error_number']}`",
             f"`{row['handler_name']}`" if row["handler_name"] else "",
             str(row["cases"]),
-            f"`{row['dominant_oblige_error_id']}`",
-            str(row["distinct_oblige_error_ids"]),
+            f"`{row['dominant_bpfix_error_id']}`",
+            str(row["distinct_bpfix_error_ids"]),
             str(row["distinct_taxonomy_classes"]),
             "Yes" if row["coarse"] else "No",
         ]
@@ -909,10 +909,10 @@ def build_report(
     source_summary = ", ".join(
         f"{source}={count}" for source, count in sorted(corpus["by_source"].items())
     )
-    no_equiv = ", ".join(f"`{error_id}`" for error_id in mapping["oblige_ids_without_pv_equivalent"]) or "None"
+    no_equiv = ", ".join(f"`{error_id}`" for error_id in mapping["bpfix_ids_without_pv_equivalent"]) or "None"
 
     report_lines = [
-        "# Pretty Verifier vs OBLIGE",
+        "# Pretty Verifier vs BPFix",
         "",
         "## Pretty Verifier Architecture Summary",
         "",
@@ -923,75 +923,75 @@ def build_report(
         "- Pretty Verifier is line-oriented: it matches one headline line against regex branches and prints one human-readable explanation, sometimes with a source hint and suggestion.",
         "- Concrete output shape is `N error: <message>` under a colored banner, followed by an optional source snippet, appendix, and suggestion. If no branch matches, it prints `-1 error: Error not managed -> <selected line>`.",
         "- It does not parse full register-state traces, detect proof-loss transitions, or backtrack register dependencies.",
-        "- README claims best support on kernel `6.8` and source mapping via `llvm-objdump` plus compiled `.o` files. The OBLIGE corpus does not preserve those object files, so llvm-objdump-based localization is usually unavailable here.",
+        "- README claims best support on kernel `6.8` and source mapping via `llvm-objdump` plus compiled `.o` files. The BPFix corpus does not preserve those object files, so llvm-objdump-based localization is usually unavailable here.",
         "",
         "## Corpus and Method",
         "",
         f"- Compared `{corpus['cases']}` cases with non-empty verifier logs across `{source_summary}`.",
         f"- Pretty Verifier corpus outcome summary: `{pv_status_summary}`.",
         "- In this corpus, unhandled or brittle cases are common: many issue logs place trailer lines such as `verification time` or `stack depth` after the true rejection line, and `28` cases raised a Python exception instead of yielding a diagnosis.",
-        f"- Pretty Verifier source localization succeeded on `{corpus['pretty_verifier_source_localization']}/{corpus['cases']}` cases. OBLIGE found log-native source mapping on `{corpus['oblige_source_localization']}/{corpus['cases']}` cases.",
-        f"- OBLIGE found an earlier root-cause instruction/transition on `{corpus['oblige_root_cause_found']}/{corpus['cases']}` corpus cases.",
+        f"- Pretty Verifier source localization succeeded on `{corpus['pretty_verifier_source_localization']}/{corpus['cases']}` cases. BPFix found log-native source mapping on `{corpus['bpfix_source_localization']}/{corpus['cases']}` cases.",
+        f"- BPFix found an earlier root-cause instruction/transition on `{corpus['bpfix_root_cause_found']}/{corpus['cases']}` corpus cases.",
         "- For StackOverflow and GitHub YAMLs with multiple verifier blocks, the script selects the highest-scoring verbose block instead of the concatenated prose-heavy `combined` string.",
-        "- OBLIGE uses `parse_log(..., catalog_path='taxonomy/error_catalog.yaml')` plus `parse_trace(...)` on the same normalized log block.",
+        "- BPFix uses `parse_log(..., catalog_path='taxonomy/error_catalog.yaml')` plus `parse_trace(...)` on the same normalized log block.",
         "",
         "## Table 1: Coverage and Capability",
         "",
         markdown_table(
-            ["Feature", "Pretty Verifier", "OBLIGE"],
+            ["Feature", "Pretty Verifier", "BPFix"],
             feature_rows,
         ),
         "",
         "## Table 2: Per-Case Accuracy on the 30 Manually Labeled Cases",
         "",
         markdown_table(
-            ["Case", "Manual label", "Pretty Verifier diagnosis", "OBLIGE diagnosis", "PV correct?", "OBLIGE correct?"],
+            ["Case", "Manual label", "Pretty Verifier diagnosis", "BPFix diagnosis", "PV correct?", "BPFix correct?"],
             manual_table_rows,
         ),
         "",
         "## Table 3: Lowering Artifact Deep-Dive",
         "",
         markdown_table(
-            ["Case", "Pretty Verifier", "OBLIGE trace analysis", "Root cause found?"],
+            ["Case", "Pretty Verifier", "BPFix trace analysis", "Root cause found?"],
             lowering_rows,
         ),
         "",
         "## Table 4: Aggregate Accuracy on the Manual 30-Case Subset",
         "",
         markdown_table(
-            ["Metric", "Pretty Verifier", "OBLIGE"],
+            ["Metric", "Pretty Verifier", "BPFix"],
             aggregate_rows,
         ),
         "",
         "## Pretty Verifier Handler Coverage in This Corpus",
         "",
         f"- Observed Pretty Verifier handler numbers in this corpus: `{len(mapping['rows'])}` of `{len(handler_inventory)}` total branches.",
-        f"- OBLIGE error IDs with no observed Pretty Verifier equivalent on this corpus: {no_equiv}.",
+        f"- BPFix error IDs with no observed Pretty Verifier equivalent on this corpus: {no_equiv}.",
         "",
         markdown_table(
-            ["PV #", "Handler", "Cases", "Dominant OBLIGE ID", "Distinct OBLIGE IDs", "Distinct taxonomy classes", "Too coarse?"],
+            ["PV #", "Handler", "Cases", "Dominant BPFix ID", "Distinct BPFix IDs", "Distinct taxonomy classes", "Too coarse?"],
             mapping_rows,
         ),
         "",
         "## Analysis",
         "",
-        "OBLIGE's real advantage is not 'more regexes'. The distinguishing signal is trace structure: critical transitions, causal chains, and earlier proof-loss instructions. That is exactly where Pretty Verifier is blind.",
+        "BPFix's real advantage is not 'more regexes'. The distinguishing signal is trace structure: critical transitions, causal chains, and earlier proof-loss instructions. That is exactly where Pretty Verifier is blind.",
         "",
         "Pretty Verifier is sufficient for straightforward contract violations when the final verifier line already names the real defect. Iterator state misuse, many dynptr protocol failures, and simple helper-argument mismatches usually fit that pattern.",
         "",
         "Pretty Verifier is weak on lowering artifacts for two separate reasons. First, packet/map symptom lines are usually mapped to ordinary source-side bounds advice, even when the source already contains the needed check. Second, the upstream implementation's `output_raw[-2]` selection is brittle: several corpus logs place `stack depth`, `verification time`, or similar trailer lines between the real error and the final `processed ...` line, which makes the handler miss or mis-handle the failure entirely.",
         "",
-        "The lowering-artifact cases show the sharpest separation. For cases like `stackoverflow-79530762` and `stackoverflow-74178703`, Pretty Verifier either crashes, stays unhandled, or restates the final symptom. OBLIGE instead surfaces the earlier register-state collapse that explains why the accepted fix is a loop/codegen rewrite rather than 'add another bounds check'.",
+        "The lowering-artifact cases show the sharpest separation. For cases like `stackoverflow-79530762` and `stackoverflow-74178703`, Pretty Verifier either crashes, stays unhandled, or restates the final symptom. BPFix instead surfaces the earlier register-state collapse that explains why the accepted fix is a loop/codegen rewrite rather than 'add another bounds check'.",
         "",
         "Concrete 'Pretty Verifier is enough' examples from the manual set are `kernel-selftest-iters-state-safety-destroy-without-creating-fail-raw-tp-a14b4d3a`, `kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993`, and `stackoverflow-61945212`: the headline line already names the real helper or protocol contract violation, so a line-oriented explanation is adequate.",
         "",
         "Concrete misleading examples are `github-aya-rs-aya-1062` (`stack depth ...` is selected instead of the real signed-range failure), `stackoverflow-79530762` and `stackoverflow-73088287` (both crash with `IndexError`), and `stackoverflow-74178703` (the final map-bounds symptom is reported, but not the earlier proof-loss site).",
         "",
-        "There are still limits on the OBLIGE side. If the corpus preserves only a short final snippet with no usable state trace, OBLIGE cannot recover a true earlier root cause either. Subprogram-boundary artifacts remain a current weak spot as well.",
+        "There are still limits on the BPFix side. If the corpus preserves only a short final snippet with no usable state trace, BPFix cannot recover a true earlier root cause either. Subprogram-boundary artifacts remain a current weak spot as well.",
         "",
         "## Honest Assessment",
         "",
-        "Pretty Verifier contributes a helpful human-readable layer over specific verifier lines, especially when the headline message already encodes the real obligation violation. OBLIGE wins when the bug is not on the headline line: lowering artifacts, hidden proof-loss transitions, and other cases where the final rejection is only a symptom.",
+        "Pretty Verifier contributes a helpful human-readable layer over specific verifier lines, especially when the headline message already encodes the real obligation violation. BPFix wins when the bug is not on the headline line: lowering artifacts, hidden proof-loss transitions, and other cases where the final rejection is only a symptom.",
         "",
     ]
     return "\n".join(report_lines).strip() + "\n"

@@ -4,13 +4,13 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-**OBLIGE** — Proof Trace Analysis for eBPF Verifier Failures.
+**BPFix** — Proof Trace Analysis for eBPF Verifier Failures.
 
 Research project that analyzes eBPF verifier verbose logs (complete abstract interpreter execution traces) to automatically extract critical state transitions, causal chains, and structured diagnostics. Pure userspace — no kernel patches needed. Target: systems publication.
 
 ### Core Thesis
 
-The eBPF verifier at LOG_LEVEL2 already outputs rich per-instruction abstract state (register types, scalar bounds, pointer offsets, BTF source lines, backtracking info). When a program is rejected, this trace contains all the information needed to understand the failure — but it's buried in 500-1000+ lines of flat text. OBLIGE parses the complete proof trace to extract where the proof was lost, why, and how to fix it.
+The eBPF verifier at LOG_LEVEL2 already outputs rich per-instruction abstract state (register types, scalar bounds, pointer offsets, BTF source lines, backtracking info). When a program is rejected, this trace contains all the information needed to understand the failure — but it's buried in 500-1000+ lines of flat text. BPFix parses the complete proof trace to extract where the proof was lost, why, and how to fix it.
 
 ## Using Codex CLI as Subagent
 
@@ -81,7 +81,7 @@ ebpf-verifier-agent/
 
 ### Phase 1: Case Collection ✅
 - 302 verifier failure cases from kernel selftests (200), Stack Overflow (76), GitHub issues (26)
-- 23 error IDs (OBLIGE-E001~E023), 87.1% coverage
+- 23 error IDs (BPFIX-E001~E023), 87.1% coverage
 - 5-class taxonomy, 30 cases manually labeled
 
 ### Phase 2: Proof Trace Analysis (CURRENT)

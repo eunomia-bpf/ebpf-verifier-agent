@@ -12,7 +12,7 @@
 
 `log_parser.py` uses regex to:
 1. **Select the error line** from the log via a weighted scoring heuristic (lines 156-196). Keywords like "invalid", "unknown", "unreleased" get positive weight; instruction lines and summary prefixes get negative weight.
-2. **Match the error line against the error catalog** (`error_catalog.yaml`) via regex patterns to assign an error ID (OBLIGE-E001 through E023) and a taxonomy class.
+2. **Match the error line against the error catalog** (`error_catalog.yaml`) via regex patterns to assign an error ID (BPFIX-E001 through E023) and a taxonomy class.
 3. **Extract source line numbers** from the log via regex.
 4. **Collect evidence lines** by keyword-matching for tokens like "R0", "stack", "packet", "helper".
 
@@ -21,7 +21,7 @@
 The error catalog matching is needed for a different purpose than `opcode_safety.py`. The opcode-driven approach tells you *what safety condition was violated at the error instruction*. The log parser tells you *what class of error the verifier reported*. These are complementary:
 
 - **opcode_safety.py**: "This is a LDX instruction. The base register R3 must be a non-null pointer with off + 4 <= range."
-- **log_parser.py**: "The verifier said 'invalid access to packet'. This is OBLIGE-E001, taxonomy class source_bug."
+- **log_parser.py**: "The verifier said 'invalid access to packet'. This is BPFIX-E001, taxonomy class source_bug."
 
 The problem is **who gets to set the taxonomy class**. Currently, the taxonomy class comes from `log_parser.py` (regex on error message), and `renderer.py` uses it authoritatively (line 215: `_normalize_failure_class` trusts the taxonomy from log_parser). The opcode-driven lifecycle analysis could *derive* the taxonomy class from the proof lifecycle (never_established -> source_bug, established_then_lost -> lowering_artifact), which would be principled. But the system currently does not do this -- it uses the regex-matched taxonomy and explicitly avoids letting TransitionAnalyzer override it (pipeline.py lines 542-594, the large comment block).
 
@@ -74,7 +74,7 @@ The problem is **who gets to set the taxonomy class**. Currently, the taxonomy c
 
    This is a 300-line decision tree with multiple fallback levels. Each fallback silently degrades quality. A reviewer would call this "a cascade of heuristics with a principled core."
 
-6. **`build_note()` and `build_help_text()` (lines 894-975)**: These contain keyword matching on `diagnosis.error_id` (e.g., `if diagnosis.error_id == "OBLIGE-E002"`) and on `diagnosis.loss_context` (e.g., `if diagnosis.loss_context == "arithmetic"`). The help text even loads from `obligation_catalog.yaml` via error_id pattern matching.
+6. **`build_note()` and `build_help_text()` (lines 894-975)**: These contain keyword matching on `diagnosis.error_id` (e.g., `if diagnosis.error_id == "BPFIX-E002"`) and on `diagnosis.loss_context` (e.g., `if diagnosis.loss_context == "arithmetic"`). The help text even loads from `obligation_catalog.yaml` via error_id pattern matching.
 
 7. **`_normalize_spans()` (lines 1134-1199)**: Synthesizes a "rejected" span when none exists by finding the last error instruction or the last instruction. This is reasonable engineering but includes heuristics like calling `_extract_source_fields` as a fallback.
 
@@ -175,9 +175,9 @@ The renderer is doing too much classification. Multiple functions make content d
 
 ### 5.1 Formal soundness claims
 
-**Missing**: The system cannot prove anything about its analysis. The "soundness" claim (Proposition 1 in the paper) is trivially inherited from the verifier's own soundness -- if the verifier says a bound holds, it holds. OBLIGE does not add soundness.
+**Missing**: The system cannot prove anything about its analysis. The "soundness" claim (Proposition 1 in the paper) is trivially inherited from the verifier's own soundness -- if the verifier says a bound holds, it holds. BPFix does not add soundness.
 
-**What a reviewer would want**: A formal statement of what OBLIGE guarantees. For example: "If OBLIGE classifies a failure as `established_then_lost`, then there exists an instruction i_e < i_l < i_r in the trace such that the safety predicate P holds at s_{i_e} and fails at s_{i_l}." This is provable from the TraceMonitor's algorithm, but the paper needs to state and prove it.
+**What a reviewer would want**: A formal statement of what BPFix guarantees. For example: "If BPFix classifies a failure as `established_then_lost`, then there exists an instruction i_e < i_l < i_r in the trace such that the safety predicate P holds at s_{i_e} and fails at s_{i_l}." This is provable from the TraceMonitor's algorithm, but the paper needs to state and prove it.
 
 **Principled solution**: Define the analysis formally. The opcode-driven condition derivation can be stated as a function from opcode bytes to safety condition schemas. The TraceMonitor is a standard three-valued trace monitor. The TransitionAnalyzer computes interval containment between consecutive abstract states. All of these are formalizable.
 
@@ -203,20 +203,20 @@ The renderer is doing too much classification. Multiple functions make content d
 
 **Beyond the current A/B eval**:
 
-1. **Root-cause accuracy evaluation**: For N cases (N >= 50) with manually labeled root causes, does OBLIGE identify the correct root-cause instruction? This requires ground truth.
+1. **Root-cause accuracy evaluation**: For N cases (N >= 50) with manually labeled root causes, does BPFix identify the correct root-cause instruction? This requires ground truth.
 
-2. **Cross-kernel stability**: Run the same buggy program on kernel 5.15, 6.1, and 6.6. Does OBLIGE produce the same diagnosis across all three? The opcode-driven approach should be kernel-version-independent; this needs to be demonstrated.
+2. **Cross-kernel stability**: Run the same buggy program on kernel 5.15, 6.1, and 6.6. Does BPFix produce the same diagnosis across all three? The opcode-driven approach should be kernel-version-independent; this needs to be demonstrated.
 
-3. **Comparison with state-of-the-art LLMs**: Give GPT-4/Claude the raw verifier log and the OBLIGE diagnostic. Measure whether the diagnostic improves repair accuracy. The existing eval with a 20B local model is underpowered.
+3. **Comparison with state-of-the-art LLMs**: Give GPT-4/Claude the raw verifier log and the BPFix diagnostic. Measure whether the diagnostic improves repair accuracy. The existing eval with a 20B local model is underpowered.
 
-4. **Synthesis evaluation**: For the cases where OBLIGE identifies a proof loss, can the synthesizer produce a fix that passes the verifier? This directly demonstrates the practical value of the lifecycle analysis.
+4. **Synthesis evaluation**: For the cases where BPFix identifies a proof loss, can the synthesizer produce a fix that passes the verifier? This directly demonstrates the practical value of the lifecycle analysis.
 
 ### 5.4 Baselines needed
 
-1. **Pretty Verifier**: Already compared (regex on final line). Show that OBLIGE provides strictly more information.
+1. **Pretty Verifier**: Already compared (regex on final line). Show that BPFix provides strictly more information.
 2. **GPT-4 zero-shot**: Give GPT-4 the raw verifier log and ask it to diagnose + fix. This is the "is the tool better than an LLM?" baseline.
 3. **Verifier error message alone**: Just the final error line + the register state at the error point. How much does the lifecycle analysis add over this?
-4. **No-lifecycle OBLIGE**: OBLIGE with the lifecycle analysis disabled (just classification + source mapping). This isolates the contribution of the lifecycle analysis from the contribution of structured parsing.
+4. **No-lifecycle BPFix**: BPFix with the lifecycle analysis disabled (just classification + source mapping). This isolates the contribution of the lifecycle analysis from the contribution of structured parsing.
 
 ### 5.5 Missing components a reviewer would expect
 
@@ -241,11 +241,11 @@ For each module, the critical question: does this module COMPUTE something that 
 | `engine/transition_analyzer.py` (bounds classification) | Interval containment relationship between consecutive abstract states | The verifier knows bounds changed but does not classify the change as narrowing/widening/destroying |
 | `engine/transition_analyzer.py` (type classification) | Lattice ordering between type transitions | Same as above |
 | `engine/monitor.py` | Proof lifecycle status (establish/loss sites) | The verifier checks safety forward and stops at the first failure; it does not report where the property was previously satisfied |
-| `engine/opcode_safety.py` | Safety conditions from opcode semantics | The verifier computes these internally but does not expose them in the log; OBLIGE re-derives them from the ISA |
+| `engine/opcode_safety.py` | Safety conditions from opcode semantics | The verifier computes these internally but does not expose them in the log; BPFix re-derives them from the ISA |
 | `engine/synthesizer.py` | Repair suggestions from proof-loss analysis | Does not exist in verifier output |
 | `value_lineage.py` | Register copy/spill/fill chains | The verifier tracks this internally but does not expose it (except via mark_precise) |
 | `trace_parser_parts/_impl.py` (causal chain) | Backward def-use chain from error register | Not in verifier output |
-| `trace_parser_parts/_impl.py` (backtrack extraction) | Structured mark_precise chains | Exists in verifier output as unstructured text; OBLIGE structures it |
+| `trace_parser_parts/_impl.py` (backtrack extraction) | Structured mark_precise chains | Exists in verifier output as unstructured text; BPFix structures it |
 
 ### Modules that READ/REFORMAT (engineering, not contribution):
 

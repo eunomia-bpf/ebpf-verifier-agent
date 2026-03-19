@@ -1,4 +1,4 @@
-# Paper Claims Audit — OBLIGE main.tex vs. Implementation
+# Paper Claims Audit — BPFix main.tex vs. Implementation
 **Date:** 2026-03-13
 **Auditor:** Code review against `/home/yunwei37/workspace/ebpf-verifier-agent/`
 **Purpose:** Precise mapping of every technical claim to exact code, with honest assessment. For re-scoping the paper to match reality.
@@ -32,7 +32,7 @@ Files examined:
 ### CLAIM 1: "Abstract state transition analysis"
 
 **Paper statement (Abstract, §1, §3.4):**
-> "analyzing *abstract state transitions* across this trace (bounds collapses, type downgrades, provenance loss), OBLIGE automatically locates where the safety proof broke"
+> "analyzing *abstract state transitions* across this trace (bounds collapses, type downgrades, provenance loss), BPFix automatically locates where the safety proof broke"
 
 **What the code actually does:**
 `obligation_inference.py:evaluate_obligation()` (line 1678) iterates over every `TracedInstruction` in the trace, evaluates each `PredicateAtom` against the pre/post `RegisterState` at that instruction, and returns a list of `PredicateEval` objects. Then `find_loss_transition()` (line 1712) finds the first point where the predicate flips from `"satisfied"` to `"violated"`.
@@ -91,12 +91,12 @@ So tnum is consulted but primarily as a fallback, with `umax` being the primary 
 **Rating: ACCURATE but UNDERSTATED in the paper**
 
 The tnum arithmetic (`tnum_add`, `tnum_or`, etc.) is fully implemented in `abstract_domain.py`. However:
-- The arithmetic operations (add, and, or, lshift) are implemented but **not called in the evaluation path** — they exist as utility functions. The paper never claims OBLIGE performs tnum arithmetic on instructions; it claims OBLIGE reads tnum state from the trace. That is correct.
+- The arithmetic operations (add, and, or, lshift) are implemented but **not called in the evaluation path** — they exist as utility functions. The paper never claims BPFix performs tnum arithmetic on instructions; it claims BPFix reads tnum state from the trace. That is correct.
 - `var_off` parsing and tnum bounds (`tnum_upper_bound`, `tnum_lower_bound`) ARE used in `ScalarBounds.upper_bound()` which IS in the evaluation path.
 
 The code does more than the paper describes (it has tnum arithmetic functions for future use) but the key claim — reading and using tnum constraints from the verifier trace — is accurate.
 
-**Precise description:** OBLIGE reads `var_off = (value; mask)` tnum pairs from LOG_LEVEL2 state dumps and uses them as constraints in predicate evaluation (`ScalarBounds.upper_bound()` takes `min(umax, tnum_upper_bound)`). It does not recompute tnum arithmetic from instruction semantics.
+**Precise description:** BPFix reads `var_off = (value; mask)` tnum pairs from LOG_LEVEL2 state dumps and uses them as constraints in predicate evaluation (`ScalarBounds.upper_bound()` takes `min(umax, tnum_upper_bound)`). It does not recompute tnum arithmetic from instruction semantics.
 
 ---
 
@@ -171,7 +171,7 @@ This is correct and principled engineering. The math in the paper is accurate as
 ### CLAIM 5: "19 obligation families"
 
 **Paper statement (§3.3, Table 1):**
-> "OBLIGE supports nineteen obligation families"
+> "BPFix supports nineteen obligation families"
 > "nineteen obligation families covering 94.3% of the 262-case evaluation corpus"
 
 **What the code actually does:**
@@ -209,16 +209,16 @@ The count of 19 is correct. However, the framing implies 19 meaningfully distinc
 - 12 families have at least one atom (can produce proof lifecycle labels)
 - 7 families have no atoms (produce "unknown" status — they act as classification buckets, not proof analyzers)
 
-The 94.3% "obligation coverage" metric means OBLIGE successfully classified 247/262 cases into one of the 19 families. It does NOT mean 247 cases got proof lifecycle analysis. The batch table (Table 3) shows proof-established in only 115/262 (43.9%) and proof-lost in 99/262 (37.8%).
+The 94.3% "obligation coverage" metric means BPFix successfully classified 247/262 cases into one of the 19 families. It does NOT mean 247 cases got proof lifecycle analysis. The batch table (Table 3) shows proof-established in only 115/262 (43.9%) and proof-lost in 99/262 (37.8%).
 
-**Honest replacement:** "OBLIGE recognizes 19 obligation families; 12 support full predicate evaluation (proof-established/proof-lost detection), while the remaining 7 act as classification families with no predicate atoms (producing structured error classification but not lifecycle labels)."
+**Honest replacement:** "BPFix recognizes 19 obligation families; 12 support full predicate evaluation (proof-established/proof-lost detection), while the remaining 7 act as classification families with no predicate atoms (producing structured error classification but not lifecycle labels)."
 
 ---
 
 ### CLAIM 6: "mark_precise chain extraction"
 
 **Paper statement (§3.2, §3.5):**
-> "OBLIGE extracts these into a BacktrackChain structure: a sequence of (instruction_index, registers_tracked) pairs. This is the verifier's own root-cause chain, expressed as debug text; OBLIGE is the first tool to extract and structure it."
+> "BPFix extracts these into a BacktrackChain structure: a sequence of (instruction_index, registers_tracked) pairs. This is the verifier's own root-cause chain, expressed as debug text; BPFix is the first tool to extract and structure it."
 
 **What the code actually does:**
 
@@ -237,7 +237,7 @@ In `backward_slice()` (line 1857-1878), these chains are used to seed the BFS wo
 
 **Rating: ACCURATE**
 
-The claim is accurate. The parsing is regex-based (matching the actual LOG_LEVEL2 format), and the structural representation is well-defined. The claim that OBLIGE is "the first tool to extract and structure it" is a research contribution claim, not verifiable from the code alone, but the implementation exists.
+The claim is accurate. The parsing is regex-based (matching the actual LOG_LEVEL2 format), and the structural representation is well-defined. The claim that BPFix is "the first tool to extract and structure it" is a research contribution claim, not verifiable from the code alone, but the implementation exists.
 
 **One nuance:** "mark_precise backtracking" in the log appears as sparse annotations (`regs=0x6 stack=0x0 before 23: (4f) r0 |= r6`), not as a complete chain for every case. The batch evaluation shows only 24/262 cases (9.2%) have usable causal chains from this, confirming it's a minority path.
 
@@ -246,11 +246,11 @@ The claim is accurate. The parsing is regex-based (matching the actual LOG_LEVEL
 ### CLAIM 7: "Second-order abstract interpretation"
 
 **Paper statement (§3.5):**
-> "The state transition detection described above can be understood as a *second-order abstract interpretation*: OBLIGE applies abstract interpretation to the *output* of another abstract interpreter."
+> "The state transition detection described above can be understood as a *second-order abstract interpretation*: BPFix applies abstract interpretation to the *output* of another abstract interpreter."
 
 **What the code actually does:**
 
-OBLIGE does not implement a second abstract interpreter. It:
+BPFix does not implement a second abstract interpreter. It:
 1. Reads the verifier's already-computed abstract states from LOG_LEVEL2 text
 2. Evaluates predicates over those states (field comparisons)
 3. Scans the resulting boolean sequence
@@ -262,11 +262,11 @@ Calling predicate evaluation over a sequence of logged states "abstract interpre
 - A transfer function applied at each instruction
 - A fixed-point computation
 
-OBLIGE does none of these. It reads pre-computed states and evaluates predicates. The paper's own Definition 2 formalizes this as a "transfer function" τ_i but this is a post-hoc formalization of what is literally a `find_loss_transition()` scan.
+BPFix does none of these. It reads pre-computed states and evaluates predicates. The paper's own Definition 2 formalizes this as a "transfer function" τ_i but this is a post-hoc formalization of what is literally a `find_loss_transition()` scan.
 
 The conceptual analogy is illuminating and the paper frames it as "can be understood as" rather than "is." This softens the claim appropriately. The formalization in §3.5 is mathematically sound as a description of the semantics.
 
-**Honest framing:** Keep the "can be understood as" framing. Avoid claiming OBLIGE "implements" second-order abstract interpretation. The mathematical framework accurately characterizes the semantics; the implementation is a forward scan with predicate evaluation.
+**Honest framing:** Keep the "can be understood as" framing. Avoid claiming BPFix "implements" second-order abstract interpretation. The mathematical framework accurately characterizes the semantics; the implementation is a forward scan with predicate evaluation.
 
 ---
 
@@ -296,8 +296,8 @@ However, the error text IS used for obligation family selection (which family to
 ### CLAIM 9: "Proof propagation analysis" / "Register value lineage"
 
 **Paper statement (§3.4):**
-> "OBLIGE tracks value identity across register moves and copies. If R3 is defined as a copy of R0 (r3 = r0), and the obligation predicate references the packet range of R0, OBLIGE continues tracking the range on R3."
-> "Proof propagation analysis. For lowering artifact detection, OBLIGE additionally checks whether the proof established at the bounds-check site propagates to the register used at the access site."
+> "BPFix tracks value identity across register moves and copies. If R3 is defined as a copy of R0 (r3 = r0), and the obligation predicate references the packet range of R0, BPFix continues tracking the range on R3."
+> "Proof propagation analysis. For lowering artifact detection, BPFix additionally checks whether the proof established at the bounds-check site propagates to the register used at the access site."
 
 **What the code actually does:**
 
@@ -345,11 +345,11 @@ The rendering is implemented and produces the format shown in Figure 1. The "Rus
 ### CLAIM 11: "23 error patterns / 87.1% coverage"
 
 **Paper statement (§3.2, Figure 2 caption):**
-> "23 error patterns (OBLIGE-E001 through E023), covering 87.1% of failures in our 302-case corpus"
+> "23 error patterns (BPFIX-E001 through E023), covering 87.1% of failures in our 302-case corpus"
 
 **What the code actually does:**
 
-`taxonomy/error_catalog.yaml` contains exactly 23 error IDs (OBLIGE-E001 through E023), verified by grep.
+`taxonomy/error_catalog.yaml` contains exactly 23 error IDs (BPFIX-E001 through E023), verified by grep.
 
 `log_parser.py:_match_catalog()` (line 198) performs regex matching against the error catalog's `verifier_messages` patterns.
 
@@ -372,7 +372,7 @@ This includes families with `atoms=[]` (e.g., `verifier_limits`, `unreleased_ref
 
 **Rating: ACCURATE count, potentially MISLEADING framing**
 
-The 94.3% is the correct rate for "OBLIGE assigned a case to one of the 19 obligation families." This is meaningful — it means OBLIGE understood what safety property was at stake.
+The 94.3% is the correct rate for "BPFix assigned a case to one of the 19 obligation families." This is meaningful — it means BPFix understood what safety property was at stake.
 
 However, actual predicate evaluation (producing proof-established / proof-lost labels) only happens for the ~12 families with atoms, and is reported separately (115/262 proof-established, 99/262 proof-lost). The paper does report these separately in Table 3, so a careful reader can see the distinction.
 
@@ -387,7 +387,7 @@ However, actual predicate evaluation (producing proof-established / proof-lost l
 
 **What the code measures:**
 
-From Table 5 (PV comparison), OBLIGE finds "Root-cause localization" in 12/30 (40%) of manually labeled cases. The 67% appears to come from the lowering-artifact subset: 4/6 lowering artifact cases get root-cause localization = 67%.
+From Table 5 (PV comparison), BPFix finds "Root-cause localization" in 12/30 (40%) of manually labeled cases. The 67% appears to come from the lowering-artifact subset: 4/6 lowering artifact cases get root-cause localization = 67%.
 
 **Rating: ACCURATE but requires context**
 
@@ -406,13 +406,13 @@ This is a small sample (4/6). The paper should be clear this is from the 30-case
 
 Table 4 shows: Lowering fix type: A=3/10 (30%), B=6/10 (60%), Δ=+30pp.
 
-This is specifically for the **lowering artifact subclass** within a 54-case A/B experiment. The overall fix-type accuracy is **negative** for OBLIGE: A=46/54 (85.2%), B=43/54 (79.6%), Δ=−6pp.
+This is specifically for the **lowering artifact subclass** within a 54-case A/B experiment. The overall fix-type accuracy is **negative** for BPFix: A=46/54 (85.2%), B=43/54 (79.6%), Δ=−6pp.
 
 **Rating: ACCURATE for the subclass, MISLEADING in the abstract**
 
 The abstract says "boost automated code-repair accuracy by 30pp" without qualification. The full picture is:
 - Lowering artifacts: +30pp (the specific win case)
-- Overall: −6pp (OBLIGE hurts for non-lowering cases)
+- Overall: −6pp (BPFix hurts for non-lowering cases)
 - Source bugs: −14pp
 
 A systems paper reviewer will notice this gap between abstract and full results. The paper body does address this honestly in §4.3, but the abstract needs qualification.
@@ -424,7 +424,7 @@ A systems paper reviewer will notice this gap between abstract and full results.
 ### CLAIM 15: "25.3 ms median latency"
 
 **Paper statement (Abstract, §4.5):**
-> "OBLIGE operates entirely in userspace, incurs just 25.3 ms median latency per diagnosis"
+> "BPFix operates entirely in userspace, incurs just 25.3 ms median latency per diagnosis"
 
 **What the code measures:**
 
@@ -485,12 +485,12 @@ The number is plausible for a Python pipeline processing ~500-line text files. T
 ### MEDIUM PRIORITY: Claims that are accurate but could be more precise
 
 **5. "Abstract state transition analysis" — needs a one-sentence operational description:**
-- Add: "Concretely, OBLIGE evaluates a set of predicate atoms against each instruction's logged abstract state and detects the first instruction where the predicate flips from satisfied to violated."
-- This is more precise than "analyzing transitions" and removes any ambiguity about whether OBLIGE symbolically computes state transitions.
+- Add: "Concretely, BPFix evaluates a set of predicate atoms against each instruction's logged abstract state and detects the first instruction where the predicate flips from satisfied to violated."
+- This is more precise than "analyzing transitions" and removes any ambiguity about whether BPFix symbolically computes state transitions.
 
 **6. "Second-order abstract interpretation":**
 - Keep the "can be understood as" framing.
-- Do not say OBLIGE "implements" or "is" second-order abstract interpretation.
+- Do not say BPFix "implements" or "is" second-order abstract interpretation.
 - The math in §3.5 is correct and can stand on its own.
 
 ### LOW PRIORITY: Claims that are accurate and don't need changes
@@ -508,11 +508,11 @@ The number is plausible for a Python pipeline processing ~500-line text files. T
 
 For positive framing (the code does more than some claims acknowledge):
 
-1. **Value lineage tracking with spill/fill:** `value_lineage.py` correctly handles the case where a value is spilled to a stack slot (`*(u64 *)(r10 -8) = r0`) and later filled back (`r3 = *(u64 *)(r10 -8)`). This is the primary cause of proof propagation failures in LLVM-lowered code and OBLIGE tracks it correctly.
+1. **Value lineage tracking with spill/fill:** `value_lineage.py` correctly handles the case where a value is spilled to a stack slot (`*(u64 *)(r10 -8) = r0`) and later filled back (`r3 = *(u64 *)(r10 -8)`). This is the primary cause of proof propagation failures in LLVM-lowered code and BPFix tracks it correctly.
 
 2. **Tnum integration:** `abstract_domain.py` contains a complete tnum implementation including arithmetic (`tnum_add`, `tnum_or`, etc.) that mirrors the kernel's `lib/tnum.c`. This is used in bound computation and is correctly implemented.
 
-3. **mark_precise chain as BFS seed:** The backward slice seeds its BFS not just from def-use but from the verifier's own `mark_precise` chain, meaning OBLIGE leverages the verifier's own root-cause analysis when available. This is the only tool doing this.
+3. **mark_precise chain as BFS seed:** The backward slice seeds its BFS not just from def-use but from the verifier's own `mark_precise` chain, meaning BPFix leverages the verifier's own root-cause analysis when available. This is the only tool doing this.
 
 4. **Composite obligation tracking:** `track_composite()` can analyze multiple sub-obligations and find which fails first. This enables analysis of compound safety conditions.
 

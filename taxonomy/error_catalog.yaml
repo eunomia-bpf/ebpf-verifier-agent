@@ -3,19 +3,19 @@
 # human-readable names evolve as the taxonomy is refined.
 version: 0.1.0
 error_types:
-  - error_id: OBLIGE-E001
+  - error_id: BPFIX-E001
     short_name: packet_bounds_missing
     taxonomy_class: source_bug
     title: Packet access without a dominating bounds proof
     verifier_messages:
       - "invalid access to packet"
       - "R[0-9]+ offset is outside of packet"
-    likely_obligation: OBLIGE-O001
+    likely_obligation: BPFIX-O001
     example_fix_actions:
       - ADD_BOUNDS_GUARD
       - RELOAD_PACKET_POINTER_AFTER_CHECK
 
-  - error_id: OBLIGE-E002
+  - error_id: BPFIX-E002
     short_name: nullable_map_value_dereference
     taxonomy_class: source_bug
     title: Dereference of `map_value_or_null` without a null check
@@ -23,36 +23,36 @@ error_types:
       - "invalid mem access 'map_value_or_null'"
       - "invalid mem access 'mem_or_null'"
       - "R[0-9]+ type=map_value_or_null expected=map_value"
-    likely_obligation: OBLIGE-O002
+    likely_obligation: BPFIX-O002
     example_fix_actions:
       - ADD_NULL_CHECK
       - SPLIT_CONTROL_FLOW
 
-  - error_id: OBLIGE-E003
+  - error_id: BPFIX-E003
     short_name: uninitialized_stack_read
     taxonomy_class: source_bug
     title: Stack read before initialization proof
     verifier_messages:
       - "invalid (?:indirect )?read from stack"
       - "stack depth .* before init"
-    likely_obligation: OBLIGE-O003
+    likely_obligation: BPFIX-O003
     example_fix_actions:
       - INITIALIZE_STACK_SLOT
       - REDUCE_HELPER_ARGUMENT_WIDTH
 
-  - error_id: OBLIGE-E004
+  - error_id: BPFIX-E004
     short_name: reference_lifetime_violation
     taxonomy_class: source_bug
     title: Referenced object escapes or is released on the wrong path
     verifier_messages:
       - "Unreleased reference(?: id=\\d+)?"
       - "reference type=ptr_ expected release"
-    likely_obligation: OBLIGE-O004
+    likely_obligation: BPFIX-O004
     example_fix_actions:
       - BALANCE_ACQUIRE_RELEASE
       - MOVE_RELEASE_TO_ALL_PATHS
 
-  - error_id: OBLIGE-E005
+  - error_id: BPFIX-E005
     short_name: scalar_range_too_wide_after_lowering
     taxonomy_class: lowering_artifact
     title: Scalar range widened by lowering and no longer proves safety
@@ -63,12 +63,12 @@ error_types:
       - "math between .* pointer and register with unbounded.*"
       - "(?:R[0-9]+ )?(?:(?:min|max) )?value is outside of the allowed memory range"
       - "arg#\\d+\\s+arg#\\d+\\s+memory,\\s+len pair leads to invalid memory access"
-    likely_obligation: OBLIGE-O005
+    likely_obligation: BPFIX-O005
     example_fix_actions:
       - INSERT_RANGE_CLAMP
       - FORCE_UNSIGNED_CAST
 
-  - error_id: OBLIGE-E006
+  - error_id: BPFIX-E006
     short_name: provenance_lost_across_spill
     taxonomy_class: lowering_artifact
     title: Pointer provenance lost across spill, reload, or helper boundary
@@ -76,36 +76,36 @@ error_types:
       - "pointer arithmetic on pkt_end"
       - "pointer arithmetic on (?:pkt_end|PTR_TO_PACKET_END) prohibited"
       - "expected pointer type, got scalar"
-    likely_obligation: OBLIGE-O006
+    likely_obligation: BPFIX-O006
     example_fix_actions:
       - AVOID_SPILL_RELOAD
       - RESTRUCTURE_HELPER_CALL
 
-  - error_id: OBLIGE-E007
+  - error_id: BPFIX-E007
     short_name: verifier_state_explosion
     taxonomy_class: verifier_limit
     title: Program rejected because verifier state exploration becomes too large
     verifier_messages:
       - "too many states"
       - "The sequence of .* jumps is too complex"
-    likely_obligation: OBLIGE-O007
+    likely_obligation: BPFIX-O007
     example_fix_actions:
       - REDUCE_CONTROL_FLOW_BRANCHING
       - HOIST_COMMON_CHECKS
 
-  - error_id: OBLIGE-E008
+  - error_id: BPFIX-E008
     short_name: bounded_loop_not_proved
     taxonomy_class: verifier_limit
     title: Loop appears safe but verifier cannot prove a bound or invariant
     verifier_messages:
       - "loop is not bounded"
       - "back-edge"
-    likely_obligation: OBLIGE-O008
+    likely_obligation: BPFIX-O008
     example_fix_actions:
       - STRENGTHEN_LOOP_BOUND
       - ADD_MONOTONIC_COUNTER_GUARD
 
-  - error_id: OBLIGE-E009
+  - error_id: BPFIX-E009
     short_name: helper_or_kfunc_unavailable
     taxonomy_class: env_mismatch
     title: Helper, kfunc, or attach target unavailable in the active environment
@@ -114,12 +114,12 @@ error_types:
       - "unknown func"
       - "helper call is not allowed"
       - "attach_btf_id is not a function"
-    likely_obligation: OBLIGE-O009
+    likely_obligation: BPFIX-O009
     example_fix_actions:
       - SWITCH_HELPER
       - GATE_ON_KERNEL_FEATURE
 
-  - error_id: OBLIGE-E010
+  - error_id: BPFIX-E010
     short_name: verifier_regression_or_internal_bug
     taxonomy_class: verifier_bug
     title: Internal verifier defect or version-dependent regression
@@ -127,24 +127,24 @@ error_types:
       - "kernel BUG at kernel/bpf/verifier.c"
       - "WARNING:.*verifier"
       - "invalid state transition"
-    likely_obligation: OBLIGE-O010
+    likely_obligation: BPFIX-O010
     example_fix_actions:
       - MINIMIZE_REPRODUCER
       - BISECT_KERNEL
 
-  - error_id: OBLIGE-E011
+  - error_id: BPFIX-E011
     short_name: scalar_pointer_dereference
     taxonomy_class: source_bug
     title: Scalar value dereferenced where a tracked pointer proof is required
     verifier_messages:
       - "(?:R[0-9]+ )?invalid mem access '(?:scalar|inv)'"
       - "(?:R[0-9]+ )?type=scalar expected=ptr_, trusted_ptr_, rcu_ptr_"
-    likely_obligation: OBLIGE-O011
+    likely_obligation: BPFIX-O011
     example_fix_actions:
       - RELOAD_POINTER_FROM_VERIFIED_BASE
       - KEEP_POINTER_AND_OFFSET_SEPARATE
 
-  - error_id: OBLIGE-E012
+  - error_id: BPFIX-E012
     short_name: dynptr_protocol_violation
     taxonomy_class: source_bug
     title: Dynptr initialization, lifetime, or access protocol violated
@@ -153,12 +153,12 @@ error_types:
       - "cannot overwrite referenced dynptr"
       - "Expected a dynptr of type .* as arg #[0-9]+"
       - "cannot pass in dynptr at an offset=-?[0-9]+"
-    likely_obligation: OBLIGE-O012
+    likely_obligation: BPFIX-O012
     example_fix_actions:
       - INITIALIZE_DYNPTR_SLOT
       - AVOID_DYNPTR_OVERWRITE
 
-  - error_id: OBLIGE-E013
+  - error_id: BPFIX-E013
     short_name: execution_context_discipline_violation
     taxonomy_class: source_bug
     title: Lock, IRQ, RCU, or exception-callback discipline violated on at least one control-flow path
@@ -171,24 +171,24 @@ error_types:
       - "exception cb only supports single integer argument"
       - "multiple exception callback tags for main subprog"
       - "Global function .* doesn't return scalar(?:\\. Only those are supported\\.)?"
-    likely_obligation: OBLIGE-O013
+    likely_obligation: BPFIX-O013
     example_fix_actions:
       - BALANCE_LOCK_IRQ_RCU_SCOPE
       - MOVE_DISALLOWED_CALL_OUTSIDE_CRITICAL_SECTION
 
-  - error_id: OBLIGE-E014
+  - error_id: BPFIX-E014
     short_name: iterator_state_protocol_violation
     taxonomy_class: source_bug
     title: Iterator state machine or stack-placement contract violated
     verifier_messages:
       - "expected (?:an )?(?:un)?initialized iter_num as arg #[0-9]+"
       - "arg#[0-9]+ expected pointer to an iterator on stack"
-    likely_obligation: OBLIGE-O014
+    likely_obligation: BPFIX-O014
     example_fix_actions:
       - INITIALIZE_ITERATOR_STATE
       - KEEP_ITERATOR_ON_STACK
 
-  - error_id: OBLIGE-E015
+  - error_id: BPFIX-E015
     short_name: trusted_arg_nullability
     taxonomy_class: source_bug
     title: Trusted pointer argument may be NULL at call site
@@ -197,12 +197,12 @@ error_types:
       - "NULL pointer passed to trusted arg[0-9]+"
       - "Possibly NULL pointer passed to helper arg[0-9]+"
       - "NULL pointer passed to helper arg[0-9]+"
-    likely_obligation: OBLIGE-O015
+    likely_obligation: BPFIX-O015
     example_fix_actions:
       - ADD_NULL_CHECK
       - SPLIT_CONTROL_FLOW
 
-  - error_id: OBLIGE-E016
+  - error_id: BPFIX-E016
     short_name: helper_or_kfunc_context_restriction
     taxonomy_class: env_mismatch
     title: Helper or kfunc is unavailable in the current program type or execution context
@@ -213,23 +213,23 @@ error_types:
       - "kernel func .* is sleepable within IRQ-disabled region"
       - "attach to unsupported member .*"
       - "helper access to the packet is not allowed"
-    likely_obligation: OBLIGE-O016
+    likely_obligation: BPFIX-O016
     example_fix_actions:
       - SWITCH_HELPER
       - GATE_ON_PROGRAM_CONTEXT
 
-  - error_id: OBLIGE-E017
+  - error_id: BPFIX-E017
     short_name: map_value_bounds_violation
     taxonomy_class: source_bug
     title: Map value access exceeds the verifier-proven bounds of the target object
     verifier_messages:
       - "invalid access to map value, value_size=[0-9]+ off=-?[0-9]+ size=[0-9]+"
-    likely_obligation: OBLIGE-O017
+    likely_obligation: BPFIX-O017
     example_fix_actions:
       - ADD_BOUNDS_GUARD
       - TIGHTEN_OFFSET_RANGE
 
-  - error_id: OBLIGE-E018
+  - error_id: BPFIX-E018
     short_name: verifier_analysis_budget_limit
     taxonomy_class: verifier_limit
     title: Verifier rejects the proof shape due to bounded analysis or complexity limits
@@ -241,12 +241,12 @@ error_types:
       - "loop is not bounded"
       - "back-edge"
       - "BPF program is too large(?:\\. Processed [0-9]+ insn)?"
-    likely_obligation: OBLIGE-O018
+    likely_obligation: BPFIX-O018
     example_fix_actions:
       - REDUCE_CONTROL_FLOW_BRANCHING
       - SPLIT_PROGRAM_INTO_HELPERS
 
-  - error_id: OBLIGE-E019
+  - error_id: BPFIX-E019
     short_name: dynptr_storage_or_release_contract_violation
     taxonomy_class: source_bug
     title: Dynptr storage, offset, or release contract violated
@@ -261,12 +261,12 @@ error_types:
       - "type=mem expected=ringbuf_mem"
       - "cannot write into rdonly_mem"
       - "the prog does not allow writes to packet data"
-    likely_obligation: OBLIGE-O019
+    likely_obligation: BPFIX-O019
     example_fix_actions:
       - KEEP_DYNPTR_AT_FIXED_STACK_OFFSET
       - RELEASE_DYNPTR_EXACTLY_ONCE
 
-  - error_id: OBLIGE-E020
+  - error_id: BPFIX-E020
     short_name: irq_flag_state_protocol_violation
     taxonomy_class: source_bug
     title: IRQ flag state or stack-slot protocol violated
@@ -275,12 +275,12 @@ error_types:
       - "expected uninitialized irq flag as arg#0"
       - "arg#0 doesn't point to an irq flag on stack"
       - "(?:^|\\n)function calls are not allowed(?:\\n|$)"
-    likely_obligation: OBLIGE-O020
+    likely_obligation: BPFIX-O020
     example_fix_actions:
       - KEEP_IRQ_FLAG_ON_STACK
       - BALANCE_IRQ_SAVE_RESTORE
 
-  - error_id: OBLIGE-E021
+  - error_id: BPFIX-E021
     short_name: btf_reference_metadata_missing
     taxonomy_class: env_mismatch
     title: BTF or reference metadata is insufficient for verifier type validation
@@ -291,23 +291,23 @@ error_types:
       - "number of funcs in func_info doesn't match(?: number of subprogs)?"
       - "failed to find kernel BTF type ID(?: of .*?)?"
       - "\\[[0-9]+\\]\\s+.*\\s+Invalid name"
-    likely_obligation: OBLIGE-O021
+    likely_obligation: BPFIX-O021
     example_fix_actions:
       - REGENERATE_BTF_ARTIFACTS
       - ALIGN_BTF_AND_KERNEL_METADATA
 
-  - error_id: OBLIGE-E022
+  - error_id: BPFIX-E022
     short_name: mutable_global_state_unsupported
     taxonomy_class: env_mismatch
     title: Mutable global or static data access unsupported in the active BPF environment
     verifier_messages:
       - "only read from bpf_array is supported"
-    likely_obligation: OBLIGE-O022
+    likely_obligation: BPFIX-O022
     example_fix_actions:
       - MOVE_MUTABLE_STATE_INTO_MAP
       - GATE_ON_RUNTIME_CAPABILITY
 
-  - error_id: OBLIGE-E023
+  - error_id: BPFIX-E023
     short_name: register_or_stack_contract_violation
     taxonomy_class: source_bug
     title: Register, stack slot, or helper argument violates the required verifier contract
@@ -330,7 +330,7 @@ error_types:
       - "\\[[0-9]+\\] FUNC .* Invalid arg#[0-9]+"
       - "reg type unsupported for arg#[0-9]+ function .*"
       - "At program exit the register R[0-9]+ has .* should"
-    likely_obligation: OBLIGE-O023
+    likely_obligation: BPFIX-O023
     example_fix_actions:
       - RELOAD_VALUE_WITH_REQUIRED_TYPE
       - KEEP_STACK_ACCESS_ALIGNED

@@ -2,7 +2,7 @@
 
 **Source file**: `/tmp/linux-src-Wei3fq/kernel/bpf/verifier.c` (26,199 lines)
 **Kernel version**: ~v6.8+ (Linux master, March 2025)
-**Extracted by**: OBLIGE obligation extraction task
+**Extracted by**: BPFix obligation extraction task
 
 ---
 
@@ -647,7 +647,7 @@ if (reg->umax_value >= BPF_MAX_VAR_SIZ) {
 - `state->acquired_refs` list — reference tracking state not printed (only ref_obj_id on register)
 - IRQ/lock state (`active_locks`, `active_irq_id`, `active_rcu_locks`)
 
-### Implication for OBLIGE:
+### Implication for BPFix:
 The most evaluable obligations (covering ~85% of rejections by error message frequency) are:
 1. **Fully evaluable**: packet_access bounds, stack_access bounds, null_check/NOT_INIT,
    scalar_bounds (pointer arith prohibited, shift, div-by-zero), alignment, memory_access

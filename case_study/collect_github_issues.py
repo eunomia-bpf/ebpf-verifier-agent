@@ -141,7 +141,7 @@ class GitHubIssuesCollector:
         self.client = HttpClient(
             min_interval_seconds=args.min_interval_seconds,
             logger=self.logger,
-            user_agent="OBLIGE github collector/0.1",
+            user_agent="BPFix github collector/0.1",
             extra_headers=headers,
         )
 

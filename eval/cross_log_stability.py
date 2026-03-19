@@ -121,7 +121,7 @@ class CaseAnalysis:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Analyze every case YAML with multiple verifier_log blocks, run OBLIGE "
+            "Analyze every case YAML with multiple verifier_log blocks, run BPFix "
             "diagnosis on each block, and emit a Markdown stability report."
         )
     )
@@ -419,7 +419,7 @@ def render_markdown(cases: list[CaseAnalysis]) -> str:
             "`verifier_log.blocks` list has length > 1."
         ),
         (
-            "- `stable OBLIGE diagnosis` means every block in a case keeps the same "
+            "- `stable BPFix diagnosis` means every block in a case keeps the same "
             "`(error_id, taxonomy_class)` pair."
         ),
         (
@@ -430,11 +430,11 @@ def render_markdown(cases: list[CaseAnalysis]) -> str:
         "## Aggregate",
         "",
         (
-            f"- Stable OBLIGE diagnosis: `{stable_diagnosis_cases}/{total_cases}` "
+            f"- Stable BPFix diagnosis: `{stable_diagnosis_cases}/{total_cases}` "
             f"({pct(stable_diagnosis_cases, total_cases)})."
         ),
         (
-            f"- Unstable raw error text but stable OBLIGE `error_id`: "
+            f"- Unstable raw error text but stable BPFix `error_id`: "
             f"`{unstable_raw_but_stable_error_id}/{total_cases}` "
             f"({pct(unstable_raw_but_stable_error_id, total_cases)})."
         ),
@@ -543,7 +543,7 @@ def render_markdown(cases: list[CaseAnalysis]) -> str:
             )
     lines.extend(
         render_table(
-            ["case", "block#", "raw error line", "OBLIGE error_id", "taxonomy_class", "stable?"],
+            ["case", "block#", "raw error line", "BPFix error_id", "taxonomy_class", "stable?"],
             detail_rows,
         )
     )

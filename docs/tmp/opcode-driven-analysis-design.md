@@ -769,11 +769,11 @@ The verifier runs *forward* and rejects at the first failure. It does not tell y
 - What instruction broke it
 - Whether it was a source bug or a lowering artifact
 
-OBLIGE adds the backward analysis dimension. The opcode gives us the "what", the
+BPFix adds the backward analysis dimension. The opcode gives us the "what", the
 register state gives us the "where", and the trace history gives us the "why" and
 "when it changed."
 
-### 9.2 How Does This Differ From the Current OBLIGE Approach?
+### 9.2 How Does This Differ From the Current BPFix Approach?
 
 | Aspect | Current (ebpf_predicates.py) | Proposed (opcode-driven) |
 |--------|------------------------------|--------------------------|
@@ -915,7 +915,7 @@ A proof lifecycle analyzer that:
 
 ### The Paper Claim
 
-"OBLIGE derives safety conditions from the BPF instruction set architecture rather
+"BPFix derives safety conditions from the BPF instruction set architecture rather
 than from error message text, making it kernel-version-independent and unambiguous.
 For each rejected instruction, the opcode byte determines the safety domain (memory
 bounds, pointer type, scalar bound, reference balance, argument contract), identifies

@@ -1,6 +1,6 @@
 # case_study/
 
-Verifier failure case corpus for OBLIGE evaluation.
+Verifier failure case corpus for BPFix evaluation.
 
 ## Schema
 

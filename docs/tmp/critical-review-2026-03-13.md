@@ -1,4 +1,4 @@
-# Critical Review of OBLIGE: Fast, Precise Root-Cause Diagnosis of eBPF Verification Failures
+# Critical Review of BPFix: Fast, Precise Root-Cause Diagnosis of eBPF Verification Failures
 
 **Reviewer perspective**: Experienced PC member at OSDI/SOSP/ATC, familiar with program analysis, static verification, and systems diagnostics tools.
 
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-OBLIGE is an interesting engineering project that produces better diagnostics for eBPF verifier failures than the current state of the art (which is essentially nothing). However, as currently written and implemented, the paper makes claims that significantly exceed what the code actually does. The evaluation is too small and uses the wrong model to draw statistically meaningful conclusions. The "formal" treatment in Section 3 is not actually formal in any meaningful sense. The paper currently reads as a tools paper trying to pass as a research paper with novel theory.
+BPFix is an interesting engineering project that produces better diagnostics for eBPF verifier failures than the current state of the art (which is essentially nothing). However, as currently written and implemented, the paper makes claims that significantly exceed what the code actually does. The evaluation is too small and uses the wrong model to draw statistically meaningful conclusions. The "formal" treatment in Section 3 is not actually formal in any meaningful sense. The paper currently reads as a tools paper trying to pass as a research paper with novel theory.
 
 **Provisional score: 2 (weak reject)**. The core idea is sound and the system is useful, but the gap between claims and implementation is too large for a top venue.
 
@@ -58,14 +58,14 @@ The claim "evaluates P at every instruction" is only true for the 37.8% of cases
 Section 3.4 presents a formal lattice, transfer function (Definition 2), and transition witness (Definition 3). These are mathematically correct descriptions of what the system *should* do if fully implemented. But:
 
 - The lattice ordering `⊥ ≤ unknown ≤ satisfied` and `⊥ ≤ unknown ≤ violated` is not a standard lattice because `satisfied` and `violated` are incomparable — this is a disjoint-meets join-semilattice, not a standard Galois connection formulation.
-- Proposition 1 ("soundness of lifecycle labels") is trivially true: if the verifier's abstract state says P holds, P holds for all concrete states. This is just restating the verifier's own soundness. It is not a contribution of OBLIGE.
-- The "second-order abstract interpretation" framing is marketing language. OBLIGE is not doing abstract interpretation. It is computing concrete evaluations of predicates over the verifier's already-computed abstract states. There is nothing approximate about the evaluation itself; the only approximation is the predicate (which may not capture the full verifier condition).
+- Proposition 1 ("soundness of lifecycle labels") is trivially true: if the verifier's abstract state says P holds, P holds for all concrete states. This is just restating the verifier's own soundness. It is not a contribution of BPFix.
+- The "second-order abstract interpretation" framing is marketing language. BPFix is not doing abstract interpretation. It is computing concrete evaluations of predicates over the verifier's already-computed abstract states. There is nothing approximate about the evaluation itself; the only approximation is the predicate (which may not capture the full verifier condition).
 
 ### 1.4 The "interval arithmetic + tnum" claim
 
 The paper implies sophisticated interval arithmetic. The actual implementation:
 - `ScalarBounds` stores `umin/umax/smin/smax` parsed directly from the verifier's log output — the verifier already computed these.
-- OBLIGE reads these pre-computed values and does simple comparisons: `sb.umax <= limit` is "satisfied."
+- BPFix reads these pre-computed values and does simple comparisons: `sb.umax <= limit` is "satisfied."
 - The tnum helpers (`tnum_add`, `tnum_or`, etc.) are implemented but barely used in the actual evaluation path. The `eval_atom_abstract()` function does not use tnum arithmetic to derive new bounds — it only uses the bounds the verifier already printed.
 
 This is not reimplementing interval arithmetic — it is reading numbers and comparing them. That is fine engineering but should not be called "interval arithmetic" in a research paper.
@@ -77,7 +77,7 @@ This is not reimplementing interval arithmetic — it is reading numbers and com
 Stripping away marketing language, the novel contributions are:
 
 **Genuinely novel (defensible at a top venue):**
-1. **Extraction and structuring of `mark_precise` backtracking chains**. The verifier's own precision-tracking output is already in LOG_LEVEL2 but in an unstructured text format. OBLIGE is the first tool to parse this into a structured chain. This is a real observation and a real contribution, though modest.
+1. **Extraction and structuring of `mark_precise` backtracking chains**. The verifier's own precision-tracking output is already in LOG_LEVEL2 but in an unstructured text format. BPFix is the first tool to parse this into a structured chain. This is a real observation and a real contribution, though modest.
 
 2. **The proof lifecycle framing** (never_established vs. established_then_lost) as a diagnostic classification. This is a useful conceptual framework with real practical payoff for distinguishing source bugs from lowering artifacts. The observation that the *transition pattern* classifies the failure type is genuinely useful.
 
@@ -91,17 +91,17 @@ Stripping away marketing language, the novel contributions are:
 3. **"Abstract state transition analysis" as a general framework**. The claim that this generalizes to Rust's borrow checker, WebAssembly validators, etc. is hand-waving. The paper provides no evidence that the framework was applied to any other system, and the "requirements" listed (per-step states, predicate expressibility, ordered trace) are trivially satisfied by almost any concrete interpreter.
 
 **Not novel at all:**
-1. **The formal predicate evaluation**. Checking if `pkt.off + size <= pkt.range` by reading the verifier's printed values is not novel analysis. The verifier already checked this; OBLIGE is just re-expressing the verifier's conclusion in human-readable form.
+1. **The formal predicate evaluation**. Checking if `pkt.off + size <= pkt.range` by reading the verifier's printed values is not novel analysis. The verifier already checked this; BPFix is just re-expressing the verifier's conclusion in human-readable form.
 
 2. **Error taxonomy**. Five-class taxonomies of verification errors are well-established.
 
 ### The fundamental question a reviewer will ask
 
-"Pretty Verifier does regex on 1 line. OBLIGE does parsing + checks on 500 lines. Is parsing more lines a research contribution?"
+"Pretty Verifier does regex on 1 line. BPFix does parsing + checks on 500 lines. Is parsing more lines a research contribution?"
 
 The honest answer is: parsing more lines is *necessary* for diagnosing lowering artifacts, because you need to find where the proof was established before it was lost. That is a genuine contribution. But the analysis done on those lines is not as sophisticated as the paper implies.
 
-A reviewers' sub-question: "What can OBLIGE detect that a sufficiently thorough manual reading of the log could not detect?" Answer: nothing in principle, but OBLIGE does it in 25ms instead of 30 minutes. The *value* is automation and compression, not new analytical capability.
+A reviewers' sub-question: "What can BPFix detect that a sufficiently thorough manual reading of the log could not detect?" Answer: nothing in principle, but BPFix does it in 25ms instead of 30 minutes. The *value* is automation and compression, not new analytical capability.
 
 ---
 
@@ -121,7 +121,7 @@ A reviewers' sub-question: "What can OBLIGE detect that a sufficiently thorough 
 
 - **McNemar p=0.22** (explicitly in the results file): this is NOT statistically significant. You cannot claim the difference is real with p=0.22. The paper does not report this p-value anywhere.
 
-- **Overall direction is NEGATIVE**: Condition B (OBLIGE) has **lower** location accuracy (39.3% vs 37.5%) and **lower** fix-type accuracy (28.6% vs 21.4%) than Condition A on the overall dataset. The paper's Table 3 shows A having 85.2% fix-type vs B at 79.6% — those numbers do not match any experiment file I can find. The paper appears to be reporting numbers from a different (v2) experiment with a different model and different case counts.
+- **Overall direction is NEGATIVE**: Condition B (BPFix) has **lower** location accuracy (39.3% vs 37.5%) and **lower** fix-type accuracy (28.6% vs 21.4%) than Condition A on the overall dataset. The paper's Table 3 shows A having 85.2% fix-type vs B at 79.6% — those numbers do not match any experiment file I can find. The paper appears to be reporting numbers from a different (v2) experiment with a different model and different case counts.
 
 - **Ground truth quality is questionable**: The "ground truth" fix types are strings from Stack Overflow answers. Automated scoring of "fix type accuracy" by comparing an LLM-generated fix to an SO answer text is not the same as verifier-pass accuracy.
 
@@ -146,7 +146,7 @@ The comparison against Pretty Verifier is the most credible evaluation element, 
 
 - Pretty Verifier is an unpublished GitHub project. Comparing against an unpublished, unmaintained tool as the only baseline is weak. There should be a comparison against raw log analysis, at minimum.
 
-- The "root-cause localization" metric (OBLIGE finds an earlier instruction in 12/30 cases, PV in 0/30) is defined as "a different instruction than the final rejection." This is not the same as being correct. The earlier instruction OBLIGE points to might not be the actual root cause.
+- The "root-cause localization" metric (BPFix finds an earlier instruction in 12/30 cases, PV in 0/30) is defined as "a different instruction than the final rejection." This is not the same as being correct. The earlier instruction BPFix points to might not be the actual root cause.
 
 - Pretty Verifier's 10.7% crash rate on the corpus: is this because the corpus is biased toward cases that PV doesn't handle? If the corpus was collected from sources where PV was more likely to fail, the comparison is unfair.
 
@@ -165,7 +165,7 @@ The data shows:
 - Only 97/262 (37%) detect a `proof_lost` event
 - Only 24/262 (9.2%) produce a causal chain
 
-The 56.5% single-span rate means that for most cases, OBLIGE produces essentially the same information as just printing the error message with better formatting.
+The 56.5% single-span rate means that for most cases, BPFix produces essentially the same information as just printing the error message with better formatting.
 
 ---
 
@@ -173,9 +173,9 @@ The 56.5% single-span rate means that for most cases, OBLIGE produces essentiall
 
 **Challenge 1: The core claim is "abstract state transition analysis." But what you've built is a log parser that reformats what the verifier already computed.**
 
-The verifier already computed whether `pkt.off + size <= range`. It already determined which instruction failed. It already output the `mark_precise` backtracking chain. OBLIGE re-reads these and presents them more clearly. Where is the new analysis?
+The verifier already computed whether `pkt.off + size <= range`. It already determined which instruction failed. It already output the `mark_precise` backtracking chain. BPFix re-reads these and presents them more clearly. Where is the new analysis?
 
-**Partial defense**: The verifier doesn't tell you *where* the bounds were satisfied before they were violated. OBLIGE's lifecycle labeling (established → lost → rejected) does require comparing states across instructions — that is new. But this is only relevant for the 37.8% of `established_then_lost` cases.
+**Partial defense**: The verifier doesn't tell you *where* the bounds were satisfied before they were violated. BPFix's lifecycle labeling (established → lost → rejected) does require comparing states across instructions — that is new. But this is only relevant for the 37.8% of `established_then_lost` cases.
 
 **Challenge 2: The experiment uses a 20B model and gets p=0.22. This is not evidence.**
 
@@ -195,11 +195,11 @@ The research plan explicitly notes "302 cases 中有完整 verbose log（含 sta
 - The evaluation (56 cases A/B, 262 batch) is too small for a pure systems paper.
 - As a tools paper, the main contribution is the multi-span diagnostics for eBPF — which is genuinely useful but may be considered too narrow for ATC/EuroSys.
 
-ATC/EuroSys papers typically need to either (a) make a conceptual contribution applicable to multiple systems domains or (b) demonstrate impact at scale (millions of programs, production deployment). OBLIGE has neither.
+ATC/EuroSys papers typically need to either (a) make a conceptual contribution applicable to multiple systems domains or (b) demonstrate impact at scale (millions of programs, production deployment). BPFix has neither.
 
-**Challenge 6: Ground truth — how do we know OBLIGE's output is correct?**
+**Challenge 6: Ground truth — how do we know BPFix's output is correct?**
 
-There is no systematic evaluation of OBLIGE output correctness. The 12/30 PV comparison is the only human-validated set, and even there, "correct root-cause localization" means "points to a different instruction than the error line" — not "the indicated instruction is the actual root cause."
+There is no systematic evaluation of BPFix output correctness. The 12/30 PV comparison is the only human-validated set, and even there, "correct root-cause localization" means "points to a different instruction than the error line" — not "the indicated instruction is the actual root cause."
 
 ---
 
@@ -221,13 +221,13 @@ The reason: 200 kernel selftests include many tests specifically designed to tes
 
 ### 5.3 The "soundness" claim is trivially derived
 
-Proposition 1 (soundness): "If OBLIGE labels instruction i with satisfied, then for all concrete states c in gamma(s_i), the safety property holds."
+Proposition 1 (soundness): "If BPFix labels instruction i with satisfied, then for all concrete states c in gamma(s_i), the safety property holds."
 
-This follows trivially from the verifier's soundness — OBLIGE merely reads the verifier's state and evaluates simple predicates. The only way this could be *unsound* is if OBLIGE's predicate evaluator had a bug (e.g., mis-parsed a field). This is not a theoretical contribution; it is a correctness requirement for the implementation.
+This follows trivially from the verifier's soundness — BPFix merely reads the verifier's state and evaluates simple predicates. The only way this could be *unsound* is if BPFix's predicate evaluator had a bug (e.g., mis-parsed a field). This is not a theoretical contribution; it is a correctness requirement for the implementation.
 
 ### 5.4 Latency claim is misleading
 
-"25.3ms median latency" — this is the latency of OBLIGE's Python analysis on a pre-obtained verifier log. It does not include the time to obtain the log (which requires running the verifier, which requires compiling the program). For real deployment, the full pipeline latency would be compilation + verification + OBLIGE, where OBLIGE's 25ms is negligible. The "negligible compared to LLM API call" framing is odd since the use case involves an LLM.
+"25.3ms median latency" — this is the latency of BPFix's Python analysis on a pre-obtained verifier log. It does not include the time to obtain the log (which requires running the verifier, which requires compiling the program). For real deployment, the full pipeline latency would be compilation + verification + BPFix, where BPFix's 25ms is negligible. The "negligible compared to LLM API call" framing is odd since the use case involves an LLM.
 
 ### 5.5 The code review (from full-code-review.md) identified issues that persist
 
@@ -250,7 +250,7 @@ The full-code-review doc (from 2026-03-12) identified: "the hot path reparses th
 
 **What would make this acceptable:**
 1. A/B experiment with a state-of-the-art model, with verifier-pass as the oracle, p<0.05, N≥100.
-2. Human study of OBLIGE output correctness: given the OBLIGE output, does it correctly identify the root cause? Evaluate on 50+ cases with domain expert annotations.
+2. Human study of BPFix output correctness: given the BPFix output, does it correctly identify the root cause? Evaluate on 50+ cases with domain expert annotations.
 3. Honest re-framing of the technical contribution: "We build a practical diagnostic tool that parses eBPF verifier traces and produces multi-span diagnostics. The key insight is using the `mark_precise` backtracking annotations and proof lifecycle labels (established/lost) to distinguish source bugs from lowering artifacts."
 4. Remove or substantially qualify the "formal foundation" section. A proof-sketch soundness theorem that just restates the verifier's soundness is not a contribution.
 
@@ -273,7 +273,7 @@ The full-code-review doc (from 2026-03-12) identified: "the hot path reparses th
 
 ### Priority 2: Add human evaluation of output correctness (1 week)
 
-- For 30-50 cases with full trace logs, have a domain expert evaluate: does OBLIGE's labeled "proof-loss point" correctly identify where the proof was lost? Is the `established` span pointing at the right guard?
+- For 30-50 cases with full trace logs, have a domain expert evaluate: does BPFix's labeled "proof-loss point" correctly identify where the proof was lost? Is the `established` span pointing at the right guard?
 - This is essential for the root-cause localization claim (currently 0% validated).
 - Without this, the 67% localization figure is completely unsubstantiated.
 
@@ -312,7 +312,7 @@ The paper is currently trying to be two things at once: a systems tools paper (w
 
 The right strategy is to commit to one framing:
 
-**Option A (recommended)**: Tools paper. Frame OBLIGE as "we built a practical diagnostic system with a novel framing (proof lifecycle analysis) and demonstrate it helps." Remove the formal section. Double down on the evaluation — bigger N, stronger model, verifier-pass oracle. Target ATC tools track or USENIX Security artifact evaluation.
+**Option A (recommended)**: Tools paper. Frame BPFix as "we built a practical diagnostic system with a novel framing (proof lifecycle analysis) and demonstrate it helps." Remove the formal section. Double down on the evaluation — bigger N, stronger model, verifier-pass oracle. Target ATC tools track or USENIX Security artifact evaluation.
 
 **Option B (harder)**: Research paper. Actually implement full formal backward slicing (CFG, SSA, alias analysis), prove the predicate evaluator is correct with respect to the verifier's semantics, and demonstrate on a larger corpus. This is 3-6 months of additional work.
 

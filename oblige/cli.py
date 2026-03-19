@@ -1,4 +1,4 @@
-"""Command-line entry point for generating OBLIGE diagnostics."""
+"""Command-line entry point for generating BPFix diagnostics."""
 
 from __future__ import annotations
 
@@ -15,8 +15,8 @@ from interface.extractor.rust_diagnostic import generate_diagnostic
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="oblige",
-        description="Generate OBLIGE diagnostics from a verifier log or case manifest.",
+        prog="bpfix",
+        description="Generate BPFix diagnostics from a verifier log or case manifest.",
     )
     parser.add_argument(
         "input",
@@ -48,7 +48,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--version",
         action="version",
-        version="oblige 0.1.0",
+        version="bpfix 0.1.0",
     )
     return parser
 

@@ -2,13 +2,13 @@
 
 **Date**: 2026-03-13
 **Purpose**: Precision metric — how often the lifecycle analysis is right when it fires
-**Method**: Manual inspection of each case's verifier log, YAML metadata, and OBLIGE diagnostic output
+**Method**: Manual inspection of each case's verifier log, YAML metadata, and BPFix diagnostic output
 
 ---
 
 ## Methodology
 
-For each `established_then_lost` case OBLIGE produces two (or three) spans:
+For each `established_then_lost` case BPFix produces two (or three) spans:
 - `proof_established`: instruction range + source line where the relevant register first gets a valid pointer/memory type
 - `proof_lost` (optional): instruction where the type degrades to scalar/invalid
 - `rejected`: instruction where the verifier refuses the access
@@ -30,28 +30,28 @@ For each case I check:
 
 | # | Case ID | Error ID | Taxonomy | Established Insn | Established Src | Rejected Insn | Rejected Src | Verdict | Notes |
 |---|---------|----------|----------|-----------------|-----------------|---------------|--------------|---------|-------|
-| 0 | dynptr-fail-clone-invalidate4 | OBLIGE-E011 | source_bug | insn 0-11 | dynptr_fail.c:1571 `bpf_ringbuf_reserve_dynptr(...)` | insn 26 | dynptr_fail.c:1581 `*data = 123;` | CORRECT | See analysis below |
-| 1 | dynptr-fail-clone-invalidate5 | OBLIGE-E011 | source_bug | insn 0-9 | dynptr_fail.c:1597 `bpf_ringbuf_reserve_dynptr(...)` | insn 26 | dynptr_fail.c:1607 `*data = 123;` | CORRECT | Same pattern as case 0 |
-| 2 | dynptr-fail-clone-invalidate6 | OBLIGE-E011 | source_bug | insn 0-11 | dynptr_fail.c:1624 `bpf_ringbuf_reserve_dynptr(...)` | insn 30 | dynptr_fail.c:1637 `*data = 123;` | CORRECT | Same pattern as case 0 |
-| 3 | dynptr-fail-clone-skb-packet-data | OBLIGE-E011 | source_bug | insn 2-3 | dynptr_fail.c:1647 `char buffer[sizeof(__u32)] = {};` | insn 30 | dynptr_fail.c:1663 `*data = 123;` | PARTIALLY_CORRECT | Established source is misleading; see below |
-| 4 | dynptr-fail-clone-xdp-packet-data | OBLIGE-E011 | source_bug | insn 2-3 | dynptr_fail.c:1673 `char buffer[sizeof(__u32)] = {};` | insn 28 | dynptr_fail.c:1690 `*data = 123;` | PARTIALLY_CORRECT | Same issue as case 3 |
-| 5 | dynptr-fail-data-slice-oob-map-value | OBLIGE-E021 | env_mismatch | insn 11-14 | dynptr_fail.c:68 `bpf_map_lookup_elem(...)` | insn 28 | dynptr_fail.c:287 `val = *((char *)data + (sizeof(map_val)+1));` | INCORRECT | See analysis below |
-| 6 | dynptr-fail-data-slice-oob-ringbuf | OBLIGE-E021 | env_mismatch | insn 8-10 | dynptr_fail.c:239 `bpf_dynptr_data(&ptr, 0, 8)` | insn 13 | dynptr_fail.c:244 `val = *((char *)data + 8);` | PARTIALLY_CORRECT | See below |
-| 7 | dynptr-fail-data-slice-oob-skb | OBLIGE-E005 | lowering_artifact | insn 11-13 | dynptr_fail.c:262 `bpf_dynptr_slice_rdwr(...)` | insn 17 | dynptr_fail.c:267 `*(__u8*)(hdr + 1) = 1;` | CORRECT | See analysis below |
-| 8 | dynptr-fail-data-slice-use-after-release1 | OBLIGE-E011 | source_bug | insn 0-0 | dynptr_fail.c:295 `int data_slice_use_after_release1(...)` | insn 20 | dynptr_fail.c:310 `val = sample->pid;` | PARTIALLY_CORRECT | Established is function signature line, not actual establishment |
-| 9 | dynptr-fail-data-slice-use-after-release2 | OBLIGE-E011 | source_bug | insn 24-26 | dynptr_fail.c:341 `bpf_ringbuf_submit_dynptr(...)` | insn 27 | dynptr_fail.c:344 `sample->pid = 23;` | CORRECT | See analysis below |
-| 10 | dynptr-fail-dynptr-invalidate-slice-reinit | OBLIGE-E011 | source_bug | insn 30-31 | dynptr_fail.c:64 `__u32 key = 0, *map_val;` | insn 52 | dynptr_fail.c:961 `return *p;` | PARTIALLY_CORRECT | See below |
-| 11 | dynptr-fail-invalid-data-slices | OBLIGE-E011 | source_bug | insn 1-2 | dynptr_fail.c:64 `__u32 key = 0, *map_val;` | insn 38 | dynptr_fail.c:1381 `*slice = 1;` | PARTIALLY_CORRECT | See below |
-| 12 | dynptr-fail-skb-invalid-data-slice1 | OBLIGE-E011 | source_bug | insn 2-6 | dynptr_fail.c:1099 `char buffer[sizeof(*hdr)] = {};` | insn 31 | dynptr_fail.c:1113 `val = hdr->h_proto;` | PARTIALLY_CORRECT | See below |
-| 13 | dynptr-fail-skb-invalid-data-slice2 | OBLIGE-E011 | source_bug | insn 2-6 | dynptr_fail.c:1125 `char buffer[sizeof(*hdr)] = {};` | insn 28 | dynptr_fail.c:1139 `hdr->h_proto = 1;` | PARTIALLY_CORRECT | Same as case 12 |
-| 14 | dynptr-fail-skb-invalid-data-slice3 | OBLIGE-E011 | source_bug | insn 15-18 | dynptr_fail.c:1152 `char buffer[sizeof(*hdr)] = {};` | insn 45 | dynptr_fail.c:1165 `val = hdr->h_proto;` | PARTIALLY_CORRECT | Same as case 12 |
-| 15 | dynptr-fail-skb-invalid-data-slice4 | OBLIGE-E011 | source_bug | insn 15-18 | dynptr_fail.c:1178 `char buffer[sizeof(*hdr)] = {};` | insn 41 | dynptr_fail.c:1190 `hdr->h_proto = 1;` | PARTIALLY_CORRECT | Same as case 12 |
-| 16 | dynptr-fail-xdp-invalid-data-slice1 | OBLIGE-E011 | source_bug | insn 2-6 | dynptr_fail.c:1202 `char buffer[sizeof(*hdr)] = {};` | insn 32 | dynptr_fail.c:1215 `val = hdr->h_proto;` | PARTIALLY_CORRECT | Same as case 12 |
-| 17 | dynptr-fail-xdp-invalid-data-slice2 | OBLIGE-E011 | source_bug | insn 2-6 | dynptr_fail.c:1227 `char buffer[sizeof(*hdr)] = {};` | insn 29 | dynptr_fail.c:1240 `hdr->h_proto = 1;` | PARTIALLY_CORRECT | Same as case 12 |
-| 18 | iters-iter-err-too-permissive1 | OBLIGE-E011 | source_bug | insn 4-7 | iters.c:544 `bpf_map_lookup_elem(...)` | insn 27 | iters.c:552 `*map_val = 123;` | CORRECT | See analysis below |
-| 19 | iters-iter-err-too-permissive2 | OBLIGE-E002 | source_bug | insn 4-7 | iters.c:566 `bpf_map_lookup_elem(...)` | insn 33 | iters.c:574 `*map_val = 123;` | CORRECT | See analysis below |
-| 20 | iters-iter-err-too-permissive3 | OBLIGE-E002 | source_bug | insn 13-19 | iters.c:590 `bpf_map_lookup_elem(...)` | insn 28 | iters.c:595 `*map_val = 123;` | CORRECT | See analysis below |
-| 21 | iters-iter-err-unsafe-asm-loop | OBLIGE-E005 | lowering_artifact | insn 0-4 | iters.c:83 `[zero]"r"(zero),` | insn 5-24 | iters.c:59 `asm volatile (` | PARTIALLY_CORRECT | See below |
+| 0 | dynptr-fail-clone-invalidate4 | BPFIX-E011 | source_bug | insn 0-11 | dynptr_fail.c:1571 `bpf_ringbuf_reserve_dynptr(...)` | insn 26 | dynptr_fail.c:1581 `*data = 123;` | CORRECT | See analysis below |
+| 1 | dynptr-fail-clone-invalidate5 | BPFIX-E011 | source_bug | insn 0-9 | dynptr_fail.c:1597 `bpf_ringbuf_reserve_dynptr(...)` | insn 26 | dynptr_fail.c:1607 `*data = 123;` | CORRECT | Same pattern as case 0 |
+| 2 | dynptr-fail-clone-invalidate6 | BPFIX-E011 | source_bug | insn 0-11 | dynptr_fail.c:1624 `bpf_ringbuf_reserve_dynptr(...)` | insn 30 | dynptr_fail.c:1637 `*data = 123;` | CORRECT | Same pattern as case 0 |
+| 3 | dynptr-fail-clone-skb-packet-data | BPFIX-E011 | source_bug | insn 2-3 | dynptr_fail.c:1647 `char buffer[sizeof(__u32)] = {};` | insn 30 | dynptr_fail.c:1663 `*data = 123;` | PARTIALLY_CORRECT | Established source is misleading; see below |
+| 4 | dynptr-fail-clone-xdp-packet-data | BPFIX-E011 | source_bug | insn 2-3 | dynptr_fail.c:1673 `char buffer[sizeof(__u32)] = {};` | insn 28 | dynptr_fail.c:1690 `*data = 123;` | PARTIALLY_CORRECT | Same issue as case 3 |
+| 5 | dynptr-fail-data-slice-oob-map-value | BPFIX-E021 | env_mismatch | insn 11-14 | dynptr_fail.c:68 `bpf_map_lookup_elem(...)` | insn 28 | dynptr_fail.c:287 `val = *((char *)data + (sizeof(map_val)+1));` | INCORRECT | See analysis below |
+| 6 | dynptr-fail-data-slice-oob-ringbuf | BPFIX-E021 | env_mismatch | insn 8-10 | dynptr_fail.c:239 `bpf_dynptr_data(&ptr, 0, 8)` | insn 13 | dynptr_fail.c:244 `val = *((char *)data + 8);` | PARTIALLY_CORRECT | See below |
+| 7 | dynptr-fail-data-slice-oob-skb | BPFIX-E005 | lowering_artifact | insn 11-13 | dynptr_fail.c:262 `bpf_dynptr_slice_rdwr(...)` | insn 17 | dynptr_fail.c:267 `*(__u8*)(hdr + 1) = 1;` | CORRECT | See analysis below |
+| 8 | dynptr-fail-data-slice-use-after-release1 | BPFIX-E011 | source_bug | insn 0-0 | dynptr_fail.c:295 `int data_slice_use_after_release1(...)` | insn 20 | dynptr_fail.c:310 `val = sample->pid;` | PARTIALLY_CORRECT | Established is function signature line, not actual establishment |
+| 9 | dynptr-fail-data-slice-use-after-release2 | BPFIX-E011 | source_bug | insn 24-26 | dynptr_fail.c:341 `bpf_ringbuf_submit_dynptr(...)` | insn 27 | dynptr_fail.c:344 `sample->pid = 23;` | CORRECT | See analysis below |
+| 10 | dynptr-fail-dynptr-invalidate-slice-reinit | BPFIX-E011 | source_bug | insn 30-31 | dynptr_fail.c:64 `__u32 key = 0, *map_val;` | insn 52 | dynptr_fail.c:961 `return *p;` | PARTIALLY_CORRECT | See below |
+| 11 | dynptr-fail-invalid-data-slices | BPFIX-E011 | source_bug | insn 1-2 | dynptr_fail.c:64 `__u32 key = 0, *map_val;` | insn 38 | dynptr_fail.c:1381 `*slice = 1;` | PARTIALLY_CORRECT | See below |
+| 12 | dynptr-fail-skb-invalid-data-slice1 | BPFIX-E011 | source_bug | insn 2-6 | dynptr_fail.c:1099 `char buffer[sizeof(*hdr)] = {};` | insn 31 | dynptr_fail.c:1113 `val = hdr->h_proto;` | PARTIALLY_CORRECT | See below |
+| 13 | dynptr-fail-skb-invalid-data-slice2 | BPFIX-E011 | source_bug | insn 2-6 | dynptr_fail.c:1125 `char buffer[sizeof(*hdr)] = {};` | insn 28 | dynptr_fail.c:1139 `hdr->h_proto = 1;` | PARTIALLY_CORRECT | Same as case 12 |
+| 14 | dynptr-fail-skb-invalid-data-slice3 | BPFIX-E011 | source_bug | insn 15-18 | dynptr_fail.c:1152 `char buffer[sizeof(*hdr)] = {};` | insn 45 | dynptr_fail.c:1165 `val = hdr->h_proto;` | PARTIALLY_CORRECT | Same as case 12 |
+| 15 | dynptr-fail-skb-invalid-data-slice4 | BPFIX-E011 | source_bug | insn 15-18 | dynptr_fail.c:1178 `char buffer[sizeof(*hdr)] = {};` | insn 41 | dynptr_fail.c:1190 `hdr->h_proto = 1;` | PARTIALLY_CORRECT | Same as case 12 |
+| 16 | dynptr-fail-xdp-invalid-data-slice1 | BPFIX-E011 | source_bug | insn 2-6 | dynptr_fail.c:1202 `char buffer[sizeof(*hdr)] = {};` | insn 32 | dynptr_fail.c:1215 `val = hdr->h_proto;` | PARTIALLY_CORRECT | Same as case 12 |
+| 17 | dynptr-fail-xdp-invalid-data-slice2 | BPFIX-E011 | source_bug | insn 2-6 | dynptr_fail.c:1227 `char buffer[sizeof(*hdr)] = {};` | insn 29 | dynptr_fail.c:1240 `hdr->h_proto = 1;` | PARTIALLY_CORRECT | Same as case 12 |
+| 18 | iters-iter-err-too-permissive1 | BPFIX-E011 | source_bug | insn 4-7 | iters.c:544 `bpf_map_lookup_elem(...)` | insn 27 | iters.c:552 `*map_val = 123;` | CORRECT | See analysis below |
+| 19 | iters-iter-err-too-permissive2 | BPFIX-E002 | source_bug | insn 4-7 | iters.c:566 `bpf_map_lookup_elem(...)` | insn 33 | iters.c:574 `*map_val = 123;` | CORRECT | See analysis below |
+| 20 | iters-iter-err-too-permissive3 | BPFIX-E002 | source_bug | insn 13-19 | iters.c:590 `bpf_map_lookup_elem(...)` | insn 28 | iters.c:595 `*map_val = 123;` | CORRECT | See analysis below |
+| 21 | iters-iter-err-unsafe-asm-loop | BPFIX-E005 | lowering_artifact | insn 0-4 | iters.c:83 `[zero]"r"(zero),` | insn 5-24 | iters.c:59 `asm volatile (` | PARTIALLY_CORRECT | See below |
 
 ---
 
@@ -81,7 +81,7 @@ The verifier log shows:
 - `rejected` at insn 30 (case 3): `*(u32 *)(r7 +0) = r1` — R7 is `scalar` because `bpf_skb_pull_data` (insn 25) invalidated the packet data pointer. This is CORRECT.
 - Taxonomy `source_bug` is correct: the user used the packet data slice after calling `bpf_skb_pull_data`, which invalidates all previously obtained packet pointers.
 
-**Issue**: The `proof_established` span points to the buffer initialization (a zeroing instruction) rather than the real establishment (`bpf_dynptr_slice_rdwr` return at insn 17). The register being tracked (`R7`) was assigned from `R10+fp` as a buffer base at insn 2–3, but the actual pointer validity as a dynptr slice comes from insn 19–20. OBLIGE correctly identifies the lifecycle (something was valid then became invalid), but mis-attributes the *establishment* to the buffer setup rather than the slice call.
+**Issue**: The `proof_established` span points to the buffer initialization (a zeroing instruction) rather than the real establishment (`bpf_dynptr_slice_rdwr` return at insn 17). The register being tracked (`R7`) was assigned from `R10+fp` as a buffer base at insn 2–3, but the actual pointer validity as a dynptr slice comes from insn 19–20. BPFix correctly identifies the lifecycle (something was valid then became invalid), but mis-attributes the *establishment* to the buffer setup rather than the slice call.
 
 **Verdict**: PARTIALLY_CORRECT — rejected instruction is accurate, established instruction is too early (wrong semantic event).
 
@@ -97,7 +97,7 @@ The verifier log shows:
 - The actual error is at insn 28: `r1 = *(u8 *)(r0 +5)` — accessing byte 5 of a 4-byte slice.
 - The real verifier error is **out-of-bounds access** (`invalid access to memory, mem_size=4 off=5 size=1`), NOT a type mismatch or use-after-release. This is an `env_mismatch` or more accurately a bounds violation.
 
-**Issue**: OBLIGE assigns `proof_established` to insn 11–14 (the `bpf_map_lookup_elem` call tracking R0), and `rejected` to insn 28. But this is NOT an `established_then_lost` pattern — the pointer type remains `mem` throughout; the failure is an arithmetic offset going out of the declared size. The lifecycle classification `established_then_lost` is wrong here: the proof was never "lost" in the sense of type degradation — the access simply exceeded the bounds that were established.
+**Issue**: BPFix assigns `proof_established` to insn 11–14 (the `bpf_map_lookup_elem` call tracking R0), and `rejected` to insn 28. But this is NOT an `established_then_lost` pattern — the pointer type remains `mem` throughout; the failure is an arithmetic offset going out of the declared size. The lifecycle classification `established_then_lost` is wrong here: the proof was never "lost" in the sense of type degradation — the access simply exceeded the bounds that were established.
 - Taxonomy `env_mismatch` is also questionable for what is essentially a source bug (accessing beyond declared bounds of the dynptr slice).
 
 **Verdict**: INCORRECT — this is an out-of-bounds access, not a type-establishment/type-loss scenario. Misclassified as `established_then_lost`.
@@ -146,7 +146,7 @@ The verifier log shows:
 - The rejected instruction is perfectly correct. The error is genuine use-after-release.
 - Taxonomy `source_bug` is correct.
 
-**Issue**: `proof_established` incorrectly points to the function entry (insn 0, R6 = fp0) instead of the actual data slice acquisition at insn 11–12. OBLIGE tracked R6 = fp0 (frame pointer) as "establishment" but the relevant establishment is when R0/R6 gets the dynptr data slice type.
+**Issue**: `proof_established` incorrectly points to the function entry (insn 0, R6 = fp0) instead of the actual data slice acquisition at insn 11–12. BPFix tracked R6 = fp0 (frame pointer) as "establishment" but the relevant establishment is when R0/R6 gets the dynptr data slice type.
 
 **Verdict**: PARTIALLY_CORRECT — rejected instruction is exactly right, established instruction is wrong (function entry vs. actual slice acquisition).
 
@@ -163,7 +163,7 @@ The verifier log shows:
 - `rejected` at insn 27: `*(u32 *)(r7 +0) = r6` — R7 is `scalar` because its ref_obj_id was released. Error message: `R7 invalid mem access 'scalar'`.
 - Taxonomy `source_bug` is correct.
 
-**Note**: Technically the `proof_established` event here covers the *release* point (submit), which is where validity *ends*, not where it was originally established. But OBLIGE's model maps `proof_established` to the last valid use before release, which is semantically meaningful — it identifies the submit call as the causal event. This is correct in spirit.
+**Note**: Technically the `proof_established` event here covers the *release* point (submit), which is where validity *ends*, not where it was originally established. But BPFix's model maps `proof_established` to the last valid use before release, which is semantically meaningful — it identifies the submit call as the causal event. This is correct in spirit.
 
 **Verdict**: CORRECT — both spans identify the right instructions; the lifecycle story is accurate.
 
@@ -214,7 +214,7 @@ The verifier log for case 12 (skb-invalid-data-slice1) shows:
 - `rejected` at insn 31: `val = hdr->h_proto` — CORRECT, this is the exact instruction that fails.
 - Taxonomy `source_bug` is correct: using the packet slice after `bpf_skb_pull_data` or `bpf_xdp_adjust_head`.
 
-**Issue**: Consistent pattern — `proof_established` is attributed to the buffer initialization (zero-filling the fallback buffer passed to `bpf_dynptr_slice`) rather than the actual `bpf_dynptr_slice` call. This is because OBLIGE appears to track the first instruction that moves the tracked register (R8 = R10 + offset) rather than the call that actually assigns it a valid mem type.
+**Issue**: Consistent pattern — `proof_established` is attributed to the buffer initialization (zero-filling the fallback buffer passed to `bpf_dynptr_slice`) rather than the actual `bpf_dynptr_slice` call. This is because BPFix appears to track the first instruction that moves the tracked register (R8 = R10 + offset) rather than the call that actually assigns it a valid mem type.
 
 Cases 13, 14, 15, 16, 17 follow the identical pattern.
 
@@ -279,19 +279,19 @@ The verifier log shows:
 
 ### Pattern 1: Established span points to buffer init instead of slice call (6 cases: 3, 4, 12, 13, 14, 15, 16, 17)
 
-In cases where `bpf_dynptr_slice` or `bpf_dynptr_slice_rdwr` is used with a fallback buffer, OBLIGE tracks the register (R7 or R8) that first holds `fp + offset` (the buffer base), rather than the register that eventually holds the *result* of the slice call. The buffer initialization zeroing (`*(u16 *)(r10 -20) = r6`) happens 1–2 instructions before the dynptr call and uses the same stack area, so OBLIGE incorrectly attributes establishment to the initialization rather than the actual slice acquisition.
+In cases where `bpf_dynptr_slice` or `bpf_dynptr_slice_rdwr` is used with a fallback buffer, BPFix tracks the register (R7 or R8) that first holds `fp + offset` (the buffer base), rather than the register that eventually holds the *result* of the slice call. The buffer initialization zeroing (`*(u16 *)(r10 -20) = r6`) happens 1–2 instructions before the dynptr call and uses the same stack area, so BPFix incorrectly attributes establishment to the initialization rather than the actual slice acquisition.
 
 **Fix**: When the first appearance of a tracked register is a stack frame base (`fp + offset`), look for a subsequent helper call result (`mem_or_null`) that overwrites it — that is the real establishment.
 
 ### Pattern 2: Established span points to variable declaration / function entry (cases 8, 10, 11)
 
-OBLIGE attributes `proof_established` to the very first instruction involving the tracked register, even if that instruction is a zeroing, a frame pointer copy, or a boilerplate `key = 0` variable setup. These are not semantically meaningful type-establishment events.
+BPFix attributes `proof_established` to the very first instruction involving the tracked register, even if that instruction is a zeroing, a frame pointer copy, or a boilerplate `key = 0` variable setup. These are not semantically meaningful type-establishment events.
 
 **Fix**: Filter out `fp + offset` copies, function entry instructions, and stack-based zero-initialization from the establishment candidates.
 
 ### Pattern 3: Out-of-bounds OOB misclassified as established_then_lost (cases 5, 6)
 
-When the actual error is an arithmetic offset exceeding the declared slice size (e.g., accessing byte 5 of a 4-byte dynptr slice), OBLIGE still fires the `established_then_lost` path because the error message format matches. But the causal story is different: the pointer type never changed — only the arithmetic offset is wrong. This is an out-of-bounds access, not a use-after-release or type degradation.
+When the actual error is an arithmetic offset exceeding the declared slice size (e.g., accessing byte 5 of a 4-byte dynptr slice), BPFix still fires the `established_then_lost` path because the error message format matches. But the causal story is different: the pointer type never changed — only the arithmetic offset is wrong. This is an out-of-bounds access, not a use-after-release or type degradation.
 
 **Fix**: Distinguish between "type changed to scalar" failures (true established_then_lost) and "type is still mem but offset exceeds mem_size" failures (which should map to a different proof obligation, e.g., `bounds_check`).
 
@@ -305,9 +305,9 @@ When the rejected instruction is inside an `asm volatile` block, the source-leve
 
 ## Conclusions
 
-1. **The `rejected` span is accurate in 21/22 cases (95%)** — OBLIGE reliably identifies the instruction where the verifier rejects the program, even for complex dynptr/iterator patterns.
+1. **The `rejected` span is accurate in 21/22 cases (95%)** — BPFix reliably identifies the instruction where the verifier rejects the program, even for complex dynptr/iterator patterns.
 
-2. **The `proof_established` span is accurate in 8–10/22 cases (36–45%)** — The main failure mode is attributing establishment to buffer initialization or function entry rather than the actual helper call that grants the valid pointer type. This is a systematic flaw in how OBLIGE identifies the "first valid use" of a register.
+2. **The `proof_established` span is accurate in 8–10/22 cases (36–45%)** — The main failure mode is attributing establishment to buffer initialization or function entry rather than the actual helper call that grants the valid pointer type. This is a systematic flaw in how BPFix identifies the "first valid use" of a register.
 
 3. **One false positive (case 5)**: An out-of-bounds access is misclassified as `established_then_lost`. The pointer type was always `mem` — the issue is arithmetic overflow past the slice size. This represents a distinct failure class that should trigger a different proof obligation.
 

@@ -1,4 +1,4 @@
-"""Public Python package surface for OBLIGE."""
+"""Public Python package surface for BPFix."""
 
 from __future__ import annotations
 

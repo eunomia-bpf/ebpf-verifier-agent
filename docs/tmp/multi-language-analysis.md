@@ -1,4 +1,4 @@
-# Multi-Language Analysis of OBLIGE's Diagnostic Pipeline
+# Multi-Language Analysis of BPFix's Diagnostic Pipeline
 
 Date: 2026-03-12
 
@@ -40,7 +40,7 @@ The table below separates three notions of output quality:
 - `BTF/source in log`: `parse_trace(...).has_btf_annotations` is true.
 - `Real file path in output`: rendered `source_span.path` or `metadata.proof_spans[*].path` is an actual filename rather than `<bytecode>` or `<source>`.
 
-| Language | Cases with log | Diagnostics succeeded | Any obligation | Specific obligation | BTF/source in log | Real file path in output | Non-empty proof spans | Avg proof spans | Multi-span cases | `OBLIGE-UNKNOWN` |
+| Language | Cases with log | Diagnostics succeeded | Any obligation | Specific obligation | BTF/source in log | Real file path in output | Non-empty proof spans | Avg proof spans | Multi-span cases | `BPFIX-UNKNOWN` |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Rust / Aya | 18 | 18 | 10/18 (56%) | 5/18 (28%) | 1/18 (6%) | 1/18 (6%) | 18/18 (100%) | 1.61 | 6/18 (33%) | 0/18 |
 | Go / Cilium | 7 | 7 | 6/7 (86%) | 5/7 (71%) | 3/7 (43%) | 1/7 (14%) | 7/7 (100%) | 1.29 | 1/7 (14%) | 2/7 (29%) |
@@ -53,7 +53,7 @@ Important note: the rendered diagnostic JSON does not currently expose a `metada
 - Rust `github-aya-rs-aya-1233.yaml` is the best Aya example: the log contains source annotations and the output preserves real file paths (`probes.bpf.c`).
 - Go `github-cilium-cilium-41522.yaml` is the best Cilium example: packet-access obligation inference succeeds and the output preserves a real file path (`builtins.h`).
 - Go `github-cilium-cilium-37478.yaml` and `github-cilium-cilium-41412.yaml` contain source-style annotations in the log, but the rendered output degrades them to `<source>` instead of a stable filename.
-- Go `github-cilium-cilium-41996.yaml` and `github-cilium-cilium-44216.yaml` return `OBLIGE-UNKNOWN`; both logs are wrapped or non-standard enough that classification falls back to a generic result.
+- Go `github-cilium-cilium-41996.yaml` and `github-cilium-cilium-44216.yaml` return `BPFIX-UNKNOWN`; both logs are wrapped or non-standard enough that classification falls back to a generic result.
 
 ## Do Rust/Go Cases Get the Same Quality Diagnostics as C Cases?
 
@@ -66,14 +66,14 @@ At the informative level, not uniformly:
 
 - Go / Cilium is closest to the C baseline on obligation quality: 6/7 cases get an obligation, and 5/7 of those are specific rather than generic.
 - Rust / Aya is weaker on obligation specificity: only 5/18 cases get a specific obligation, and many of the rest collapse to verifier-limit or generic safety diagnostics.
-- Go / Cilium is weaker than both Aya and the C baseline on error-id precision because 2/7 cases fall back to `OBLIGE-UNKNOWN`.
+- Go / Cilium is weaker than both Aya and the C baseline on error-id precision because 2/7 cases fall back to `BPFIX-UNKNOWN`.
 - Source correlation is weak across all languages in this GitHub issue corpus, but the limitation tracks log richness more than source language. Aya only has one source-annotated log; Cilium has three; the C baseline has none.
 
 One limitation matters here: the C comparison set in `github_issues/` has only one case, so this is enough to judge rough parity, not enough to claim strong cross-language superiority or inferiority.
 
 ## Conclusion
 
-OBLIGE is language-agnostic in execution, but only conditionally language-agnostic in diagnostic quality.
+BPFix is language-agnostic in execution, but only conditionally language-agnostic in diagnostic quality.
 
 What works across Rust / Aya, Go / Cilium, and the C baseline:
 
@@ -89,5 +89,5 @@ What is still not uniformly language-agnostic:
 
 The defensible claim from this run is:
 
-- OBLIGE is language-agnostic for trace-driven execution of the diagnostic pipeline.
-- OBLIGE is not yet uniformly language-agnostic in realized diagnostic quality; the main driver is verifier-log richness, not the frontend language by itself.
+- BPFix is language-agnostic for trace-driven execution of the diagnostic pipeline.
+- BPFix is not yet uniformly language-agnostic in realized diagnostic quality; the main driver is verifier-log richness, not the frontend language by itself.

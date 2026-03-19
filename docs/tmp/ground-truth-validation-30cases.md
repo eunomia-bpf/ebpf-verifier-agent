@@ -69,7 +69,7 @@ Both `verifier_bug` cases (`github-cilium-cilium-44216`, `github-cilium-cilium-4
 
 | Case ID (truncated) | GT | Predicted | Diagnoser class | proof_status | Root cause of error |
 |---|---|---|---|---|---|
-| `kernel-selftest-iters-state-safety-destroy-without-creating-fail-raw-tp-a14b4d3a` | `source_bug` | `lowering_artifact` | `env_mismatch` | `established_then_lost` | TransitionAnalyzer override; Diagnoser misclassifies (OBLIGE-E021 → env_mismatch) |
+| `kernel-selftest-iters-state-safety-destroy-without-creating-fail-raw-tp-a14b4d3a` | `source_bug` | `lowering_artifact` | `env_mismatch` | `established_then_lost` | TransitionAnalyzer override; Diagnoser misclassifies (BPFIX-E021 → env_mismatch) |
 | `kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d` | `source_bug` | `lowering_artifact` | `env_mismatch` | `established_then_lost` | TransitionAnalyzer override; Diagnoser misclassifies dynptr double-release as E021 |
 | `kernel-selftest-exceptions-fail-reject-subprog-with-lock-tc-f038a1b8` | `source_bug` | `lowering_artifact` | `env_mismatch` | `established_then_lost` | TransitionAnalyzer override; Diagnoser misclassifies lock-held call as E021 |
 | `kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39` | `source_bug` | `lowering_artifact` | `source_bug` | `established_then_lost` | TransitionAnalyzer correctly finds `established_then_lost` but this is a null-check source bug, not lowering |
@@ -122,9 +122,9 @@ This rule was correct for pure lowering artifacts, but the TransitionAnalyzer pr
 
 **Fix needed**: Only override to `lowering_artifact` when the Diagnoser also says `lowering_artifact` (or at most when `proof_status == "established_then_lost"` AND the Diagnoser has no conflicting classification). A `source_bug` or `verifier_limit` Diagnoser result should win over a TransitionAnalyzer `established_then_lost`.
 
-### Bug 2: Diagnoser misclassifies several KS selftest errors as `env_mismatch` (OBLIGE-E021)
+### Bug 2: Diagnoser misclassifies several KS selftest errors as `env_mismatch` (BPFIX-E021)
 
-The Diagnoser assigns `OBLIGE-E021` (btf_reference_metadata_missing) to cases that should be `source_bug` because the error string `"reference type('UNKNOWN') size cannot be determined"` appears in logs for multiple different failure modes (not just BTF metadata issues). This affects: `a14b4d3a` (iter destroy), `3722429d` (dynptr double-release), `f038a1b8` (lock-held call), `2cc2b993` (dynptr offset), `65737a09` (iter leak).
+The Diagnoser assigns `BPFIX-E021` (btf_reference_metadata_missing) to cases that should be `source_bug` because the error string `"reference type('UNKNOWN') size cannot be determined"` appears in logs for multiple different failure modes (not just BTF metadata issues). This affects: `a14b4d3a` (iter destroy), `3722429d` (dynptr double-release), `f038a1b8` (lock-held call), `2cc2b993` (dynptr offset), `65737a09` (iter leak).
 
 ### Bug 3: `verifier_limit` guard in pipeline.py not activated for non-ClassificationOnlyPredicate cases
 
@@ -155,7 +155,7 @@ The new engine is better than the heuristic on `lowering_artifact` (67% vs 33%) 
 
 1. **Critical**: Fix `_normalize_failure_class()` to use Diagnoser taxonomy when available and not `"unknown"`. The override should only apply when Diagnoser itself returns `"lowering_artifact"` OR when Diagnoser returns `"source_bug"` AND `proof_status == "established_then_lost"` (the overlap case requiring human review). Never override `verifier_limit`, `env_mismatch`, or `verifier_bug` based on proof_status alone.
 
-2. **High**: Fix Diagnoser to not assign OBLIGE-E021 to KS selftest cases that use iterators/dynptrs with the `"UNKNOWN"` reference type pattern. These are almost always `source_bug` (iterator misuse, dynptr contract violations).
+2. **High**: Fix Diagnoser to not assign BPFIX-E021 to KS selftest cases that use iterators/dynptrs with the `"UNKNOWN"` reference type pattern. These are almost always `source_bug` (iterator misuse, dynptr contract violations).
 
 3. **Medium**: Extend the `is_verifier_limit` guard in `pipeline.py` to also trigger when the Diagnoser's taxonomy_class (from `diagnosis`) is `"verifier_limit"`, not only when using `ClassificationOnlyPredicate`.
 
