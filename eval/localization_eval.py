@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -46,6 +45,7 @@ class CaseLocalizationResult:
     bpfix_proof_lost_insn_idx: int | None
     bpfix_proof_established_insn_idx: int | None
     bpfix_rejected_insn_idx: int | None
+    bpfix_has_any_earlier_span: bool
     bpfix_has_earlier_non_rejected_span: bool
     proof_lost_exact_match: bool
     proof_lost_within_5: bool
@@ -113,11 +113,7 @@ def extract_role_insn(spans: list[dict[str, Any]], role: str) -> int | None:
         if not isinstance(span, dict) or span.get("role") != role:
             continue
         insn_range = span.get("insn_range")
-        if (
-            isinstance(insn_range, list)
-            and insn_range
-            and isinstance(insn_range[0], int)
-        ):
+        if isinstance(insn_range, list) and insn_range and isinstance(insn_range[0], int):
             return insn_range[0]
     return None
 
@@ -148,11 +144,7 @@ def evaluate_case(label: GroundTruthLabel, batch_row: dict[str, Any]) -> CaseLoc
     proof_established = extract_role_insn(spans, "proof_established")
     rejected = extract_role_insn(spans, "rejected")
     non_rejected_spans = [insn for insn in (proof_lost, proof_established) if insn is not None]
-    earlier_non_rejected_span = (
-        bool(non_rejected_spans)
-        and rejected is not None
-        and min(non_rejected_spans) < rejected
-    )
+    any_earlier_span = bool(non_rejected_spans) and rejected is not None and min(non_rejected_spans) < rejected
 
     proof_lost_abs_error = (
         abs(proof_lost - label.root_cause_insn_idx)
@@ -185,7 +177,8 @@ def evaluate_case(label: GroundTruthLabel, batch_row: dict[str, Any]) -> CaseLoc
         bpfix_proof_lost_insn_idx=proof_lost,
         bpfix_proof_established_insn_idx=proof_established,
         bpfix_rejected_insn_idx=rejected,
-        bpfix_has_earlier_non_rejected_span=earlier_non_rejected_span,
+        bpfix_has_any_earlier_span=any_earlier_span,
+        bpfix_has_earlier_non_rejected_span=any_earlier_span,
         proof_lost_exact_match=proof_lost == label.root_cause_insn_idx,
         proof_lost_within_5=proof_lost_abs_error is not None and proof_lost_abs_error <= 5,
         proof_lost_within_10=proof_lost_abs_error is not None and proof_lost_abs_error <= 10,
@@ -198,50 +191,57 @@ def evaluate_case(label: GroundTruthLabel, batch_row: dict[str, Any]) -> CaseLoc
     )
 
 
-def rate_str(numerator: int, denominator: int) -> str:
-    if denominator == 0:
-        return "0/0 (n/a)"
-    return f"{numerator}/{denominator} ({(100.0 * numerator / denominator):.1f}%)"
+def metric_entry(count: int, denominator: int, *, na_when_zero: bool = False) -> dict[str, Any]:
+    rate = None if na_when_zero and denominator == 0 else ((count / denominator) if denominator else 0.0)
+    return {
+        "count": count,
+        "denominator": denominator,
+        "rate": rate,
+    }
 
 
-def summarize_group(rows: list[CaseLocalizationResult]) -> dict[str, Any]:
-    proof_lost_present = [row for row in rows if row.proof_lost_span_present]
-    rejected_present = [row for row in rows if row.rejected_span_present]
-    gt_earlier = [row for row in rows if row.gt_root_before_reject]
-    gt_later = [row for row in rows if row.gt_root_after_reject]
-    proof_lost_errors = [
-        row.proof_lost_abs_error
-        for row in proof_lost_present
-        if row.proof_lost_abs_error is not None
-    ]
-    rejected_errors = [
-        row.rejected_abs_error
-        for row in rejected_present
-        if row.rejected_abs_error is not None
-    ]
+def metric_str(metric: dict[str, Any]) -> str:
+    count = int(metric["count"])
+    denominator = int(metric["denominator"])
+    rate = metric["rate"]
+    if rate is None:
+        return f"{count}/{denominator} (n/a)"
+    return f"{count}/{denominator} ({(100.0 * rate):.1f}%)"
 
+
+def mean_or_none(values: list[int | None]) -> float | None:
+    concrete = [value for value in values if value is not None]
+    if not concrete:
+        return None
+    return round(sum(concrete) / len(concrete), 2)
+
+
+def summarize_subset(rows: list[CaseLocalizationResult]) -> dict[str, Any]:
+    proof_lost_rows = [row for row in rows if row.proof_lost_span_present]
     return {
         "cases": len(rows),
-        "proof_lost_present": len(proof_lost_present),
-        "proof_established_present": sum(row.proof_established_span_present for row in rows),
-        "rejected_present": len(rejected_present),
-        "proof_lost_exact_match": sum(row.proof_lost_exact_match for row in rows),
-        "proof_lost_within_5": sum(row.proof_lost_within_5 for row in rows),
-        "proof_lost_within_10": sum(row.proof_lost_within_10 for row in rows),
-        "rejected_exact_match": sum(row.rejected_exact_match for row in rows),
-        "gt_root_before_reject": len(gt_earlier),
-        "gt_root_after_reject": len(gt_later),
-        "bpfix_found_earlier_span": sum(row.bpfix_has_earlier_non_rejected_span for row in gt_earlier),
-        "mean_proof_lost_abs_error": (
-            round(sum(proof_lost_errors) / len(proof_lost_errors), 2)
-            if proof_lost_errors
-            else None
-        ),
-        "mean_rejected_abs_error": (
-            round(sum(rejected_errors) / len(rejected_errors), 2)
-            if rejected_errors
-            else None
-        ),
+        "gt_root_before_reject": sum(row.gt_root_before_reject for row in rows),
+        "gt_root_after_reject": sum(row.gt_root_after_reject for row in rows),
+        "coverage": {
+            "proof_lost": metric_entry(sum(row.proof_lost_span_present for row in rows), len(rows)),
+            "any_earlier_span": metric_entry(sum(row.bpfix_has_any_earlier_span for row in rows), len(rows)),
+            "proof_established": metric_entry(sum(row.proof_established_span_present for row in rows), len(rows)),
+            "rejected": metric_entry(sum(row.rejected_span_present for row in rows), len(rows)),
+        },
+        "accuracy_given_proof_lost": {
+            "cases": len(proof_lost_rows),
+            "exact": metric_entry(sum(row.proof_lost_exact_match for row in proof_lost_rows), len(proof_lost_rows), na_when_zero=True),
+            "within_5": metric_entry(sum(row.proof_lost_within_5 for row in proof_lost_rows), len(proof_lost_rows), na_when_zero=True),
+            "within_10": metric_entry(sum(row.proof_lost_within_10 for row in proof_lost_rows), len(proof_lost_rows), na_when_zero=True),
+            "mean_abs_error": mean_or_none([row.proof_lost_abs_error for row in proof_lost_rows]),
+        },
+        "end_to_end": {
+            "exact": metric_entry(sum(row.proof_lost_exact_match for row in rows), len(rows)),
+            "within_5": metric_entry(sum(row.proof_lost_within_5 for row in rows), len(rows)),
+            "within_10": metric_entry(sum(row.proof_lost_within_10 for row in rows), len(rows)),
+        },
+        "rejected_exact_match": metric_entry(sum(row.rejected_exact_match for row in rows), len(rows)),
+        "mean_rejected_abs_error": mean_or_none([row.rejected_abs_error for row in rows]),
     }
 
 
@@ -263,51 +263,66 @@ def markdown_table(headers: list[str], rows: list[list[str]]) -> str:
     return "\n".join(lines)
 
 
-def build_report(
-    *,
-    results: list[CaseLocalizationResult],
+def build_conditional_accuracy_rows(
     overall: dict[str, Any],
-    by_taxonomy: dict[str, dict[str, Any]],
-    by_distance_bucket: dict[str, dict[str, Any]],
-    nonzero_distance_summary: dict[str, Any],
-) -> str:
-    total_nonzero = sum(1 for row in results if row.distance_insns > 0)
-    gt_earlier = sum(row.gt_root_before_reject for row in results)
-    gt_later = sum(row.gt_root_after_reject for row in results)
+    has_proof_lost: dict[str, Any],
+    no_proof_lost: dict[str, Any],
+) -> list[list[str]]:
+    return [
+        [
+            "Proof-lost coverage",
+            metric_str(overall["coverage"]["proof_lost"]),
+            metric_str(has_proof_lost["coverage"]["proof_lost"]),
+            metric_str(no_proof_lost["coverage"]["proof_lost"]),
+        ],
+        [
+            "Any-earlier coverage",
+            metric_str(overall["coverage"]["any_earlier_span"]),
+            metric_str(has_proof_lost["coverage"]["any_earlier_span"]),
+            metric_str(no_proof_lost["coverage"]["any_earlier_span"]),
+        ],
+        [
+            "Exact GT root match",
+            metric_str(overall["end_to_end"]["exact"]),
+            metric_str(has_proof_lost["accuracy_given_proof_lost"]["exact"]),
+            metric_str(no_proof_lost["accuracy_given_proof_lost"]["exact"]),
+        ],
+        [
+            "Within 5 insns",
+            metric_str(overall["end_to_end"]["within_5"]),
+            metric_str(has_proof_lost["accuracy_given_proof_lost"]["within_5"]),
+            metric_str(no_proof_lost["accuracy_given_proof_lost"]["within_5"]),
+        ],
+        [
+            "Within 10 insns",
+            metric_str(overall["end_to_end"]["within_10"]),
+            metric_str(has_proof_lost["accuracy_given_proof_lost"]["within_10"]),
+            metric_str(no_proof_lost["accuracy_given_proof_lost"]["within_10"]),
+        ],
+    ]
 
-    taxonomy_rows = []
-    for taxonomy_class, summary in ordered_items(by_taxonomy, TAXONOMY_ORDER):
-        taxonomy_rows.append(
+
+def build_breakdown_rows(summary_by_key: dict[str, dict[str, Any]], order: tuple[str, ...]) -> list[list[str]]:
+    rows: list[list[str]] = []
+    for key, summary in ordered_items(summary_by_key, order):
+        rows.append(
             [
-                f"`{taxonomy_class}`",
+                f"`{key}`",
                 str(summary["cases"]),
-                rate_str(summary["proof_lost_exact_match"], summary["cases"]),
-                rate_str(summary["proof_lost_within_5"], summary["cases"]),
-                rate_str(summary["proof_lost_within_10"], summary["cases"]),
-                rate_str(summary["rejected_exact_match"], summary["cases"]),
+                metric_str(summary["coverage"]["proof_lost"]),
+                metric_str(summary["coverage"]["any_earlier_span"]),
+                metric_str(summary["accuracy_given_proof_lost"]["exact"]),
+                metric_str(summary["accuracy_given_proof_lost"]["within_5"]),
+                metric_str(summary["accuracy_given_proof_lost"]["within_10"]),
             ]
         )
+    return rows
 
-    distance_rows = []
-    for bucket, summary in ordered_items(by_distance_bucket, DISTANCE_BUCKET_ORDER):
-        distance_rows.append(
-            [
-                f"`{bucket}`",
-                str(summary["cases"]),
-                rate_str(summary["proof_lost_exact_match"], summary["cases"]),
-                rate_str(summary["proof_lost_within_5"], summary["cases"]),
-                rate_str(summary["proof_lost_within_10"], summary["cases"]),
-                rate_str(summary["rejected_exact_match"], summary["cases"]),
-            ]
-        )
 
-    focus_rows = []
-    for row in sorted(
-        [item for item in results if item.distance_insns > 0],
-        key=lambda item: (item.distance_insns, item.case_id),
-        reverse=True,
-    ):
-        focus_rows.append(
+def build_nonzero_focus_rows(rows: list[CaseLocalizationResult]) -> list[list[str]]:
+    table_rows: list[list[str]] = []
+    for row in sorted(rows, key=lambda item: (item.distance_insns, item.case_id), reverse=True):
+        table_rows.append(
             [
                 f"`{row.case_id}`",
                 f"`{row.taxonomy_class}`",
@@ -316,70 +331,135 @@ def build_report(
                 str(row.bpfix_proof_lost_insn_idx) if row.bpfix_proof_lost_insn_idx is not None else "n/a",
                 str(row.bpfix_proof_established_insn_idx) if row.bpfix_proof_established_insn_idx is not None else "n/a",
                 str(row.bpfix_rejected_insn_idx) if row.bpfix_rejected_insn_idx is not None else "n/a",
+                "Yes" if row.bpfix_has_any_earlier_span else "No",
                 "Yes" if row.proof_lost_exact_match else "No",
                 "Yes" if row.proof_lost_within_5 else "No",
-                "Yes" if row.bpfix_has_earlier_non_rejected_span else "No",
+                "Yes" if row.proof_lost_within_10 else "No",
             ]
         )
+    return table_rows
+
+
+def build_report(
+    *,
+    results: list[CaseLocalizationResult],
+    overall: dict[str, Any],
+    has_proof_lost: dict[str, Any],
+    no_proof_lost: dict[str, Any],
+    by_taxonomy: dict[str, dict[str, Any]],
+    by_distance_bucket: dict[str, dict[str, Any]],
+    nonzero_distance_summary: dict[str, Any],
+    nonzero_with_any_earlier_summary: dict[str, Any],
+) -> str:
+    nonzero_distance_rows = [row for row in results if row.distance_insns > 0]
+    later_root_cases = [row.case_id for row in nonzero_distance_rows if row.gt_root_after_reject]
 
     lines = [
         "# Localization Evaluation",
         "",
         f"- Generated at: `{now_iso()}`",
         f"- Evaluated non-quarantined ground-truth cases: `{overall['cases']}`",
-        f"- Cases with `root_cause_insn_idx != rejected_insn_idx`: `{total_nonzero}`",
-        f"- Earlier-root cases (`root_cause_insn_idx < rejected_insn_idx`): `{gt_earlier}`",
-        f"- Later-root cases (`root_cause_insn_idx > rejected_insn_idx`): `{gt_later}`",
+        f"- Cases with `root_cause_insn_idx != rejected_insn_idx`: `{nonzero_distance_summary['cases']}`",
+        f"- Earlier-root cases (`root_cause_insn_idx < rejected_insn_idx`): `{overall['gt_root_before_reject']}`",
+        f"- Later-root cases (`root_cause_insn_idx > rejected_insn_idx`): `{overall['gt_root_after_reject']}`",
         "",
-        "## Overall",
+        "## Coverage Metrics",
         "",
-        f"- Proof-lost span present: `{rate_str(overall['proof_lost_present'], overall['cases'])}`",
-        f"- Proof-lost exact match: `{rate_str(overall['proof_lost_exact_match'], overall['cases'])}`",
-        f"- Proof-lost within 5 instructions: `{rate_str(overall['proof_lost_within_5'], overall['cases'])}`",
-        f"- Proof-lost within 10 instructions: `{rate_str(overall['proof_lost_within_10'], overall['cases'])}`",
-        f"- Rejected span exact match: `{rate_str(overall['rejected_exact_match'], overall['cases'])}`",
-        f"- Earlier-span found on earlier-root cases: `{rate_str(overall['bpfix_found_earlier_span'], overall['gt_root_before_reject'])}`",
+        f"- Proof-lost span emitted: `{metric_str(overall['coverage']['proof_lost'])}`",
+        f"- Any earlier span before the rejected span: `{metric_str(overall['coverage']['any_earlier_span'])}`",
+        f"- Proof-established span emitted: `{metric_str(overall['coverage']['proof_established'])}`",
+        f"- Rejected span emitted: `{metric_str(overall['coverage']['rejected'])}`",
+        f"- Rejected span exact match: `{metric_str(overall['rejected_exact_match'])}`",
+        "",
+        "## Accuracy When `proof_lost` Is Present",
+        "",
+        f"- Cases with `proof_lost`: `{has_proof_lost['cases']}`",
+        f"- Exact GT root-cause match: `{metric_str(has_proof_lost['accuracy_given_proof_lost']['exact'])}`",
+        f"- Within 5 instructions: `{metric_str(has_proof_lost['accuracy_given_proof_lost']['within_5'])}`",
+        f"- Within 10 instructions: `{metric_str(has_proof_lost['accuracy_given_proof_lost']['within_10'])}`",
+        f"- Mean absolute error on `proof_lost` cases: `{has_proof_lost['accuracy_given_proof_lost']['mean_abs_error']}`" if has_proof_lost["accuracy_given_proof_lost"]["mean_abs_error"] is not None else "- Mean absolute error on `proof_lost` cases: `n/a`",
+        "",
+        "## Conditional Accuracy Table",
+        "",
+        "- `All` uses end-to-end denominators over all labeled cases; `Has proof_lost` is the conditional root-cause accuracy slice.",
+        "",
+        markdown_table(
+            [
+                "Metric",
+                f"All (N={overall['cases']})",
+                f"Has proof_lost (N={has_proof_lost['cases']})",
+                f"No proof_lost (N={no_proof_lost['cases']})",
+            ],
+            build_conditional_accuracy_rows(overall, has_proof_lost, no_proof_lost),
+        ),
         "",
         "## By Taxonomy Class",
         "",
         markdown_table(
-            ["Taxonomy", "Cases", "Exact", "Within 5", "Within 10", "Rejected Exact"],
-            taxonomy_rows,
+            [
+                "Taxonomy",
+                "Cases",
+                "Proof-lost Coverage",
+                "Any-earlier Coverage",
+                "Exact (proof_lost)",
+                "Within 5 (proof_lost)",
+                "Within 10 (proof_lost)",
+            ],
+            build_breakdown_rows(by_taxonomy, TAXONOMY_ORDER),
         ),
         "",
         "## By Distance Bucket",
         "",
         markdown_table(
-            ["Distance", "Cases", "Exact", "Within 5", "Within 10", "Rejected Exact"],
-            distance_rows,
+            [
+                "Distance",
+                "Cases",
+                "Proof-lost Coverage",
+                "Any-earlier Coverage",
+                "Exact (proof_lost)",
+                "Within 5 (proof_lost)",
+                "Within 10 (proof_lost)",
+            ],
+            build_breakdown_rows(by_distance_bucket, DISTANCE_BUCKET_ORDER),
         ),
         "",
-        "## Nonzero-Distance Focus",
+        "## Distance Analysis",
         "",
         f"- Nonzero-distance cases: `{nonzero_distance_summary['cases']}`",
-        f"- Proof-lost exact match: `{rate_str(nonzero_distance_summary['proof_lost_exact_match'], nonzero_distance_summary['cases'])}`",
-        f"- Proof-lost within 5 instructions: `{rate_str(nonzero_distance_summary['proof_lost_within_5'], nonzero_distance_summary['cases'])}`",
-        f"- Proof-lost within 10 instructions: `{rate_str(nonzero_distance_summary['proof_lost_within_10'], nonzero_distance_summary['cases'])}`",
-        f"- Earlier-span found on earlier-root cases: `{rate_str(nonzero_distance_summary['bpfix_found_earlier_span'], nonzero_distance_summary['gt_root_before_reject'])}`",
-        "- Note: `distance_insns > 0` is not always an earlier-root case in the canonical labels. In the current ground truth there is one later-root case: `stackoverflow-74178703` (`root=204`, `reject=195`).",
-        "",
-        markdown_table(
-            [
-                "Case",
-                "Taxonomy",
-                "GT Root",
-                "GT Reject",
-                "BPFix Lost",
-                "BPFix Est",
-                "BPFix Reject",
-                "Exact",
-                "Within 5",
-                "Earlier Span?",
-            ],
-            focus_rows,
-        ),
-        "",
+        f"- Any earlier span on nonzero-distance cases: `{metric_str(nonzero_distance_summary['coverage']['any_earlier_span'])}`",
+        f"- Any earlier span on earlier-root cases only: `{metric_str(metric_entry(nonzero_with_any_earlier_summary['cases'], nonzero_distance_summary['gt_root_before_reject']))}`",
+        f"- Cases with any earlier span in the nonzero-distance slice: `{nonzero_with_any_earlier_summary['cases']}`",
+        f"- Exact GT root-cause match among that earlier-span slice: `{metric_str(nonzero_with_any_earlier_summary['accuracy_given_proof_lost']['exact'])}`",
+        f"- Within 5 instructions among that earlier-span slice: `{metric_str(nonzero_with_any_earlier_summary['accuracy_given_proof_lost']['within_5'])}`",
+        f"- Within 10 instructions among that earlier-span slice: `{metric_str(nonzero_with_any_earlier_summary['accuracy_given_proof_lost']['within_10'])}`",
+        "- Note: the current labeled set has one later-root outlier where the ground-truth root cause is after the reject site."
+        if later_root_cases
+        else "- Note: all nonzero-distance cases are earlier-root cases.",
     ]
+    if later_root_cases:
+        lines.append(f"- Later-root outlier(s): `{', '.join(later_root_cases)}`")
+    lines.extend(
+        (
+            "",
+            markdown_table(
+                [
+                    "Case",
+                    "Taxonomy",
+                    "GT Root",
+                    "GT Reject",
+                    "BPFix Lost",
+                    "BPFix Est",
+                    "BPFix Reject",
+                    "Any Earlier?",
+                    "Exact",
+                    "Within 5",
+                    "Within 10",
+                ],
+                build_nonzero_focus_rows(nonzero_distance_rows),
+            ),
+            "",
+        )
+    )
     return "\n".join(lines)
 
 
@@ -402,21 +482,28 @@ def main() -> int:
         if label.root_cause_insn_idx is not None and label.rejected_insn_idx is not None
     ]
 
+    overall = summarize_subset(results)
+    has_proof_lost_rows = [row for row in results if row.proof_lost_span_present]
+    no_proof_lost_rows = [row for row in results if not row.proof_lost_span_present]
+    has_proof_lost = summarize_subset(has_proof_lost_rows)
+    no_proof_lost = summarize_subset(no_proof_lost_rows)
+
     by_taxonomy: dict[str, dict[str, Any]] = {}
     for taxonomy_class in sorted({row.taxonomy_class for row in results}):
-        by_taxonomy[taxonomy_class] = summarize_group(
+        by_taxonomy[taxonomy_class] = summarize_subset(
             [row for row in results if row.taxonomy_class == taxonomy_class]
         )
 
     by_distance_bucket: dict[str, dict[str, Any]] = {}
     for bucket in sorted({row.distance_bucket for row in results}):
-        by_distance_bucket[bucket] = summarize_group(
+        by_distance_bucket[bucket] = summarize_subset(
             [row for row in results if row.distance_bucket == bucket]
         )
 
-    overall = summarize_group(results)
     nonzero_distance_rows = [row for row in results if row.distance_insns > 0]
-    nonzero_distance_summary = summarize_group(nonzero_distance_rows)
+    nonzero_distance_summary = summarize_subset(nonzero_distance_rows)
+    nonzero_with_any_earlier_rows = [row for row in nonzero_distance_rows if row.bpfix_has_any_earlier_span]
+    nonzero_with_any_earlier_summary = summarize_subset(nonzero_with_any_earlier_rows)
 
     payload = {
         "generated_at": now_iso(),
@@ -425,9 +512,20 @@ def main() -> int:
             "batch_results_path": str(args.batch_results_path),
         },
         "overall": overall,
+        "has_proof_lost": has_proof_lost,
+        "no_proof_lost": no_proof_lost,
+        "conditional_accuracy_table": {
+            "all_cases": overall,
+            "has_proof_lost": has_proof_lost,
+            "no_proof_lost": no_proof_lost,
+        },
         "by_taxonomy_class": by_taxonomy,
         "by_distance_bucket": by_distance_bucket,
-        "nonzero_distance_focus": nonzero_distance_summary,
+        "distance_analysis": {
+            "nonzero_distance": nonzero_distance_summary,
+            "nonzero_with_any_earlier_span": nonzero_with_any_earlier_summary,
+            "later_root_case_ids": [row.case_id for row in nonzero_distance_rows if row.gt_root_after_reject],
+        },
         "cases": [asdict(row) for row in results],
     }
 
@@ -438,9 +536,12 @@ def main() -> int:
         build_report(
             results=results,
             overall=overall,
+            has_proof_lost=has_proof_lost,
+            no_proof_lost=no_proof_lost,
             by_taxonomy=by_taxonomy,
             by_distance_bucket=by_distance_bucket,
             nonzero_distance_summary=nonzero_distance_summary,
+            nonzero_with_any_earlier_summary=nonzero_with_any_earlier_summary,
         ),
         encoding="utf-8",
     )

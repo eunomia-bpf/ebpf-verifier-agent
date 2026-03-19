@@ -49,6 +49,7 @@ help:
 	@echo "Batch evaluations (no LLM needed)"
 	@echo "  make eval-batch        Batch diagnostic eval on 302 cases → results/batch_diagnostic_results.json"
 	@echo "  make eval-localization Localization eval against ground-truth insn indices → results/localization_eval.json"
+	@echo "  make eval-fix-type     Fix-type eval against ground-truth repair labels → results/fix_type_eval.json"
 	@echo "  make eval-latency      Latency benchmark → results/latency_benchmark.json"
 	@echo "  make eval-pv           PV vs BPFix comparison → results/pv_comparison_expanded.json"
 	@echo "  make eval-language     Per-language breakdown → results/per_language_eval.json"
@@ -104,6 +105,14 @@ eval-localization:
 		--batch-results-path $(RESULTS_DIR)/batch_diagnostic_results.json \
 		--output-json $(RESULTS_DIR)/localization_eval.json \
 		--output-md $(TMP_DIR)/localization-eval-report.md
+
+.PHONY: eval-fix-type
+eval-fix-type:
+	@echo "[eval-fix-type] Evaluating BPFix repair hints against ground-truth fix types…"
+	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/fix_type_eval.py \
+		--batch-results-path $(RESULTS_DIR)/batch_diagnostic_results.json \
+		--output-json $(RESULTS_DIR)/fix_type_eval.json \
+		--output-md $(TMP_DIR)/fix-type-eval-report.md
 
 .PHONY: eval-latency
 eval-latency:

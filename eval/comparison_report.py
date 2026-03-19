@@ -34,6 +34,12 @@ METHOD_LABELS = {
     "ablation_c": "Ablation C",
 }
 CLASS_ORDER = ("source_bug", "lowering_artifact", "env_mismatch", "verifier_limit")
+SOURCE_ORDER = ("kernel_selftests", "stackoverflow", "github_issues")
+SOURCE_LABELS = {
+    "kernel_selftests": "kernel_selftests",
+    "stackoverflow": "stackoverflow",
+    "github_issues": "github_issues",
+}
 
 
 @dataclass(slots=True)
@@ -144,6 +150,14 @@ def precision_recall_f1(
     return precision, recall, f1, tp, fp, fn
 
 
+def macro_f1(predictions: dict[str, str], truth: dict[str, str], case_ids: list[str]) -> float:
+    scores = [
+        precision_recall_f1(predictions, truth, case_ids, target_class)[2]
+        for target_class in CLASS_ORDER
+    ]
+    return sum(scores) / len(scores) if scores else 0.0
+
+
 def mcnemar_exact(
     left: dict[str, str],
     right: dict[str, str],
@@ -234,6 +248,24 @@ def shared_case_ids(
     return [case_id for case_id in case_ids if case_id in results and case_id in labels]
 
 
+def case_source(case_id: str) -> str | None:
+    if case_id.startswith("kernel-selftest"):
+        return "kernel_selftests"
+    if case_id.startswith("stackoverflow"):
+        return "stackoverflow"
+    if case_id.startswith("github"):
+        return "github_issues"
+    return None
+
+
+def source_case_ids(case_ids: list[str], source: str) -> list[str]:
+    return [case_id for case_id in case_ids if case_source(case_id) == source]
+
+
+def external_case_ids(case_ids: list[str]) -> list[str]:
+    return [case_id for case_id in case_ids if case_source(case_id) in {"stackoverflow", "github_issues"}]
+
+
 def markdown_table(headers: list[str], rows: list[list[str]]) -> list[str]:
     lines = [
         "| " + " | ".join(headers) + " |",
@@ -294,11 +326,14 @@ def build_per_class_rows(
     case_ids: list[str],
 ) -> list[list[str]]:
     rows: list[list[str]] = []
+    predictions_by_method = {
+        method: method_predictions(results, method, case_ids)
+        for method in METHOD_ORDER
+    }
     for target_class in CLASS_ORDER:
         for method in METHOD_ORDER:
-            predictions = method_predictions(results, method, case_ids)
             precision, recall, f1, tp, fp, fn = precision_recall_f1(
-                predictions,
+                predictions_by_method[method],
                 truth,
                 case_ids,
                 target_class,
@@ -315,6 +350,19 @@ def build_per_class_rows(
                     str(fn),
                 ]
             )
+    for method in METHOD_ORDER:
+        rows.append(
+            [
+                "Macro-F1",
+                METHOD_LABELS[method],
+                "n/a",
+                "n/a",
+                pct(macro_f1(predictions_by_method[method], truth, case_ids)),
+                "n/a",
+                "n/a",
+                "n/a",
+            ]
+        )
     return rows
 
 
@@ -429,11 +477,15 @@ def render_dataset_section(
     results: dict[str, dict[str, Any]],
     truth: dict[str, str],
     case_ids: list[str],
+    *,
+    heading_level: int = 3,
+    include_mcnemar: bool = True,
 ) -> list[str]:
+    heading_prefix = "#" * heading_level
     lines = [
         f"- Labeled cases: `{len(case_ids)}`",
         "",
-        "### Overall Accuracy",
+        f"{heading_prefix} Overall Accuracy",
         "",
     ]
     lines.extend(
@@ -445,7 +497,7 @@ def render_dataset_section(
     lines.extend(
         (
             "",
-            "### Per-Class Precision / Recall / F1",
+            f"{heading_prefix} Per-Class Precision / Recall / F1",
             "",
         )
     )
@@ -455,19 +507,50 @@ def render_dataset_section(
             build_per_class_rows(results, truth, case_ids),
         )
     )
-    lines.extend(
-        (
-            "",
-            "### McNemar Tests",
-            "",
+    if include_mcnemar:
+        lines.extend(
+            (
+                "",
+                f"{heading_prefix} McNemar Tests",
+                "",
+            )
         )
-    )
-    lines.extend(
-        markdown_table(
-            ["Comparison", "BPFix-only correct", "Other-only correct", "Exact p"],
-            build_mcnemar_rows(results, truth, case_ids),
+        lines.extend(
+            markdown_table(
+                ["Comparison", "BPFix-only correct", "Other-only correct", "Exact p"],
+                build_mcnemar_rows(results, truth, case_ids),
+            )
         )
-    )
+    return lines
+
+
+def render_source_stratified_section(
+    results: dict[str, dict[str, Any]],
+    truth: dict[str, str],
+    case_ids: list[str],
+) -> list[str]:
+    lines: list[str] = []
+    for source in SOURCE_ORDER:
+        subset_ids = source_case_ids(case_ids, source)
+        lines.extend(
+            (
+                f"### {SOURCE_LABELS[source]}",
+                "",
+            )
+        )
+        lines.extend(
+            render_dataset_section(
+                SOURCE_LABELS[source],
+                results,
+                truth,
+                subset_ids,
+                heading_level=4,
+                include_mcnemar=False,
+            )
+        )
+        lines.append("")
+    if lines:
+        lines.pop()
     return lines
 
 
@@ -640,6 +723,25 @@ def main() -> int:
         lines,
         "Core Set",
         render_dataset_section("Core Set", results, labels, core_case_ids),
+    )
+    append_section(
+        lines,
+        "Source-Stratified Results",
+        render_source_stratified_section(results, labels, full_case_ids),
+    )
+    append_section(
+        lines,
+        "External Cases Only",
+        [
+            "- This slice excludes `kernel_selftests` and keeps only Stack Overflow + GitHub cases.",
+            "",
+            *render_dataset_section(
+                "External Cases Only",
+                results,
+                labels,
+                external_case_ids(full_case_ids),
+            ),
+        ],
     )
     append_section(
         lines,
