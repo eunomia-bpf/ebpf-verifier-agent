@@ -1987,7 +1987,7 @@
   log_quality: trace_rich
   eval_split: core
   duplicate_group: TLS SNI XDP parser near-duplicate (collect_ips_prog / server_name extraction)
-  core_representative: false
+  core_representative: true
 - case_id: stackoverflow-70760516
   source: stackoverflow
   language: C

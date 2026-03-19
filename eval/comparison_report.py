@@ -178,6 +178,8 @@ def labels_by_case(path: Path) -> dict[str, str]:
     for row in rows:
         if not isinstance(row, dict):
             continue
+        if row.get("quarantined"):
+            continue
         case_id = row.get("case_id")
         taxonomy = row.get("taxonomy") or row.get("taxonomy_class")
         if case_id and taxonomy:
@@ -410,13 +412,14 @@ def render_inputs_section(
         f"- Eligible cases in comparison run: `{len(full_ids)}`",
         f"- Core-set eligible cases: `{len(core_ids)}`",
     ]
-    if labels_path == DEFAULT_LABELS_V3_PATH and DEFAULT_LABELS_PATH.exists():
+    if labels_path == DEFAULT_LABELS_PATH and ARCHIVE_LABELS_PATH.exists():
         lines.append(
             "- `ground_truth.yaml` is used for the primary tables; the older `ground_truth_labels.yaml` is still used below for the historical 70.2% vs 75.7% gap analysis."
         )
-    elif labels_path == DEFAULT_LABELS_V2_PATH and DEFAULT_LABELS_PATH.exists():
+        lines.append("- Quarantined cases in `ground_truth.yaml` are excluded from the primary tables.")
+    elif labels_path == ARCHIVE_LABELS_PATH and DEFAULT_LABELS_PATH.exists():
         lines.append(
-            "- `ground_truth.yaml (v2)` is used for the primary tables; the older `ground_truth_labels.yaml` is still used below for the historical 70.2% vs 75.7% gap analysis."
+            "- `ground_truth_labels.yaml` is used for the primary tables; `ground_truth.yaml` remains the canonical label set."
         )
     return lines
 
@@ -644,8 +647,8 @@ def main() -> int:
         render_core_delta_section(results, labels, full_case_ids, core_case_ids),
     )
 
-    if DEFAULT_LABELS_PATH.exists():
-        old_labels = labels_by_case(DEFAULT_LABELS_PATH)
+    if ARCHIVE_LABELS_PATH.exists():
+        old_labels = labels_by_case(ARCHIVE_LABELS_PATH)
         old_case_ids = shared_case_ids(results, old_labels, eligible_ids)
         append_section(
             lines,
@@ -665,7 +668,7 @@ def main() -> int:
                 results,
                 labels,
                 full_case_ids,
-                "This section uses the same label file as the primary tables because `ground_truth_labels.yaml` is unavailable.",
+                "This section uses the same label file as the primary tables because `case_study/archive/ground_truth_labels.yaml` is unavailable.",
             ),
         )
 

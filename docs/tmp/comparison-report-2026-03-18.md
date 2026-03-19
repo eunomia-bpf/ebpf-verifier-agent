@@ -3,45 +3,46 @@
 ## Inputs
 
 - Results: `eval/results/ablation_results.json`
-- Labels: `case_study/ground_truth_v3.yaml`
+- Labels: `case_study/ground_truth.yaml`
 - Manifest: `case_study/eval_manifest.yaml`
-- Eligible cases in comparison run: `139`
-- Core-set eligible cases: `139`
-- `ground_truth_v3.yaml` is used for the primary tables; the older `ground_truth_labels.yaml` is still used below for the historical 70.2% vs 75.7% gap analysis.
+- Eligible cases in comparison run: `136`
+- Core-set eligible cases: `136`
+- `ground_truth.yaml` is used for the primary tables; the older `ground_truth_labels.yaml` is still used below for the historical 70.2% vs 75.7% gap analysis.
+- Quarantined cases in `ground_truth.yaml` are excluded from the primary tables.
 
 ## Full Corpus
 
-- Labeled cases: `139`
+- Labeled cases: `136`
 
 ### Overall Accuracy
 
 | Method | Correct / N | Accuracy | Wilson 95% CI |
 | --- | ---: | ---: | ---: |
-| BPFix | 109/139 | 78.4% | 70.9% to 84.4% |
-| Baseline | 105/139 | 75.5% | 67.8% to 81.9% |
-| Ablation A | 113/139 | 81.3% | 74.0% to 86.9% |
-| Ablation B | 110/139 | 79.1% | 71.6% to 85.1% |
-| Ablation C | 110/139 | 79.1% | 71.6% to 85.1% |
+| BPFix | 108/136 | 79.4% | 71.9% to 85.4% |
+| Baseline | 105/136 | 77.2% | 69.5% to 83.5% |
+| Ablation A | 112/136 | 82.4% | 75.1% to 87.8% |
+| Ablation B | 110/136 | 80.9% | 73.5% to 86.6% |
+| Ablation C | 110/136 | 80.9% | 73.5% to 86.6% |
 
 ### Per-Class Precision / Recall / F1
 
 | Class | Method | Precision | Recall | F1 | TP | FP | FN |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| source_bug | BPFix | 79.2% | 95.0% | 86.4% | 95 | 25 | 5 |
-| source_bug | Baseline | 79.5% | 89.0% | 84.0% | 89 | 23 | 11 |
-| source_bug | Ablation A | 80.3% | 98.0% | 88.3% | 98 | 24 | 2 |
-| source_bug | Ablation B | 78.4% | 98.0% | 87.1% | 98 | 27 | 2 |
-| source_bug | Ablation C | 78.0% | 99.0% | 87.2% | 99 | 28 | 1 |
-| lowering_artifact | BPFix | 50.0% | 20.0% | 28.6% | 4 | 4 | 16 |
-| lowering_artifact | Baseline | 37.5% | 30.0% | 33.3% | 6 | 10 | 14 |
-| lowering_artifact | Ablation A | 83.3% | 25.0% | 38.5% | 5 | 1 | 15 |
-| lowering_artifact | Ablation B | 66.7% | 10.0% | 17.4% | 2 | 1 | 18 |
-| lowering_artifact | Ablation C | 100.0% | 5.0% | 9.5% | 1 | 0 | 19 |
-| env_mismatch | BPFix | 87.5% | 46.7% | 60.9% | 7 | 1 | 8 |
-| env_mismatch | Baseline | 87.5% | 46.7% | 60.9% | 7 | 1 | 8 |
-| env_mismatch | Ablation A | 87.5% | 46.7% | 60.9% | 7 | 1 | 8 |
-| env_mismatch | Ablation B | 87.5% | 46.7% | 60.9% | 7 | 1 | 8 |
-| env_mismatch | Ablation C | 87.5% | 46.7% | 60.9% | 7 | 1 | 8 |
+| source_bug | BPFix | 80.5% | 95.0% | 87.2% | 95 | 23 | 5 |
+| source_bug | Baseline | 81.7% | 89.0% | 85.2% | 89 | 20 | 11 |
+| source_bug | Ablation A | 81.7% | 98.0% | 89.1% | 98 | 22 | 2 |
+| source_bug | Ablation B | 80.3% | 98.0% | 88.3% | 98 | 24 | 2 |
+| source_bug | Ablation C | 79.8% | 99.0% | 88.4% | 99 | 25 | 1 |
+| lowering_artifact | BPFix | 42.9% | 16.7% | 24.0% | 3 | 4 | 15 |
+| lowering_artifact | Baseline | 37.5% | 33.3% | 35.3% | 6 | 10 | 12 |
+| lowering_artifact | Ablation A | 80.0% | 22.2% | 34.8% | 4 | 1 | 14 |
+| lowering_artifact | Ablation B | 66.7% | 11.1% | 19.0% | 2 | 1 | 16 |
+| lowering_artifact | Ablation C | 100.0% | 5.6% | 10.5% | 1 | 0 | 17 |
+| env_mismatch | BPFix | 87.5% | 50.0% | 63.6% | 7 | 1 | 7 |
+| env_mismatch | Baseline | 87.5% | 50.0% | 63.6% | 7 | 1 | 7 |
+| env_mismatch | Ablation A | 87.5% | 50.0% | 63.6% | 7 | 1 | 7 |
+| env_mismatch | Ablation B | 87.5% | 50.0% | 63.6% | 7 | 1 | 7 |
+| env_mismatch | Ablation C | 87.5% | 50.0% | 63.6% | 7 | 1 | 7 |
 | verifier_limit | BPFix | 100.0% | 75.0% | 85.7% | 3 | 0 | 1 |
 | verifier_limit | Baseline | 100.0% | 75.0% | 85.7% | 3 | 0 | 1 |
 | verifier_limit | Ablation A | 100.0% | 75.0% | 85.7% | 3 | 0 | 1 |
@@ -52,44 +53,44 @@
 
 | Comparison | BPFix-only correct | Other-only correct | Exact p |
 | --- | ---: | ---: | ---: |
-| BPFix vs Baseline | 12 | 8 | 0.5034 |
+| BPFix vs Baseline | 11 | 8 | 0.6476 |
 | BPFix vs Ablation A | 3 | 7 | 0.3438 |
-| BPFix vs Ablation B | 4 | 5 | 1.0000 |
-| BPFix vs Ablation C | 3 | 4 | 1.0000 |
+| BPFix vs Ablation B | 3 | 5 | 0.7266 |
+| BPFix vs Ablation C | 2 | 4 | 0.6875 |
 
 ## Core Set
 
-- Labeled cases: `139`
+- Labeled cases: `136`
 
 ### Overall Accuracy
 
 | Method | Correct / N | Accuracy | Wilson 95% CI |
 | --- | ---: | ---: | ---: |
-| BPFix | 109/139 | 78.4% | 70.9% to 84.4% |
-| Baseline | 105/139 | 75.5% | 67.8% to 81.9% |
-| Ablation A | 113/139 | 81.3% | 74.0% to 86.9% |
-| Ablation B | 110/139 | 79.1% | 71.6% to 85.1% |
-| Ablation C | 110/139 | 79.1% | 71.6% to 85.1% |
+| BPFix | 108/136 | 79.4% | 71.9% to 85.4% |
+| Baseline | 105/136 | 77.2% | 69.5% to 83.5% |
+| Ablation A | 112/136 | 82.4% | 75.1% to 87.8% |
+| Ablation B | 110/136 | 80.9% | 73.5% to 86.6% |
+| Ablation C | 110/136 | 80.9% | 73.5% to 86.6% |
 
 ### Per-Class Precision / Recall / F1
 
 | Class | Method | Precision | Recall | F1 | TP | FP | FN |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| source_bug | BPFix | 79.2% | 95.0% | 86.4% | 95 | 25 | 5 |
-| source_bug | Baseline | 79.5% | 89.0% | 84.0% | 89 | 23 | 11 |
-| source_bug | Ablation A | 80.3% | 98.0% | 88.3% | 98 | 24 | 2 |
-| source_bug | Ablation B | 78.4% | 98.0% | 87.1% | 98 | 27 | 2 |
-| source_bug | Ablation C | 78.0% | 99.0% | 87.2% | 99 | 28 | 1 |
-| lowering_artifact | BPFix | 50.0% | 20.0% | 28.6% | 4 | 4 | 16 |
-| lowering_artifact | Baseline | 37.5% | 30.0% | 33.3% | 6 | 10 | 14 |
-| lowering_artifact | Ablation A | 83.3% | 25.0% | 38.5% | 5 | 1 | 15 |
-| lowering_artifact | Ablation B | 66.7% | 10.0% | 17.4% | 2 | 1 | 18 |
-| lowering_artifact | Ablation C | 100.0% | 5.0% | 9.5% | 1 | 0 | 19 |
-| env_mismatch | BPFix | 87.5% | 46.7% | 60.9% | 7 | 1 | 8 |
-| env_mismatch | Baseline | 87.5% | 46.7% | 60.9% | 7 | 1 | 8 |
-| env_mismatch | Ablation A | 87.5% | 46.7% | 60.9% | 7 | 1 | 8 |
-| env_mismatch | Ablation B | 87.5% | 46.7% | 60.9% | 7 | 1 | 8 |
-| env_mismatch | Ablation C | 87.5% | 46.7% | 60.9% | 7 | 1 | 8 |
+| source_bug | BPFix | 80.5% | 95.0% | 87.2% | 95 | 23 | 5 |
+| source_bug | Baseline | 81.7% | 89.0% | 85.2% | 89 | 20 | 11 |
+| source_bug | Ablation A | 81.7% | 98.0% | 89.1% | 98 | 22 | 2 |
+| source_bug | Ablation B | 80.3% | 98.0% | 88.3% | 98 | 24 | 2 |
+| source_bug | Ablation C | 79.8% | 99.0% | 88.4% | 99 | 25 | 1 |
+| lowering_artifact | BPFix | 42.9% | 16.7% | 24.0% | 3 | 4 | 15 |
+| lowering_artifact | Baseline | 37.5% | 33.3% | 35.3% | 6 | 10 | 12 |
+| lowering_artifact | Ablation A | 80.0% | 22.2% | 34.8% | 4 | 1 | 14 |
+| lowering_artifact | Ablation B | 66.7% | 11.1% | 19.0% | 2 | 1 | 16 |
+| lowering_artifact | Ablation C | 100.0% | 5.6% | 10.5% | 1 | 0 | 17 |
+| env_mismatch | BPFix | 87.5% | 50.0% | 63.6% | 7 | 1 | 7 |
+| env_mismatch | Baseline | 87.5% | 50.0% | 63.6% | 7 | 1 | 7 |
+| env_mismatch | Ablation A | 87.5% | 50.0% | 63.6% | 7 | 1 | 7 |
+| env_mismatch | Ablation B | 87.5% | 50.0% | 63.6% | 7 | 1 | 7 |
+| env_mismatch | Ablation C | 87.5% | 50.0% | 63.6% | 7 | 1 | 7 |
 | verifier_limit | BPFix | 100.0% | 75.0% | 85.7% | 3 | 0 | 1 |
 | verifier_limit | Baseline | 100.0% | 75.0% | 85.7% | 3 | 0 | 1 |
 | verifier_limit | Ablation A | 100.0% | 75.0% | 85.7% | 3 | 0 | 1 |
@@ -100,23 +101,23 @@
 
 | Comparison | BPFix-only correct | Other-only correct | Exact p |
 | --- | ---: | ---: | ---: |
-| BPFix vs Baseline | 12 | 8 | 0.5034 |
+| BPFix vs Baseline | 11 | 8 | 0.6476 |
 | BPFix vs Ablation A | 3 | 7 | 0.3438 |
-| BPFix vs Ablation B | 4 | 5 | 1.0000 |
-| BPFix vs Ablation C | 3 | 4 | 1.0000 |
+| BPFix vs Ablation B | 3 | 5 | 0.7266 |
+| BPFix vs Ablation C | 2 | 4 | 0.6875 |
 
 ## Core vs Full Delta
 
-- BPFix improves from `78.4%` to `78.4%` on the core subset (`+0.0pp`).
-- Baseline also improves from `75.5%` to `75.5%` (`+0.0pp`), so the BPFix-vs-baseline gap is nearly unchanged on trace-rich cases.
+- BPFix improves from `79.4%` to `79.4%` on the core subset (`+0.0pp`).
+- Baseline also improves from `77.2%` to `77.2%` (`+0.0pp`), so the BPFix-vs-baseline gap is nearly unchanged on trace-rich cases.
 
 | Method | Full Accuracy | Core Accuracy | Core - Full |
 | --- | ---: | ---: | ---: |
-| BPFix | 78.4% | 78.4% | +0.0pp |
-| Baseline | 75.5% | 75.5% | +0.0pp |
-| Ablation A | 81.3% | 81.3% | +0.0pp |
-| Ablation B | 79.1% | 79.1% | +0.0pp |
-| Ablation C | 79.1% | 79.1% | +0.0pp |
+| BPFix | 79.4% | 79.4% | +0.0pp |
+| Baseline | 77.2% | 77.2% | +0.0pp |
+| Ablation A | 82.4% | 82.4% | +0.0pp |
+| Ablation B | 80.9% | 80.9% | +0.0pp |
+| Ablation C | 80.9% | 80.9% | +0.0pp |
 
 ## Why BPFix Trails Baseline
 
