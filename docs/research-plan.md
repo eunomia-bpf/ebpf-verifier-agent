@@ -47,15 +47,26 @@
 
 > **当前 thesis**：
 > eBPF verifier 的 LOG_LEVEL2 trace 是完整的 proof attempt 记录（per-instruction abstract state）。
-> BPFix 从 BPF ISA specification（opcode byte）推断 rejection 处的 safety condition，
-> 然后通过 **(1) 全局监控该 condition 的 proof lifecycle** 和 **(2) 从 rejection 点的 backward slice** 交叉比较，精确定位 root cause 并分类 failure mode：
-> - Establishment_global ∩ Slice ≠ ∅ → proof 在 causal chain 上建立后被破坏 → **established_then_lost**
-> - Establishment_global ≠ ∅ 但 ∩ Slice = ∅ → proof 存在但编译器断开了连接 → **lowering_artifact**
-> - Establishment_global = ∅ → 从未有任何 register 满足 condition → **source_bug**
+> BPFix 从 BPF ISA specification（opcode byte）推断 rejection 处的 safety condition（register-parametric schema，不绑定具体 register），
+> 然后通过 **(1) 在 proof-compatible carriers 上监控 proof lifecycle（establishment + loss）** 和 **(2) 从 rejection 点的 backward slice** 交叉比较，分类 failure mode：
 >
-> 在此诊断基础上，BPFix 合成修复并通过 verifier oracle 验证，实现端到端自动化修复。
+> 前置过滤：structural classes（env_mismatch, verifier_limit, verifier_bug）由 error_id 直接分类，不进入 cross-analysis。
 >
-> **Safety condition 推断是 ISA-driven**（opcode byte → required property），不是 error message pattern matching（Pretty Verifier 的 91 regex 做法）。Opcode 是 ABI 稳定的，跨 kernel 版本不变。
+> Cross-analysis（仅对 proof-obligation failures）：
+> - 存在 on-chain establishment **且** 存在 later on-chain loss → **established_then_lost**
+> - 无 on-chain establishment，但存在 off-chain proof-compatible carrier establishment → **lowering_artifact**
+> - 无任何 proof-compatible carrier establishment → **source_bug**
+> - 证据不足（partial trace、多 obligation 冲突、loop-carried ambiguity） → **ambiguous**
+>
+> **关键改进（2026-03-18 design review 后）**：
+> - Safety condition 是 **register-parametric schema**（如 `PacketBounds(size=1, ptr_kind=pkt)`），不是绑定具体 register 的公式
+> - 监控范围是 **proof-compatible carriers**（同 pointer kind / provenance / alias class），不是"所有 register"
+> - 分类需要 establishment **和** loss 两个 witness，不是只看 establishment
+> - 增加 **ambiguous** bucket 处理 loop/merge/partial trace 等不确定情况
+>
+> 在此诊断基础上，BPFix 合成修复并通过 verifier oracle 验证。
+>
+> **Safety condition 推断是 ISA-driven**（opcode byte → required property），不是 error message pattern matching（Pretty Verifier 的 91 regex 做法）。这是工程稳定性选择，不是核心 novelty。
 >
 > 纯 userspace，不需要改 kernel。
 
@@ -120,23 +131,23 @@ unbounded min value is not allowed
 4. **Example (Para 4)**: Figure 1 — bounds check established on R5 (line 3), but LLVM uses R3 for access → proof exists but not on causal chain → lowering_artifact。BPFix 诊断 + 合成修复 + verifier oracle 验证
 5. **System + Results + Contributions (Para 5)**: Cross-analysis classification + end-to-end repair pipeline + evaluation
 
-### 1.2 Novelty（2026-03-18 第五次调整）
+### 1.2 Novelty（2026-03-18 第五次调整，design review 后修正）
 
-**核心 novelty（不是分类准确率——LLM 已做到 95%+）**：
+**诚实定位**：novelty 是 domain-specific composition over eBPF verifier traces，不是 new general analysis paradigm。Monitoring、slicing、generate-and-validate 都不新。新的是应用到 eBPF + 区分 lowering artifact + verifier-in-the-loop repair。
 
 **论文三大贡献**：
-1. **Cross-analysis classification** — 全局 proof monitoring（对所有 register 评估 safety condition 的 gap trajectory）× backward slice（从 error 点的 data+control 依赖）的交集判定 failure mode。三种情况精确对应三类故障：E∩S≠∅ → established_then_lost；E≠∅ ∧ E∩S=∅ → lowering_artifact；E=∅ → source_bug。这比单独的 monitor 或单独的 slice 更精确，尤其能区分 lowering artifact（proof 在不同 register 上存在但编译器断开了连接）
-2. **End-to-end diagnostic + repair pipeline** — 4 层架构：parse → analyze (safety condition inference + global monitoring + backward slice + cross-analysis) → present (Rust-style multi-span) → repair (template synthesis + verifier oracle + CEGAR-like loop)。纯 userspace，不改 kernel
-3. **Evaluation on 302 real-world failures** — root-cause precision, synthesis success rate, vs Pretty Verifier（数字待重跑确认）
+1. **Proof-carrier-aware cross-analysis** — 在 proof-compatible carriers 上监控 establishment+loss，与 backward slice 交叉判定 failure mode。比单独的 monitor 或 slice 更精确，尤其能区分 lowering artifact（proof 在 off-chain carrier 上存在但编译器断开了连接）。是 domain-specific diagnostic heuristic，不是 generally sound classifier
+2. **End-to-end diagnostic + repair pipeline** — 4 层架构：parse → analyze → present (Rust-style multi-span) → repair (diagnosis-guided generate-and-validate with verifier-in-the-loop)。纯 userspace，不改 kernel。注意：不是 CEGAR（不 refine abstraction），是 diagnosis-guided repair loop
+3. **Evaluation on 302 real-world failures** — 数字待重跑确认。核心 benchmark 应缩小到 ~60-80 trace-rich manually labeled cases
 
 **与 Pretty Verifier 的本质差异**：
 - Pretty Verifier：parse **1 行** error message（91 regex）→ 1 个 enhanced text + 1 个建议
-- BPFix：parse **500 行** state trace → cross-analysis classification + **多个源码位置** + 因果链 + 合成修复
+- BPFix：parse **500 行** state trace → cross-analysis + **多个源码位置** + 因果链 + 合成修复
 
-**Safety condition 的角色（诚实说明）**：
-- Safety condition 从 BPF ISA specification（opcode byte + helper signature table）推断，是 Layer 2 的**显式输入**
-- Backward slice (Step C) 不依赖 safety condition（纯结构分析），但 global monitoring (Step B) 需要它来计算 gap
-- 推断方式是 ISA-driven（跨版本稳定），不是 error message regex（Pretty Verifier 做法）
+**Novelty 不是**（诚实承认）：
+- ISA-driven safety condition inference = 工程选择（opcode lookup table vs error message regex），不是核心 novelty
+- "Second-order abstract interpretation" = overclaim，已删除
+- 修复 loop 不是 CEGAR — 不 refine verifier abstraction，是 search-based patch generation
 
 **Go 条件（全部满足才提交）**：
 1. ≥80 labeled cases ✅ 302 cases, 30 manual
@@ -178,63 +189,61 @@ Layer 1: PARSING（文本 → 结构化数据，regex 是合理的 lexer）
   输出: TracedInstruction[] — (insn_idx, opcode_hex, pre_state, post_state, btf_source)
   实现: log_parser.py + trace_parser.py
 
-Layer 2: ANALYSIS（核心贡献 — 纯结构化，零 regex）
+Layer 2: ANALYSIS（纯结构化，零 regex）
 
-  Step A: Safety condition inference
-    从 error instruction 的 opcode byte 推断 safety condition
-    LDX → BOUNDS (off+size ≤ range)
-    CALL → ARG_CONTRACT (from helper signature table)
-    ISA-driven, 跨版本稳定
+  Step A: Safety condition inference + operand role identification
+    从 error instruction 的 opcode byte 推断 register-parametric obligation schema
+    如 PacketBounds(size=1, ptr_kind=pkt)，不绑定具体 register
+    同时确定 slice seed registers 和 candidate proof carriers
     实现: opcode_safety.py + helper_signatures.py
 
-  Step B: Global proof monitoring
-    对 trace 中每条指令的每个相关 register，评估 safety condition
-    计算 verification gap = distance(actual_state, required_condition)
-    Establishment_global = {insn where gap transitions >0 → 0}
-    Loss_global = {insn where gap transitions 0 → >0}
-    实现: monitor.py
+  Step A': Structural class filtering
+    error_id 直接分类 env_mismatch / verifier_limit / verifier_bug
+    只有 proof-obligation failures 进入 Step B-D
 
-  Step C: Backward slice from error
-    CFG reconstruction from trace (branch opcodes + merge annotations)
-    Reaching definitions + control dependence
+  Step B: Proof-carrier-aware monitoring (与 C 并行)
+    在 proof-compatible carriers 上监控 obligation schema
+    carriers = 同 pointer kind / provenance / alias class 的 registers
+    记录 per-carrier establishments + losses（不是只记一个）
+    实现: monitor.py (需扩展为 per-carrier)
+
+  Step C: Backward slice from error (与 B 并行)
+    CFG reconstruction + reaching definitions + control dependence
     Slice = backward_slice(error_insn, error_register)
     实现: cfg_builder.py + dataflow.py + control_dep.py + slicer.py
 
   Step D: Cross-analysis classification
-    if Establishment_global ∩ Slice ≠ ∅:
-      → established_then_lost (proof 在 causal chain 上建立后被破坏)
-      root_cause = loss point within slice
-    elif Establishment_global ≠ ∅:
-      → lowering_artifact (proof 存在但在不同 register，编译器断开了连接)
-      root_cause = establishment point
-    else:
-      → source_bug (从未有任何 register 满足 condition)
-      root_cause = error instruction
-    实现: pipeline.py (待更新 #78)
+    需要 establishment + loss 两个 witness:
+    - on-chain establish + later on-chain loss → established_then_lost
+    - no on-chain establish, off-chain compatible carrier establish → lowering_artifact
+    - no establish on any compatible carrier → source_bug
+    - insufficient evidence (partial trace / loop / merge) → ambiguous
+    实现: pipeline.py (待实现 #78)
 
-  输出: Diagnosis(safety_condition, classification,
-                   establish_site, loss_site, backward_slice, gap)
+  输出: Diagnosis(obligation_schema, classification,
+                   per_carrier_lifecycle, backward_slice, gap)
 
 Layer 3: PRESENTATION
   输入: Diagnosis + BTF source annotations
   输出: Rust-style multi-span diagnostic (3-5 labeled spans) + structured JSON
   实现: source_correlator.py + renderer.py
 
-Layer 4: REPAIR（主要 novelty，待实现 #66-#68）
-  Step A: Template selection
-    从 condition type + gap value + classification 选修复策略
-    bounds gap → insert clamp/mask
-    null gap → insert null check
-    lowering artifact → insert redundant bounds check at access site
+Layer 4: REPAIR（待实现 #66-#68）
 
-  Step B: Template instantiation
-    从 gap 具体数值 + BTF source location → 生成修复代码片段
+  Phase 1: Local proof-preserving repairs
+    clamp/mask insertion
+    null-check insertion
+    redundant bounds-check insertion
+    __always_inline annotation
+    expression reuse (replace dereference with checked pointer)
 
-  Step C: Verifier oracle
-    修复代码 → compile → bpftool prog load → pass/fail
+  Phase 2: Structural repairs (更复杂，覆盖 pilot case 类型)
+    loop rewrite templates (bounded iteration + cursor)
+    bounded-cursor conversion
+    multi-location structural rewrites
 
-  Step D: Iterative refinement (CEGAR-like)
-    if fail → 分析新 rejection trace → 新 Diagnosis → 新修复 → 迭代
+  Verifier oracle: compile → bpftool prog load → pass/fail
+  Iterative: diagnosis-guided generate-and-validate (不是 CEGAR)
 
   实现: synthesizer.py + verifier_oracle.py
 ```
@@ -584,7 +593,17 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | 75 | **统一 corpus manifest** | ❌ | 当前 262 vs 263 vs 302 不一致。建 `case_study/eval_manifest.yaml` 统一定义 eligible cases |
 | 76 | **合并 ground truth 到一个文件** | ❌ | 当前分散在 `ground_truth_labels.yaml`（taxonomy only）+ `docs/tmp/manual-labeling-30cases.md`（markdown）。合并为一个 versioned YAML，含 taxonomy + error_id + fix_text |
 | 77 | **补 7 个缺 label 的 eligible cases** | ❌ | `stackoverflow-68815540`, `69413427`, `79812509`, `github-aya-*-1104/1324/546`, `katran-149` |
-| 78 | **Cross-analysis classification（global monitor × slice）** | ❌ | Establishment_global ∩ Slice 判定 failure mode：∩≠∅ → established_then_lost；∩=∅ but E≠∅ → lowering_artifact；E=∅ → source_bug |
-| 79 | **更新 §1 论文核心要求** | ❌ | 等 cross-analysis + Path B 实现后，根据实际能力重写 thesis + contribution bullets |
-| 80 | **更新 §2 设计架构** | ❌ | §2.1 移到 §3，§2.2 重写为实际 4-layer pipeline，§2.3 去掉没实现的 claims |
+| 78 | **Cross-analysis classification（proof-carrier-aware）** | ❌ | register-parametric schema + proof-compatible carriers + establish+loss witness + ambiguous bucket。Design review 发现原始 E∩S 规则有 5 个反例 |
+| 79 | **更新 §1/§2** | ✅ | thesis v5 + 4-layer v2 已更新（2026-03-18 design review 后） |
+| 80 | Design review | ✅ | cross-analysis 不 sound as stated，需 proof-carrier + loss witness + ambiguous。`docs/tmp/design-review-2026-03-18.md` |
+| 81 | Eval readiness review | ✅ | NOT READY for ATC/EuroSys。30 manual labels 不够，0 line-level annotation。`docs/tmp/eval-readiness-review-2026-03-18.md` |
+| 82 | Repair pilot (stackoverflow-70760516) | ✅ | buggy rejected, fixed passes on local kernel. `docs/tmp/repair-pilot-case-2026-03-18.md` |
+| 83 | **SafetyCondition → register-parametric schema** | ❌ | 当前 SafetyCondition 绑定具体 register，需改为 PacketBounds(size, ptr_kind) 等 schema |
+| 84 | **Monitor → per-carrier lifecycle** | ❌ | 当前 TraceMonitor 只记一个 establish/loss，需改为 per-carrier map |
+| 85 | **Corpus 分层：core_trace_rich / partial / message_only** | ❌ | ~219 trace-rich 做 core accuracy benchmark，44 partial/message-only 做 robustness |
+| 86 | **Selftest 去重** | ❌ | 130/171 重复 terminal-message family，core set 每 family 保留 1-2 个 |
+| 87 | **手动标注扩展到 60-80 trace-rich cases** | ❌ | 当前 30 manual，lowering 仅 6。需加 root-cause insn/line + fix_type 字段 |
+| 88 | **加 trivial regex baseline** | ❌ | eval 需要除 PV 外的更多 baseline：trivial message extraction + BPFix ablations |
+| 89 | **Layer 4 Phase 1 local repairs** | ❌ | clamp/mask, null-check, redundant bounds, __always_inline, expression reuse |
+| 90 | **Layer 4 Phase 2 structural repairs** | ❌ | loop rewrite, bounded-cursor, multi-location edits（pilot case 类型） |
 
