@@ -34,6 +34,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from eval.ground_truth import (
+    DEFAULT_GROUND_TRUTH_PATH,
+    GroundTruthLabel,
+    load_ground_truth_labels,
+)
 from interface.extractor.pipeline import diagnose
 from interface.extractor.rust_diagnostic import generate_diagnostic
 
@@ -90,7 +95,6 @@ SAVE_EVERY = 5              # save intermediate results after every N completed 
 
 DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "repair_experiment_results_v3.json"
 DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "repair-experiment-v3-results.md"
-DEFAULT_MANUAL_LABELS = ROOT / "docs" / "tmp" / "manual-labeling-30cases.md"
 
 # ── BTF-noise detection ────────────────────────────────────────────────────────
 BTF_MISLEADING_PATTERNS = (
@@ -327,20 +331,6 @@ def classify_fix_tags(texts: Iterable[str]) -> list[str]:
 
 # ── dataclasses ────────────────────────────────────────────────────────────────
 @dataclass(slots=True)
-class ManualLabel:
-    case_id: str
-    source_bucket: str
-    difficulty: str
-    taxonomy_class: str
-    error_id: str
-    confidence: str
-    localizability: str
-    specificity: str
-    rationale: str
-    ground_truth_fix: str
-
-
-@dataclass(slots=True)
 class CaseCandidate:
     case_id: str
     case_path: str
@@ -480,49 +470,6 @@ def wait_for_server(port: int, timeout: int) -> bool:
 def read_yaml(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as fh:
         return yaml.safe_load(fh) or {}
-
-
-def parse_markdown_row(line: str) -> list[str]:
-    return [cell.strip() for cell in line.strip().strip("|").split("|")]
-
-
-def load_manual_labels(path: Path) -> dict[str, ManualLabel]:
-    labels: dict[str, ManualLabel] = {}
-    if not path.exists():
-        return labels
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if not line.startswith("| `"):
-            continue
-        cells = parse_markdown_row(line)
-        if len(cells) < 10:
-            continue
-        case_id = cells[0].strip("`")
-        labels[case_id] = ManualLabel(
-            case_id=case_id,
-            source_bucket=cells[1],
-            difficulty=cells[2],
-            taxonomy_class=cells[3].strip("`"),
-            error_id=cells[4].strip("`"),
-            confidence=cells[5],
-            localizability=cells[6],
-            specificity=cells[7],
-            rationale=cells[8],
-            ground_truth_fix=cells[9],
-        )
-    return labels
-
-
-def lookup_manual_label(case_id: str, labels: dict[str, ManualLabel]) -> ManualLabel | None:
-    direct = labels.get(case_id)
-    if direct is not None:
-        return direct
-    if not case_id.startswith("kernel-selftest-"):
-        return None
-    matches = [
-        lbl for lid, lbl in labels.items()
-        if lid.startswith(case_id + "-") or case_id.startswith(lid + "-")
-    ]
-    return matches[0] if len(matches) == 1 else None
 
 
 def iter_case_paths(dirs: Iterable[Path]) -> list[Path]:
@@ -714,12 +661,12 @@ def is_trace_rich(candidate: CaseCandidate) -> bool:
 
 def infer_taxonomy(
     *,
-    manual_label: ManualLabel | None,
+    ground_truth_label: GroundTruthLabel | None,
     expected_fix_tags: list[str],
     diagnosis_taxonomy: str | None,
 ) -> tuple[str, str]:
-    if manual_label is not None and manual_label.taxonomy_class in ALLOWED_TAXONOMIES:
-        return manual_label.taxonomy_class, "manual_label"
+    if ground_truth_label is not None and ground_truth_label.taxonomy_class in ALLOWED_TAXONOMIES:
+        return ground_truth_label.taxonomy_class, "ground_truth"
     scores: Counter[str] = Counter()
     for tag in expected_fix_tags:
         hint = FIX_TAG_TAXONOMY.get(tag)
@@ -790,9 +737,9 @@ def selection_score(candidate: CaseCandidate) -> tuple[int, list[str]]:
 
     if candidate.manual_label_present:
         score += 120
-        notes.append("manual_label:+120")
+        notes.append("ground_truth:+120")
 
-    if candidate.ground_truth_fix_source == "manual_label":
+    if candidate.ground_truth_fix_source == "ground_truth":
         score += 80
         notes.append("curated_fix:+80")
     elif candidate.ground_truth_fix_source != "missing":
@@ -820,9 +767,9 @@ def selection_score(candidate: CaseCandidate) -> tuple[int, list[str]]:
         score += 35
         notes.append("specific_fix:+35")
 
-    if candidate.taxonomy_source == "manual_label":
+    if candidate.taxonomy_source == "ground_truth":
         score += 50
-        notes.append("manual_taxonomy:+50")
+        notes.append("ground_truth_taxonomy:+50")
     elif candidate.taxonomy_source == "fix_tag_heuristic":
         score += 20
         notes.append("tag_taxonomy:+20")
@@ -851,7 +798,7 @@ def selection_score(candidate: CaseCandidate) -> tuple[int, list[str]]:
     return score, notes
 
 
-def build_candidate(path: Path, manual_labels: dict[str, ManualLabel]) -> CaseCandidate | None:
+def build_candidate(path: Path, ground_truth_labels: dict[str, GroundTruthLabel]) -> CaseCandidate | None:
     case_data = read_yaml(path)
     case_id = str(case_data.get("case_id") or path.stem)
     verifier_log = extract_verifier_log(case_data)
@@ -878,12 +825,12 @@ def build_candidate(path: Path, manual_labels: dict[str, ManualLabel]) -> CaseCa
 
     btf_misleading = is_btf_misleading(diagnostic_text)
 
-    manual_label = lookup_manual_label(case_id, manual_labels)
+    ground_truth_label = ground_truth_labels.get(case_id)
     raw_fix_text, raw_fix_source, raw_fix_is_accepted = extract_raw_fix_text(case_data)
 
-    if manual_label is not None and manual_label.ground_truth_fix.strip():
-        ground_truth_fix = manual_label.ground_truth_fix.strip()
-        ground_truth_fix_source = "manual_label"
+    if ground_truth_label is not None and ground_truth_label.fix_direction.strip():
+        ground_truth_fix = ground_truth_label.fix_direction.strip()
+        ground_truth_fix_source = "ground_truth"
     elif raw_fix_text:
         ground_truth_fix = raw_fix_text
         ground_truth_fix_source = raw_fix_source
@@ -903,7 +850,7 @@ def build_candidate(path: Path, manual_labels: dict[str, ManualLabel]) -> CaseCa
         expected_fix_type_source = "diagnosis_fallback" if expected_fix_tags else "missing"
 
     taxonomy_class, taxonomy_source = infer_taxonomy(
-        manual_label=manual_label,
+        ground_truth_label=ground_truth_label,
         expected_fix_tags=expected_fix_tags,
         diagnosis_taxonomy=diag.taxonomy_class,
     )
@@ -932,8 +879,8 @@ def build_candidate(path: Path, manual_labels: dict[str, ManualLabel]) -> CaseCa
         raw_fix_is_accepted=raw_fix_is_accepted,
         ground_truth_fix=ground_truth_fix,
         ground_truth_fix_source=ground_truth_fix_source,
-        manual_label_present=manual_label is not None,
-        manual_confidence=manual_label.confidence if manual_label is not None else None,
+        manual_label_present=ground_truth_label is not None,
+        manual_confidence=ground_truth_label.confidence if ground_truth_label is not None else None,
         expected_fix_tags=expected_fix_tags,
         expected_fix_type=expected_fix_type,
         expected_fix_type_source=expected_fix_type_source,
@@ -1801,7 +1748,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-cases", type=int, default=None)
     parser.add_argument("--results-path", type=Path, default=DEFAULT_RESULTS_PATH)
     parser.add_argument("--report-path", type=Path, default=DEFAULT_REPORT_PATH)
-    parser.add_argument("--manual-labels-path", type=Path, default=DEFAULT_MANUAL_LABELS)
+    parser.add_argument("--ground-truth-path", type=Path, default=DEFAULT_GROUND_TRUTH_PATH)
     parser.add_argument("--no-start-server", action="store_true")
     parser.add_argument("--startup-timeout", type=int, default=SERVER_STARTUP_TIMEOUT)
     parser.add_argument("--temperature", type=float, default=0.0)
@@ -1861,9 +1808,9 @@ def main() -> int:
     signal.signal(signal.SIGTERM, cleanup)
 
     # ── Load cases ────────────────────────────────────────────────────────────
-    print("[cases] Loading manual labels…")
-    manual_labels = load_manual_labels(args.manual_labels_path)
-    print(f"[cases] Loaded {len(manual_labels)} manual labels.")
+    print("[cases] Loading ground-truth labels…")
+    ground_truth_labels = load_ground_truth_labels(args.ground_truth_path)
+    print(f"[cases] Loaded {len(ground_truth_labels)} ground-truth labels.")
 
     print("[cases] Scanning YAML case files…")
     all_paths = iter_case_paths(CASE_DIRS)
@@ -1871,7 +1818,7 @@ def main() -> int:
 
     candidates: list[CaseCandidate] = []
     for path in all_paths:
-        cand = build_candidate(path, manual_labels)
+        cand = build_candidate(path, ground_truth_labels)
         if cand is None:
             continue
         if cand.taxonomy_class not in ALLOWED_TAXONOMIES:

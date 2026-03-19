@@ -30,7 +30,7 @@ MANUAL_PATH = ROOT / "docs/tmp/manual-labeling-30cases.md"
 ERROR_CATALOG_PATH = ROOT / "taxonomy/error_catalog.yaml"
 ADJUDICATIONS_PATH = OUTPUT_DIR / "adjudications.yaml"
 AGREEMENT_MD_PATH = OUTPUT_DIR / "agreement_analysis.md"
-GROUND_TRUTH_PATH = OUTPUT_DIR / "ground_truth_v3.yaml"
+GROUND_TRUTH_PATH = ROOT / "case_study/ground_truth.yaml"
 SUMMARY_MD_PATH = OUTPUT_DIR / "review_summary.md"
 
 CASE_DIRS = [

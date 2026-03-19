@@ -21,6 +21,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from eval.ground_truth import (
+    DEFAULT_GROUND_TRUTH_PATH,
+    GroundTruthLabel,
+    load_ground_truth_labels,
+)
 from interface.extractor.log_parser import ParsedLog, parse_log
 from interface.extractor.trace_parser import CriticalTransition, ParsedTrace, parse_trace
 
@@ -31,7 +36,6 @@ CASE_DIRS = (
     ROOT / "case_study" / "cases" / "github_issues",
 )
 DEFAULT_PRETTY_VERIFIER_ROOT = Path("/tmp/pretty-verifier")
-DEFAULT_MANUAL_LABELS = ROOT / "docs" / "tmp" / "manual-labeling-30cases.md"
 DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "pretty_verifier_comparison.json"
 DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "pretty-verifier-comparison.md"
 DEFAULT_CATALOG_PATH = ROOT / "taxonomy" / "error_catalog.yaml"
@@ -50,20 +54,6 @@ TAXONOMY_ORDER = (
     "env_mismatch",
     "verifier_bug",
 )
-
-
-@dataclass(slots=True)
-class ManualLabel:
-    case_id: str
-    source_bucket: str
-    difficulty: str
-    taxonomy_class: str
-    error_id: str
-    confidence: str
-    localizability: str
-    specificity: str
-    rationale: str
-    ground_truth_fix: str
 
 
 @dataclass(slots=True)
@@ -110,34 +100,6 @@ class CaseComparison:
     log_lines: int
     pretty_verifier: PrettyVerifierResult
     bpfix: BPFixResult
-
-
-def parse_markdown_row(line: str) -> list[str]:
-    return [cell.strip() for cell in line.strip().strip("|").split("|")]
-
-
-def load_manual_labels(path: Path) -> dict[str, ManualLabel]:
-    labels: dict[str, ManualLabel] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if not line.startswith("| `"):
-            continue
-        cells = parse_markdown_row(line)
-        if len(cells) < 10:
-            continue
-        case_id = cells[0].strip("`")
-        labels[case_id] = ManualLabel(
-            case_id=case_id,
-            source_bucket=cells[1],
-            difficulty=cells[2],
-            taxonomy_class=cells[3].strip("`"),
-            error_id=cells[4].strip("`"),
-            confidence=cells[5],
-            localizability=cells[6],
-            specificity=cells[7],
-            rationale=cells[8],
-            ground_truth_fix=cells[9],
-        )
-    return labels
 
 
 def iter_case_paths(case_dirs: tuple[Path, ...]) -> list[Path]:
@@ -639,12 +601,12 @@ def build_case_record(
     )
 
 
-def manual_subset_rows(
+def ground_truth_subset_rows(
     results_by_case: dict[str, CaseComparison],
-    manual_labels: dict[str, ManualLabel],
+    ground_truth_labels: dict[str, GroundTruthLabel],
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    for case_id, label in manual_labels.items():
+    for case_id, label in ground_truth_labels.items():
         record = results_by_case.get(case_id)
         if record is None:
             continue
@@ -708,11 +670,13 @@ def summarize_bpfix(result: BPFixResult) -> str:
 
 def aggregate_metrics(
     rows: list[dict[str, Any]],
-    manual_labels: dict[str, ManualLabel],
+    ground_truth_labels: dict[str, GroundTruthLabel],
 ) -> dict[str, Any]:
-    lowering_total = sum(1 for label in manual_labels.values() if label.taxonomy_class == "lowering_artifact")
+    lowering_total = sum(
+        1 for label in ground_truth_labels.values() if label.taxonomy_class == "lowering_artifact"
+    )
     return {
-        "manual_subset_size": len(rows),
+        "ground_truth_subset_size": len(rows),
         "pv_classification_accuracy": safe_ratio(sum(row["pv_correct"] for row in rows), len(rows)),
         "bpfix_classification_accuracy": safe_ratio(sum(row["bpfix_correct"] for row in rows), len(rows)),
         "pv_lowering_accuracy": safe_ratio(
@@ -840,7 +804,7 @@ def markdown_table(headers: list[str], rows: list[list[str]]) -> str:
 def build_report(
     *,
     results: list[CaseComparison],
-    manual_rows: list[dict[str, Any]],
+    ground_truth_rows: list[dict[str, Any]],
     metrics: dict[str, Any],
     corpus: dict[str, Any],
     mapping: dict[str, Any],
@@ -867,11 +831,11 @@ def build_report(
             "Yes" if row["pv_correct"] else "No",
             "Yes" if row["bpfix_correct"] else "No",
         ]
-        for row in manual_rows
+        for row in ground_truth_rows
     ]
 
     lowering_rows = []
-    for row in manual_rows:
+    for row in ground_truth_rows:
         if row["manual_label"] != "lowering_artifact":
             continue
         lowering_rows.append(
@@ -942,10 +906,10 @@ def build_report(
             feature_rows,
         ),
         "",
-        "## Table 2: Per-Case Accuracy on the 30 Manually Labeled Cases",
+        "## Table 2: Per-Case Accuracy on the Ground-Truth-Labeled Subset",
         "",
         markdown_table(
-            ["Case", "Manual label", "Pretty Verifier diagnosis", "BPFix diagnosis", "PV correct?", "BPFix correct?"],
+            ["Case", "Ground-truth label", "Pretty Verifier diagnosis", "BPFix diagnosis", "PV correct?", "BPFix correct?"],
             manual_table_rows,
         ),
         "",
@@ -956,7 +920,7 @@ def build_report(
             lowering_rows,
         ),
         "",
-        "## Table 4: Aggregate Accuracy on the Manual 30-Case Subset",
+        "## Table 4: Aggregate Accuracy on the Ground-Truth-Labeled Subset",
         "",
         markdown_table(
             ["Metric", "Pretty Verifier", "BPFix"],
@@ -983,7 +947,7 @@ def build_report(
         "",
         "The lowering-artifact cases show the sharpest separation. For cases like `stackoverflow-79530762` and `stackoverflow-74178703`, Pretty Verifier either crashes, stays unhandled, or restates the final symptom. BPFix instead surfaces the earlier register-state collapse that explains why the accepted fix is a loop/codegen rewrite rather than 'add another bounds check'.",
         "",
-        "Concrete 'Pretty Verifier is enough' examples from the manual set are `kernel-selftest-iters-state-safety-destroy-without-creating-fail-raw-tp-a14b4d3a`, `kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993`, and `stackoverflow-61945212`: the headline line already names the real helper or protocol contract violation, so a line-oriented explanation is adequate.",
+        "Concrete 'Pretty Verifier is enough' examples from the ground-truth-labeled subset are `kernel-selftest-iters-state-safety-destroy-without-creating-fail-raw-tp-a14b4d3a`, `kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993`, and `stackoverflow-61945212`: the headline line already names the real helper or protocol contract violation, so a line-oriented explanation is adequate.",
         "",
         "Concrete misleading examples are `github-aya-rs-aya-1062` (`stack depth ...` is selected instead of the real signed-range failure), `stackoverflow-79530762` and `stackoverflow-73088287` (both crash with `IndexError`), and `stackoverflow-74178703` (the final map-bounds symptom is reported, but not the earlier proof-loss site).",
         "",
@@ -1006,10 +970,10 @@ def main() -> None:
         help="Path to the Pretty Verifier checkout.",
     )
     parser.add_argument(
-        "--manual-labels",
+        "--ground-truth-path",
         type=Path,
-        default=DEFAULT_MANUAL_LABELS,
-        help="Path to docs/tmp/manual-labeling-30cases.md.",
+        default=DEFAULT_GROUND_TRUTH_PATH,
+        help="Path to case_study/ground_truth.yaml.",
     )
     parser.add_argument(
         "--catalog-path",
@@ -1035,7 +999,7 @@ def main() -> None:
     handler_inventory = extract_pv_handler_inventory(
         args.pretty_verifier_root / "src" / "pretty_verifier" / "handler.py"
     )
-    manual_labels = load_manual_labels(args.manual_labels)
+    ground_truth_labels = load_ground_truth_labels(args.ground_truth_path)
 
     results: list[CaseComparison] = []
     results_by_case: dict[str, CaseComparison] = {}
@@ -1054,13 +1018,13 @@ def main() -> None:
         results.append(record)
         results_by_case[record.case_id] = record
 
-    manual_rows = manual_subset_rows(results_by_case, manual_labels)
-    metrics = aggregate_metrics(manual_rows, manual_labels)
+    ground_truth_rows = ground_truth_subset_rows(results_by_case, ground_truth_labels)
+    metrics = aggregate_metrics(ground_truth_rows, ground_truth_labels)
     corpus = corpus_summary(results)
     mapping = build_mapping_summary(results)
     report = build_report(
         results=results,
-        manual_rows=manual_rows,
+        ground_truth_rows=ground_truth_rows,
         metrics=metrics,
         corpus=corpus,
         mapping=mapping,
@@ -1078,7 +1042,7 @@ def main() -> None:
                 "corpus": corpus,
                 "metrics": metrics,
                 "mapping": mapping,
-                "manual_rows": manual_rows,
+                "ground_truth_rows": ground_truth_rows,
                 "results": [asdict(result) for result in results],
             },
             indent=2,

@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 """Local LLM evaluation using llama.cpp's OpenAI-compatible server.
 
-Runs BPFix diagnostic evaluation on cases from batch_diagnostic_results_v4.json
-by sending the verifier log + BPFix diagnostic to a locally-served model and
-asking it to classify the failure, identify the root cause, and suggest a fix.
+Runs BPFix diagnostic evaluation on cases from batch_diagnostic_results.json by
+sending the verifier log + BPFix diagnostic to a locally-served model and asking
+it to classify the failure, identify the root cause, and suggest a fix.
 
 Usage:
     python scripts/local_llm_eval.py \\
         --model ~/.cache/llama.cpp/ggml-org_gpt-oss-20b-GGUF_gpt-oss-20b-mxfp4.gguf \\
         --port 8080 \\
-        --cases eval/results/batch_diagnostic_results_v4.json \\
+        --cases eval/results/batch_diagnostic_results.json \\
         --output eval/results/local_llm_eval_results.json \\
         --max-cases 10
 
     # When the server is already running externally:
     python scripts/local_llm_eval.py --no-start-server --model local \\
-        --cases eval/results/batch_diagnostic_results_v4.json
+        --cases eval/results/batch_diagnostic_results.json
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ DEFAULT_MODEL = (
 )
 DEFAULT_PORT = 8080
 DEFAULT_CTX_SIZE = 8192
-DEFAULT_CASES = "eval/results/batch_diagnostic_results_v4.json"
+DEFAULT_CASES = "eval/results/batch_diagnostic_results.json"
 DEFAULT_OUTPUT = "eval/results/local_llm_eval_results.json"
 SERVER_STARTUP_TIMEOUT = 120  # seconds
 HEALTH_CHECK_INTERVAL = 2  # seconds
@@ -160,7 +160,7 @@ def start_llama_server(
 
 
 def load_cases(cases_path: Path, max_cases: int | None) -> list[dict[str, Any]]:
-    """Load cases from batch_diagnostic_results_v4.json format."""
+    """Load cases from batch_diagnostic_results.json format."""
     with cases_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
 

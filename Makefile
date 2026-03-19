@@ -48,6 +48,7 @@ help:
 	@echo ""
 	@echo "Batch evaluations (no LLM needed)"
 	@echo "  make eval-batch        Batch diagnostic eval on 302 cases → results/batch_diagnostic_results.json"
+	@echo "  make eval-localization Localization eval against ground-truth insn indices → results/localization_eval.json"
 	@echo "  make eval-latency      Latency benchmark → results/latency_benchmark.json"
 	@echo "  make eval-pv           PV vs BPFix comparison → results/pv_comparison_expanded.json"
 	@echo "  make eval-language     Per-language breakdown → results/per_language_eval.json"
@@ -95,6 +96,14 @@ eval-batch:
 	@echo "[eval-batch] Running batch diagnostic evaluation on 302 cases…"
 	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/batch_diagnostic_eval.py \
 		--results-path $(RESULTS_DIR)/batch_diagnostic_results.json
+
+.PHONY: eval-localization
+eval-localization:
+	@echo "[eval-localization] Evaluating proof-loss localization against ground truth…"
+	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/localization_eval.py \
+		--batch-results-path $(RESULTS_DIR)/batch_diagnostic_results.json \
+		--output-json $(RESULTS_DIR)/localization_eval.json \
+		--output-md $(TMP_DIR)/localization-eval-report.md
 
 .PHONY: eval-latency
 eval-latency:

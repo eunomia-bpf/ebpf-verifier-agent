@@ -26,6 +26,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from eval.ground_truth import (
+    DEFAULT_GROUND_TRUTH_PATH as GT_DEFAULT_GROUND_TRUTH_PATH,
+    GroundTruthLabel,
+    load_ground_truth_labels,
+)
 from interface.extractor.log_parser import ParsedLog, VerifierLogParser
 from interface.extractor.trace_parser import CriticalTransition, ParsedTrace, parse_trace
 
@@ -34,7 +39,7 @@ DEFAULT_OPENAI_MODEL = "gpt-5.4"
 DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-4-20250514"
 DEFAULT_RESULTS_PATH = REPO_ROOT / "eval" / "results" / "llm_multi_model_results.json"
 DEFAULT_REPORT_PATH = REPO_ROOT / "docs" / "tmp" / "llm-multi-model-experiment.md"
-DEFAULT_MANUAL_LABELS_PATH = REPO_ROOT / "docs" / "tmp" / "manual-labeling-30cases.md"
+DEFAULT_GROUND_TRUTH_PATH = GT_DEFAULT_GROUND_TRUTH_PATH
 DEFAULT_VERBOSE_AUDIT_PATH = REPO_ROOT / "docs" / "tmp" / "verbose-log-audit.md"
 
 TAXONOMY_ORDER = (
@@ -137,20 +142,6 @@ STOPWORDS = {
     "you",
     "your",
 }
-
-
-@dataclass(slots=True)
-class ManualLabel:
-    case_id: str
-    source_bucket: str
-    difficulty: str
-    taxonomy_class: str
-    error_id: str
-    confidence: str
-    localizability: str
-    obligation_specificity: str
-    rationale: str
-    ground_truth_fix: str
 
 
 @dataclass(slots=True)
@@ -265,30 +256,6 @@ def flatten_case_paths(paths: Iterable[Path]) -> list[Path]:
 
 def parse_markdown_row(line: str) -> list[str]:
     return [cell.strip() for cell in line.strip().strip("|").split("|")]
-
-
-def load_manual_labels(path: Path) -> dict[str, ManualLabel]:
-    labels: dict[str, ManualLabel] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if not line.startswith("| `"):
-            continue
-        cells = parse_markdown_row(line)
-        if len(cells) < 10:
-            continue
-        case_id = cells[0].strip("`")
-        labels[case_id] = ManualLabel(
-            case_id=case_id,
-            source_bucket=cells[1],
-            difficulty=cells[2],
-            taxonomy_class=cells[3].strip("`"),
-            error_id=cells[4].strip("`"),
-            confidence=cells[5],
-            localizability=cells[6],
-            obligation_specificity=cells[7],
-            rationale=cells[8],
-            ground_truth_fix=cells[9],
-        )
-    return labels
 
 
 def load_verbose_audit_ranks(path: Path) -> dict[str, int]:
@@ -463,7 +430,13 @@ def extract_buggy_code(case_data: dict[str, Any]) -> tuple[str, bool]:
     return "No source code snippet available in YAML.", False
 
 
-def extract_fix_description(case_data: dict[str, Any], manual_label: ManualLabel | None) -> tuple[str, str]:
+def extract_fix_description(
+    case_data: dict[str, Any],
+    ground_truth_label: GroundTruthLabel | None,
+) -> tuple[str, str]:
+    if ground_truth_label is not None and ground_truth_label.fix_direction:
+        return ground_truth_label.fix_direction.strip(), "ground_truth"
+
     selected_answer = case_data.get("selected_answer") or {}
     if isinstance(selected_answer, dict):
         text = (selected_answer.get("fix_description") or selected_answer.get("body_text") or "").strip()
@@ -481,8 +454,6 @@ def extract_fix_description(case_data: dict[str, Any], manual_label: ManualLabel
         if text:
             return text, "yaml_issue_fix"
 
-    if manual_label is not None and manual_label.ground_truth_fix:
-        return manual_label.ground_truth_fix.strip(), "manual_label_doc"
     return "", "missing"
 
 
@@ -1076,7 +1047,7 @@ def selection_score(case: CaseRecord) -> SelectionScore:
 def build_case_record(
     *,
     path: Path,
-    manual_label: ManualLabel | None,
+    ground_truth_label: GroundTruthLabel | None,
     verbose_audit_rank: int | None,
     parser: VerifierLogParser,
 ) -> CaseRecord:
@@ -1086,19 +1057,23 @@ def build_case_record(
     trace = parse_trace(verifier_log)
     structured_analysis = build_structured_prompt_details(trace, parsed_log)
     buggy_code, has_usable_code = extract_buggy_code(case_data)
-    fix_text, fix_source = extract_fix_description(case_data, manual_label)
+    fix_text, fix_source = extract_fix_description(case_data, ground_truth_label)
 
     taxonomy_class = (
-        manual_label.taxonomy_class
-        if manual_label is not None
+        ground_truth_label.taxonomy_class
+        if ground_truth_label is not None
         else parsed_log.taxonomy_class
         or "source_bug"
     )
-    error_id = manual_label.error_id if manual_label is not None else parsed_log.error_id
-    difficulty = manual_label.difficulty if manual_label is not None else "unknown"
-    confidence = manual_label.confidence if manual_label is not None else "unknown"
-    root_cause = manual_label.rationale if manual_label is not None else parsed_log.error_line
-    bucket = manual_label.source_bucket if manual_label is not None else source_bucket_for(case_data.get("source", ""))
+    error_id = ground_truth_label.error_id if ground_truth_label is not None else parsed_log.error_id
+    difficulty = "unknown"
+    confidence = ground_truth_label.confidence if ground_truth_label is not None else "unknown"
+    root_cause = (
+        ground_truth_label.root_cause_description
+        if ground_truth_label is not None
+        else parsed_log.error_line
+    )
+    bucket = source_bucket_for(case_data.get("source", ""))
 
     record = CaseRecord(
         case_id=case_data.get("case_id") or path.stem,
@@ -1693,13 +1668,13 @@ def build_parser() -> argparse.ArgumentParser:
         "case_paths",
         nargs="*",
         type=Path,
-        help="Optional explicit YAML case files or directories. If omitted, select from manual labels.",
+        help="Optional explicit YAML case files or directories. If omitted, select from ground truth labels.",
     )
     parser.add_argument(
-        "--manual-labels",
+        "--ground-truth-path",
         type=Path,
-        default=DEFAULT_MANUAL_LABELS_PATH,
-        help="Manual-label Markdown file used for taxonomy and ground truth fallback.",
+        default=DEFAULT_GROUND_TRUTH_PATH,
+        help="Ground-truth YAML file used for taxonomy and fix/root-cause labels.",
     )
     parser.add_argument(
         "--verbose-audit",
@@ -1782,19 +1757,19 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     targets = parse_targets(args.targets)
-    manual_labels = load_manual_labels(args.manual_labels)
+    ground_truth_labels = load_ground_truth_labels(args.ground_truth_path)
     verbose_audit_ranks = load_verbose_audit_ranks(args.verbose_audit)
     verifier_parser = VerifierLogParser()
 
     explicit_paths = flatten_case_paths(args.case_paths)
     if explicit_paths:
         selected_records = [
-            build_case_record(
-                path=path,
-                manual_label=manual_labels.get(path.stem),
-                verbose_audit_rank=verbose_audit_ranks.get(path.stem),
-                parser=verifier_parser,
-            )
+                build_case_record(
+                    path=path,
+                    ground_truth_label=ground_truth_labels.get(path.stem),
+                    verbose_audit_rank=verbose_audit_ranks.get(path.stem),
+                    parser=verifier_parser,
+                )
             for path in explicit_paths
         ]
         selection_summary = {
@@ -1805,14 +1780,14 @@ def main(argv: list[str] | None = None) -> int:
         }
     else:
         case_records = []
-        for case_id, manual_label in manual_labels.items():
+        for case_id, ground_truth_label in ground_truth_labels.items():
             path_matches = list((REPO_ROOT / "case_study" / "cases").rglob(f"{case_id}.yaml"))
             if not path_matches:
                 continue
             case_records.append(
                 build_case_record(
                     path=path_matches[0],
-                    manual_label=manual_label,
+                    ground_truth_label=ground_truth_label,
                     verbose_audit_rank=verbose_audit_ranks.get(case_id),
                     parser=verifier_parser,
                 )
@@ -1822,7 +1797,7 @@ def main(argv: list[str] | None = None) -> int:
             targets=targets,
             allow_missing_source=args.allow_missing_source,
         )
-        selection_summary["strategy"] = "manual_labels_stratified"
+        selection_summary["strategy"] = "ground_truth_stratified"
 
     manual_responses = load_manual_responses(args.manual_responses)
     manual_scores = load_manual_scores(args.manual_scores)

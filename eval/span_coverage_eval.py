@@ -21,6 +21,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from eval.ground_truth import (
+    DEFAULT_GROUND_TRUTH_PATH,
+    GroundTruthLabel,
+    load_ground_truth_labels,
+)
 from interface.extractor.rust_diagnostic import generate_diagnostic
 
 
@@ -30,7 +35,6 @@ LOG_CASE_DIRS: tuple[tuple[str, Path], ...] = (
     ("kernel_selftests", ROOT / "case_study" / "cases" / "kernel_selftests"),
 )
 SYNTHETIC_DIR = ROOT / "case_study" / "cases" / "eval_commits_synthetic"
-DEFAULT_MANUAL_LABELS = ROOT / "docs" / "tmp" / "manual-labeling-30cases.md"
 DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "span_coverage_results.json"
 DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "span-coverage-eval.md"
 
@@ -67,6 +71,17 @@ PATTERN_DEFAULT_LOCALIZABILITY: dict[str, str] = {
     "stack_init": "yes",
     "type_cast": "yes",
     "volatile_hack": "partial",
+}
+GROUND_TRUTH_FIX_TYPE_TO_PATTERN: dict[str, str] = {
+    "bounds_check": "bounds_check",
+    "clamp": "bounds_check",
+    "env_fix": "helper_switch",
+    "inline": "inline_hint",
+    "loop_rewrite": "loop_rewrite",
+    "null_check": "null_check",
+    "refcount": "ref_release",
+    "reorder": "other",
+    "type_cast": "type_cast",
 }
 TAXONOMY_ORDER: tuple[str, ...] = (
     "source_bug",
@@ -323,20 +338,6 @@ PATTERN_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
 
 
 @dataclass(slots=True)
-class ManualLabel:
-    case_id: str
-    source_bucket: str
-    difficulty: str
-    taxonomy_class: str
-    error_id: str
-    confidence: str
-    localizability: str
-    specificity: str
-    rationale: str
-    ground_truth_fix: str
-
-
-@dataclass(slots=True)
 class CodeSnippet:
     file: str | None
     code: str
@@ -411,10 +412,10 @@ class SyntheticEvaluation:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--manual-labels",
+        "--ground-truth-path",
         type=Path,
-        default=DEFAULT_MANUAL_LABELS,
-        help=f"Path to manual-labeling-30cases.md (default: {DEFAULT_MANUAL_LABELS})",
+        default=DEFAULT_GROUND_TRUTH_PATH,
+        help=f"Path to case_study/ground_truth.yaml (default: {DEFAULT_GROUND_TRUTH_PATH})",
     )
     parser.add_argument(
         "--results-path",
@@ -433,10 +434,6 @@ def parse_args() -> argparse.Namespace:
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-
-
-def parse_markdown_row(line: str) -> list[str]:
-    return [cell.strip() for cell in line.strip().strip("|").split("|")]
 
 
 def normalize_space(text: str) -> str:
@@ -483,33 +480,12 @@ def extract_verifier_log(case_data: dict[str, Any]) -> str:
     return ""
 
 
-def load_manual_labels(path: Path) -> dict[str, ManualLabel]:
-    labels: dict[str, ManualLabel] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if not line.startswith("| `"):
-            continue
-        cells = parse_markdown_row(line)
-        if len(cells) < 10:
-            continue
-        case_id = cells[0].strip("`")
-        labels[case_id] = ManualLabel(
-            case_id=case_id,
-            source_bucket=cells[1],
-            difficulty=cells[2],
-            taxonomy_class=cells[3].strip("`"),
-            error_id=cells[4].strip("`"),
-            confidence=cells[5],
-            localizability=cells[6],
-            specificity=cells[7],
-            rationale=cells[8],
-            ground_truth_fix=cells[9],
-        )
-    return labels
-
-
-def extract_fix_text(case_data: dict[str, Any], manual_label: ManualLabel | None) -> tuple[str, str]:
-    if manual_label is not None and manual_label.ground_truth_fix:
-        return manual_label.ground_truth_fix.strip(), "manual_label"
+def extract_fix_text(
+    case_data: dict[str, Any],
+    ground_truth_label: GroundTruthLabel | None,
+) -> tuple[str, str]:
+    if ground_truth_label is not None and ground_truth_label.fix_direction:
+        return ground_truth_label.fix_direction.strip(), "ground_truth"
 
     selected_answer = case_data.get("selected_answer") or {}
     if isinstance(selected_answer, dict):
@@ -695,6 +671,16 @@ def infer_fix_pattern(text: str) -> str | None:
     return None
 
 
+def fix_pattern_from_ground_truth(label: GroundTruthLabel | None) -> str | None:
+    if label is None:
+        return None
+    if label.fix_type:
+        mapped = GROUND_TRUTH_FIX_TYPE_TO_PATTERN.get(label.fix_type)
+        if mapped is not None:
+            return mapped
+    return infer_fix_pattern(label.fix_direction)
+
+
 def infer_pattern_from_expected_messages(messages: list[str]) -> str | None:
     if not messages:
         return None
@@ -770,21 +756,23 @@ def diff_pattern_summary(added_lines: list[str], removed_lines: list[str], fix_t
 
 def build_ground_truth(
     case_data: dict[str, Any],
-    manual_label: ManualLabel | None,
+    ground_truth_label: GroundTruthLabel | None,
 ) -> GroundTruth:
-    fix_text, fix_text_source = extract_fix_text(case_data, manual_label)
+    fix_text, fix_text_source = extract_fix_text(case_data, ground_truth_label)
     expected_messages = extract_expected_messages(case_data)
     source_snippets = extract_source_snippets(case_data)
 
-    pattern = infer_fix_pattern(fix_text)
+    pattern = fix_pattern_from_ground_truth(ground_truth_label)
+    if pattern is None:
+        pattern = infer_fix_pattern(fix_text)
     if pattern is None:
         pattern = infer_pattern_from_expected_messages(expected_messages)
 
-    taxonomy_class = manual_label.taxonomy_class if manual_label is not None else None
+    taxonomy_class = ground_truth_label.taxonomy_class if ground_truth_label is not None else None
     if taxonomy_class is None and pattern is not None:
         taxonomy_class = FIX_PATTERN_TO_TAXONOMY.get(pattern)
 
-    localizability = manual_label.localizability if manual_label is not None else None
+    localizability = None
     if localizability is None and pattern is not None:
         localizability = PATTERN_DEFAULT_LOCALIZABILITY.get(pattern)
 
@@ -816,7 +804,7 @@ def build_ground_truth(
         fix_text=fix_text,
         fix_text_source=fix_text_source,
         localizability=localizability,
-        specificity=manual_label.specificity if manual_label is not None else None,
+        specificity=None,
         expected_messages=expected_messages,
         diff_summary=diff_summary,
         anchor_identifiers=identifiers,
@@ -1039,12 +1027,12 @@ def evaluate_fix_location(
 def evaluate_logged_case(
     source: str,
     path: Path,
-    manual_labels: dict[str, ManualLabel],
+    ground_truth_labels: dict[str, GroundTruthLabel],
 ) -> CaseEvaluation:
     case_data = read_yaml(path)
     case_id = str(case_data.get("case_id") or path.stem)
-    manual_label = manual_labels.get(case_id)
-    ground_truth = build_ground_truth(case_data, manual_label)
+    ground_truth_label = ground_truth_labels.get(case_id)
+    ground_truth = build_ground_truth(case_data, ground_truth_label)
     verifier_log = extract_verifier_log(case_data)
 
     if not verifier_log:
@@ -1200,10 +1188,10 @@ def summarize_case_results(results: list[CaseEvaluation]) -> dict[str, Any]:
             "rejected_match_total": len(error_known),
         }
 
-    manual_results = [result for result in results if result.ground_truth_fix_text_source == "manual_label"]
-    evaluable_manual = [result for result in manual_results if result.fix_location_covered != "unknown"]
-    evaluable_taxonomy = [result for result in manual_results if result.fix_type_matches_taxonomy != "unknown"]
-    evaluable_rejected = [result for result in manual_results if result.rejected_span_matches_error != "unknown"]
+    labeled_results = [result for result in results if result.ground_truth_fix_text_source == "ground_truth"]
+    evaluable_labeled = [result for result in labeled_results if result.fix_location_covered != "unknown"]
+    evaluable_taxonomy = [result for result in labeled_results if result.fix_type_matches_taxonomy != "unknown"]
+    evaluable_rejected = [result for result in labeled_results if result.rejected_span_matches_error != "unknown"]
     coverage_counts = Counter(result.fix_location_covered for result in results)
 
     return {
@@ -1214,11 +1202,11 @@ def summarize_case_results(results: list[CaseEvaluation]) -> dict[str, Any]:
         "taxonomy_match_total": sum(1 for result in results if result.fix_type_matches_taxonomy != "unknown"),
         "rejected_match_yes": sum(1 for result in results if result.rejected_span_matches_error == "yes"),
         "rejected_match_total": sum(1 for result in results if result.rejected_span_matches_error != "unknown"),
-        "manual_30": {
-            "cases": len(manual_results),
-            "coverage": dict(Counter(result.fix_location_covered for result in manual_results)),
-            "coverage_yes": sum(1 for result in evaluable_manual if result.fix_location_covered == "yes"),
-            "coverage_total": len(evaluable_manual),
+        "ground_truth_labeled": {
+            "cases": len(labeled_results),
+            "coverage": dict(Counter(result.fix_location_covered for result in labeled_results)),
+            "coverage_yes": sum(1 for result in evaluable_labeled if result.fix_location_covered == "yes"),
+            "coverage_total": len(evaluable_labeled),
             "taxonomy_match_yes": sum(1 for result in evaluable_taxonomy if result.fix_type_matches_taxonomy == "yes"),
             "taxonomy_match_total": len(evaluable_taxonomy),
             "rejected_match_yes": sum(1 for result in evaluable_rejected if result.rejected_span_matches_error == "yes"),
@@ -1315,15 +1303,15 @@ def build_report(
             f"| `{normalize_source(source)}` | {yes_count} | {total} | {percent(yes_count, total)} |"
         )
 
-    manual_summary = summary["manual_30"]
+    manual_summary = summary["ground_truth_labeled"]
     lines.extend(
         [
             "",
-            "## Manual 30-case Subset",
+            "## Ground-Truth-Labeled Subset",
             "",
-            f"- Coverage among evaluable manual cases: `{manual_summary['coverage_yes']}/{manual_summary['coverage_total']}` ({percent(manual_summary['coverage_yes'], manual_summary['coverage_total'])})",
-            f"- Taxonomy match on manual cases: `{manual_summary['taxonomy_match_yes']}/{manual_summary['taxonomy_match_total']}` ({percent(manual_summary['taxonomy_match_yes'], manual_summary['taxonomy_match_total'])})",
-            f"- Rejected-span/error semantic match on manual cases: `{manual_summary['rejected_match_yes']}/{manual_summary['rejected_match_total']}` ({percent(manual_summary['rejected_match_yes'], manual_summary['rejected_match_total'])})",
+            f"- Coverage among evaluable labeled cases: `{manual_summary['coverage_yes']}/{manual_summary['coverage_total']}` ({percent(manual_summary['coverage_yes'], manual_summary['coverage_total'])})",
+            f"- Taxonomy match on labeled cases: `{manual_summary['taxonomy_match_yes']}/{manual_summary['taxonomy_match_total']}` ({percent(manual_summary['taxonomy_match_yes'], manual_summary['taxonomy_match_total'])})",
+            f"- Rejected-span/error semantic match on labeled cases: `{manual_summary['rejected_match_yes']}/{manual_summary['rejected_match_total']}` ({percent(manual_summary['rejected_match_yes'], manual_summary['rejected_match_total'])})",
             "",
             "| Coverage state | Count |",
             "| --- | ---: |",
@@ -1365,7 +1353,7 @@ def build_report(
             "",
             f"- Overall span coverage is `{covered}/{summary['total_cases']}` cases marked `yes`, `{not_covered}` marked `no`, and `{unknown}` marked `unknown`. The `unknown` bucket is dominated by fixes that are not source-localizable from the available artifacts, such as verifier-limit, BTF/toolchain, or kernel-upgrade remedies.",
             f"- Rejected-span/error semantic agreement is strongest where the ground truth is an expected verifier message, especially kernel selftests. Coverage is stricter than error agreement because some fixes are diffuse even when the reject site is correctly identified.",
-            f"- Taxonomy agreement is computed only when a usable ground-truth taxonomy can be inferred or is manually labeled. The most trustworthy subset is the manual 30-case benchmark.",
+            f"- Taxonomy agreement is computed only when a usable ground-truth taxonomy can be inferred or is explicitly labeled in `ground_truth.yaml`.",
             f"- The synthetic corpus is heavily skewed toward `inline_hint`, `other`, and `loop_rewrite` patterns, so future span coverage work should expect many lowering-artifact and verifier-limit style fixes even when no verifier log is available yet.",
         ]
     )
@@ -1431,7 +1419,7 @@ def build_report(
 
 def main() -> int:
     args = parse_args()
-    manual_labels = load_manual_labels(args.manual_labels)
+    ground_truth_labels = load_ground_truth_labels(args.ground_truth_path)
 
     case_results: list[CaseEvaluation] = []
     for source, case_dir in LOG_CASE_DIRS:
@@ -1442,7 +1430,7 @@ def main() -> int:
             verifier_log = extract_verifier_log(case_data)
             if not verifier_log:
                 continue
-            case_results.append(evaluate_logged_case(source, path, manual_labels))
+            case_results.append(evaluate_logged_case(source, path, ground_truth_labels))
 
     synthetic_results = [
         evaluate_synthetic_case(path)

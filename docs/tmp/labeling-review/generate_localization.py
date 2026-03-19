@@ -21,7 +21,7 @@ from interface.extractor.trace_parser import ParsedTrace, TracedInstruction, par
 
 DATE = "2026-03-19"
 CASE_LIST_PATH = ROOT / "docs/tmp/labeling_case_ids.txt"
-GROUND_TRUTH_PATH = ROOT / "docs/tmp/labeling-review/ground_truth_v3.yaml"
+GROUND_TRUTH_PATH = ROOT / "case_study/ground_truth.yaml"
 OUTPUT_YAML_PATH = ROOT / "docs/tmp/labeling-review/localization_annotations.yaml"
 OUTPUT_MD_PATH = ROOT / "docs/tmp/labeling-review/localization_summary.md"
 CASE_DIRS = (

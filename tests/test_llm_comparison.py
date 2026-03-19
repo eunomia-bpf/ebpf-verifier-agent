@@ -5,7 +5,7 @@ from collections import Counter
 import yaml
 
 from eval.llm_comparison import (
-    DEFAULT_MANUAL_LABELS_PATH,
+    DEFAULT_GROUND_TRUTH_PATH,
     DEFAULT_TARGETS,
     DEFAULT_VERBOSE_AUDIT_PATH,
     REPO_ROOT,
@@ -13,7 +13,7 @@ from eval.llm_comparison import (
     condition_prompt,
     extract_buggy_code,
     extract_verifier_log,
-    load_manual_labels,
+    load_ground_truth_labels,
     load_verbose_audit_ranks,
     select_cases,
 )
@@ -24,13 +24,14 @@ def _load_case(relative_path: str) -> dict:
     return yaml.safe_load((REPO_ROOT / relative_path).read_text(encoding="utf-8"))
 
 
-def test_load_manual_labels_parses_expected_fields() -> None:
-    labels = load_manual_labels(DEFAULT_MANUAL_LABELS_PATH)
+def test_load_ground_truth_labels_parses_expected_fields() -> None:
+    labels = load_ground_truth_labels(DEFAULT_GROUND_TRUTH_PATH)
 
-    assert len(labels) == 30
+    assert len(labels) == 136
     assert labels["stackoverflow-70750259"].taxonomy_class == "lowering_artifact"
-    assert "non-negative/upper-bound clamp" in labels["stackoverflow-70750259"].ground_truth_fix
+    assert "clamped unsigned variable" in labels["stackoverflow-70750259"].fix_direction
     assert labels["kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda"].taxonomy_class == "verifier_limit"
+    assert "github-cilium-cilium-41522" not in labels
 
 
 def test_extract_verifier_log_and_buggy_code_handle_yaml_shape_variants() -> None:
@@ -55,7 +56,7 @@ def test_extract_verifier_log_and_buggy_code_handle_yaml_shape_variants() -> Non
 
 
 def test_build_case_record_normalizes_stackoverflow_and_selftest_cases() -> None:
-    labels = load_manual_labels(DEFAULT_MANUAL_LABELS_PATH)
+    labels = load_ground_truth_labels(DEFAULT_GROUND_TRUTH_PATH)
     audit_ranks = load_verbose_audit_ranks(DEFAULT_VERBOSE_AUDIT_PATH)
     parser = VerifierLogParser()
 
@@ -68,13 +69,13 @@ def test_build_case_record_normalizes_stackoverflow_and_selftest_cases() -> None
 
     so_record = build_case_record(
         path=so_path,
-        manual_label=labels["stackoverflow-70750259"],
+        ground_truth_label=labels["stackoverflow-70750259"],
         verbose_audit_rank=audit_ranks["stackoverflow-70750259"],
         parser=parser,
     )
     ks_record = build_case_record(
         path=ks_path,
-        manual_label=labels["kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda"],
+        ground_truth_label=labels["kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda"],
         verbose_audit_rank=audit_ranks.get("kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda"),
         parser=parser,
     )
@@ -89,11 +90,11 @@ def test_build_case_record_normalizes_stackoverflow_and_selftest_cases() -> None
     assert ks_record.source_bucket == "KS"
     assert ks_record.log_lines > 400
     assert ks_record.parsed_log["error_line"]
-    assert ks_record.ground_truth_fix_source == "manual_label_doc"
+    assert ks_record.ground_truth_fix_source == "ground_truth"
 
 
 def test_default_stratified_selection_matches_expected_distribution() -> None:
-    labels = load_manual_labels(DEFAULT_MANUAL_LABELS_PATH)
+    labels = load_ground_truth_labels(DEFAULT_GROUND_TRUTH_PATH)
     audit_ranks = load_verbose_audit_ranks(DEFAULT_VERBOSE_AUDIT_PATH)
     parser = VerifierLogParser()
 
@@ -103,7 +104,7 @@ def test_default_stratified_selection_matches_expected_distribution() -> None:
         case_records.append(
             build_case_record(
                 path=path,
-                manual_label=manual_label,
+                ground_truth_label=manual_label,
                 verbose_audit_rank=audit_ranks.get(case_id),
                 parser=parser,
             )
@@ -115,22 +116,31 @@ def test_default_stratified_selection_matches_expected_distribution() -> None:
         allow_missing_source=False,
     )
 
-    assert len(selected) == 22
-    assert summary["shortfalls"] == {}
-    assert Counter(case.taxonomy_class for case in selected) == Counter(DEFAULT_TARGETS)
+    assert len(selected) == 21
+    assert summary["shortfalls"] == {
+        "verifier_limit": {"target": 4, "selected": 3, "missing": 1}
+    }
+    assert Counter(case.taxonomy_class for case in selected) == Counter(
+        {
+            "source_bug": 9,
+            "lowering_artifact": 6,
+            "verifier_limit": 3,
+            "env_mismatch": 3,
+        }
+    )
     selected_ids = {case.case_id for case in selected}
     assert "github-cilium-cilium-41412" not in selected_ids
     assert "github-cilium-cilium-35182" not in selected_ids
 
 
 def test_condition_c_prompt_uses_structured_trace_fields() -> None:
-    labels = load_manual_labels(DEFAULT_MANUAL_LABELS_PATH)
+    labels = load_ground_truth_labels(DEFAULT_GROUND_TRUTH_PATH)
     audit_ranks = load_verbose_audit_ranks(DEFAULT_VERBOSE_AUDIT_PATH)
     parser = VerifierLogParser()
     path = REPO_ROOT / "case_study/cases/stackoverflow/stackoverflow-70750259.yaml"
     record = build_case_record(
         path=path,
-        manual_label=labels["stackoverflow-70750259"],
+        ground_truth_label=labels["stackoverflow-70750259"],
         verbose_audit_rank=audit_ranks["stackoverflow-70750259"],
         parser=parser,
     )
