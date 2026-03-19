@@ -397,34 +397,66 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 
 ---
 
-## 5. 评估计划
+## 5. Eval Set 架构与使用
 
-### Baselines
+### 5.1 Corpus 架构
+
+| 来源 | Case files | 有 trace-rich log | Eligible (≥50 chars) | 有 source_snippets |
+|------|:---:|:---:|:---:|:---:|
+| `kernel_selftests/` | 200 | 169 | 171 | 200 |
+| `stackoverflow/` | 76 | 39 | 65 | 59 |
+| `github_issues/` | 26 | 11 | 26 | 15 |
+| **Logged total** | **302** | **219** | **262** | **274** |
+| `eval_commits/` | 591 | 0 | — | 0 |
+| `eval_commits_synthetic/` | 535 | 0 | — | 535 |
+
+- **Primary eval corpus**: 262 eligible logged cases（`batch_diagnostic_eval.py` 的 `MIN_LOG_CHARS=50`）
+- **Code-pair corpus**: 591 eval_commits（有 buggy/fixed code，无 verifier log；用于 repair experiment case selection）
+- Case schema 按来源不同：selftests 有 `source_snippets` + `expected_verifier_messages`；SO 有 `question_body_text` + `selected_answer`；GH 有 `issue_body_text` + `fix`
+- 无统一强制 schema。`case_study/schema.yaml` 是 aspirational，`eval_schema.yaml` 更接近但也不匹配
+
+### 5.2 Ground Truth 架构
+
+| 来源 | 数量 | 字段 | 存储位置 |
+|------|:---:|------|----------|
+| Manual 30-case labels | 30 | taxonomy, error_id, confidence, localizability, specificity, rationale, fix text | `docs/tmp/manual-labeling-30cases.md`（markdown 表格，多个 eval 脚本直接 parse） |
+| Auto taxonomy labels | 262 | case_id, source, taxonomy, confidence, notes | `case_study/ground_truth_labels.yaml`（292 条，含 manual 30） |
+
+- Ground truth **只有 taxonomy**，无 error_id、root_cause_line、fix_type、fix_code、instruction index
+- 30 manual cases 是唯一可信的强标注；其余 262 是 heuristic/auto（msg_pattern 174, keyword 56, log_msg 17）
+- 7 个 eligible cases 缺 ground truth label（如 `stackoverflow-68815540`, `github-aya-rs-aya-546`）
+
+### 5.3 Eval Baselines
+
 - **B1**: `raw_verbose_log` — 原始 verifier LOG_LEVEL2 verbose output（500-1000+ 行）
 - **B2**: `pretty_verifier` — PV 的 1 行 error + 1 条 suggestion（existing tool baseline）
 - **B3**: `oblige_diagnostic` — OBLIGE Rust-style multi-span output
 
-### 核心评估问题
-1. **Batch robustness**: 262 cases 零 crash？obligation/lifecycle/BTF coverage？
-2. **Root-cause precision**: proof_lost location vs expert-labeled root cause（目标 ≥70%）
-3. **vs Pretty Verifier**: OBLIGE vs PV on 50-100 manually labeled cases
-4. **Span coverage**: OBLIGE spans 覆盖 fix location 比例
-5. **Synthesis success rate**: 合成的 fixes 通过 verifier 比例（目标 ≥50% for lowering artifacts）
-6. **A/B with synthesis**: OBLIGE synthesis vs LLM-only repair, verifier pass rate
-7. **Latency**: end-to-end < 1s median
+### 5.4 Eval 脚本使用方式
 
-### 实验设计：A/B Repair
-- Condition A: buggy code + raw verifier log → LLM 生成修复
-- Condition B: buggy code + raw log + OBLIGE diagnostic → LLM 生成修复
-- 测量: verifier pass rate, fix-type accuracy, root-cause targeting
-- 关键预测: lowering_artifact 类别 B 显著优于 A
+| 命令 | 脚本 | 功能 | 输出 |
+|------|------|------|------|
+| `make eval-batch` | `eval/batch_diagnostic_eval.py` | 262 cases 批量诊断 | `eval/results/batch_diagnostic_results.json` |
+| `make eval-latency` | `eval/latency_benchmark.py` | 延迟 benchmark | `eval/results/latency_benchmark*.json` |
+| `make test` | `pytest tests/` | 372 tests (5 skipped) | stdout |
+| 直接运行 | `eval/span_coverage_eval.py` | span 覆盖 fix location | `eval/results/span_coverage_results.json` |
+| 直接运行 | `eval/root_cause_validation.py` | proof_lost vs diff | `eval/results/root_cause_validation.json` |
+| 直接运行 | `eval/taxonomy_coverage.py` | catalog 覆盖率 | `eval/results/taxonomy_coverage.json` |
+| 直接运行 | `eval/pretty_verifier_comparison.py` | raw PV vs OBLIGE | `eval/results/pretty_verifier_comparison.json` |
+| `make eval-repair-20b` | `eval/repair_experiment_v3.py` | A/B repair (本地 20B) | `eval/results/repair_experiment_results_v3.json` |
 
-### 需要重跑的实验（引擎已更新）
-- Batch diagnostic eval（当前 v3 数据来自旧引擎）
-- Span coverage eval
-- PV comparison（扩展到 50-100 cases）
-- Latency benchmark
-- A/B repair experiment（用 verifier oracle）
+**Batch eval 流程**: case YAML → extract verifier_log → `generate_diagnostic()` → record results JSON。注意：batch eval **不比较** ground truth，只生成诊断结果；ground truth 对比在下游脚本中。
+
+### 5.5 A/B Repair 实验设计
+
+| 维度 | Condition A | Condition B |
+|------|-------------|-------------|
+| 输入 | buggy code + raw verifier log | buggy code + raw log + OBLIGE diagnostic |
+| LLM 任务 | 生成修复代码 | 生成修复代码 |
+| 测量 | verifier pass rate, fix-type accuracy, root-cause targeting | 同左 |
+| 关键预测 | lowering_artifact: A 在 symptom site patch（错） | B 在 root cause site 修复（对） |
+
+详细审计报告：`docs/tmp/eval-infrastructure-audit-2026-03-18.md`
 
 ---
 
@@ -510,4 +542,12 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | 70 | Deep output quality analysis | ✅ | 119 单 span 正确; false satisfied 3→0. `docs/tmp/output-quality-analysis.md` |
 | 71 | Full code review | ✅ | 7 阶段 pipeline; 109/241 catalog override. `docs/tmp/full-code-review.md` |
 | 72 | Strategic review | ✅ | `docs/tmp/strategic-review-2026-03-12.md` |
+| 73 | Eval infrastructure audit | ✅ | `docs/tmp/eval-infrastructure-audit-2026-03-18.md` |
+| 74 | **修 broken Makefile targets** | ❌ | `eval-pv` 和 `eval-language` 硬编码了不存在的 `batch_diagnostic_results_v4.json`，改为读当前 `batch_diagnostic_results.json` |
+| 75 | **统一 corpus manifest** | ❌ | 当前 262 vs 263 vs 302 不一致。建 `case_study/eval_manifest.yaml` 统一定义 eligible cases |
+| 76 | **合并 ground truth 到一个文件** | ❌ | 当前分散在 `ground_truth_labels.yaml`（taxonomy only）+ `docs/tmp/manual-labeling-30cases.md`（markdown）。合并为一个 versioned YAML，含 taxonomy + error_id + fix_text |
+| 77 | **补 7 个缺 label 的 eligible cases** | ❌ | `stackoverflow-68815540`, `69413427`, `79812509`, `github-aya-*-1104/1324/546`, `katran-149` |
+| 78 | **Cross-analysis classification（global monitor × slice）** | ❌ | Establishment_global ∩ Slice 判定 failure mode：∩≠∅ → established_then_lost；∩=∅ but E≠∅ → lowering_artifact；E=∅ → source_bug |
+| 79 | **更新 §1 论文核心要求** | ❌ | 等 cross-analysis + Path B 实现后，根据实际能力重写 thesis + contribution bullets |
+| 80 | **更新 §2 设计架构** | ❌ | §2.1 移到 §3，§2.2 重写为实际 4-layer pipeline，§2.3 去掉没实现的 claims |
 
