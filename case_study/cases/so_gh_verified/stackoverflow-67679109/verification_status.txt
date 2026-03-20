@@ -1,11 +1,11 @@
 case_id: stackoverflow-67679109
 source_bucket: stackoverflow
 language: c
-source_origin: source_snippets[0]
-compile_ok: False
-verifier_status: not_run
-verifier_error_match: unknown
+source_origin: source_snippets[0] -> case-rewrite
+compile_ok: True
+verifier_status: rejected
+verifier_error_match: mismatch
 fixed_status: not_attempted
-original_error: <none>
-captured_error: <none>
-notes: Recovered source depends on BCC frontend rewriting, not standalone clang C.
+original_error: bpf: Failed to load program: Permission denied
+captured_error: R8 invalid mem access 'scalar'
+notes: <none>

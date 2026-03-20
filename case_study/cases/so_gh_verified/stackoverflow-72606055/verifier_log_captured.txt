@@ -1,0 +1,61 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-72606055/prog.o
+libbpf: elf: section(3) tracepoint/skb/consume_skb, size 96, link 0, flags 6, type=1
+libbpf: sec 'tracepoint/skb/consume_skb': found program 'bpf_sys' at insn offset 0 (0 bytes), code size 12 insns (96 bytes)
+libbpf: elf: section(4) .reltracepoint/skb/consume_skb, size 16, link 26, flags 40, type=9
+libbpf: elf: section(5) .maps, size 32, link 0, flags 3, type=1
+libbpf: elf: section(6) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-72606055/prog.o is GPL
+libbpf: elf: section(16) .BTF, size 758, link 0, flags 0, type=1
+libbpf: elf: section(18) .BTF.ext, size 144, link 0, flags 0, type=1
+libbpf: elf: section(26) .symtab, size 360, link 1, flags 0, type=2
+libbpf: looking for externs among 15 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'my_map': at sec_idx 5, offset 0.
+libbpf: map 'my_map': found type = 2.
+libbpf: map 'my_map': found key [6], sz = 4.
+libbpf: map 'my_map': found value [6], sz = 4.
+libbpf: map 'my_map': found max_entries = 1.
+libbpf: sec '.reltracepoint/skb/consume_skb': collecting relocation for section(3) 'tracepoint/skb/consume_skb'
+libbpf: sec '.reltracepoint/skb/consume_skb': relo #0: insn #4 against 'my_map'
+libbpf: prog 'bpf_sys': found map 0 (my_map, sec 5, off 0) for insn #4
+libbpf: object 'prog': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: map 'my_map': created successfully, fd=4
+libbpf: prog 'bpf_sys': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .......... (b7) r1 = 0
+  1: .1........ (63) *(u32 *)(r10 -4) = r1
+  2: .......... (bf) r2 = r10
+  3: ..2....... (07) r2 += -4
+  4: ..2....... (18) r1 = 0xffff8f28ecef7600
+  6: .12....... (85) call bpf_map_lookup_elem#1
+  7: 0......... (bf) r1 = r0
+  8: .1........ (b7) r0 = 1
+  9: 01........ (15) if r1 == 0x0 goto pc+1
+ 10: .......... (b7) r0 = 0
+ 11: 0......... (95) exit
+arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+0: R1=ctx() R10=fp0
+; int bpf_sys(void *ctx) @ prog.c:213
+0: (b7) r1 = 0                        ; R1_w=0
+; int index = 0; @ prog.c:215
+1: (63) *(u32 *)(r10 -4) = r1
+mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 0: (b7) r1 = 0
+2: R1_w=0 R10=fp0 fp-8=0000????
+2: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+3: (07) r2 += -4                      ; R2_w=fp-4
+; value = bpf_map_lookup_elem(&my_map, &index); @ prog.c:217
+4: (18) r1 = 0xffff8f28ecef7600       ; R1_w=map_ptr(map=my_map,ks=4,vs=4)
+6: (85) call bpf_map_lookup_elem#1    ; R0_w=map_value(map=my_map,ks=4,vs=4)
+7: (bf) r1 = r0                       ; R0_w=map_value(map=my_map,ks=4,vs=4) R1_w=map_value(map=my_map,ks=4,vs=4)
+8: (b7) r0 = 1                        ; R0_w=1
+; if (!value) @ prog.c:218
+9: (15) if r1 == 0x0 goto pc+1        ; R1_w=map_value(map=my_map,ks=4,vs=4)
+10: (b7) r0 = 0                       ; R0=0
+; } @ prog.c:223
+11: (95) exit
+verification time 48 usec
+stack depth 8
+processed 11 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+-- END PROG LOAD LOG --

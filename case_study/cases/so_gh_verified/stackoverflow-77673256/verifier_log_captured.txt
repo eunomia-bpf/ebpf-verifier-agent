@@ -1,0 +1,54 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-77673256/prog.o
+libbpf: elf: section(3) xdp, size 112, link 0, flags 6, type=1
+libbpf: sec 'xdp': found program 'xdp_prog_simple' at insn offset 0 (0 bytes), code size 14 insns (112 bytes)
+libbpf: elf: section(4) .rodata.str1.1, size 20, link 0, flags 32, type=1
+libbpf: elf: section(5) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-77673256/prog.o is GPL
+libbpf: elf: section(14) .BTF, size 708, link 0, flags 0, type=1
+libbpf: elf: section(16) .BTF.ext, size 128, link 0, flags 0, type=1
+libbpf: elf: section(24) .symtab, size 288, link 1, flags 0, type=2
+libbpf: looking for externs among 12 symbols...
+libbpf: collected 0 externs total
+libbpf: map '.rodata.str1.1' (global data): at sec_idx 4, offset 0, flags 80.
+libbpf: map 0 is ".rodata.str1.1"
+libbpf: object 'prog': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: map '.rodata.str1.1': created successfully, fd=4
+libbpf: prog 'xdp_prog_simple': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .......... (b7) r1 = 681324
+  1: .1........ (63) *(u32 *)(r10 -8) = r1
+  2: .......... (18) r1 = 0x706d69735f676f72
+  4: .1........ (7b) *(u64 *)(r10 -16) = r1
+  5: .......... (18) r1 = 0x705f706478206e49
+  7: .1........ (7b) *(u64 *)(r10 -24) = r1
+  8: .......... (bf) r1 = r10
+  9: .1........ (07) r1 += -24
+ 10: .1........ (b7) r2 = 20
+ 11: .12....... (85) call bpf_trace_printk#6
+ 12: .......... (b7) r0 = 2
+ 13: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int xdp_prog_simple(struct xdp_md *ctx) @ prog.c:207
+0: (b7) r1 = 681324                   ; R1_w=0xa656c
+; char msg[] = "In xdp_prog_simple\n"; @ prog.c:209
+1: (63) *(u32 *)(r10 -8) = r1         ; R1_w=0xa656c R10=fp0 fp-8=????0xa656c
+2: (18) r1 = 0x706d69735f676f72       ; R1_w=0x706d69735f676f72
+4: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=0x706d69735f676f72 R10=fp0 fp-16_w=0x706d69735f676f72
+5: (18) r1 = 0x705f706478206e49       ; R1_w=0x705f706478206e49
+7: (7b) *(u64 *)(r10 -24) = r1        ; R1_w=0x705f706478206e49 R10=fp0 fp-24_w=0x705f706478206e49
+8: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+9: (07) r1 += -24                     ; R1_w=fp-24
+; bpf_trace_printk(msg, sizeof(msg)); @ prog.c:210
+10: (b7) r2 = 20                      ; R2_w=20
+11: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 11 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 10: (b7) r2 = 20
+12: R0_w=scalar()
+; return XDP_PASS; @ prog.c:211
+12: (b7) r0 = 2                       ; R0_w=2
+13: (95) exit
+verification time 168 usec
+stack depth 24
+processed 12 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+-- END PROG LOAD LOG --

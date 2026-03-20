@@ -1,13 +1,39 @@
 /* === WRAPPER: compilation boilerplate === */
+/* no extra boilerplate required */
+
+/* === ORIGINAL CODE from SO/GH post === */
+
+/* === WRAPPER: compilation boilerplate === */
 #ifndef __TARGET_ARCH_x86
 #define __TARGET_ARCH_x86 1
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +71,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +89,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -174,13 +208,44 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-s 🚀
-Now, the context for my issue is the BPF perfbuf example by Andrii Nakryiko where he uses a BPF_MAP_TYPE_PERCPU_ARRAY as a heap to get around the eBPF stack size constraint. I need to implement that using Aya as part of a real-world project, but I just can't get it done.
-I tried using a single-element PerCpuArray for that purpose and using get_ptr_mut(0) to obtain write access to that element to change its value (to 42 in the example below), but it doesn't work, despite being suggested otherwise. Whenever I try that the eBPF verifier complains about R0 invalid mem access 'map_value_or_null' which means the result of bpf_map_lookup_elem() isn't first compared against NULL, at least as far as the verifier is concerned (despite the use of NonNull::new()):
-tl;dr: does PerCpuArray support writing to its elements from within eBPF code at all? If so, how? Maybe my entire approach is wrong?
-Thanks in advance!
+#define MAX_PACKET_OFF 0xFFFF
+
+SEC("classifier")
+int handle_tc_ingress(struct __sk_buff *skb)
+{
+    void *data_end = (void *)(long)skb->data_end;
+    void *data = (void *)(long)skb->data;
+    struct ethhdr *eth_hdr = data;
+
+    if ((void *)(eth_hdr + 1) > data_end)
+        return TC_ACT_OK;
+    if (eth_hdr->h_proto != bpf_htons(ETH_P_IP))
+        return TC_ACT_OK;
+
+    struct iphdr *ipv4_hdr = (struct iphdr *)(eth_hdr + 1);
+    if ((void *)(ipv4_hdr + 1) > data_end)
+        return TC_ACT_OK;
+
+    struct tcphdr *tcp_hdr = (struct tcphdr *)((__u8 *)ipv4_hdr + 4 * ipv4_hdr->ihl);
+    if ((void *)(tcp_hdr + 1) > data_end)
+        return TC_ACT_OK;
+
+    __u8 *tcp_data = (__u8 *)tcp_hdr + 4 * tcp_hdr->doff;
+    if ((void *)tcp_data > data_end)
+        return TC_ACT_OK;
+
+    for (int i = 0; i < MAX_PACKET_OFF && tcp_data + i <= data_end; ++i) {
+        if (tcp_data[i] == ' ') {
+            bpf_printk("space");
+            return TC_ACT_SHOT;
+        }
+    }
+    return TC_ACT_OK;
+}
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";
+
+/* === END ORIGINAL CODE === */
 
 /* === END ORIGINAL CODE === */

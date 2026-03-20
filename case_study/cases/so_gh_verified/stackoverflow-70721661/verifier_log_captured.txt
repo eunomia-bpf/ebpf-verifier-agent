@@ -1,0 +1,7 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-70721661/prog.o
+libbpf: elf: section(3) xdp, size 248, link 0, flags 6, type=1
+libbpf: sec 'xdp': found program 'xdp_sock_prog' at insn offset 0 (0 bytes), code size 31 insns (248 bytes)
+libbpf: elf: section(4) .relxdp, size 16, link 26, flags 40, type=9
+libbpf: elf: section(5) maps, size 20, link 0, flags 3, type=1
+libbpf: elf: legacy map definitions in 'maps' section are not supported by libbpf v1.0+
+Error: failed to open object file

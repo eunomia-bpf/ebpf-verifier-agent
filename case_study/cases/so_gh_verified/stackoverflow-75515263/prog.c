@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -174,27 +203,32 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-struct {
-__uint(type, BPF_MAP_TYPE_HASH);
-__uint(max_entries, MAX_ENTRIES);
-__type(key, u32);
-__type(value, struct sock_info *);
-} lookup SEC(".maps");
-and sock_info is defined as follows:
+#define MAX_ENTRIES 1024
+
 struct sock_info {
-__u64 ctime;
-__u16 sport;
-__u16 dport;
+    __u64 ctime;
+    __u16 sport;
+    __u16 dport;
 };
-When I try to access the value from the map, I am able to read ctime correctly but run into a verifier error accessing sport and dport
-struct sock_info *og_sock = bpf_map_lookup_elem(&lookup,&pid);
-if(og_sock) {
-const char foo[] = "output %llu";
-bpf_trace_printk(foo,sizeof(foo),og_sock->ctime);
+
+struct bpf_map_def SEC("maps") lookup = {
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(u32),
+    .value_size = sizeof(struct sock_info *),
+    .max_entries = MAX_ENTRIES,
+};
+
+SEC("tracepoint/syscalls/sys_enter_execve")
+int read_lookup(void *ctx)
+{
+    u32 pid = 0;
+    struct sock_info *og_sock = bpf_map_lookup_elem(&lookup, &pid);
+    if (og_sock) {
+        const char foo[] = "output %llu";
+        bpf_trace_printk(foo, sizeof(foo), og_sock->ctime);
+    }
+    return 0;
 }
-10: (b7) r1 = 7695468
-; const char foo[] = "output %llu";
-11: (63) *(u32 *)(r10 -8) = r1
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

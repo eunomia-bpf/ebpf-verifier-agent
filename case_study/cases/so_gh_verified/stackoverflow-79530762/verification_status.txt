@@ -1,11 +1,11 @@
 case_id: stackoverflow-79530762
 source_bucket: stackoverflow
 language: c
-source_origin: 
-compile_ok: False
-verifier_status: not_run
-verifier_error_match: unknown
+source_origin: body[0] -> case-rewrite
+compile_ok: True
+verifier_status: accepted
+verifier_error_match: mismatch
 fixed_status: not_attempted
-original_error: <none>
-captured_error: <none>
-notes: No recoverable C source found in snippets or body text.
+original_error: bpf: Failed to load program: Permission denied
+captured_error: -- END PROG LOAD LOG --
+notes: <none>

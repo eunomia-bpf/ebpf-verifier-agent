@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -174,71 +203,63 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-// #include <bpf/bpf_helpers.h>
+struct bpf_map_def SEC("maps") srcMap = {
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(__u32),
+    .value_size = sizeof(__u64),
+    .max_entries = 4194304,
+};
 
-// struct vlan_hdr {
-//  __be16 h_vlan_TCI;
-//  __be16 h_vlan_encapsulated_proto;
-// };
+struct bpf_map_def SEC("maps") dstMap = {
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(__u32),
+    .value_size = sizeof(__u64),
+    .max_entries = 4194304,
+};
 
-/* helper functions called from eBPF programs */
-// static int (*bpf_trace_printk)(const char *fmt, int fmt_size, ...) =
-//          (void *) BPF_FUNC_trace_printk;
+struct bpf_map_def SEC("maps") protoMap = {
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(__u8),
+    .value_size = sizeof(__u64),
+    .max_entries = 4194304,
+};
 
-/* macro for printing debug info to the tracing pipe, useful just for
-   debugging purposes and not recommended to use in production systems.
+struct bpf_map_def SEC("maps") sportMap = {
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(__u16),
+    .value_size = sizeof(__u64),
+    .max_entries = 4194304,
+};
 
-     use `sudo cat /sys/kernel/debug/tracing/trace_pipe` to read debug info.
- */
-// #define printt(fmt, ...)                                                   \
-//             ({                                                             \
-//                 char ____fmt[] = fmt;                                      \
-//                 bpf_trace_printk(____fmt, sizeof(____fmt), ##__VA_ARGS__); \
-//             })
+struct bpf_map_def SEC("maps") dportMap = {
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(__u16),
+    .value_size = sizeof(__u64),
+    .max_entries = 4194304,
+};
 
-SEC("xdp/xdp_ip_filter")
-int xdp_ip_filter(struct xdp_md *ctx) {
+struct bpf_map_def SEC("maps") actionMap = {
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(__u64),
+    .value_size = sizeof(__u64),
+    .max_entries = 4194304,
+};
+
+SEC("xdp")
+int xdp_ip_filter(struct xdp_md *ctx)
+{
     void *end = (void *)(unsigned long)ctx->data_end;
     void *data = (void *)(unsigned long)ctx->data;
     __u32 ip_src, ip_dst;
-    // __u64 offset;
-    // __u16 eth_type;
-
-    // struct ethhdr *eth = data;
-    // offset = sizeof(struct ethhdr);
-
-    // if (data + offset > end) {
-    //     return XDP_ABORTED;
-    // }
-    // eth_type = eth->h_proto;
-
-    /* handle VLAN tagged packet */
-//     if (eth_type == htons(ETH_P_8021Q) || eth_type == htons(ETH_P_8021AD)) {
-//  struct vlan_hdr *vlan_hdr;
-
-//  vlan_hdr = (void *)eth + offset;
-//  offset += sizeof(*vlan_hdr);
-//  if ((void *)eth + offset > end)
-//      return 0;
-//  eth_type = vlan_hdr->h_vlan_encapsulated_proto;
-//    }
-
-//     /* let's only handle IPv4 addresses */
-//     if (eth_type == ntohs(ETH_P_IPV6)) {
-//         return XDP_PASS;
-//     }
-
     struct iphdr *iph;
-    if (end >= data + sizeof(struct ethhdr)) {
-        iph = data + sizeof(struct ethhdr);
-    } else {
+
+    if (end < data + sizeof(struct ethhdr))
         return XDP_ABORTED;
-    }
-    // offset += sizeof(struct iphdr);
-    /* make sure the bytes you want to read are within the packet's range before reading them */
-    // if (iph + 1 > end) {
-    //     return XDP_ABORTED;
-    // }
+
+    iph = data + sizeof(struct ethhdr);
+    if ((void *)(iph + 1) > end)
+        return XDP_ABORTED;
+
     ip_src = iph->saddr;
     ip_dst = iph->daddr;
     __u8 proto = iph->protocol;
@@ -261,67 +282,44 @@ int xdp_ip_filter(struct xdp_md *ctx) {
             __u8 default_prot = 0;
             protoMap_value = bpf_map_lookup_elem(&protoMap, &default_prot);
         }
+        if (!srcMap_value || !dstMap_value || !protoMap_value)
+            return XDP_PASS;
 
         if (proto == 1) {
             bitmap = (*srcMap_value) & (*dstMap_value) & (*protoMap_value);
-            __u64 temp = (~bitmap) + 1;
-            bitmap = bitmap & temp;
-        }
-        if (proto == 6) {
+        } else if (proto == 6) {
             struct tcphdr *tcph;
-            if (end >= data + sizeof(struct ethhdr) + sizeof(struct iphdr)) {
-                tcph = data + sizeof(struct ethhdr) + sizeof(struct iphdr);
-            } else {
-                return XDP_ABORTED;
-            }
             __u64 *sportMap_value, *dportMap_value;
-            __u16 sport = tcph->source;
-            __u16 dport = tcph->dest;
+            __u16 sport, dport;
+
+            if (end < data + sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct tcphdr))
+                return XDP_ABORTED;
+            tcph = data + sizeof(struct ethhdr) + sizeof(struct iphdr);
+            sport = tcph->source;
+            dport = tcph->dest;
             sportMap_value = bpf_map_lookup_elem(&sportMap, &sport);
             dportMap_value = bpf_map_lookup_elem(&dportMap, &dport);
-
-            if (sportMap_value == 0) {
-                __u16 default_sport = 0;
-                sportMap_value = bpf_map_lookup_elem(&sportMap, &default_sport);
-            }
-            if (dportMap_value == 0) {
-                __u16 default_dport = 0;
-                dportMap_value = bpf_map_lookup_elem(&dportMap, &default_dport);
-            }
-
+            if (!sportMap_value || !dportMap_value)
+                return XDP_PASS;
             bitmap = (*srcMap_value) & (*dstMap_value) & (*protoMap_value) & (*sportMap_value) & (*dportMap_value);
-            __u64 temp = (~bitmap) + 1;
-            bitmap = bitmap & temp;
-        }
-        if (proto == 17) {
+        } else {
             struct udphdr *udph;
-            if (end >= data + sizeof(struct ethhdr) + sizeof(struct iphdr)) {
-                udph = data + sizeof(struct ethhdr) + sizeof(struct iphdr);
-            } else {
-                return XDP_ABORTED;
-            }
             __u64 *sportMap_value, *dportMap_value;
-            __u16 sport = udph->source;
-            __u16 dport = udph->dest;
+            __u16 sport, dport;
+
+            if (end < data + sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr))
+                return XDP_ABORTED;
+            udph = data + sizeof(struct ethhdr) + sizeof(struct iphdr);
+            sport = udph->source;
+            dport = udph->dest;
             sportMap_value = bpf_map_lookup_elem(&sportMap, &sport);
             dportMap_value = bpf_map_lookup_elem(&dportMap, &dport);
-
-            if (sportMap_value == 0) {
-                __u16 default_sport = 0;
-                sportMap_value = bpf_map_lookup_elem(&sportMap, &default_sport);
-            }
-            if (dportMap_value == 0) {
-                __u16 default_dport = 0;
-                dportMap_value = bpf_map_lookup_elem(&dportMap, &default_dport);
-            }
-
+            if (!sportMap_value || !dportMap_value)
+                return XDP_PASS;
             bitmap = (*srcMap_value) & (*dstMap_value) & (*protoMap_value) & (*sportMap_value) & (*dportMap_value);
-            __u64 temp = (~bitmap) + 1;
-            bitmap = bitmap & temp;
         }
 
-        __u64 *actionMap_value;
-        actionMap_value = bpf_map_lookup_elem(&actionMap, &bitmap);
+        __u64 *actionMap_value = bpf_map_lookup_elem(&actionMap, &bitmap);
         if (actionMap_value) {
             (*actionMap_value) = (*actionMap_value) + 1;
             bpf_map_update_elem(&actionMap, &bitmap, actionMap_value, BPF_EXIST);
@@ -331,86 +329,7 @@ int xdp_ip_filter(struct xdp_md *ctx) {
     return XDP_PASS;
 }
 
-char __license[] SEC("license") = "GPL";
-
-maps.h
-
-#define SEC(NAME) __attribute__((section(NAME), used))
-
-static void *(*bpf_map_lookup_elem)(void *map, void *key) = (void *) BPF_FUNC_map_lookup_elem;
-static void *(*bpf_map_update_elem)(void *map, void *key, void *value, int flags) = (void *) BPF_FUNC_map_update_elem;
-
-#define BUF_SIZE_MAP_NS 256
-
-typedef struct bpf_map_def {
-    unsigned int type;
-    unsigned int key_size;
-    unsigned int value_size;
-    unsigned int max_entries;
-    unsigned int map_flags;
-    unsigned int pinning;
-    char namespace[BUF_SIZE_MAP_NS];
-} bpf_map_def;
-
-enum bpf_pin_type {
-    PIN_NONE = 0,
-    PIN_OBJECT_NS,
-    PIN_GLOBAL_NS,
-    PIN_CUSTOM_NS,
-};
-
-struct bpf_map_def SEC("maps/srcMap") srcMap = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(__u32),
-    .value_size = sizeof(__u64),
-    .max_entries = 4194304,
-    .pinning = PIN_GLOBAL_NS,
-    .namespace = "globals",
-};
-
-struct bpf_map_def SEC("maps/dstMap") dstMap = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(__u32),
-    .value_size = sizeof(__u64),
-    .max_entries = 4194304,
-    .pinning = PIN_GLOBAL_NS,
-    .namespace = "globals",
-};
-
-struct bpf_map_def SEC("maps/protoMap") protoMap = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(__u8),
-    .value_size = sizeof(__u64),
-    .max_entries = 4194304,
-    .pinning = PIN_GLOBAL_NS,
-    .namespace = "globals",
-};
-
-struct bpf_map_def SEC("maps/sportMap") sportMap = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(__u16),
-    .value_size = sizeof(__u64),
-    .max_entries = 4194304,
-    .pinning = PIN_GLOBAL_NS,
-    .namespace = "globals",
-};
-
-struct bpf_map_def SEC("maps/dportMap") dportMap = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(__u16),
-    .value_size = sizeof(__u64),
-    .max_entries = 4194304,
-    .pinning = PIN_GLOBAL_NS,
-    .namespace = "globals",
-};
-
-struct bpf_map_def SEC("maps/actionMap") actionMap = {
-    .type = BPF_MAP_TYPE_HASH,
-    .key_size = sizeof(__u64),
-    .value_size = sizeof(__u64),
-    .max_entries = 4194304,
-    .pinning = PIN_GLOBAL_NS,
-    .namespace = "globals",
-};
+/* === WRAPPER: added license === */
+char _license[] SEC("license") = "GPL";
 
 /* === END ORIGINAL CODE === */

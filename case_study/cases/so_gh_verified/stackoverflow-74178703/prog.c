@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -174,35 +203,46 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
+struct bpf_elf_map __section("maps") data_store = {
+    .type = BPF_MAP_TYPE_ARRAY,
+    .size_key = sizeof(__u32),
+    .size_value = 1024,
+    .max_elem = 4096,
+    .pinning = PIN_GLOBAL_NS,
 };
-static __always_inline void read_data(__u32 idx, __u32 offset, void *dst,
-__u32 size) {
-if (size > 512 || offset >= 1024) {
-// for the ebpf verifier
-return;
+
+static __always_inline void read_data(__u32 idx, __u32 offset, void *dst, __u32 size)
+{
+    __u8 *dst_bytes = dst;
+    __u8 *b;
+
+    if (size > 512 || offset >= 1024)
+        return;
+
+    b = bpf_map_lookup_elem(&data_store, &idx);
+    if (!b)
+        return;
+
+    if (offset + size <= 1024) {
+        for (__u32 i = 0; i < size && i < 512; ++i) {
+            if (offset + i >= 1024)
+                return;
+            memcpy(dst_bytes + i, b + offset + i, sizeof(__u8));
+        }
+    } else {
+        dst_bytes -= offset;
+        for (__u32 i = offset; i < size + offset && i < 1024; ++i)
+            memcpy(dst_bytes + i, b + i, sizeof(__u8));
+    }
 }
-void *b = bpf_map_lookup_elem(&data_store, &idx);
-if (!b) {
-// shouldn't happen
-return;
+
+SEC("tracepoint/syscalls/sys_enter_execve")
+int read_data_probe(void *ctx)
+{
+    char dst[64] = {};
+    read_data(0, 0, dst, sizeof(dst));
+    return 0;
 }
-if (offset + size <= 1024) {
-for (__u32 i = 0; i < size && i < 512; ++i) {
-if (offset + i >= 1024) {
-return;
-}
-// !! where the verifier complains
-memcpy(dst + i, b + offset + i, sizeof(__u8));
-}
-} else {
-// ...
-}
-}
-verifier log:
-; for (__u32 i = 0; i < size && i < 512; ++i) {
-197: (25) if r1 > 0x1fe goto pc+8
-;
-198: (bf) r2 = r1
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

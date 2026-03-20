@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -174,42 +203,52 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-struct ReadArgs{
-int fd;
-uintptr_t buf; // https://github.com/cilium/ebpf/discussions/1066 work around for pointer in struct
+#define MAX_READ_CONTENT_LENGTH 4096
+#define DEBUG(fmt, ...) do { } while (0)
+
+struct ReadArgs {
+    int fd;
+    uintptr_t buf;
 };
-struct ReadEvent{
-int eventType;
-int fd;
-int len;
-u8 content[MAX_READ_CONTENT_LENGTH];
+
+struct ReadEvent {
+    int eventType;
+    int fd;
+    int len;
+    u8 content[MAX_READ_CONTENT_LENGTH];
 };
-static __always_inline int readData(struct ReadArgs* args, struct ReadEvent* event, int read){
-if((void *) args->buf == NULL){
-return -1;
+
+static __always_inline int readData(struct ReadArgs *args, struct ReadEvent *event, int read)
+{
+    if ((void *)args->buf == NULL)
+        return -1;
+    event->fd = args->fd;
+    if (event->len > MAX_READ_CONTENT_LENGTH)
+        return -1;
+    else
+        event->len &= (MAX_READ_CONTENT_LENGTH - 1);
+    if (read > MAX_READ_CONTENT_LENGTH)
+        read = MAX_READ_CONTENT_LENGTH - 1;
+    else
+        read &= (MAX_READ_CONTENT_LENGTH - 1);
+    if (event->len + read < MAX_READ_CONTENT_LENGTH) {
+        long res = bpf_probe_read_user(&event->content[event->len], read, (const void *)args->buf);
+        if (res < 0) {
+            DEBUG("readData: bpf_probe_read_user return %d", res);
+            return -1;
+        }
+    }
+    return 0;
 }
-event->fd = args->fd;
-if(event->len > MAX_READ_CONTENT_LENGTH){
-return -1;
-} else {
-event->len &= (MAX_READ_CONTENT_LENGTH-1);
+
+SEC("tracepoint/syscalls/sys_enter_execve")
+int read_data_probe(void *ctx)
+{
+    struct ReadArgs args = {};
+    struct ReadEvent event = {};
+    readData(&args, &event, 0);
+    return 0;
 }
-if(read > MAX_READ_CONTENT_LENGTH){
-read = MAX_READ_CONTENT_LENGTH - 1;
-}else{
-read &= (MAX_READ_CONTENT_LENGTH-1);
-}
-if(event->len + read < MAX_READ_CONTENT_LENGTH) {
-long res = bpf_probe_read_user(&event->content[event->len], read, (const void *) args->buf); // failed at here
-if (res < 0) {
-DEBUG("readData: bpf_probe_read_user return %d", res);
-return -1;
-}
-event->len += read;
-}
-return 0;
-}
-and the
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

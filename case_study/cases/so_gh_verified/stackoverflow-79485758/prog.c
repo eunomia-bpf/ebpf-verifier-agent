@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -174,69 +203,81 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-. The code below shows my eBPF program, which I am trying to attach at TC hook (ingress).
+#define MAX_ACTION_LIST 8
+#define MAX_PAYLOAD_OFFSET 128
+#define MAX_IDS 4
+#define CONTEXT_KEY 0
+#define GRPC_ID_MASK 0xffe0
+#define GRPC_ID_SHIFT 5
+#define GRPC_LEN_MASK 0x001f
+
+typedef __u32 context_key_t;
+
+typedef struct {
+    __u16 offset;
+    __u16 field_index;
+    __u16 field_id[MAX_IDS];
+} find_grpc_t;
+
+typedef struct {
+    find_grpc_t find_grpc_args;
+} action_arg_t;
+
+typedef struct {
+    __u16 action_index;
+    __u16 payload_offset;
+    struct {
+        find_grpc_t find_grpc_args;
+    } action_argument[MAX_ACTION_LIST];
+} context_data_t;
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, context_key_t);
+    __type(value, context_data_t);
+} context_map SEC(".maps");
+
 SEC("classifier")
-int find_grpc(struct __sk_buff *skb){
-if(skb == NULL) {
-goto EXIT;
-}
-context_key_t key = CONTEXT_KEY;
-context_data_t * ctx = bpf_map_lookup_elem(&context_map,&key);
-void *data_end = (void*)(__u64)skb->data_end;
-void *data = (void *)(__u64)skb->data;
-if(ctx==NULL) {
-goto EXIT;
-}
-if(ctx->action_index >= MAX_ACTION_LIST) {
-goto EXIT;
-}
-find_grpc_t *args = (find_grpc_t*)&(ctx->action_argument[ctx->action_index].find_grpc_args);
-if(args==NULL) {
-goto EXIT;
-}
-unsigned int flag = 0;
-if (args->offset > 100)
+int find_grpc(struct __sk_buff *skb)
 {
-goto EXIT;
-}
-if (ctx->payload_offset > MAX_PAYLOAD_OFFSET)
-{
-goto EXIT;
-}
-unsigned short field_offset = ctx->payload_offset + args->offset;
-char len = 0;
-uint16_t x;
-if (args->field_index > MAX_IDS)
-{
-goto EXIT;
-}
-unsigned short toBeFound = args->field_id[args->field_index];
+    context_key_t key = CONTEXT_KEY;
+    context_data_t *ctx = bpf_map_lookup_elem(&context_map, &key);
+    void *data_end = (void *)(__u64)skb->data_end;
+    void *data = (void *)(__u64)skb->data;
+    unsigned short field_offset;
+    char len = 0;
+    uint16_t x;
+    find_grpc_t *args;
+    unsigned short toBeFound;
+
+    if (skb == NULL || ctx == NULL)
+        goto EXIT;
+    if (ctx->action_index >= MAX_ACTION_LIST || ctx->payload_offset > MAX_PAYLOAD_OFFSET)
+        goto EXIT;
+
+    args = (find_grpc_t *)&ctx->action_argument[ctx->action_index].find_grpc_args;
+    if (args->offset > 100 || args->field_index > MAX_IDS)
+        goto EXIT;
+
+    field_offset = ctx->payload_offset + args->offset;
+    toBeFound = args->field_id[args->field_index];
 LOOK:
-if ((data + field_offset + sizeof(uint16_t)) > data_end)
-{
-goto EXIT;
-}
-x = *((uint16_t*) (data + field_offset));
-char y = (x & GRPC_ID_MASK) >> GRPC_ID_SHIFT;
-len = x & GRPC_LEN_MASK;
-if (len > 32)
-{
-goto EXIT;
-}
-if (y == toBeFound)
-{
-goto FOUND;
-}
-field_offset += len;
-goto LOOK;
+    if ((data + field_offset + sizeof(uint16_t)) > data_end)
+        goto EXIT;
+    x = *((uint16_t *)(data + field_offset));
+    char y = (x & GRPC_ID_MASK) >> GRPC_ID_SHIFT;
+    len = x & GRPC_LEN_MASK;
+    if (len > 32)
+        goto EXIT;
+    if (y == toBeFound)
+        goto FOUND;
+    field_offset += len;
+    goto LOOK;
 FOUND:
-// some logic on finding the required attribute in the payload
 EXIT:
-return TC_ACT_OK;
+    return TC_ACT_OK;
 }
-In the above code, the verifier complains by saying that I am trying to access an offset which is outside the packet at the following line in code (where I try to dereference a pointer at an offset inside the packet)
-x = *((uint16_t*) (off));
-As can be seen in the code above, I do check for bounds just above that particular line. Any reason why I might be seeing this error even though I have check for packet bounds?
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

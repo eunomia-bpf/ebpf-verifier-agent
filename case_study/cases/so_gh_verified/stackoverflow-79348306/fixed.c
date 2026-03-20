@@ -1,13 +1,39 @@
 /* === WRAPPER: compilation boilerplate === */
+/* no extra boilerplate required */
+
+/* === ORIGINAL CODE from SO/GH post === */
+
+/* === WRAPPER: compilation boilerplate === */
 #ifndef __TARGET_ARCH_x86
 #define __TARGET_ARCH_x86 1
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +71,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +89,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -174,13 +208,17 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-let mut ctx = LoopContext { ctx: &ctx, data };
-let fn_ptr = loop_body as *mut fn(u64, *mut c_void) -> i64 as *mut c_void;
-let ctx_ptr = &mut ctx as *mut LoopContext as *mut c_void;
-// The real thing loads the iter count from the map, but it's for demonstration purposes.
-bpf_loop(256, fn_ptr, ctx_ptr, 0);
+#define MAX_SIZE 255
+SEC("lsm/file_open")
+int BPF_PROG(test_prog, struct file *file, int ret)
+{
+unsigned int f_flags;
+char path_buffer[MAX_SIZE];
+long err = bpf_d_path(&file->f_path, path_buffer, sizeof(path_buffer));
+return 0;
+}
+char LICENSE[] SEC("license") = "GPL";
 
-/* === WRAPPER: added license === */
-char _license[] SEC("license") = "GPL";
+/* === END ORIGINAL CODE === */
 
 /* === END ORIGINAL CODE === */

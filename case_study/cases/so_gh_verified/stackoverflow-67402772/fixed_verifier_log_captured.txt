@@ -1,0 +1,13 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-67402772/fixed.o
+libbpf: elf: section(3) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-67402772/fixed.o is GPL
+libbpf: elf: section(4) .bss, size 52, link 0, flags 3, type=8
+libbpf: elf: section(13) .BTF, size 519, link 0, flags 0, type=1
+libbpf: elf: section(19) .symtab, size 384, link 1, flags 0, type=2
+libbpf: looking for externs among 16 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'fixed.bss' (global data): at sec_idx 4, offset 0, flags 400.
+libbpf: map 0 is "fixed.bss"
+libbpf: object 'fixed': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: map 'fixed.bss': created successfully, fd=4
+Error: object file doesn't contain any bpf program

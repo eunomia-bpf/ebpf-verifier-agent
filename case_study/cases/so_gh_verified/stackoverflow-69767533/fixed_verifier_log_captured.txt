@@ -37,20 +37,20 @@ Live regs before insn:
   5: ..2....... (07) r2 += -4
   6: ..2....... (bf) r3 = r10
   7: ..23...... (07) r3 += -16
-  8: ..23...... (18) r1 = 0xffff8f118652c200
+  8: ..23...... (18) r1 = 0xffff8f2710bb6e00
  10: .123...... (b7) r4 = 0
  11: .1234..... (85) call bpf_map_update_elem#2
  12: .......... (b7) r0 = 0
  13: 0......... (95) exit
 0: R1=ctx() R10=fp0
-; int trace_read_enter(struct read_enter_ctx *ctx) @ fixed.c:205
+; int trace_read_enter(struct read_enter_ctx *ctx) @ fixed.c:234
 0: (b7) r2 = 0                        ; R2_w=0
-; int zero = 0; @ fixed.c:207
+; int zero = 0; @ fixed.c:236
 1: (63) *(u32 *)(r10 -4) = r2
 mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1 
 mark_precise: frame0: regs=r2 stack= before 0: (b7) r2 = 0
 2: R2_w=0 R10=fp0 fp-8=0000????
-; void *p = ctx->buf; @ fixed.c:208
+; void *p = ctx->buf; @ fixed.c:237
 2: (79) r1 = *(u64 *)(r1 +24)         ; R1_w=scalar()
 3: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=scalar(id=1) R10=fp0 fp-16_w=scalar(id=1)
 4: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
@@ -58,14 +58,14 @@ mark_precise: frame0: regs=r2 stack= before 0: (b7) r2 = 0
 5: (07) r2 += -4                      ; R2_w=fp-4
 6: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
 7: (07) r3 += -16                     ; R3_w=fp-16
-; bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY); @ fixed.c:209
-8: (18) r1 = 0xffff8f118652c200       ; R1_w=map_ptr(map=saved_read_ctx,ks=4,vs=8)
+; bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY); @ fixed.c:238
+8: (18) r1 = 0xffff8f2710bb6e00       ; R1_w=map_ptr(map=saved_read_ctx,ks=4,vs=8)
 10: (b7) r4 = 0                       ; R4_w=0
 11: (85) call bpf_map_update_elem#2   ; R0_w=scalar()
-; return 0; @ fixed.c:210
+; return 0; @ fixed.c:239
 12: (b7) r0 = 0                       ; R0_w=0
 13: (95) exit
-verification time 59 usec
+verification time 61 usec
 stack depth 16
 processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
 -- END PROG LOAD LOG --
@@ -93,7 +93,7 @@ Live regs before insn:
  18: .1....6... (63) *(u32 *)(r10 -132) = r1
  19: ......6... (bf) r2 = r10
  20: ..2...6... (07) r2 += -132
- 21: ..2...6... (18) r1 = 0xffff8f118652c200
+ 21: ..2...6... (18) r1 = 0xffff8f2710bb6e00
  23: .12...6... (85) call bpf_map_lookup_elem#1
  24: 0.....6... (15) if r0 == 0x0 goto pc+8
  25: 0.....6... (79) r2 = *(u64 *)(r6 +16)
@@ -107,10 +107,10 @@ Live regs before insn:
  33: .......... (b7) r0 = 0
  34: 0......... (95) exit
 0: R1=ctx() R10=fp0
-; int trace_read_exit(struct read_exit_ctx *ctx) @ fixed.c:214
+; int trace_read_exit(struct read_exit_ctx *ctx) @ fixed.c:243
 0: (bf) r6 = r1                       ; R1=ctx() R6_w=ctx()
 1: (b7) r1 = 0                        ; R1_w=0
-; char tmp_buffer[128] = {}; @ fixed.c:216
+; char tmp_buffer[128] = {}; @ fixed.c:245
 2: (7b) *(u64 *)(r10 -8) = r1         ; R1_w=0 R10=fp0 fp-8_w=0
 3: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=0 R10=fp0 fp-16_w=0
 4: (7b) *(u64 *)(r10 -24) = r1        ; R1_w=0 R10=fp0 fp-24_w=0
@@ -127,7 +127,7 @@ Live regs before insn:
 15: (7b) *(u64 *)(r10 -112) = r1      ; R1_w=0 R10=fp0 fp-112_w=0
 16: (7b) *(u64 *)(r10 -120) = r1      ; R1_w=0 R10=fp0 fp-120_w=0
 17: (7b) *(u64 *)(r10 -128) = r1      ; R1_w=0 R10=fp0 fp-128_w=0
-; int zero = 0; @ fixed.c:219
+; int zero = 0; @ fixed.c:248
 18: (63) *(u32 *)(r10 -132) = r1
 mark_precise: frame0: last_idx 18 first_idx 0 subseq_idx -1 
 mark_precise: frame0: regs=r1 stack= before 17: (7b) *(u64 *)(r10 -128) = r1
@@ -151,22 +151,22 @@ mark_precise: frame0: regs=r1 stack= before 1: (b7) r1 = 0
 19: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
 ;  @ fixed.c:0
 20: (07) r2 += -132                   ; R2_w=fp-132
-; void **ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero); @ fixed.c:220
-21: (18) r1 = 0xffff8f118652c200      ; R1_w=map_ptr(map=saved_read_ctx,ks=4,vs=8)
+; void **ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero); @ fixed.c:249
+21: (18) r1 = 0xffff8f2710bb6e00      ; R1_w=map_ptr(map=saved_read_ctx,ks=4,vs=8)
 23: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value(map=saved_read_ctx,ks=4,vs=8)
-; if (!ubuf) { @ fixed.c:221
+; if (!ubuf) { @ fixed.c:250
 24: (15) if r0 == 0x0 goto pc+8       ; R0_w=map_value(map=saved_read_ctx,ks=4,vs=8)
-; if (ctx->ret <= 0) { @ fixed.c:225
+; if (ctx->ret <= 0) { @ fixed.c:254
 25: (79) r2 = *(u64 *)(r6 +16)        ; R2_w=scalar() R6_w=ctx()
 26: (b7) r1 = 1                       ; R1=1
 27: (6d) if r1 s> r2 goto pc+5        ; R1=1 R2=scalar(smin=umin=1,umax=0x7fffffffffffffff,var_off=(0x0; 0x7fffffffffffffff))
-; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf); @ fixed.c:232
+; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf); @ fixed.c:261
 28: (79) r3 = *(u64 *)(r0 +0)         ; R0=map_value(map=saved_read_ctx,ks=4,vs=8) R3_w=scalar()
 29: (57) r2 &= 127                    ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=127,var_off=(0x0; 0x7f))
 30: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
 ;  @ fixed.c:0
 31: (07) r1 += -128                   ; R1_w=fp-128
-; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf); @ fixed.c:232
+; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf); @ fixed.c:261
 32: (85) call bpf_probe_read#4
 mark_precise: frame0: last_idx 32 first_idx 27 subseq_idx -1 
 mark_precise: frame0: regs=r2 stack= before 31: (07) r1 += -128
@@ -179,7 +179,7 @@ mark_precise: frame0: last_idx 26 first_idx 0 subseq_idx 27
 mark_precise: frame0: regs=r1,r2 stack= before 26: (b7) r1 = 1
 mark_precise: frame0: regs=r2 stack= before 25: (79) r2 = *(u64 *)(r6 +16)
 33: R0_w=scalar()
-; } @ fixed.c:234
+; } @ fixed.c:263
 33: (b7) r0 = 0                       ; R0_w=0
 34: (95) exit
 
@@ -187,7 +187,7 @@ from 27 to 33: R0=map_value(map=saved_read_ctx,ks=4,vs=8) R1=1 R2=scalar(smax=0)
 33: R0=map_value(map=saved_read_ctx,ks=4,vs=8) R1=1 R2=scalar(smax=0) R6=ctx() R10=fp0 fp-8=0 fp-16=0 fp-24=0 fp-32=0 fp-40=0 fp-48=0 fp-56=0 fp-64=0 fp-72=0 fp-80=0 fp-88=0 fp-96=0 fp-104=0 fp-112=0 fp-120=0 fp-128=0 fp-136=0000????
 33: (b7) r0 = 0                       ; R0_w=0
 34: (95) exit
-verification time 172 usec
+verification time 130 usec
 stack depth 136
 processed 36 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
 -- END PROG LOAD LOG --

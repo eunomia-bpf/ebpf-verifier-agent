@@ -1,0 +1,217 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-74531552/prog.o
+libbpf: elf: section(3) kprobe/tcp_connect, size 648, link 0, flags 6, type=1
+libbpf: sec 'kprobe/tcp_connect': found program 'trace_connect_v4_return' at insn offset 0 (0 bytes), code size 81 insns (648 bytes)
+libbpf: elf: section(4) .relkprobe/tcp_connect, size 80, link 27, flags 40, type=9
+libbpf: elf: section(5) .maps, size 56, link 0, flags 3, type=1
+libbpf: elf: section(6) .rodata, size 64, link 0, flags 2, type=1
+libbpf: elf: section(7) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-74531552/prog.o is GPL
+libbpf: elf: section(17) .BTF, size 2276, link 0, flags 0, type=1
+libbpf: elf: section(19) .BTF.ext, size 400, link 0, flags 0, type=1
+libbpf: elf: section(27) .symtab, size 432, link 1, flags 0, type=2
+libbpf: looking for externs among 18 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'automaton': at sec_idx 5, offset 0.
+libbpf: map 'automaton': found type = 23.
+libbpf: map 'automaton': found value [8], sz = 68.
+libbpf: map 'automaton': found max_entries = 1.
+libbpf: map 'state_store': at sec_idx 5, offset 24.
+libbpf: map 'state_store': found type = 1.
+libbpf: map 'state_store': found key [2], sz = 4.
+libbpf: map 'state_store': found value [2], sz = 4.
+libbpf: map 'state_store': found max_entries = 1.
+libbpf: map 'prog.rodata' (global data): at sec_idx 6, offset 0, flags 80.
+libbpf: map 2 is "prog.rodata"
+libbpf: sec '.relkprobe/tcp_connect': collecting relocation for section(3) 'kprobe/tcp_connect'
+libbpf: sec '.relkprobe/tcp_connect': relo #0: insn #5 against 'state_store'
+libbpf: prog 'trace_connect_v4_return': found map 1 (state_store, sec 5, off 24) for insn #5
+libbpf: sec '.relkprobe/tcp_connect': relo #1: insn #14 against 'state_store'
+libbpf: prog 'trace_connect_v4_return': found map 1 (state_store, sec 5, off 24) for insn #14
+libbpf: sec '.relkprobe/tcp_connect': relo #2: insn #19 against 'state_store'
+libbpf: prog 'trace_connect_v4_return': found map 1 (state_store, sec 5, off 24) for insn #19
+libbpf: sec '.relkprobe/tcp_connect': relo #3: insn #29 against 'automaton'
+libbpf: prog 'trace_connect_v4_return': found map 0 (automaton, sec 5, off 0) for insn #29
+libbpf: sec '.relkprobe/tcp_connect': relo #4: insn #58 against 'automaton'
+libbpf: prog 'trace_connect_v4_return': found map 0 (automaton, sec 5, off 0) for insn #58
+libbpf: object 'prog': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: map 'automaton': created successfully, fd=4
+libbpf: map 'state_store': created successfully, fd=5
+libbpf: map 'prog.rodata': created successfully, fd=6
+libbpf: prog 'trace_connect_v4_return': BPF program load failed: -EINVAL
+libbpf: prog 'trace_connect_v4_return': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .......... (b7) r1 = 0
+  1: .1........ (63) *(u32 *)(r10 -4) = r1
+  2: .1........ (63) *(u32 *)(r10 -8) = r1
+  3: .......... (bf) r2 = r10
+  4: ..2....... (07) r2 += -4
+  5: ..2....... (18) r1 = 0xffff8f291ace8c00
+  7: .12....... (85) call bpf_map_lookup_elem#1
+  8: 0......... (bf) r6 = r0
+  9: ......6... (55) if r6 != 0x0 goto pc+17
+ 10: .......... (bf) r6 = r10
+ 11: ......6... (07) r6 += -4
+ 12: ......6... (bf) r3 = r10
+ 13: ...3..6... (07) r3 += -8
+ 14: ...3..6... (18) r1 = 0xffff8f291ace8c00
+ 16: .1.3..6... (bf) r2 = r6
+ 17: .123..6... (b7) r4 = 1
+ 18: .1234.6... (85) call bpf_map_update_elem#2
+ 19: ......6... (18) r1 = 0xffff8f291ace8c00
+ 21: .1....6... (bf) r2 = r6
+ 22: .12....... (85) call bpf_map_lookup_elem#1
+ 23: 0......... (bf) r6 = r0
+ 24: ......6... (18) r0 = 0xffffffff
+ 26: 0.....6... (15) if r6 == 0x0 goto pc+53
+ 27: ......6... (bf) r2 = r10
+ 28: ..2...6... (07) r2 += -76
+ 29: ..2...6... (18) r1 = 0xffff8f2742992c00
+ 31: .12...6... (85) call bpf_map_peek_elem#89
+ 32: 0.....6... (65) if r0 s> 0xffffffff goto pc+29
+ 33: ......6... (b7) r1 = 1
+ 34: .1....6... (63) *(u32 *)(r10 -72) = r1
+ 35: ......6... (b7) r1 = 2
+ 36: .1....6... (63) *(u32 *)(r10 -52) = r1
+ 37: ......6... (b7) r1 = 3
+ 38: .1....6... (63) *(u32 *)(r10 -32) = r1
+ 39: ......6... (18) r1 = 0xffffffff
+ 41: .1....6... (63) *(u32 *)(r10 -68) = r1
+ 42: .1....6... (63) *(u32 *)(r10 -60) = r1
+ 43: .1....6... (63) *(u32 *)(r10 -64) = r1
+ 44: .1....6... (63) *(u32 *)(r10 -56) = r1
+ 45: .1....6... (63) *(u32 *)(r10 -44) = r1
+ 46: .1....6... (63) *(u32 *)(r10 -48) = r1
+ 47: .1....6... (63) *(u32 *)(r10 -36) = r1
+ 48: .1....6... (63) *(u32 *)(r10 -40) = r1
+ 49: .1....6... (63) *(u32 *)(r10 -28) = r1
+ 50: .1....6... (63) *(u32 *)(r10 -20) = r1
+ 51: .1....6... (63) *(u32 *)(r10 -24) = r1
+ 52: .1....6... (63) *(u32 *)(r10 -16) = r1
+ 53: ......6... (b7) r1 = 0
+ 54: .1....6... (63) *(u32 *)(r10 -12) = r1
+ 55: .1....6... (63) *(u32 *)(r10 -76) = r1
+ 56: ......6... (bf) r2 = r10
+ 57: ..2...6... (07) r2 += -76
+ 58: ..2...6... (18) r1 = 0xffff8f2742992c00
+ 60: .12...6... (b7) r3 = 0
+ 61: .123..6... (85) call bpf_map_push_elem#87
+ 62: ......6... (61) r1 = *(u32 *)(r6 +0)
+ 63: .1....6... (67) r1 <<= 32
+ 64: .1....6... (c7) r1 s>>= 32
+ 65: .1....6... (67) r1 <<= 4
+ 66: .1....6... (bf) r2 = r10
+ 67: .12...6... (07) r2 += -76
+ 68: .12...6... (0f) r2 += r1
+ 69: ..2...6... (18) r0 = 0xffffffff
+ 71: 0.2...6... (61) r1 = *(u32 *)(r2 +4)
+ 72: 01....6... (67) r1 <<= 32
+ 73: 01....6... (c7) r1 s>>= 32
+ 74: 01....6... (15) if r1 == 0x0 goto pc+5
+ 75: 01....6... (65) if r1 s> 0x3 goto pc+4
+ 76: 01....6... (b7) r2 = -1
+ 77: 012...6... (6d) if r2 s> r1 goto pc+2
+ 78: .1....6... (63) *(u32 *)(r6 +0) = r1
+ 79: .......... (b7) r0 = 0
+ 80: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int trace_connect_v4_return(struct pt_regs *ctx) @ prog.c:235
+0: (b7) r1 = 0                        ; R1_w=0
+; int key = 0, init_val = 0; @ prog.c:237
+1: (63) *(u32 *)(r10 -4) = r1
+mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 0: (b7) r1 = 0
+2: R1_w=0 R10=fp0 fp-8=0000????
+2: (63) *(u32 *)(r10 -8) = r1         ; R1_w=0 R10=fp0 fp-8=00000
+3: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+;  @ prog.c:0
+4: (07) r2 += -4                      ; R2_w=fp-4
+; int *curr_state = bpf_map_lookup_elem(&state_store, key); @ prog.c:227
+5: (18) r1 = 0xffff8f291ace8c00       ; R1_w=map_ptr(map=state_store,ks=4,vs=4)
+7: (85) call bpf_map_lookup_elem#1    ; R0_w=map_value_or_null(id=1,map=state_store,ks=4,vs=4)
+8: (bf) r6 = r0                       ; R0_w=map_value_or_null(id=1,map=state_store,ks=4,vs=4) R6_w=map_value_or_null(id=1,map=state_store,ks=4,vs=4)
+; if (curr_state) @ prog.c:228
+9: (55) if r6 != 0x0 goto pc+17       ; R6_w=0
+10: (bf) r6 = r10                     ; R6_w=fp0 R10=fp0
+; bpf_map_update_elem(&state_store, key, init_val, BPF_NOEXIST); @ prog.c:230
+11: (07) r6 += -4                     ; R6_w=fp-4
+12: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0
+13: (07) r3 += -8                     ; R3_w=fp-8
+14: (18) r1 = 0xffff8f291ace8c00      ; R1_w=map_ptr(map=state_store,ks=4,vs=4)
+16: (bf) r2 = r6                      ; R2_w=fp-4 R6_w=fp-4
+17: (b7) r4 = 1                       ; R4_w=1
+18: (85) call bpf_map_update_elem#2   ; R0=scalar()
+; return bpf_map_lookup_elem(&state_store, key); @ prog.c:231
+19: (18) r1 = 0xffff8f291ace8c00      ; R1_w=map_ptr(map=state_store,ks=4,vs=4)
+21: (bf) r2 = r6                      ; R2_w=fp-4 R6=fp-4
+22: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value_or_null(id=2,map=state_store,ks=4,vs=4)
+23: (bf) r6 = r0                      ; R0_w=map_value_or_null(id=2,map=state_store,ks=4,vs=4) R6_w=map_value_or_null(id=2,map=state_store,ks=4,vs=4)
+24: (18) r0 = 0xffffffff              ; R0_w=0xffffffff
+; if (!curr_state) @ prog.c:243
+26: (15) if r6 == 0x0 goto pc+53      ; R6_w=map_value(map=state_store,ks=4,vs=4)
+27: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+; if (bpf_map_peek_elem(&automaton, &aut) < 0) { @ prog.c:246
+28: (07) r2 += -76                    ; R2_w=fp-76
+29: (18) r1 = 0xffff8f2742992c00      ; R1_w=map_ptr(map=automaton,ks=0,vs=68)
+31: (85) call bpf_map_peek_elem#89    ; R0=scalar() fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmm????
+32: (65) if r0 s> 0xffffffff goto pc+29       ; R0=scalar(smax=-1,umin=0x8000000000000000,var_off=(0x8000000000000000; 0x7fffffffffffffff))
+33: (b7) r1 = 1                       ; R1_w=1
+; aut = (automaton_t){ @ prog.c:247
+34: (63) *(u32 *)(r10 -72) = r1       ; R1_w=1 R10=fp0 fp-72=mmmm1
+35: (b7) r1 = 2                       ; R1_w=2
+36: (63) *(u32 *)(r10 -52) = r1       ; R1_w=2 R10=fp0 fp-56=mmmmmmmm
+37: (b7) r1 = 3                       ; R1_w=3
+38: (63) *(u32 *)(r10 -32) = r1       ; R1_w=3 R10=fp0 fp-32=mmmm3
+39: (18) r1 = 0xffffffff              ; R1_w=0xffffffff
+41: (63) *(u32 *)(r10 -68) = r1       ; R1_w=0xffffffff R10=fp0 fp-72=mmmmmmmm
+42: (63) *(u32 *)(r10 -60) = r1       ; R1_w=0xffffffff R10=fp0 fp-64=mmmmmmmm
+43: (63) *(u32 *)(r10 -64) = r1       ; R1_w=0xffffffff R10=fp0 fp-64=mmmm0xffffffff
+44: (63) *(u32 *)(r10 -56) = r1       ; R1_w=0xffffffff R10=fp0 fp-56=mmmm0xffffffff
+45: (63) *(u32 *)(r10 -44) = r1       ; R1_w=0xffffffff R10=fp0 fp-48=mmmmmmmm
+46: (63) *(u32 *)(r10 -48) = r1       ; R1_w=0xffffffff R10=fp0 fp-48=mmmm0xffffffff
+47: (63) *(u32 *)(r10 -36) = r1       ; R1_w=0xffffffff R10=fp0 fp-40=mmmmmmmm
+48: (63) *(u32 *)(r10 -40) = r1       ; R1_w=0xffffffff R10=fp0 fp-40=mmmm0xffffffff
+49: (63) *(u32 *)(r10 -28) = r1       ; R1_w=0xffffffff R10=fp0 fp-32=mmmmmmmm
+50: (63) *(u32 *)(r10 -20) = r1       ; R1_w=0xffffffff R10=fp0 fp-24=mmmmmmmm
+51: (63) *(u32 *)(r10 -24) = r1       ; R1_w=0xffffffff R10=fp0 fp-24=mmmm0xffffffff
+52: (63) *(u32 *)(r10 -16) = r1       ; R1_w=0xffffffff R10=fp0 fp-16=mmmm0xffffffff
+53: (b7) r1 = 0                       ; R1_w=0
+54: (63) *(u32 *)(r10 -12) = r1
+mark_precise: frame0: last_idx 54 first_idx 32 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 53: (b7) r1 = 0
+55: R1_w=0 R10=fp0 fp-16=0000mmmm
+55: (63) *(u32 *)(r10 -76) = r1
+mark_precise: frame0: last_idx 55 first_idx 32 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 54: (63) *(u32 *)(r10 -12) = r1
+mark_precise: frame0: regs=r1 stack= before 53: (b7) r1 = 0
+56: R1_w=0 R10=fp0 fp-80=0000????
+56: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+;  @ prog.c:0
+57: (07) r2 += -76                    ; R2_w=fp-76
+; bpf_map_push_elem(&automaton, &aut, 0); @ prog.c:256
+58: (18) r1 = 0xffff8f2742992c00      ; R1_w=map_ptr(map=automaton,ks=0,vs=68)
+60: (b7) r3 = 0                       ; R3_w=0
+61: (85) call bpf_map_push_elem#87    ; R0=scalar()
+; next = aut.function[*curr_state][0]; @ prog.c:259
+62: (61) r1 = *(u32 *)(r6 +0)         ; R1_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=map_value(map=state_store,ks=4,vs=4)
+63: (67) r1 <<= 32                    ; R1_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+64: (c7) r1 s>>= 32                   ; R1_w=scalar(smin=0xffffffff80000000,smax=0x7fffffff)
+65: (67) r1 <<= 4                     ; R1_w=scalar(smax=0x7ffffffffffffff0,umax=0xfffffffffffffff0,smax32=0x7ffffff0,umax32=0xfffffff0,var_off=(0x0; 0xfffffffffffffff0))
+66: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+67: (07) r2 += -76                    ; R2_w=fp-76
+68: (0f) r2 += r1
+mark_precise: frame0: last_idx 68 first_idx 62 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 67: (07) r2 += -76
+mark_precise: frame0: regs=r1 stack= before 66: (bf) r2 = r10
+mark_precise: frame0: regs=r1 stack= before 65: (67) r1 <<= 4
+mark_precise: frame0: regs=r1 stack= before 64: (c7) r1 s>>= 32
+mark_precise: frame0: regs=r1 stack= before 63: (67) r1 <<= 32
+mark_precise: frame0: regs=r1 stack= before 62: (61) r1 = *(u32 *)(r6 +0)
+math between fp pointer and register with unbounded min value is not allowed
+verification time 187 usec
+stack depth 80
+processed 62 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2
+-- END PROG LOAD LOG --
+libbpf: prog 'trace_connect_v4_return': failed to load: -EINVAL
+libbpf: failed to load object '/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-74531552/prog.o'
+Error: failed to load object file

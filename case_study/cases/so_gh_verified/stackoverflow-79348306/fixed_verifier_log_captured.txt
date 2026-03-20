@@ -1,0 +1,58 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-79348306/fixed.o
+libbpf: elf: section(3) lsm/file_open, size 72, link 0, flags 6, type=1
+libbpf: sec 'lsm/file_open': found program 'test_prog' at insn offset 0 (0 bytes), code size 9 insns (72 bytes)
+libbpf: elf: section(4) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-79348306/fixed.o is GPL
+libbpf: elf: section(14) .BTF, size 2874, link 0, flags 0, type=1
+libbpf: elf: section(16) .BTF.ext, size 172, link 0, flags 0, type=1
+libbpf: elf: section(24) .symtab, size 312, link 1, flags 0, type=2
+libbpf: looking for externs among 13 symbols...
+libbpf: collected 0 externs total
+libbpf: object 'fixed': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: loaded kernel BTF from '/sys/kernel/btf/vmlinux'
+libbpf: sec 'lsm/file_open': found 1 CO-RE relocations
+libbpf: CO-RE relocating [6] struct file: found target candidate [779] struct file in [vmlinux]
+libbpf: prog 'test_prog': relo #0: <byte_off> [6] struct file.f_path (0:10 @ offset 64)
+libbpf: prog 'test_prog': relo #0: matching candidate #0 <byte_off> [779] struct file.f_path (0:10 @ offset 64)
+libbpf: prog 'test_prog': relo #0: patched insn #0 (ALU/ALU64) imm 64 -> 64
+libbpf: prog 'test_prog': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (b7) r2 = 64
+  1: .12....... (79) r1 = *(u64 *)(r1 +0)
+  2: .12....... (0f) r1 += r2
+  3: .1........ (bf) r2 = r10
+  4: .12....... (07) r2 += -255
+  5: .12....... (b7) r3 = 255
+  6: .123...... (85) call bpf_d_path#147
+  7: .......... (b7) r0 = 0
+  8: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int BPF_PROG(test_prog, struct file *file, int ret) @ fixed.c:213
+0: (b7) r2 = 64                       ; R2_w=64
+1: (79) r1 = *(u64 *)(r1 +0)
+func 'bpf_lsm_file_open' arg0 has btf_id 779 type STRUCT 'file'
+2: R1_w=trusted_ptr_file()
+2: (0f) r1 += r2
+mark_precise: frame0: last_idx 2 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 1: (79) r1 = *(u64 *)(r1 +0)
+mark_precise: frame0: regs=r2 stack= before 0: (b7) r2 = 64
+3: R1_w=trusted_ptr_file(off=64) R2_w=64
+3: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+;  @ fixed.c:0
+4: (07) r2 += -255                    ; R2_w=fp-255
+; long err = bpf_d_path(&file->f_path, path_buffer, sizeof(path_buffer)); @ fixed.c:217
+5: (b7) r3 = 255                      ; R3_w=255
+6: (85) call bpf_d_path#147
+mark_precise: frame0: last_idx 6 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 5: (b7) r3 = 255
+7: R0_w=scalar()
+; int BPF_PROG(test_prog, struct file *file, int ret) @ fixed.c:213
+7: (b7) r0 = 0                        ; R0_w=0
+8: (95) exit
+mark_precise: frame0: last_idx 8 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r0 stack= before 7: (b7) r0 = 0
+verification time 60 usec
+stack depth 256
+processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+-- END PROG LOAD LOG --

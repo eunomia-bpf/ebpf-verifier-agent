@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -175,41 +204,46 @@ struct bpf_elf_map {
 /* === ORIGINAL CODE from SO/GH post === */
 
 struct packet_context {
-__u16 pkt_offset;
+    __u16 pkt_offset;
 };
+
 struct bpf_map_def SEC("maps") context_table = {
-.type = BPF_MAP_TYPE_ARRAY,
-.key_size = sizeof(__u32),
-.value_size = sizeof(struct packet_context),
-.max_entries = 1,
+   .type = BPF_MAP_TYPE_ARRAY,
+   .key_size = sizeof(__u32),
+   .value_size = sizeof(struct packet_context),
+   .max_entries = 1,
 };
+
 SEC("xdp")
 int collect_ips_prog(struct xdp_md *ctx) {
-char *data_end = (char *)(long)ctx->data_end;
-char *data = (char *)(long)ctx->data;
-__u32 index = 0;
-struct packet_context *pkt_ctx = (struct packet_context *) bpf_map_lookup_elem(&context_table, &index);
-if (pkt_ctx == NULL) {
-goto end;
-}
-__u32 length = 0;
-for (__u16 j = 0; j < 253; j++) {
-if (data_end < data + pkt_ctx->pkt_offset + j + 1) {
-goto end;
-}
-if (data[pkt_ctx->pkt_offset + j] == '\r') {
-break;
-}
-length++;
-}
-bpf_printk("%d", length);
+    char *data_end = (char *)(long)ctx->data_end;
+    char *data = (char *)(long)ctx->data;
+    __u32 index = 0;
+    struct packet_context *pkt_ctx = (struct packet_context *) bpf_map_lookup_elem(&context_table, &index);
+
+    if (pkt_ctx == NULL) {
+        goto end;
+    }
+
+    __u32 length = 0;
+
+    for (__u16 j = 0; j < 253; j++) {
+        if (data_end < data + pkt_ctx->pkt_offset + j + 1) {
+            goto end;
+        }
+
+        if (data[pkt_ctx->pkt_offset + j] == '\r') {
+            break;
+        }
+
+        length++;
+    }
+
+    bpf_printk("%d", length);
+
 end:
-return XDP_PASS;
+    return XDP_PASS;
 }
-Here's the error. The error is happening at if (data[pkt_ctx->pkt_offset + j] == '\r') { when when j = 0.
-0: (61) r7 = *(u32 *)(r1 +0)
-; char *data_end = (char *)(long)ctx->data_end;
-1: (61) r8 = *(u32 *)(r1 +4)
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

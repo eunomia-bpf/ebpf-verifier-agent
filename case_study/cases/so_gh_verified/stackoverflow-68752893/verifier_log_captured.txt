@@ -32,18 +32,18 @@ Live regs before insn:
   6: .......... (b7) r0 = 2
   7: 0......... (95) exit
 0: R1=ctx() R10=fp0
-; struct iphdr *ip = (struct iphdr *)((char*)ctx->data + ipsize); @ prog.c:187
+; struct iphdr *ip = (struct iphdr *)((char*)ctx->data + ipsize); @ prog.c:216
 0: (61) r1 = *(u32 *)(r1 +0)          ; R1_w=pkt(r=0)
 1: (b7) r2 = 9                        ; R2_w=9
 2: (0f) r1 += r2
 mark_precise: frame0: last_idx 2 first_idx 0 subseq_idx -1 
 mark_precise: frame0: regs=r2 stack= before 1: (b7) r2 = 9
 3: R1_w=pkt(off=9,r=0) R2_w=9
-; if (ip->protocol == IPPROTO_UDP) { @ prog.c:188
+; if (ip->protocol == IPPROTO_UDP) { @ prog.c:217
 3: (71) r1 = *(u8 *)(r1 +14)
 invalid access to packet, off=23 size=1, R1(id=0,off=23,r=0)
 R1 offset is outside of the packet
-verification time 33 usec
+verification time 31 usec
 stack depth 0
 processed 4 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
 -- END PROG LOAD LOG --

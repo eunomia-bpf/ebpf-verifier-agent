@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -185,19 +214,6 @@ offsetof(struct sk_reuseport_md, data_end)),
 BPF_MOV64_REG(BPF_REG_4, BPF_REG_2),
 BPF_ALU64_IMM(BPF_ADD, BPF_REG_4, 2),
 BPF_JMP_REG(BPF_JGT, BPF_REG_4, BPF_REG_3, /* Drop: */ +4),
-// Ensure first 2 bytes are 0, goto Drop otherwise
-BPF_LDX_MEM(BPF_H, BPF_REG_4, BPF_REG_2, 0),
-BPF_JMP_IMM(BPF_JNE, BPF_REG_4, 0, /* Drop: */ +2),
-// return SK_PASS
-BPF_MOV32_IMM(BPF_REG_0, SK_PASS),
-BPF_EXIT_INSN(),
-// Drop: return SK_DROP
-BPF_MOV32_IMM(BPF_REG_0, SK_DROP),
-BPF_EXIT_INSN()
-};
-It is required to ensure that the accessed bytes are within bounds explicitly. The verifier will reject the program otherwise.
-The program above loads successfully if the caller bears CAP_SYSADMIN. Supposedly, CAP_BPF should suffice as well, but it doesn't (Linux 5.13). Earlier kernels behave similarly. The verifier output follows:
-Permission denied
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

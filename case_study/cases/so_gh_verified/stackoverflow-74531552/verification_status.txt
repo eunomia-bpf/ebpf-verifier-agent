@@ -1,11 +1,11 @@
 case_id: stackoverflow-74531552
 source_bucket: stackoverflow
 language: c
-source_origin: body[0]
-compile_ok: False
-verifier_status: not_run
-verifier_error_match: unknown
+source_origin: body[0] -> case-rewrite
+compile_ok: True
+verifier_status: rejected
+verifier_error_match: mismatch
 fixed_status: not_attempted
-original_error: <none>
-captured_error: <none>
-notes: Recovered source uses BCC macro DSL that is not standalone clang C.
+original_error: bpf: Failed to load program: Invalid argument
+captured_error: math between fp pointer and register with unbounded min value is not allowed
+notes: <none>

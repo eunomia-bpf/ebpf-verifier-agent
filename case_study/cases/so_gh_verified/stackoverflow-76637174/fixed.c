@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -174,23 +203,75 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-loop {
-                let events = buffer.read_events(&mut buffers).await.unwrap();
-                for i in 0..events.read {
-                    let buf = &mut buffers[i];
-                    let size = buf.len();
-                    let data = unsafe { core::slice::from_raw_parts(buf.as_ptr(), size) };
-                    println!("index:{} {:?}", idx, data);
-                }
-            }
-        });
-    }
-    let program: &mut Xdp = bpf.program_mut("xdp").unwrap().try_into()?;
-    program.load()?;
-    program.attach(&opt.iface, XdpFlags::default())
-        .context("failed to attach the XDP program with default flags - try changing XdpFlags::default() to XdpFlags::SKB_MODE")?;
-
-/* === WRAPPER: added license === */
+#define KBUILD_MODNAME "xdp_nvme_drop"
+static inline int parse_ipv4(void *data, uint64_t nh_off, void *data_end) {
+struct iphdr *iph = data + nh_off;
+if (data + nh_off + sizeof(struct iphdr) > data_end)
+return 0;
+return iph->protocol;
+}
+static inline int parse_ipv6(void *data, uint64_t nh_off, void *data_end) {
+struct ipv6hdr *ip6h = data + nh_off;
+if (data + nh_off + sizeof(struct ipv6hdr) > data_end)
+return 0;
+return ip6h->nexthdr;
+}
+//static uint64_t zeroes[1024];
+SEC("xdp")
+int nvme_drop(struct xdp_md *ctx) {
+void* data_end = (void*)(long)ctx->data_end;
+void* data = (void*)(long)ctx->data;
+uint64_t total = data_end-data;
+struct ethhdr *eth = data;
+uint16_t h_proto;
+uint32_t cur = 0;
+struct tcphdr *tcph;
+uint32_t i;
+int nbzeros = 0;
+bool found = 0;
+cur = sizeof(*eth);
+if (data + cur > data_end)
+return XDP_PASS;
+h_proto = eth->h_proto;
+if (h_proto == bpf_htons(ETH_P_IP)) {
+h_proto = parse_ipv4(data, cur, data_end);
+cur += sizeof(struct iphdr);
+} else if (h_proto == bpf_htons(ETH_P_IPV6)) {
+h_proto = parse_ipv6(data, cur, data_end);
+cur += sizeof(struct ipv6hdr);
+} else {
+return XDP_PASS;
+}
+if (cur > 100)
+return XDP_PASS;
+if (h_proto != IPPROTO_TCP)
+return XDP_PASS;
+if (data + cur + sizeof(*tcph) > data_end)
+return XDP_PASS;
+tcph = data + cur;
+if (tcph->doff > 10)
+return XDP_PASS;
+if (data + cur + tcph->doff * 4 > data_end)
+return XDP_PASS;
+cur += tcph->doff * 4;
+if (tcph->dest != 4420)
+return XDP_PASS;
+if (cur > total || cur > 100)
+return XDP_PASS;
+nbzeros = 0;
+for (i = cur; data+i+sizeof(uint8_t) < data_end; i++) {
+if (*((uint8_t*)(data+i)) == 0 && !found) {
+nbzeros++;
+} else {
+found = true;
+break;
+}
+}
+if (found && nbzeros > 50) {
+bpf_printk("found nvme pdu tail seq=%u\n", bpf_ntohs(tcph->seq));
+}
+return XDP_PASS;
+}
 char _license[] SEC("license") = "GPL";
 
 /* === END ORIGINAL CODE === */

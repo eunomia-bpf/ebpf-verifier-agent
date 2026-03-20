@@ -1,11 +1,11 @@
 case_id: github-aya-rs-aya-458
 source_bucket: github_issues
-language: c
-source_origin: body[0] ->
+language: rust
+source_origin: 
 compile_ok: False
 verifier_status: not_run
 verifier_error_match: unknown
 fixed_status: not_attempted
-original_error: R0 invalid mem access 'map_value_or_null'
+original_error: <none>
 captured_error: <none>
-notes: No source variant compiled with the exact clang command requested.
+notes: Corpus artifact is not C.

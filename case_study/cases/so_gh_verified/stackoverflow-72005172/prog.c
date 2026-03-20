@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -176,7 +205,6 @@ struct bpf_elf_map {
 
 //#include <bpf/bpf_helpers.h>
 
-#define SEC(NAME) __attribute__((section(NAME), used))
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #define __bpf_htons(x) __builtin_bswap16(x)
@@ -191,8 +219,6 @@ struct bpf_elf_map {
 #define bpf_htons(x) \
   (__builtin_constant_p(x) ? __bpf_constant_htons(x) : __bpf_htons(x))
 
-static long (*bpf_trace_printk)(const char *fmt, __u32 fmt_size,
-                               ...) = (void *)BPF_FUNC_trace_printk;
 
 #define trace_printk(fmt, ...)                                       \
     do {                                                         \
@@ -205,7 +231,7 @@ unsigned long long load_byte(void *skb,
                              unsigned long long off) asm("llvm.bpf.load.byte");
 
 SEC("classifier")
-static inline int classification(struct __sk_buff *skb) {
+int classification(struct __sk_buff *skb) {
     void *data_end = (void *)(long)skb->data_end;
     void *data = (void *)(long)skb->data;
     struct ethhdr *eth = data;

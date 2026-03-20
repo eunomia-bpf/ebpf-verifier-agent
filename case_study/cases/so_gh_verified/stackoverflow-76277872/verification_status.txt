@@ -1,11 +1,11 @@
 case_id: stackoverflow-76277872
 source_bucket: stackoverflow
 language: c
-source_origin: source_snippets[0] ->
-compile_ok: False
-verifier_status: not_run
-verifier_error_match: unknown
+source_origin: source_snippets[0] -> case-rewrite
+compile_ok: True
+verifier_status: rejected
+verifier_error_match: mismatch
 fixed_status: not_attempted
 original_error: 2023/05/18 12:48:21 error while loading "xdp/xdp_ip_filter" (permission denied):
-captured_error: <none>
-notes: No source variant compiled with the exact clang command requested.
+captured_error: Error: failed to open object file
+notes: <none>

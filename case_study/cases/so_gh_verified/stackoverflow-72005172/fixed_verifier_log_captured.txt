@@ -1,0 +1,228 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-72005172/fixed.o
+libbpf: elf: section(3) classifier, size 520, link 0, flags 6, type=1
+libbpf: sec 'classifier': found program 'classification' at insn offset 0 (0 bytes), code size 65 insns (520 bytes)
+libbpf: elf: section(4) .rodata.str1.1, size 18, link 0, flags 32, type=1
+libbpf: elf: section(5) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-72005172/fixed.o is GPL
+libbpf: elf: section(15) .BTF, size 2913, link 0, flags 0, type=1
+libbpf: elf: section(17) .BTF.ext, size 716, link 0, flags 0, type=1
+libbpf: elf: section(25) .symtab, size 336, link 1, flags 0, type=2
+libbpf: looking for externs among 14 symbols...
+libbpf: collected 0 externs total
+libbpf: map '.rodata.str1.1' (global data): at sec_idx 4, offset 0, flags 80.
+libbpf: map 0 is ".rodata.str1.1"
+libbpf: object 'fixed': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: loaded kernel BTF from '/sys/kernel/btf/vmlinux'
+libbpf: sec 'classifier': found 9 CO-RE relocations
+libbpf: CO-RE relocating [2] struct __sk_buff: found target candidate [15151] struct __sk_buff in [vmlinux]
+libbpf: prog 'classification': relo #0: <byte_off> [2] struct __sk_buff.data_end (0:16 @ offset 80)
+libbpf: prog 'classification': relo #0: matching candidate #0 <byte_off> [15151] struct __sk_buff.data_end (0:16 @ offset 80)
+libbpf: prog 'classification': relo #0: patched insn #1 (LDX/ST/STX) off 80 -> 80
+libbpf: prog 'classification': relo #1: <byte_off> [2] struct __sk_buff.data (0:15 @ offset 76)
+libbpf: prog 'classification': relo #1: matching candidate #0 <byte_off> [15151] struct __sk_buff.data (0:15 @ offset 76)
+libbpf: prog 'classification': relo #1: patched insn #2 (LDX/ST/STX) off 76 -> 76
+libbpf: CO-RE relocating [19] struct ethhdr: found target candidate [23410] struct ethhdr in [vmlinux]
+libbpf: prog 'classification': relo #2: <byte_off> [19] struct ethhdr.h_proto (0:2 @ offset 12)
+libbpf: prog 'classification': relo #2: matching candidate #0 <byte_off> [23410] struct ethhdr.h_proto (0:2 @ offset 12)
+libbpf: prog 'classification': relo #2: patched insn #6 (LDX/ST/STX) off 12 -> 12
+libbpf: prog 'classification': relo #3: <byte_off> [2] struct __sk_buff.data (0:15 @ offset 76)
+libbpf: prog 'classification': relo #3: matching candidate #0 <byte_off> [15151] struct __sk_buff.data (0:15 @ offset 76)
+libbpf: prog 'classification': relo #3: patched insn #8 (LDX/ST/STX) off 76 -> 76
+libbpf: prog 'classification': relo #4: <byte_off> [2] struct __sk_buff.data_end (0:16 @ offset 80)
+libbpf: prog 'classification': relo #4: matching candidate #0 <byte_off> [15151] struct __sk_buff.data_end (0:16 @ offset 80)
+libbpf: prog 'classification': relo #4: patched insn #9 (LDX/ST/STX) off 80 -> 80
+libbpf: CO-RE relocating [24] struct iphdr: found target candidate [23765] struct iphdr in [vmlinux]
+libbpf: prog 'classification': relo #5: <byte_off> [24] struct iphdr.protocol (0:7 @ offset 9)
+libbpf: prog 'classification': relo #5: matching candidate #0 <byte_off> [23765] struct iphdr.protocol (0:7 @ offset 9)
+libbpf: prog 'classification': relo #5: patched insn #15 (LDX/ST/STX) off 9 -> 9
+libbpf: prog 'classification': relo #6: <byte_off> [24] struct iphdr.ihl (0:0 @ offset 0)
+libbpf: prog 'classification': relo #6: matching candidate #0 <byte_off> [23765] struct iphdr.ihl (0:0 @ offset 0)
+libbpf: prog 'classification': relo #6: patched insn #17 (LDX/ST/STX) off 0 -> 0
+libbpf: CO-RE relocating [30] struct tcphdr: found target candidate [23763] struct tcphdr in [vmlinux]
+libbpf: prog 'classification': relo #7: <byte_off> [30] struct tcphdr.doff (0:5 @ offset 12.4)
+libbpf: prog 'classification': relo #7: matching candidate #0 <byte_off> [23763] struct tcphdr.doff (0:6 @ offset 12.4)
+libbpf: prog 'classification': relo #7: patched insn #24 (LDX/ST/STX) off 12 -> 12
+libbpf: prog 'classification': relo #8: <byte_off> [24] struct iphdr.tot_len (0:3 @ offset 2)
+libbpf: prog 'classification': relo #8: matching candidate #0 <byte_off> [23765] struct iphdr.tot_len (0:3 @ offset 2)
+libbpf: prog 'classification': relo #8: patched insn #28 (LDX/ST/STX) off 2 -> 2
+libbpf: map '.rodata.str1.1': created successfully, fd=4
+libbpf: prog 'classification': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1......89 (bf) r6 = r1
+  1: ......6.89 (61) r2 = *(u32 *)(r6 +80)
+  2: ..2...6.89 (61) r1 = *(u32 *)(r6 +76)
+  3: .12...6.89 (bf) r3 = r1
+  4: .123..6.89 (07) r3 += 14
+  5: .123..6.89 (2d) if r3 > r2 goto pc+57
+  6: .1....6.89 (69) r1 = *(u16 *)(r1 +12)
+  7: .1....6.89 (55) if r1 != 0x8 goto pc+55
+  8: ......6.89 (61) r3 = *(u32 *)(r6 +76)
+  9: ...3..6.89 (61) r4 = *(u32 *)(r6 +80)
+ 10: ...34.6.89 (bf) r2 = r3
+ 11: ..234.6.89 (07) r2 += 34
+ 12: ..234.6.89 (2d) if r2 > r4 goto pc+50
+ 13: ..234.6.89 (bf) r1 = r3
+ 14: .1234.6.89 (07) r1 += 14
+ 15: .1234.6.89 (71) r5 = *(u8 *)(r1 +9)
+ 16: .123456.89 (55) if r5 != 0x6 goto pc+46
+ 17: .1234.6.89 (71) r5 = *(u8 *)(r1 +0)
+ 18: .123456.89 (67) r5 <<= 2
+ 19: .123456.89 (57) r5 &= 60
+ 20: .123456.89 (b7) r0 = 20
+ 21: 0123456.89 (2d) if r0 > r5 goto pc+41
+ 22: 0123456.89 (07) r3 += 54
+ 23: 0123456.89 (2d) if r3 > r4 goto pc+39
+ 24: 0123456.89 (69) r7 = *(u16 *)(r2 +12)
+ 25: 01.3456789 (77) r7 >>= 2
+ 26: 01.3456789 (57) r7 &= 60
+ 27: 01.3456789 (0f) r7 += r5
+ 28: 01.3456789 (69) r1 = *(u16 *)(r1 +2)
+ 29: 01.3456789 (1f) r1 -= r7
+ 30: 01.3456789 (b7) r2 = 7
+ 31: 0123456789 (2d) if r2 > r1 goto pc+31
+ 32: 0.23456789 (bf) r1 = r7
+ 33: 0123456789 (07) r1 += 17
+ 34: 0123456789 (50) r0 = *(u8 *)skb[r1 + 0]
+ 35: 0.23456789 (7b) *(u64 *)(r10 -32) = r0
+ 36: 0.23456789 (bf) r1 = r7
+ 37: 0123456789 (07) r1 += 16
+ 38: 0123456789 (50) r0 = *(u8 *)skb[r1 + 0]
+ 39: 0.234567.9 (bf) r8 = r0
+ 40: 0.23456789 (bf) r1 = r7
+ 41: 0123456789 (07) r1 += 15
+ 42: 0123456789 (50) r0 = *(u8 *)skb[r1 + 0]
+ 43: 012345678. (bf) r9 = r0
+ 44: 0123456789 (07) r7 += 14
+ 45: 0123456789 (50) r0 = *(u8 *)skb[r7 + 0]
+ 46: 0.......89 (55) if r0 != 0x48 goto pc+16
+ 47: ........89 (55) if r9 != 0x54 goto pc+15
+ 48: ........8. (55) if r8 != 0x54 goto pc+14
+ 49: .......... (79) r1 = *(u64 *)(r10 -32)
+ 50: .1........ (55) if r1 != 0x50 goto pc+12
+ 51: .......... (b7) r1 = 10
+ 52: .1........ (6b) *(u16 *)(r10 -8) = r1
+ 53: .......... (18) r1 = 0x2150545448207369
+ 55: .1........ (7b) *(u64 *)(r10 -16) = r1
+ 56: .......... (18) r1 = 0x2074492021736559
+ 58: .1........ (7b) *(u64 *)(r10 -24) = r1
+ 59: .......... (bf) r1 = r10
+ 60: .1........ (07) r1 += -24
+ 61: .1........ (b7) r2 = 18
+ 62: .12....... (85) call bpf_trace_printk#6
+ 63: .......... (b7) r0 = 0
+ 64: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int classification(struct __sk_buff *skb) { @ fixed.c:239
+0: (bf) r6 = r1                       ; R1=ctx() R6_w=ctx()
+; void *data_end = (void *)(long)skb->data_end; @ fixed.c:240
+1: (61) r2 = *(u32 *)(r6 +80)         ; R2_w=pkt_end() R6_w=ctx()
+; void *data = (void *)(long)skb->data; @ fixed.c:241
+2: (61) r1 = *(u32 *)(r6 +76)         ; R1_w=pkt(r=0) R6_w=ctx()
+; if (data + nh_off > data_end) { @ fixed.c:248
+3: (bf) r3 = r1                       ; R1_w=pkt(r=0) R3_w=pkt(r=0)
+4: (07) r3 += 14                      ; R3_w=pkt(off=14,r=0)
+5: (2d) if r3 > r2 goto pc+57         ; R2_w=pkt_end() R3_w=pkt(off=14,r=14)
+; h_proto = eth->h_proto; @ fixed.c:252
+6: (69) r1 = *(u16 *)(r1 +12)         ; R1_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+; if (h_proto == bpf_htons(ETH_P_IP)) { @ fixed.c:254
+7: (55) if r1 != 0x8 goto pc+55       ; R1_w=8
+; void *data = (void *)(long)skb->data; @ fixed.c:265
+8: (61) r3 = *(u32 *)(r6 +76)         ; R3_w=pkt(r=0) R6_w=ctx()
+; void *data_end = (void *)(long)skb->data_end; @ fixed.c:264
+9: (61) r4 = *(u32 *)(r6 +80)         ; R4_w=pkt_end() R6_w=ctx()
+; if ((void*)(iph + 1) > data_end) { @ fixed.c:268
+10: (bf) r2 = r3                      ; R2_w=pkt(r=0) R3_w=pkt(r=0)
+11: (07) r2 += 34                     ; R2=pkt(off=34,r=0)
+12: (2d) if r2 > r4 goto pc+50        ; R2=pkt(off=34,r=34) R4=pkt_end()
+;  @ fixed.c:0
+13: (bf) r1 = r3                      ; R1_w=pkt(r=34) R3=pkt(r=34)
+14: (07) r1 += 14                     ; R1_w=pkt(off=14,r=34)
+; if (iph->protocol != IPPROTO_TCP) { @ fixed.c:272
+15: (71) r5 = *(u8 *)(r1 +9)          ; R1_w=pkt(off=14,r=34) R5_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff))
+16: (55) if r5 != 0x6 goto pc+46      ; R5_w=6
+; ip_hlen = iph->ihl << 2; @ fixed.c:281
+17: (71) r5 = *(u8 *)(r1 +0)          ; R1_w=pkt(off=14,r=34) R5_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff))
+18: (67) r5 <<= 2                     ; R5_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1020,var_off=(0x0; 0x3fc))
+19: (57) r5 &= 60                     ; R5_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+20: (b7) r0 = 20                      ; R0=20
+; if (ip_hlen < sizeof(*iph)) { @ fixed.c:283
+21: (2d) if r0 > r5 goto pc+41        ; R0=20 R5=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+22: (07) r3 += 54                     ; R3_w=pkt(off=54,r=34)
+23: (2d) if r3 > r4 goto pc+39        ; R3_w=pkt(off=54,r=54) R4=pkt_end()
+; tcp_hlen = tcph->doff << 2; @ fixed.c:293
+24: (69) r7 = *(u16 *)(r2 +12)        ; R2=pkt(off=34,r=54) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+25: (77) r7 >>= 2                     ; R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=16383,var_off=(0x0; 0x3fff))
+26: (57) r7 &= 60                     ; R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+; plength = ip_total_length - ip_hlen - tcp_hlen; @ fixed.c:296
+27: (0f) r7 += r5                     ; R5=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c)) R7_w=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=120,var_off=(0x0; 0x7c))
+; __u32 ip_total_length = iph->tot_len; @ fixed.c:279
+28: (69) r1 = *(u16 *)(r1 +2)         ; R1_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+; plength = ip_total_length - ip_hlen - tcp_hlen; @ fixed.c:296
+29: (1f) r1 -= r7                     ; R1_w=scalar(smin=smin32=-120,smax=smax32=0xffeb) R7_w=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=120,var_off=(0x0; 0x7c))
+30: (b7) r2 = 7                       ; R2=7
+; if (plength >= 7) { @ fixed.c:297
+31: (2d) if r2 > r1 goto pc+31        ; R1=scalar(smin=smin32=-120,smax=smax32=0xffeb,umin=7) R2=7
+; p[i] = load_byte(skb, poffset + i); @ fixed.c:302
+32: (bf) r1 = r7                      ; R1_w=scalar(id=1,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=120,var_off=(0x0; 0x7c)) R7=scalar(id=1,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=120,var_off=(0x0; 0x7c))
+33: (07) r1 += 17                     ; R1_w=scalar(id=1+17,smin=umin=smin32=umin32=37,smax=umax=smax32=umax32=137,var_off=(0x1; 0xfc))
+34: (50) r0 = *(u8 *)skb[r1 + 0]      ; R0_w=scalar() R6=ctx()
+35: (7b) *(u64 *)(r10 -32) = r0       ; R0_w=scalar(id=2) R10=fp0 fp-32_w=scalar(id=2)
+36: (bf) r1 = r7                      ; R1_w=scalar(id=1,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=120,var_off=(0x0; 0x7c)) R7=scalar(id=1,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=120,var_off=(0x0; 0x7c))
+37: (07) r1 += 16                     ; R1_w=scalar(id=1+16,smin=umin=smin32=umin32=36,smax=umax=smax32=umax32=136,var_off=(0x0; 0xfc))
+38: (50) r0 = *(u8 *)skb[r1 + 0]      ; R0_w=scalar() R6=ctx()
+39: (bf) r8 = r0                      ; R0_w=scalar(id=3) R8_w=scalar(id=3)
+40: (bf) r1 = r7                      ; R1_w=scalar(id=1,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=120,var_off=(0x0; 0x7c)) R7=scalar(id=1,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=120,var_off=(0x0; 0x7c))
+41: (07) r1 += 15                     ; R1_w=scalar(id=1+15,smin=umin=smin32=umin32=35,smax=umax=smax32=umax32=135,var_off=(0x3; 0xfc))
+42: (50) r0 = *(u8 *)skb[r1 + 0]      ; R0_w=scalar() R6=ctx()
+43: (bf) r9 = r0                      ; R0_w=scalar(id=4) R9_w=scalar(id=4)
+44: (07) r7 += 14                     ; R7_w=scalar(id=1+14,smin=umin=smin32=umin32=34,smax=umax=smax32=umax32=134,var_off=(0x2; 0xfc))
+45: (50) r0 = *(u8 *)skb[r7 + 0]      ; R0_w=scalar() R6=ctx() R7_w=scalar(id=1+14,smin=umin=smin32=umin32=34,smax=umax=smax32=umax32=134,var_off=(0x2; 0xfc))
+46: (55) if r0 != 0x48 goto pc+16     ; R0_w=72
+47: (55) if r9 != 0x54 goto pc+15     ; R9=84
+48: (55) if r8 != 0x54 goto pc+14     ; R8=84
+49: (79) r1 = *(u64 *)(r10 -32)       ; R1_w=scalar(id=2) R10=fp0 fp-32=scalar(id=2)
+50: (55) if r1 != 0x50 goto pc+12     ; R1_w=80
+51: (b7) r1 = 10                      ; R1_w=10
+; trace_printk("Yes! It is HTTP!\n"); // (ERROR) @ fixed.c:256
+52: (6b) *(u16 *)(r10 -8) = r1        ; R1_w=10 R10=fp0 fp-8=??????10
+53: (18) r1 = 0x2150545448207369      ; R1_w=0x2150545448207369
+55: (7b) *(u64 *)(r10 -16) = r1       ; R1_w=0x2150545448207369 R10=fp0 fp-16_w=0x2150545448207369
+56: (18) r1 = 0x2074492021736559      ; R1_w=0x2074492021736559
+58: (7b) *(u64 *)(r10 -24) = r1       ; R1_w=0x2074492021736559 R10=fp0 fp-24_w=0x2074492021736559
+59: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
+60: (07) r1 += -24                    ; R1_w=fp-24
+61: (b7) r2 = 18                      ; R2_w=18
+62: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 62 first_idx 47 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 61: (b7) r2 = 18
+63: R0=scalar()
+; } @ fixed.c:261
+63: (b7) r0 = 0                       ; R0_w=0
+64: (95) exit
+
+from 50 to 63: safe
+
+from 48 to 63: safe
+
+from 47 to 63: safe
+
+from 46 to 63: safe
+
+from 31 to 63: safe
+
+from 23 to 63: safe
+
+from 21 to 63: safe
+
+from 16 to 63: safe
+
+from 12 to 63: safe
+
+from 7 to 63: safe
+
+from 5 to 63: safe
+verification time 354 usec
+stack depth 32
+processed 74 insns (limit 1000000) max_states_per_insn 0 total_states 5 peak_states 5 mark_read 3
+-- END PROG LOAD LOG --

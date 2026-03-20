@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -174,16 +203,19 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-/* No prefix in SEC will also work.
- * The remaining tcp-cubic functions have an easier way.
- */
-/*
-*
-* changes:
-*         comment out this sentence://SEC("no-sec-prefix-bictcp_cwnd_event")
-*         add the code SEC("struct_ops/bictcp_cwnd_event")
-*/
-//SEC("no-sec-prefix-bictcp_cwnd_event")
+static __always_inline struct bictcp *inet_csk_ca(const struct sock *sk)
+{
+    return (struct bictcp *)((char *)(struct inet_connection_sock *)sk + offsetof(struct inet_connection_sock, icsk_ca_priv));
+}
+
+static __always_inline struct tcp_sock *tcp_sk(const struct sock *sk)
+{
+    return (struct tcp_sock *)sk;
+}
+
+#define tcp_jiffies32 ((__u32)bpf_jiffies64())
+#define after(seq2, seq1) ((__s32)((seq1) - (seq2)) < 0)
+
 SEC("struct_ops/bictcp_cwnd_event")
 void BPF_PROG(bictcp_cwnd_event, struct sock *sk, enum tcp_ca_event event)
 {
@@ -193,10 +225,6 @@ void BPF_PROG(bictcp_cwnd_event, struct sock *sk, enum tcp_ca_event event)
         __s32 delta;
 
         delta = now - tcp_sk(sk)->lsndtime;
-
-        /* We were application limited (idle) for a while.
-         * Shift epoch_start to keep cwnd growth to cubic curve.
-         */
         if (ca->epoch_start && delta > 0) {
             ca->epoch_start += delta;
             if (after(ca->epoch_start, now))

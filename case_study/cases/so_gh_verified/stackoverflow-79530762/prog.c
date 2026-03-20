@@ -1,0 +1,266 @@
+/* === WRAPPER: compilation boilerplate === */
+#ifndef __TARGET_ARCH_x86
+#define __TARGET_ARCH_x86 1
+#endif
+
+#include <vmlinux.h>
+#include <linux/version.h>
+#include <bpf/bpf_helpers.h>
+#include <bpf/bpf_endian.h>
+#include <bpf/bpf_tracing.h>
+#include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
+
+#ifndef offsetof
+#define offsetof(type, member) __builtin_offsetof(type, member)
+#endif
+
+#ifndef __section
+#define __section(name) SEC(name)
+#endif
+
+#ifndef __always_inline
+#define __always_inline inline __attribute__((always_inline))
+#endif
+
+#ifndef __noinline
+#define __noinline __attribute__((noinline))
+#endif
+
+#ifndef memcpy
+#define memcpy __builtin_memcpy
+#endif
+
+#ifndef memset
+#define memset __builtin_memset
+#endif
+
+#ifndef memmove
+#define memmove __builtin_memmove
+#endif
+
+#ifndef __constant_ntohs
+#define __constant_ntohs(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
+#ifndef __constant_htons
+#define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
+#ifndef ETH_P_IP
+#define ETH_P_IP 0x0800
+#endif
+
+#ifndef ETH_P_IPV6
+#define ETH_P_IPV6 0x86DD
+#endif
+
+#ifndef ETH_P_8021Q
+#define ETH_P_8021Q 0x8100
+#endif
+
+#ifndef ETH_P_8021AD
+#define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
+#endif
+
+#ifndef IPPROTO_TCP
+#define IPPROTO_TCP 6
+#endif
+
+#ifndef IPPROTO_UDP
+#define IPPROTO_UDP 17
+#endif
+
+#ifndef IPPROTO_ICMP
+#define IPPROTO_ICMP 1
+#endif
+
+#ifndef IPPROTO_ICMPV6
+#define IPPROTO_ICMPV6 58
+#endif
+
+#ifndef IPPROTO_SCTP
+#define IPPROTO_SCTP 132
+#endif
+
+#ifndef TC_ACT_OK
+#define TC_ACT_OK 0
+#endif
+
+#ifndef TC_ACT_SHOT
+#define TC_ACT_SHOT 2
+#endif
+
+#ifndef TC_ACT_UNSPEC
+#define TC_ACT_UNSPEC (-1)
+#endif
+
+#ifndef XDP_ABORTED
+#define XDP_ABORTED 0
+#endif
+
+#ifndef XDP_DROP
+#define XDP_DROP 1
+#endif
+
+#ifndef XDP_PASS
+#define XDP_PASS 2
+#endif
+
+#ifndef XDP_TX
+#define XDP_TX 3
+#endif
+
+#ifndef XDP_REDIRECT
+#define XDP_REDIRECT 4
+#endif
+
+#ifndef PIN_GLOBAL_NS
+#define PIN_GLOBAL_NS 2
+#endif
+
+#ifndef csum_diff
+#define csum_diff bpf_csum_diff
+#endif
+
+#ifndef skb_store_bytes
+#define skb_store_bytes bpf_skb_store_bytes
+#endif
+
+#ifndef l3_csum_replace
+#define l3_csum_replace bpf_l3_csum_replace
+#endif
+
+#ifndef l4_csum_replace
+#define l4_csum_replace bpf_l4_csum_replace
+#endif
+
+#ifndef redirect
+#define redirect bpf_redirect
+#endif
+
+struct bpf_map_def {
+    __u32 type;
+    __u32 key_size;
+    __u32 value_size;
+    __u32 max_entries;
+    __u32 map_flags;
+};
+
+#ifndef size_key
+#define size_key key_size
+#endif
+
+#ifndef size_value
+#define size_value value_size
+#endif
+
+#ifndef max_elem
+#define max_elem max_entries
+#endif
+
+struct bpf_elf_map {
+    __u32 type;
+    __u32 size_key;
+    __u32 size_value;
+    __u32 max_elem;
+    __u32 map_flags;
+    __u32 pinning;
+};
+
+#ifndef bpf_printk
+#define bpf_printk(fmt, ...)                                                       ({                                                                                 char ____fmt[] = fmt;                                                          bpf_trace_printk(____fmt, sizeof(____fmt), ##__VA_ARGS__);                 })
+#endif
+
+/* === END WRAPPER BOILERPLATE === */
+
+/* === ORIGINAL CODE from SO/GH post === */
+
+#define MY_OPTION_TYPE 31
+#define MAX_CHECKING 4
+
+static __always_inline __u16 iph_csum(struct iphdr *iph, void *data_end)
+{
+    __u32 sum = 0;
+    __u16 *buf = (__u16 *)iph;
+    __u16 ihl = iph->ihl << 2;
+
+    iph->check = 0;
+    for (__u8 i = 0; i < ihl && i < 60; i += 2) {
+        if ((void *)(buf + 1) > data_end)
+            break;
+        sum += *buf++;
+    }
+    for (__u8 i = 0; sum >> 16 && i < MAX_CHECKING; i += 1)
+        sum = (sum & 0xFFFF) + (sum >> 16);
+    return ~sum;
+}
+
+SEC("xdp")
+int inter_op_ebpf(struct xdp_md *ctx)
+{
+    void *data = (void *)(long)ctx->data;
+    void *data_end = (void *)(long)ctx->data_end;
+    struct ethhdr *eth = data;
+
+    if ((void *)eth + sizeof(*eth) > data_end)
+        return XDP_PASS;
+
+    struct iphdr *ip = data + sizeof(*eth);
+    if ((void *)ip + sizeof(*ip) > data_end)
+        return XDP_PASS;
+    if (ip->version != 4)
+        return XDP_PASS;
+
+    int options_len = (ip->ihl * 4) - sizeof(struct iphdr);
+    __u8 *options = (__u8 *)(ip + 1);
+    if (options_len > 0 && (void *)(options + 4) < data_end) {
+        __u8 option_type = options[0];
+        if (option_type == MY_OPTION_TYPE) {
+            __u8 option_length = options[1];
+            __u8 *data_bytes = (__u8 *)data;
+            int shift_data_length = sizeof(*eth) + sizeof(struct iphdr);
+
+            if (option_length == 8 || option_length == 12) {
+                for (int i = shift_data_length - 1; i >= 0; i--) {
+                    if ((void *)(data_bytes + i + option_length + 1) > data_end)
+                        return XDP_PASS;
+                    data_bytes[i + option_length] = data_bytes[i];
+                }
+            }
+        }
+    }
+    return XDP_PASS;
+}
+
+/* === WRAPPER: added license === */
+char _license[] SEC("license") = "GPL";
+
+/* === END ORIGINAL CODE === */

@@ -1,0 +1,41 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-72074115/prog.o
+libbpf: elf: section(3) struct_ops/bictcp_cwnd_event, size 232, link 0, flags 6, type=1
+libbpf: sec 'struct_ops/bictcp_cwnd_event': found program 'bictcp_cwnd_event' at insn offset 0 (0 bytes), code size 29 insns (232 bytes)
+libbpf: elf: section(4) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-72074115/prog.o is GPL
+libbpf: elf: section(15) .BTF, size 44571, link 0, flags 0, type=1
+libbpf: elf: section(17) .BTF.ext, size 412, link 0, flags 0, type=1
+libbpf: elf: section(25) .symtab, size 360, link 1, flags 0, type=2
+libbpf: looking for externs among 15 symbols...
+libbpf: collected 0 externs total
+libbpf: object 'prog': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: loaded kernel BTF from '/sys/kernel/btf/vmlinux'
+libbpf: sec 'struct_ops/bictcp_cwnd_event': found 7 CO-RE relocations
+libbpf: CO-RE relocating [5] struct inet_connection_sock: found target candidate [44059] struct inet_connection_sock in [vmlinux]
+libbpf: prog 'bictcp_cwnd_event': relo #0: <byte_off> [5] struct inet_connection_sock.icsk_ca_priv (0:31 @ offset 1296)
+libbpf: prog 'bictcp_cwnd_event': relo #0: matching candidate #0 <byte_off> [44059] struct inet_connection_sock.icsk_ca_priv (0:30 @ offset 1288)
+libbpf: prog 'bictcp_cwnd_event': relo #0: patched insn #4 (ALU/ALU64) imm 1296 -> 1288
+libbpf: CO-RE relocating [542] struct tcp_sock: found target candidate [44078] struct tcp_sock in [vmlinux]
+libbpf: prog 'bictcp_cwnd_event': relo #1: <byte_off> [542] struct tcp_sock.lsndtime (0:50 @ offset 1644)
+libbpf: prog 'bictcp_cwnd_event': relo #1: matching candidate #0 <byte_off> [44078] struct tcp_sock.lsndtime (0:51 @ offset 1644)
+libbpf: prog 'bictcp_cwnd_event': relo #1: patched insn #9 (LDX/ST/STX) off 1644 -> 1644
+libbpf: CO-RE relocating [565] struct bictcp: found target candidate [48088] struct bictcp in [vmlinux]
+libbpf: prog 'bictcp_cwnd_event': relo #2: <byte_off> [565] struct bictcp.epoch_start (0:7 @ offset 28)
+libbpf: prog 'bictcp_cwnd_event': relo #2: matching candidate #0 <byte_off> [48088] struct bictcp.epoch_start (0:7 @ offset 28)
+libbpf: prog 'bictcp_cwnd_event': relo #2: patched insn #10 (LDX/ST/STX) off 28 -> 28
+libbpf: prog 'bictcp_cwnd_event': relo #3: <byte_off> [565] struct bictcp.epoch_start (0:7 @ offset 28)
+libbpf: prog 'bictcp_cwnd_event': relo #3: matching candidate #0 <byte_off> [48088] struct bictcp.epoch_start (0:7 @ offset 28)
+libbpf: prog 'bictcp_cwnd_event': relo #3: patched insn #18 (LDX/ST/STX) off 28 -> 28
+libbpf: prog 'bictcp_cwnd_event': relo #4: <byte_off> [565] struct bictcp.epoch_start (0:7 @ offset 28)
+libbpf: prog 'bictcp_cwnd_event': relo #4: matching candidate #0 <byte_off> [48088] struct bictcp.epoch_start (0:7 @ offset 28)
+libbpf: prog 'bictcp_cwnd_event': relo #4: patched insn #20 (LDX/ST/STX) off 28 -> 28
+libbpf: prog 'bictcp_cwnd_event': relo #5: <byte_off> [565] struct bictcp.epoch_start (0:7 @ offset 28)
+libbpf: prog 'bictcp_cwnd_event': relo #5: matching candidate #0 <byte_off> [48088] struct bictcp.epoch_start (0:7 @ offset 28)
+libbpf: prog 'bictcp_cwnd_event': relo #5: patched insn #21 (LDX/ST/STX) off 28 -> 28
+libbpf: prog 'bictcp_cwnd_event': relo #6: <byte_off> [565] struct bictcp.epoch_start (0:7 @ offset 28)
+libbpf: prog 'bictcp_cwnd_event': relo #6: matching candidate #0 <byte_off> [48088] struct bictcp.epoch_start (0:7 @ offset 28)
+libbpf: prog 'bictcp_cwnd_event': relo #6: patched insn #27 (LDX/ST/STX) off 28 -> 28
+libbpf: prog 'bictcp_cwnd_event': SEC("struct_ops") program isn't referenced anywhere, did you forget to use it?
+libbpf: prog 'bictcp_cwnd_event': failed to load: -EINVAL
+libbpf: failed to load object '/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-72074115/prog.o'
+Error: failed to load object file

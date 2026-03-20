@@ -1,0 +1,92 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-53136145/prog.o
+libbpf: elf: section(3) xdp, size 160, link 0, flags 6, type=1
+libbpf: sec 'xdp': found program 'entry_point' at insn offset 0 (0 bytes), code size 20 insns (160 bytes)
+libbpf: elf: section(4) .relxdp, size 32, link 26, flags 40, type=9
+libbpf: elf: section(5) .maps, size 64, link 0, flags 3, type=1
+libbpf: elf: section(6) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-53136145/prog.o is GPL
+libbpf: elf: section(16) .BTF, size 1305, link 0, flags 0, type=1
+libbpf: elf: section(18) .BTF.ext, size 224, link 0, flags 0, type=1
+libbpf: elf: section(26) .symtab, size 384, link 1, flags 0, type=2
+libbpf: looking for externs among 16 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'globals_map': at sec_idx 5, offset 0.
+libbpf: map 'globals_map': found type = 2.
+libbpf: map 'globals_map': found key [2], sz = 4.
+libbpf: map 'globals_map': found value [9], sz = 4.
+libbpf: map 'globals_map': found max_entries = 1.
+libbpf: map 'some_map': at sec_idx 5, offset 32.
+libbpf: map 'some_map': found type = 1.
+libbpf: map 'some_map': found key [17], sz = 4.
+libbpf: map 'some_map': found value [19], sz = 1.
+libbpf: map 'some_map': found max_entries = 1024.
+libbpf: sec '.relxdp': collecting relocation for section(3) 'xdp'
+libbpf: sec '.relxdp': relo #0: insn #4 against 'globals_map'
+libbpf: prog 'entry_point': found map 0 (globals_map, sec 5, off 0) for insn #4
+libbpf: sec '.relxdp': relo #1: insn #12 against 'some_map'
+libbpf: prog 'entry_point': found map 1 (some_map, sec 5, off 32) for insn #12
+libbpf: object 'prog': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: map 'globals_map': created successfully, fd=4
+libbpf: map 'some_map': created successfully, fd=5
+libbpf: prog 'entry_point': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .......... (b7) r6 = 0
+  1: ......6... (63) *(u32 *)(r10 -4) = r6
+  2: ......6... (bf) r2 = r10
+  3: ..2...6... (07) r2 += -4
+  4: ..2...6... (18) r1 = 0xffff8f27108e4000
+  6: .12...6... (85) call bpf_map_lookup_elem#1
+  7: 0.....6... (15) if r0 == 0x0 goto pc+10
+  8: .......... (b7) r1 = 0
+  9: .1........ (63) *(u32 *)(r10 -8) = r1
+ 10: .......... (bf) r2 = r10
+ 11: ..2....... (07) r2 += -8
+ 12: ..2....... (18) r1 = 0xffff8f27126f3400
+ 14: .12....... (85) call bpf_map_lookup_elem#1
+ 15: 0......... (b7) r6 = 2
+ 16: 0.....6... (15) if r0 == 0x0 goto pc+1
+ 17: .......... (b7) r6 = 1
+ 18: ......6... (bf) r0 = r6
+ 19: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int entry_point(struct xdp_md *ctx) @ prog.c:239
+0: (b7) r6 = 0                        ; R6_w=0
+; int rc, i = 0; @ prog.c:242
+1: (63) *(u32 *)(r10 -4) = r6
+mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r6 stack= before 0: (b7) r6 = 0
+2: R6_w=0 R10=fp0 fp-8=0000????
+2: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+;  @ prog.c:0
+3: (07) r2 += -4                      ; R2_w=fp-4
+; globals = bpf_map_lookup_elem(&globals_map, &i); @ prog.c:248
+4: (18) r1 = 0xffff8f27108e4000       ; R1_w=map_ptr(map=globals_map,ks=4,vs=4)
+6: (85) call bpf_map_lookup_elem#1    ; R0_w=map_value(map=globals_map,ks=4,vs=4)
+; if (!globals) @ prog.c:249
+7: (15) if r0 == 0x0 goto pc+10       ; R0_w=map_value(map=globals_map,ks=4,vs=4)
+8: (b7) r1 = 0                        ; R1_w=0
+; addr = key.dst_ip; @ prog.c:253
+9: (63) *(u32 *)(r10 -8) = r1         ; R1_w=0 R10=fp0 fp-8=00000
+10: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+;  @ prog.c:0
+11: (07) r2 += -8                     ; R2_w=fp-8
+; temp = bpf_map_lookup_elem(&some_map, &addr); @ prog.c:254
+12: (18) r1 = 0xffff8f27126f3400      ; R1_w=map_ptr(map=some_map,ks=4,vs=1)
+14: (85) call bpf_map_lookup_elem#1   ; R0=map_value_or_null(id=1,map=some_map,ks=4,vs=1)
+15: (b7) r6 = 2                       ; R6_w=2
+; switch (rc) { @ prog.c:256
+16: (15) if r0 == 0x0 goto pc+1       ; R0=map_value(map=some_map,ks=4,vs=1)
+17: (b7) r6 = 1                       ; R6_w=1
+; } @ prog.c:266
+18: (bf) r0 = r6                      ; R0_w=1 R6_w=1
+19: (95) exit
+
+from 16 to 18: R0=0 R6_w=2 R10=fp0 fp-8=00000
+18: R0=0 R6_w=2 R10=fp0 fp-8=00000
+18: (bf) r0 = r6                      ; R0_w=2 R6_w=2
+19: (95) exit
+verification time 74 usec
+stack depth 8
+processed 20 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+-- END PROG LOAD LOG --

@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -174,37 +203,40 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-In the code, I checked the length of payload should be less than MTU, which is 1500 in my code. The buffer size is (1<<20), much larger than MTU.
-Here is my code in .kern :
 #define BUFFER_SIZE (1<<20)
 #define MTU 1500
+
 struct my_buffer {
-__u32 len;
-char buf[BUFFER_SIZE + 5];
+    __u32 len;
+    char buf[BUFFER_SIZE + 5];
 };
 struct bpf_map_def SEC("maps") map_my_buffer = {
-.type = BPF_MAP_TYPE_ARRAY,
-.key_size = sizeof(unsigned int),
-.value_size = sizeof(struct my_buffer),
-.max_entries = 1,
+    .type = BPF_MAP_TYPE_ARRAY,
+    .key_size = sizeof(unsigned int),
+    .value_size = sizeof(struct my_buffer),
+    .max_entries = 1,
 };
+
 SEC("WriteBuffer")
 int WriteBuffer_main(struct xdp_md *ctx) {
-void *data_end = (void *)(long)ctx->data_end;
-void *data = (void *)(long)ctx->data;
-char *payload = data + sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);
-if (payload >= data_end) return XDP_PASS;
-unsigned int zero = 0;
-struct my_buffer *fd = bpf_map_lookup_elem(&map_my_buffer, &zero);
-if (!fd) return XDP_PASS; // can't find the context...
-__u32 data_len = data_end - (void *)payload;
-if (data_len > MTU) return XDP_PASS;
-for (__u32 i = 0; i < MTU && payload + i + 1 <= data_end; i++) {
-fd -> buf[i] = payload[i];
+    void *data_end = (void *)(long)ctx->data_end;
+    void *data = (void *)(long)ctx->data;
+    char *payload = data + sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);
+    if (payload >= data_end) return XDP_PASS;
+
+    unsigned int zero = 0;
+    struct my_buffer *fd = bpf_map_lookup_elem(&map_my_buffer, &zero);
+    if (!fd) return XDP_PASS; // can't find the context...
+
+    __u32 data_len = data_end - (void *)payload;
+    if (data_len > MTU) return XDP_PASS;
+
+    for (__u32 i = 0; i < MTU && payload + i + 1 <= data_end; i++) {
+        fd -> buf[i] = payload[i];
+    }
+
+    return XDP_DROP;
 }
-return XDP_DROP;
-}
-The error message is: It tells there is an error when accessing packet's payload, but I did the boundary check...
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

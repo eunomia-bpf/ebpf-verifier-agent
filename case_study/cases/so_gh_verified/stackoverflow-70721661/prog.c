@@ -4,10 +4,31 @@
 #endif
 
 #include <vmlinux.h>
+#include <linux/version.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 #include <bpf/bpf_tracing.h>
 #include <bpf/bpf_core_read.h>
+
+#ifndef __SO_GH_VERIFIED_STDINT_TYPES
+#define __SO_GH_VERIFIED_STDINT_TYPES 1
+typedef __u8 u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+typedef __s8 s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+typedef __u8 uint8_t;
+typedef __u16 uint16_t;
+typedef __u32 uint32_t;
+typedef __u64 uint64_t;
+typedef __s8 int8_t;
+typedef __s16 int16_t;
+typedef __s32 int32_t;
+typedef __s64 int64_t;
+#endif
 
 #ifndef offsetof
 #define offsetof(type, member) __builtin_offsetof(type, member)
@@ -45,6 +66,10 @@
 #define __constant_htons(x) ((__u16)__builtin_bswap16((__u16)(x)))
 #endif
 
+#ifndef ___constant_swab16
+#define ___constant_swab16(x) ((__u16)__builtin_bswap16((__u16)(x)))
+#endif
+
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800
 #endif
@@ -59,6 +84,10 @@
 
 #ifndef ETH_P_8021AD
 #define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef ETH_HLEN
+#define ETH_HLEN 14
 #endif
 
 #ifndef IPPROTO_TCP
@@ -174,64 +203,36 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-struct bpf_object *load_bpf_and_xdp_attach(struct config *cfg)
+struct share_me {
+    struct iphdr dest_ip;
+};
+
+struct bpf_map_def SEC("maps") ip_map = {
+    .type = BPF_MAP_TYPE_ARRAY,
+    .key_size = sizeof(int),
+    .value_size = sizeof(struct share_me),
+    .max_entries = 64,
+};
+
+SEC("xdp")
+int xdp_sock_prog(struct xdp_md *ctx)
 {
-    struct bpf_program *bpf_prog;
-    struct bpf_object *bpf_obj;
-    int offload_ifindex = 0;
-    int prog_fd = -1;
-    int err;
+    int index = ctx->rx_queue_index;
+    void *data = (void *)(long)ctx->data;
+    void *data_end = (void *)(long)ctx->data_end;
+    struct ethhdr *eth = data;
+    struct share_me me = {};
 
-    /* If flags indicate hardware offload, supply ifindex */
-    if (cfg->xdp_flags & XDP_FLAGS_HW_MODE)
-        offload_ifindex = cfg->ifindex;
+    if ((void *)(eth + 1) > data_end)
+        return XDP_PASS;
 
-    /* Load the BPF-ELF object file and get back libbpf bpf_object */
-    if (cfg->reuse_maps)
-        bpf_obj = load_bpf_object_file_reuse_maps(cfg->filename,
-                              offload_ifindex,
-                              cfg->pin_dir);
-    else
-        bpf_obj = load_bpf_object_file(cfg->filename, offload_ifindex);
-    if (!bpf_obj) {
-        fprintf(stderr, "ERR: loading file: %s\n", cfg->filename);
-        exit(EXIT_FAIL_BPF);
-    }
-    /* At this point: All XDP/BPF programs from the cfg->filename have been
-     * loaded into the kernel, and evaluated by the verifier. Only one of
-     * these gets attached to XDP hook, the others will get freed once this
-     * process exit.
-     */
+    struct iphdr *ip = data + sizeof(*eth);
+    if ((void *)(ip + 1) > data_end)
+        return XDP_PASS;
 
-    if (cfg->progsec[0])
-        /* Find a matching BPF prog section name */
-        bpf_prog = bpf_object__find_program_by_title(bpf_obj, cfg->progsec);
-    else
-        /* Find the first program */
-        bpf_prog = bpf_program__next(NULL, bpf_obj);
-
-    if (!bpf_prog) {
-        fprintf(stderr, "ERR: couldn't find a program in ELF section '%s'\n", cfg->progsec);
-        exit(EXIT_FAIL_BPF);
-    }
-
-    strncpy(cfg->progsec, bpf_program__title(bpf_prog, false), sizeof(cfg->progsec));
-
-    prog_fd = bpf_program__fd(bpf_prog);
-    if (prog_fd <= 0) {
-        fprintf(stderr, "ERR: bpf_program__fd failed\n");
-        exit(EXIT_FAIL_BPF);
-    }
-
-    /* At this point: BPF-progs are (only) loaded by the kernel, and prog_fd
-     * is our select file-descriptor handle. Next step is attaching this FD
-     * to a kernel hook point, in this case XDP net_device link-level hook.
-     */
-    err = xdp_link_attach(cfg->ifindex, cfg->xdp_flags, prog_fd);
-    if (err)
-        exit(err);
-
-    return bpf_obj;
+    memcpy(&me.dest_ip, ip, sizeof(struct iphdr));
+    bpf_map_update_elem(&ip_map, &index, &me, 0);
+    return XDP_PASS;
 }
 
 /* === WRAPPER: added license === */

@@ -1,0 +1,1794 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-78236201/prog.o
+libbpf: elf: section(3) xdp, size 1224, link 0, flags 6, type=1
+libbpf: sec 'xdp': found program 'xdp_parser_func' at insn offset 0 (0 bytes), code size 153 insns (1224 bytes)
+libbpf: elf: section(4) .relxdp, size 112, link 28, flags 40, type=9
+libbpf: elf: section(5) .rodata, size 128, link 0, flags 2, type=1
+libbpf: elf: section(6) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-78236201/prog.o is GPL
+libbpf: elf: section(7) .maps, size 32, link 0, flags 3, type=1
+libbpf: elf: section(18) .BTF, size 4003, link 0, flags 0, type=1
+libbpf: elf: section(20) .BTF.ext, size 1404, link 0, flags 0, type=1
+libbpf: elf: section(28) .symtab, size 816, link 1, flags 0, type=2
+libbpf: looking for externs among 34 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'xdp_stats_map': at sec_idx 7, offset 0.
+libbpf: map 'xdp_stats_map': found type = 6.
+libbpf: map 'xdp_stats_map': found key [8], sz = 4.
+libbpf: map 'xdp_stats_map': found value [11], sz = 16.
+libbpf: map 'xdp_stats_map': found max_entries = 5.
+libbpf: map 'prog.rodata' (global data): at sec_idx 5, offset 0, flags 80.
+libbpf: map 1 is "prog.rodata"
+libbpf: sec '.relxdp': collecting relocation for section(3) 'xdp'
+libbpf: sec '.relxdp': relo #0: insn #57 against '.rodata'
+libbpf: prog 'xdp_parser_func': found data map 1 (prog.rodata, sec 5, off 0) for insn 57
+libbpf: sec '.relxdp': relo #1: insn #79 against 'xdp_stats_map'
+libbpf: prog 'xdp_parser_func': found map 0 (xdp_stats_map, sec 7, off 0) for insn #79
+libbpf: sec '.relxdp': relo #2: insn #116 against '.rodata'
+libbpf: prog 'xdp_parser_func': found data map 1 (prog.rodata, sec 5, off 0) for insn 116
+libbpf: sec '.relxdp': relo #3: insn #121 against '.rodata'
+libbpf: prog 'xdp_parser_func': found data map 1 (prog.rodata, sec 5, off 0) for insn 121
+libbpf: sec '.relxdp': relo #4: insn #127 against '.rodata'
+libbpf: prog 'xdp_parser_func': found data map 1 (prog.rodata, sec 5, off 0) for insn 127
+libbpf: sec '.relxdp': relo #5: insn #134 against '.rodata'
+libbpf: prog 'xdp_parser_func': found data map 1 (prog.rodata, sec 5, off 0) for insn 134
+libbpf: sec '.relxdp': relo #6: insn #143 against '.rodata'
+libbpf: prog 'xdp_parser_func': found data map 1 (prog.rodata, sec 5, off 0) for insn 143
+libbpf: object 'prog': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: loaded kernel BTF from '/sys/kernel/btf/vmlinux'
+libbpf: sec 'xdp': found 19 CO-RE relocations
+libbpf: CO-RE relocating [17] struct xdp_md: found target candidate [14922] struct xdp_md in [vmlinux]
+libbpf: prog 'xdp_parser_func': relo #0: <byte_off> [17] struct xdp_md.data_end (0:1 @ offset 4)
+libbpf: prog 'xdp_parser_func': relo #0: matching candidate #0 <byte_off> [14922] struct xdp_md.data_end (0:1 @ offset 4)
+libbpf: prog 'xdp_parser_func': relo #0: patched insn #0 (LDX/ST/STX) off 4 -> 4
+libbpf: prog 'xdp_parser_func': relo #1: <byte_off> [17] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #1: matching candidate #0 <byte_off> [14922] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #1: patched insn #1 (LDX/ST/STX) off 0 -> 0
+libbpf: CO-RE relocating [20] struct ethhdr: found target candidate [23410] struct ethhdr in [vmlinux]
+libbpf: prog 'xdp_parser_func': relo #2: <byte_off> [20] struct ethhdr.h_proto (0:2 @ offset 12)
+libbpf: prog 'xdp_parser_func': relo #2: matching candidate #0 <byte_off> [23410] struct ethhdr.h_proto (0:2 @ offset 12)
+libbpf: prog 'xdp_parser_func': relo #2: patched insn #5 (LDX/ST/STX) off 12 -> 12
+libbpf: CO-RE relocating [26] struct vlan_hdr: found target candidate [44179] struct vlan_hdr in [vmlinux]
+libbpf: prog 'xdp_parser_func': relo #3: <byte_off> [26] struct vlan_hdr.h_vlan_encapsulated_proto (0:1 @ offset 2)
+libbpf: prog 'xdp_parser_func': relo #3: matching candidate #0 <byte_off> [44179] struct vlan_hdr.h_vlan_encapsulated_proto (0:1 @ offset 2)
+libbpf: prog 'xdp_parser_func': relo #3: patched insn #11 (LDX/ST/STX) off 2 -> 2
+libbpf: prog 'xdp_parser_func': relo #4: <byte_off> [26] struct vlan_hdr.h_vlan_encapsulated_proto (0:1 @ offset 2)
+libbpf: prog 'xdp_parser_func': relo #4: matching candidate #0 <byte_off> [44179] struct vlan_hdr.h_vlan_encapsulated_proto (0:1 @ offset 2)
+libbpf: prog 'xdp_parser_func': relo #4: patched insn #18 (LDX/ST/STX) off 2 -> 2
+libbpf: prog 'xdp_parser_func': relo #5: <byte_off> [20] struct ethhdr.h_proto (0:2 @ offset 12)
+libbpf: prog 'xdp_parser_func': relo #5: matching candidate #0 <byte_off> [23410] struct ethhdr.h_proto (0:2 @ offset 12)
+libbpf: prog 'xdp_parser_func': relo #5: patched insn #27 (LDX/ST/STX) off 12 -> 12
+libbpf: prog 'xdp_parser_func': relo #6: <byte_off> [26] struct vlan_hdr.h_vlan_encapsulated_proto (0:1 @ offset 2)
+libbpf: prog 'xdp_parser_func': relo #6: matching candidate #0 <byte_off> [44179] struct vlan_hdr.h_vlan_encapsulated_proto (0:1 @ offset 2)
+libbpf: prog 'xdp_parser_func': relo #6: patched insn #33 (LDX/ST/STX) off 2 -> 2
+libbpf: prog 'xdp_parser_func': relo #7: <byte_off> [26] struct vlan_hdr.h_vlan_TCI (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #7: matching candidate #0 <byte_off> [44179] struct vlan_hdr.h_vlan_TCI (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #7: patched insn #41 (LDX/ST/STX) off 0 -> 0
+libbpf: prog 'xdp_parser_func': relo #8: <byte_off> [26] struct vlan_hdr.h_vlan_TCI (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #8: matching candidate #0 <byte_off> [44179] struct vlan_hdr.h_vlan_TCI (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #8: patched insn #47 (LDX/ST/STX) off 0 -> 0
+libbpf: CO-RE relocating [27] struct ipv6hdr: found target candidate [23772] struct ipv6hdr in [vmlinux]
+libbpf: prog 'xdp_parser_func': relo #9: <byte_off> [27] struct ipv6hdr.nexthdr (0:4 @ offset 6)
+libbpf: prog 'xdp_parser_func': relo #9: matching candidate #0 <byte_off> [23772] struct ipv6hdr.nexthdr (0:4 @ offset 6)
+libbpf: prog 'xdp_parser_func': relo #9: patched insn #68 (LDX/ST/STX) off 6 -> 6
+libbpf: prog 'xdp_parser_func': relo #10: <byte_off> [17] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #10: matching candidate #0 <byte_off> [14922] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #10: patched insn #75 (LDX/ST/STX) off 0 -> 0
+libbpf: prog 'xdp_parser_func': relo #11: <byte_off> [17] struct xdp_md.data_end (0:1 @ offset 4)
+libbpf: prog 'xdp_parser_func': relo #11: matching candidate #0 <byte_off> [14922] struct xdp_md.data_end (0:1 @ offset 4)
+libbpf: prog 'xdp_parser_func': relo #11: patched insn #76 (LDX/ST/STX) off 4 -> 4
+libbpf: CO-RE relocating [39] struct iphdr: found target candidate [23765] struct iphdr in [vmlinux]
+libbpf: prog 'xdp_parser_func': relo #12: <byte_off> [39] struct iphdr.ihl (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #12: matching candidate #0 <byte_off> [23765] struct iphdr.ihl (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #12: patched insn #97 (LDX/ST/STX) off 0 -> 0
+libbpf: prog 'xdp_parser_func': relo #13: <byte_off> [39] struct iphdr.protocol (0:7 @ offset 9)
+libbpf: prog 'xdp_parser_func': relo #13: matching candidate #0 <byte_off> [23765] struct iphdr.protocol (0:7 @ offset 9)
+libbpf: prog 'xdp_parser_func': relo #13: patched insn #105 (LDX/ST/STX) off 9 -> 9
+libbpf: prog 'xdp_parser_func': relo #14: <byte_off> [39] struct iphdr.saddr (0:9:0:0 @ offset 12)
+libbpf: prog 'xdp_parser_func': relo #14: matching candidate #0 <byte_off> [23765] struct iphdr.saddr (0:9:0:0 @ offset 12)
+libbpf: prog 'xdp_parser_func': relo #14: patched insn #111 (LDX/ST/STX) off 12 -> 12
+libbpf: prog 'xdp_parser_func': relo #15: <byte_off> [39] struct iphdr.daddr (0:9:0:1 @ offset 16)
+libbpf: prog 'xdp_parser_func': relo #15: matching candidate #0 <byte_off> [23765] struct iphdr.daddr (0:9:0:1 @ offset 16)
+libbpf: prog 'xdp_parser_func': relo #15: patched insn #113 (LDX/ST/STX) off 16 -> 16
+libbpf: prog 'xdp_parser_func': relo #16: <byte_off> [39] struct iphdr.protocol (0:7 @ offset 9)
+libbpf: prog 'xdp_parser_func': relo #16: matching candidate #0 <byte_off> [23765] struct iphdr.protocol (0:7 @ offset 9)
+libbpf: prog 'xdp_parser_func': relo #16: patched insn #120 (LDX/ST/STX) off 9 -> 9
+libbpf: CO-RE relocating [44] struct icmphdr: found target candidate [44804] struct icmphdr in [vmlinux]
+libbpf: prog 'xdp_parser_func': relo #17: <byte_off> [44] struct icmphdr.code (0:1 @ offset 1)
+libbpf: prog 'xdp_parser_func': relo #17: matching candidate #0 <byte_off> [44804] struct icmphdr.code (0:1 @ offset 1)
+libbpf: prog 'xdp_parser_func': relo #17: patched insn #125 (LDX/ST/STX) off 1 -> 1
+libbpf: prog 'xdp_parser_func': relo #18: <byte_off> [44] struct icmphdr.type (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #18: matching candidate #0 <byte_off> [44804] struct icmphdr.type (0:0 @ offset 0)
+libbpf: prog 'xdp_parser_func': relo #18: patched insn #126 (LDX/ST/STX) off 0 -> 0
+libbpf: map 'xdp_stats_map': created successfully, fd=4
+libbpf: map 'prog.rodata': created successfully, fd=5
+libbpf: prog 'xdp_parser_func': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (61) r2 = *(u32 *)(r1 +4)
+  1: .12....... (61) r4 = *(u32 *)(r1 +0)
+  2: .12.4..... (bf) r6 = r4
+  3: .12.4.6... (07) r6 += 14
+  4: .12.4.6... (2d) if r6 > r2 goto pc+68
+  5: .12.4.6... (69) r3 = *(u16 *)(r4 +12)
+  6: .1234.6... (15) if r3 == 0xa888 goto pc+1
+  7: .1234.6... (55) if r3 != 0x81 goto pc+12
+  8: .1234.6... (bf) r5 = r4
+  9: .123456... (07) r5 += 18
+ 10: .123456... (2d) if r5 > r2 goto pc+9
+ 11: .12.456... (69) r3 = *(u16 *)(r6 +2)
+ 12: .12345.... (15) if r3 == 0xa888 goto pc+2
+ 13: .12345.... (bf) r6 = r5
+ 14: .123456... (55) if r3 != 0x81 goto pc+5
+ 15: .12345.... (07) r4 += 22
+ 16: .12345.... (bf) r6 = r5
+ 17: .123456... (2d) if r4 > r2 goto pc+2
+ 18: .12.45.... (69) r3 = *(u16 *)(r5 +2)
+ 19: .1234..... (bf) r6 = r4
+ 20: .123..6... (15) if r3 == 0x8 goto pc+73
+ 21: .123..6... (15) if r3 == 0xdd86 goto pc+43
+ 22: .123..6... (55) if r3 != 0x81 goto pc+50
+ 23: .12...6... (b7) r0 = 0
+ 24: 012...6... (bf) r4 = r6
+ 25: 012.4.6... (07) r4 += 14
+ 26: 012.4.6... (2d) if r4 > r2 goto pc+66
+ 27: .12.4.6... (69) r3 = *(u16 *)(r6 +12)
+ 28: .1234.6... (15) if r3 == 0xa888 goto pc+1
+ 29: .1234.6... (55) if r3 != 0x81 goto pc+103
+ 30: .12.4.6... (bf) r3 = r6
+ 31: .1234.6... (07) r3 += 18
+ 32: .1234.6... (2d) if r3 > r2 goto pc+100
+ 33: .1234.6... (69) r7 = *(u16 *)(r4 +2)
+ 34: .1234.67.. (b7) r5 = 1
+ 35: .1234567.. (b7) r0 = 1
+ 36: 01234567.. (55) if r7 != 0x81 goto pc+1
+ 37: .1234567.. (b7) r0 = 0
+ 38: 01234567.. (55) if r7 != 0xa888 goto pc+1
+ 39: 01234.67.. (b7) r5 = 0
+ 40: 01234567.. (5f) r5 &= r0
+ 41: .1234567.. (69) r4 = *(u16 *)(r4 +0)
+ 42: .1234567.. (57) r4 &= -241
+ 43: .1234567.. (57) r5 &= 1
+ 44: .1234567.. (55) if r5 != 0x0 goto pc+7
+ 45: .1234.67.. (07) r6 += 22
+ 46: .1234.67.. (2d) if r6 > r2 goto pc+5
+ 47: .1.34..... (69) r2 = *(u16 *)(r3 +0)
+ 48: .12.4..... (57) r2 &= 65295
+ 49: .12.4..... (b7) r7 = 1
+ 50: .12.4..7.. (15) if r2 == 0x0 goto pc+1
+ 51: .1..4..... (b7) r7 = 0
+ 52: .1..4..7.. (57) r4 &= 65535
+ 53: .1..4..7.. (15) if r4 == 0x0 goto pc+88
+ 54: .1.....7.. (57) r7 &= 1
+ 55: .1.....7.. (15) if r7 == 0x0 goto pc+17
+ 56: .1........ (bf) r6 = r1
+ 57: ......6... (18) r1 = 0xffff8f28ecef6308
+ 59: .1....6... (b7) r2 = 18
+ 60: .12...6... (b7) r3 = 1
+ 61: .12...6... (b7) r4 = 0
+ 62: .12...6... (85) call bpf_trace_printk#6
+ 63: ......6... (bf) r1 = r6
+ 64: .1........ (05) goto pc+8
+ 65: .12...6... (bf) r3 = r6
+ 66: .123..6... (07) r3 += 40
+ 67: .123..6... (2d) if r3 > r2 goto pc+5
+ 68: .12...6... (71) r3 = *(u8 *)(r6 +6)
+ 69: .123..6... (55) if r3 != 0x3a goto pc+3
+ 70: .12...6... (b7) r0 = 0
+ 71: 012...6... (07) r6 += 48
+ 72: 012...6... (2d) if r6 > r2 goto pc+20
+ 73: .1........ (b7) r2 = 2
+ 74: .12....... (63) *(u32 *)(r10 -4) = r2
+ 75: .1........ (61) r7 = *(u32 *)(r1 +0)
+ 76: .1.....7.. (61) r6 = *(u32 *)(r1 +4)
+ 77: ......67.. (bf) r2 = r10
+ 78: ..2...67.. (07) r2 += -4
+ 79: ..2...67.. (18) r1 = 0xffff8f28ecef4400
+ 81: .12...67.. (85) call bpf_map_lookup_elem#1
+ 82: 0.....67.. (bf) r1 = r0
+ 83: .1....67.. (b7) r0 = 0
+ 84: 01....67.. (15) if r1 == 0x0 goto pc+8
+ 85: .1....67.. (79) r2 = *(u64 *)(r1 +0)
+ 86: .12...67.. (07) r2 += 1
+ 87: .12...67.. (7b) *(u64 *)(r1 +0) = r2
+ 88: .1....67.. (1f) r6 -= r7
+ 89: .1....6... (79) r2 = *(u64 *)(r1 +8)
+ 90: .12...6... (0f) r6 += r2
+ 91: .1....6... (7b) *(u64 *)(r1 +8) = r6
+ 92: .......... (61) r0 = *(u32 *)(r10 -4)
+ 93: 0......... (95) exit
+ 94: .12...6... (bf) r3 = r6
+ 95: .123..6... (07) r3 += 20
+ 96: .123..6... (2d) if r3 > r2 goto pc-24
+ 97: .12...6... (71) r3 = *(u8 *)(r6 +0)
+ 98: .123..6... (67) r3 <<= 2
+ 99: .123..6... (57) r3 &= 60
+100: .123..6... (b7) r4 = 20
+101: .1234.6... (2d) if r4 > r3 goto pc-29
+102: .123..6... (bf) r7 = r6
+103: .123..67.. (0f) r7 += r3
+104: .12...67.. (2d) if r7 > r2 goto pc-32
+105: .12...67.. (71) r3 = *(u8 *)(r6 +9)
+106: .123..67.. (55) if r3 != 0x1 goto pc-34
+107: .12...67.. (b7) r0 = 0
+108: 012...67.. (bf) r3 = r7
+109: 0123..67.. (07) r3 += 8
+110: 0123..67.. (2d) if r3 > r2 goto pc-18
+111: .1....67.. (61) r3 = *(u32 *)(r6 +12)
+112: .1.3..67.. (dc) r3 = be32 r3
+113: .1....67.. (61) r4 = *(u32 *)(r6 +16)
+114: .1..4.67.. (dc) r4 = be32 r4
+115: .1....67.. (bf) r8 = r1
+116: ......678. (18) r1 = 0xffff8f28ecef631a
+118: .1....678. (b7) r2 = 60
+119: .12...678. (85) call bpf_trace_printk#6
+120: ......678. (71) r3 = *(u8 *)(r6 +9)
+121: .......78. (18) r1 = 0xffff8f28ecef6356
+123: .1.....78. (b7) r2 = 15
+124: .12....78. (85) call bpf_trace_printk#6
+125: .......78. (71) r4 = *(u8 *)(r7 +1)
+126: .......78. (71) r3 = *(u8 *)(r7 +0)
+127: ........8. (18) r1 = 0xffff8f28ecef6365
+129: .1......8. (b7) r2 = 35
+130: .12.....8. (85) call bpf_trace_printk#6
+131: ........8. (bf) r1 = r8
+132: .1........ (05) goto pc-60
+133: .1........ (bf) r6 = r1
+134: ......6... (18) r1 = 0xffff8f28ecef6308
+136: .1....6... (b7) r2 = 18
+137: .12...6... (b7) r3 = 0
+138: .12...6... (b7) r4 = 0
+139: .12...6... (85) call bpf_trace_printk#6
+140: ......6... (bf) r1 = r6
+141: .1........ (05) goto pc-86
+142: .1.....7.. (bf) r6 = r1
+143: ......67.. (18) r1 = 0xffff8f28ecef6308
+145: .1....67.. (b7) r2 = 18
+146: .12...67.. (b7) r3 = 0
+147: .12...67.. (b7) r4 = 0
+148: .12...67.. (85) call bpf_trace_printk#6
+149: ......67.. (bf) r1 = r6
+150: .1.....7.. (57) r7 &= 1
+151: .1.....7.. (55) if r7 != 0x0 goto pc-96
+152: .1........ (05) goto pc-80
+0: R1=ctx() R10=fp0
+; void *data_end = (void *)(long)ctx->data_end; @ prog.c:357
+0: (61) r2 = *(u32 *)(r1 +4)          ; R1=ctx() R2_w=pkt_end()
+; void *data = (void *)(long)ctx->data; @ prog.c:358
+1: (61) r4 = *(u32 *)(r1 +0)          ; R1=ctx() R4_w=pkt(r=0)
+; if (nh->pos + hdrsize > data_end) @ prog.c:263
+2: (bf) r6 = r4                       ; R4_w=pkt(r=0) R6_w=pkt(r=0)
+3: (07) r6 += 14                      ; R6_w=pkt(off=14,r=0)
+4: (2d) if r6 > r2 goto pc+68         ; R2_w=pkt_end() R6_w=pkt(off=14,r=14)
+;  @ prog.c:0
+5: (69) r3 = *(u16 *)(r4 +12)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4_w=pkt(r=14)
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+6: (15) if r3 == 0xa888 goto pc+1     ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+7: (55) if r3 != 0x81 goto pc+12      ; R3=129
+; if (vlh + 1 > data_end) @ prog.c:275
+8: (bf) r5 = r4                       ; R4=pkt(r=14) R5_w=pkt(r=14)
+9: (07) r5 += 18                      ; R5_w=pkt(off=18,r=14)
+10: (2d) if r5 > r2 goto pc+9         ; R2=pkt_end() R5_w=pkt(off=18,r=18)
+;  @ prog.c:0
+11: (69) r3 = *(u16 *)(r6 +2)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R6=pkt(off=14,r=18)
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+12: (15) if r3 == 0xa888 goto pc+2    ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+13: (bf) r6 = r5                      ; R5_w=pkt(off=18,r=18) R6_w=pkt(off=18,r=18)
+14: (55) if r3 != 0x81 goto pc+5      ; R3_w=129
+; if (vlh + 1 > data_end) @ prog.c:275
+15: (07) r4 += 22                     ; R4_w=pkt(off=22,r=18)
+16: (bf) r6 = r5                      ; R5=pkt(off=18,r=18) R6_w=pkt(off=18,r=18)
+17: (2d) if r4 > r2 goto pc+2         ; R2=pkt_end() R4_w=pkt(off=22,r=22)
+;  @ prog.c:0
+18: (69) r3 = *(u16 *)(r5 +2)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R5=pkt(off=18,r=22)
+19: (bf) r6 = r4                      ; R4_w=pkt(off=22,r=22) R6_w=pkt(off=22,r=22)
+; if (nh_type == bpf_htons(ETH_P_8021Q)) { @ prog.c:366
+20: (15) if r3 == 0x8 goto pc+73      ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+21: (15) if r3 == 0xdd86 goto pc+43   ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+22: (55) if r3 != 0x81 goto pc+50     ; R3_w=129
+23: (b7) r0 = 0                       ; R0_w=0
+; if (nh->pos + hdrsize > data_end) @ prog.c:263
+24: (bf) r4 = r6                      ; R4_w=pkt(off=22,r=22) R6_w=pkt(off=22,r=22)
+25: (07) r4 += 14                     ; R4=pkt(off=36,r=22)
+26: (2d) if r4 > r2 goto pc+66        ; R2=pkt_end() R4=pkt(off=36,r=36)
+; h_proto = eth->h_proto; @ prog.c:269
+27: (69) r3 = *(u16 *)(r6 +12)        ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R6=pkt(off=22,r=36)
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+28: (15) if r3 == 0xa888 goto pc+1    ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+29: (55) if r3 != 0x81 goto pc+103    ; R3_w=129
+; if (vlh + 1 > data_end) @ prog.c:275
+30: (bf) r3 = r6                      ; R3_w=pkt(off=22,r=36) R6=pkt(off=22,r=36)
+31: (07) r3 += 18                     ; R3_w=pkt(off=40,r=36)
+32: (2d) if r3 > r2 goto pc+100       ; R2=pkt_end() R3_w=pkt(off=40,r=40)
+; h_proto = vlh->h_vlan_encapsulated_proto; @ prog.c:277
+33: (69) r7 = *(u16 *)(r4 +2)         ; R4=pkt(off=36,r=40) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+34: (b7) r5 = 1                       ; R5_w=1
+35: (b7) r0 = 1                       ; R0=1
+; return !!(h_proto == bpf_htons(ETH_P_8021Q) || @ prog.c:248
+36: (55) if r7 != 0x81 goto pc+1      ; R7=129
+37: (b7) r0 = 0                       ; R0_w=0
+38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: last_idx 38 first_idx 36 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 37: (b7) r0 = 0
+mark_precise: frame0: regs=r7 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=1 R1=ctx() R2=pkt_end() R3_w=pkt(off=40,r=40) R4=pkt(off=36,r=40) R5_w=1 R6=pkt(off=22,r=40) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 35 first_idx 26 subseq_idx 36 
+mark_precise: frame0: regs=r7 stack= before 35: (b7) r0 = 1
+mark_precise: frame0: regs=r7 stack= before 34: (b7) r5 = 1
+mark_precise: frame0: regs=r7 stack= before 33: (69) r7 = *(u16 *)(r4 +2)
+38: R7=129
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+40: (5f) r5 &= r0                     ; R0_w=0 R5_w=0
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+41: (69) r4 = *(u16 *)(r4 +0)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+42: (57) r4 &= -241                   ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+43: (57) r5 &= 1                      ; R5_w=0
+44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: last_idx 44 first_idx 36 subseq_idx -1 
+mark_precise: frame0: regs=r5 stack= before 43: (57) r5 &= 1
+mark_precise: frame0: regs=r5 stack= before 42: (57) r4 &= -241
+mark_precise: frame0: regs=r5 stack= before 41: (69) r4 = *(u16 *)(r4 +0)
+mark_precise: frame0: regs=r5 stack= before 40: (5f) r5 &= r0
+mark_precise: frame0: regs=r0,r5 stack= before 38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: regs=r0,r5 stack= before 37: (b7) r0 = 0
+mark_precise: frame0: regs=r5 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs=r5 stack=:  R0_w=1 R1=ctx() R2=pkt_end() R3_w=pkt(off=40,r=40) R4_r=pkt(off=36,r=40) R5_rw=P1 R6=pkt(off=22,r=40) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 35 first_idx 26 subseq_idx 36 
+mark_precise: frame0: regs=r5 stack= before 35: (b7) r0 = 1
+mark_precise: frame0: regs=r5 stack= before 34: (b7) r5 = 1
+44: R5_w=0
+45: (07) r6 += 22                     ; R6=pkt(off=44,r=40)
+46: (2d) if r6 > r2 goto pc+5         ; R2=pkt_end() R6=pkt(off=44,r=44)
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+47: (69) r2 = *(u16 *)(r3 +0)         ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R3=pkt(off=40,r=44)
+48: (57) r2 &= 65295                  ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+49: (b7) r7 = 1                       ; R7_w=1
+; if (vlans.id[i] == 0) @ prog.c:373
+50: (15) if r2 == 0x0 goto pc+1       ; R2_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+51: (b7) r7 = 0                       ; R7_w=0
+52: (57) r4 &= 65535                  ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+53: (15) if r4 == 0x0 goto pc+88      ; R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+54: (57) r7 &= 1                      ; R7=0
+55: (15) if r7 == 0x0 goto pc+17
+mark_precise: frame0: last_idx 55 first_idx 55 subseq_idx -1 
+mark_precise: frame0: parent state regs=r7 stack=:  R0=0 R1=ctx() R2_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R3=pkt(off=40,r=44) R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=44,r=44) R7_rw=P0 R10=fp0
+mark_precise: frame0: last_idx 54 first_idx 46 subseq_idx 55 
+mark_precise: frame0: regs=r7 stack= before 54: (57) r7 &= 1
+mark_precise: frame0: regs=r7 stack= before 53: (15) if r4 == 0x0 goto pc+88
+mark_precise: frame0: regs=r7 stack= before 52: (57) r4 &= 65535
+mark_precise: frame0: regs=r7 stack= before 51: (b7) r7 = 0
+55: R7=0
+; if (icmp6h + 1 > data_end) @ prog.c:334
+73: (b7) r2 = 2                       ; R2_w=2
+74: (63) *(u32 *)(r10 -4) = r2        ; R2_w=2 R10=fp0 fp-8=mmmm????
+; __u64 bytes = (__u64)ctx->data_end - (__u64)ctx->data; @ prog.c:225
+75: (61) r7 = *(u32 *)(r1 +0)         ; R1=ctx() R7_w=pkt(r=0)
+76: (61) r6 = *(u32 *)(r1 +4)         ; R1=ctx() R6_w=pkt_end()
+77: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+;  @ prog.c:0
+78: (07) r2 += -4                     ; R2_w=fp-4
+; rec = bpf_map_lookup_elem(&xdp_stats_map, &action); @ prog.c:228
+79: (18) r1 = 0xffff8f28ecef4400      ; R1_w=map_ptr(map=xdp_stats_map,ks=4,vs=16)
+81: (85) call bpf_map_lookup_elem#1   ; R0=map_value_or_null(id=1,map=xdp_stats_map,ks=4,vs=16)
+82: (bf) r1 = r0                      ; R0=map_value_or_null(id=1,map=xdp_stats_map,ks=4,vs=16) R1_w=map_value_or_null(id=1,map=xdp_stats_map,ks=4,vs=16)
+83: (b7) r0 = 0                       ; R0_w=0
+; if (!rec) @ prog.c:229
+84: (15) if r1 == 0x0 goto pc+8       ; R1_w=map_value(map=xdp_stats_map,ks=4,vs=16)
+; rec->rx_packets++; @ prog.c:232
+85: (79) r2 = *(u64 *)(r1 +0)         ; R1_w=map_value(map=xdp_stats_map,ks=4,vs=16) R2_w=scalar()
+86: (07) r2 += 1                      ; R2_w=scalar()
+87: (7b) *(u64 *)(r1 +0) = r2         ; R1_w=map_value(map=xdp_stats_map,ks=4,vs=16) R2_w=scalar()
+; __u64 bytes = (__u64)ctx->data_end - (__u64)ctx->data; @ prog.c:225
+88: (1f) r6 -= r7                     ; R6_w=scalar() R7=pkt(r=0)
+; rec->rx_bytes += bytes; @ prog.c:233
+89: (79) r2 = *(u64 *)(r1 +8)         ; R1_w=map_value(map=xdp_stats_map,ks=4,vs=16) R2_w=scalar()
+90: (0f) r6 += r2                     ; R2_w=scalar() R6_w=scalar()
+91: (7b) *(u64 *)(r1 +8) = r6         ; R1_w=map_value(map=xdp_stats_map,ks=4,vs=16) R6_w=scalar()
+; return action; @ prog.c:234
+92: (61) r0 = *(u32 *)(r10 -4)        ; R0_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R10=fp0 fp-8=mmmm????
+; } @ prog.c:412
+93: (95) exit
+
+from 84 to 93: R0=0 R1=0 R6=pkt_end() R7=pkt(r=0) R10=fp0 fp-8=mmmm????
+93: R0=0 R1=0 R6=pkt_end() R7=pkt(r=0) R10=fp0 fp-8=mmmm????
+93: (95) exit
+
+from 53 to 142: R0=0 R1=ctx() R2_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R3=pkt(off=40,r=44) R4_w=0 R5=0 R6=pkt(off=44,r=44) R7_w=0 R10=fp0
+142: R0=0 R1=ctx() R2_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R3=pkt(off=40,r=44) R4_w=0 R5=0 R6=pkt(off=44,r=44) R7_w=0 R10=fp0
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+142: (bf) r6 = r1                     ; R1=ctx() R6_w=ctx()
+143: (18) r1 = 0xffff8f28ecef6308     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+145: (b7) r2 = 18                     ; R2_w=18
+146: (b7) r3 = 0                      ; R3_w=0
+147: (b7) r4 = 0                      ; R4_w=0
+148: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 148 first_idx 46 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 147: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 146: (b7) r3 = 0
+mark_precise: frame0: regs=r2 stack= before 145: (b7) r2 = 18
+149: R0_w=scalar()
+149: (bf) r1 = r6                     ; R1_w=ctx() R6_w=ctx()
+; if (vlans.id[i] == 0) @ prog.c:373
+150: (57) r7 &= 1                     ; R7=0
+151: (55) if r7 != 0x0 goto pc-96
+mark_precise: frame0: last_idx 151 first_idx 151 subseq_idx -1 
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=scalar() R1_w=ctx() R6_w=ctx() R7_rw=P0 R10=fp0
+mark_precise: frame0: last_idx 150 first_idx 46 subseq_idx 151 
+mark_precise: frame0: regs=r7 stack= before 150: (57) r7 &= 1
+mark_precise: frame0: regs=r7 stack= before 149: (bf) r1 = r6
+mark_precise: frame0: regs=r7 stack= before 148: (85) call bpf_trace_printk#6
+mark_precise: frame0: regs=r7 stack= before 147: (b7) r4 = 0
+mark_precise: frame0: regs=r7 stack= before 146: (b7) r3 = 0
+mark_precise: frame0: regs=r7 stack= before 145: (b7) r2 = 18
+mark_precise: frame0: regs=r7 stack= before 143: (18) r1 = 0xffff8f28ecef6308
+mark_precise: frame0: regs=r7 stack= before 142: (bf) r6 = r1
+mark_precise: frame0: regs=r7 stack= before 53: (15) if r4 == 0x0 goto pc+88
+mark_precise: frame0: regs=r7 stack= before 52: (57) r4 &= 65535
+mark_precise: frame0: regs=r7 stack= before 51: (b7) r7 = 0
+151: R7=0
+152: (05) goto pc-80
+; if (icmp6h + 1 > data_end) @ prog.c:334
+73: (b7) r2 = 2                       ; R2_w=2
+74: (63) *(u32 *)(r10 -4) = r2        ; R2_w=2 R10=fp0 fp-8=mmmm????
+; __u64 bytes = (__u64)ctx->data_end - (__u64)ctx->data; @ prog.c:225
+75: (61) r7 = *(u32 *)(r1 +0)         ; R1=ctx() R7_w=pkt(r=0)
+76: (61) r6 = *(u32 *)(r1 +4)         ; R1=ctx() R6_w=pkt_end()
+77: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+;  @ prog.c:0
+78: (07) r2 += -4                     ; R2_w=fp-4
+; rec = bpf_map_lookup_elem(&xdp_stats_map, &action); @ prog.c:228
+79: (18) r1 = 0xffff8f28ecef4400      ; R1_w=map_ptr(map=xdp_stats_map,ks=4,vs=16)
+81: (85) call bpf_map_lookup_elem#1
+82: safe
+
+from 50 to 52: R0=0 R1=ctx() R2=0 R3=pkt(off=40,r=44) R4=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=44,r=44) R7=1 R10=fp0
+52: R0=0 R1=ctx() R2=0 R3=pkt(off=40,r=44) R4=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=44,r=44) R7=1 R10=fp0
+; if (vlans.id[i] == 0) @ prog.c:373
+52: (57) r4 &= 65535                  ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+53: (15) if r4 == 0x0 goto pc+88      ; R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+54: (57) r7 &= 1                      ; R7_w=1
+55: (15) if r7 == 0x0 goto pc+17
+mark_precise: frame0: last_idx 55 first_idx 52 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 54: (57) r7 &= 1
+mark_precise: frame0: regs=r7 stack= before 53: (15) if r4 == 0x0 goto pc+88
+mark_precise: frame0: regs=r7 stack= before 52: (57) r4 &= 65535
+mark_precise: frame0: parent state regs=r7 stack=:  R0=0 R1=ctx() R2_w=0 R3=pkt(off=40,r=44) R4_r=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=44,r=44) R7_rw=P1 R10=fp0
+mark_precise: frame0: last_idx 50 first_idx 46 subseq_idx 52 
+mark_precise: frame0: regs=r7 stack= before 50: (15) if r2 == 0x0 goto pc+1
+mark_precise: frame0: regs=r7 stack= before 49: (b7) r7 = 1
+55: R7_w=1
+56: (bf) r6 = r1                      ; R1=ctx() R6_w=ctx()
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+57: (18) r1 = 0xffff8f28ecef6308      ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+59: (b7) r2 = 18                      ; R2_w=18
+60: (b7) r3 = 1                       ; R3_w=1
+61: (b7) r4 = 0                       ; R4_w=0
+62: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 62 first_idx 52 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 61: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 60: (b7) r3 = 1
+mark_precise: frame0: regs=r2 stack= before 59: (b7) r2 = 18
+63: R0=scalar()
+63: (bf) r1 = r6                      ; R1_w=ctx() R6=ctx()
+64: (05) goto pc+8
+; if (icmp6h + 1 > data_end) @ prog.c:334
+73: (b7) r2 = 2                       ; R2_w=2
+74: (63) *(u32 *)(r10 -4) = r2        ; R2_w=2 R10=fp0 fp-8=mmmm????
+; __u64 bytes = (__u64)ctx->data_end - (__u64)ctx->data; @ prog.c:225
+75: (61) r7 = *(u32 *)(r1 +0)         ; R1_w=ctx() R7_w=pkt(r=0)
+76: (61) r6 = *(u32 *)(r1 +4)         ; R1_w=ctx() R6_w=pkt_end()
+77: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+;  @ prog.c:0
+78: (07) r2 += -4                     ; R2_w=fp-4
+; rec = bpf_map_lookup_elem(&xdp_stats_map, &action); @ prog.c:228
+79: (18) r1 = 0xffff8f28ecef4400      ; R1_w=map_ptr(map=xdp_stats_map,ks=4,vs=16)
+81: (85) call bpf_map_lookup_elem#1
+82: safe
+
+from 53 to 142: R0=0 R1=ctx() R2=0 R3=pkt(off=40,r=44) R4=0 R5=0 R6=pkt(off=44,r=44) R7=1 R10=fp0
+142: R0=0 R1=ctx() R2=0 R3=pkt(off=40,r=44) R4=0 R5=0 R6=pkt(off=44,r=44) R7=1 R10=fp0
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+142: (bf) r6 = r1                     ; R1=ctx() R6_w=ctx()
+143: (18) r1 = 0xffff8f28ecef6308     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+145: (b7) r2 = 18                     ; R2_w=18
+146: (b7) r3 = 0                      ; R3_w=0
+147: (b7) r4 = 0                      ; R4_w=0
+148: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 148 first_idx 142 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 147: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 146: (b7) r3 = 0
+mark_precise: frame0: regs=r2 stack= before 145: (b7) r2 = 18
+149: R0_w=scalar()
+149: (bf) r1 = r6                     ; R1_w=ctx() R6_w=ctx()
+; if (vlans.id[i] == 0) @ prog.c:373
+150: (57) r7 &= 1                     ; R7_w=1
+151: (55) if r7 != 0x0 goto pc-96
+mark_precise: frame0: last_idx 151 first_idx 142 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 150: (57) r7 &= 1
+mark_precise: frame0: regs=r7 stack= before 149: (bf) r1 = r6
+mark_precise: frame0: regs=r7 stack= before 148: (85) call bpf_trace_printk#6
+mark_precise: frame0: regs=r7 stack= before 147: (b7) r4 = 0
+mark_precise: frame0: regs=r7 stack= before 146: (b7) r3 = 0
+mark_precise: frame0: regs=r7 stack= before 145: (b7) r2 = 18
+mark_precise: frame0: regs=r7 stack= before 143: (18) r1 = 0xffff8f28ecef6308
+mark_precise: frame0: regs=r7 stack= before 142: (bf) r6 = r1
+mark_precise: frame0: parent state regs=r7 stack=:  R0=0 R1_r=ctx() R2=0 R3=pkt(off=40,r=44) R4_w=0 R5=0 R6=pkt(off=44,r=44) R7_r=P1 R10=fp0
+mark_precise: frame0: last_idx 53 first_idx 52 subseq_idx 142 
+mark_precise: frame0: regs=r7 stack= before 53: (15) if r4 == 0x0 goto pc+88
+mark_precise: frame0: regs=r7 stack= before 52: (57) r4 &= 65535
+mark_precise: frame0: parent state regs= stack=:  R0=0 R1_r=ctx() R2_w=0 R3=pkt(off=40,r=44) R4_r=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=44,r=44) R7_rw=P1 R10=fp0
+151: R7_w=1
+56: (bf) r6 = r1                      ; R1=ctx() R6_w=ctx()
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+57: (18) r1 = 0xffff8f28ecef6308      ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+59: (b7) r2 = 18                      ; R2_w=18
+60: (b7) r3 = 1                       ; R3_w=1
+61: (b7) r4 = 0                       ; R4_w=0
+62: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 62 first_idx 56 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 61: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 60: (b7) r3 = 1
+mark_precise: frame0: regs=r2 stack= before 59: (b7) r2 = 18
+63: safe
+
+from 46 to 52: R0=0 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=44,r=0xfffffffffffffffe) R7=129 R10=fp0
+52: R0=0 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=44,r=0xfffffffffffffffe) R7=129 R10=fp0
+; if (vlans.id[i] == 0) @ prog.c:373
+52: (57) r4 &= 65535                  ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+53: (15) if r4 == 0x0 goto pc+88      ; R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+54: (57) r7 &= 1                      ; R7=1
+55: (15) if r7 == 0x0 goto pc+17
+mark_precise: frame0: last_idx 55 first_idx 55 subseq_idx -1 
+mark_precise: frame0: parent state regs=r7 stack=:  R0=0 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=44,r=0xfffffffffffffffe) R7_rw=P1 R10=fp0
+mark_precise: frame0: last_idx 54 first_idx 46 subseq_idx 55 
+mark_precise: frame0: regs=r7 stack= before 54: (57) r7 &= 1
+mark_precise: frame0: regs=r7 stack= before 53: (15) if r4 == 0x0 goto pc+88
+mark_precise: frame0: regs=r7 stack= before 52: (57) r4 &= 65535
+mark_precise: frame0: regs=r7 stack= before 46: (2d) if r6 > r2 goto pc+5
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=0 R1_r=ctx() R2_r=pkt_end() R3_r=pkt(off=40,r=40) R4_rw=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5_w=0 R6_rw=pkt(off=44,r=40) R7_r=P129 R10=fp0
+mark_precise: frame0: last_idx 45 first_idx 36 subseq_idx 46 
+mark_precise: frame0: regs=r7 stack= before 45: (07) r6 += 22
+mark_precise: frame0: regs=r7 stack= before 44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: regs=r7 stack= before 43: (57) r5 &= 1
+mark_precise: frame0: regs=r7 stack= before 42: (57) r4 &= -241
+mark_precise: frame0: regs=r7 stack= before 41: (69) r4 = *(u16 *)(r4 +0)
+mark_precise: frame0: regs=r7 stack= before 40: (5f) r5 &= r0
+mark_precise: frame0: regs=r7 stack= before 38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: regs=r7 stack= before 37: (b7) r0 = 0
+mark_precise: frame0: regs=r7 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs= stack=:  R0_w=1 R1_r=ctx() R2_r=pkt_end() R3_rw=pkt(off=40,r=40) R4_r=pkt(off=36,r=40) R5_rw=P1 R6_r=pkt(off=22,r=40) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+55: R7=1
+56: safe
+
+from 53 to 142: R0=0 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4_w=0 R5=0 R6=pkt(off=44,r=0xfffffffffffffffe) R7=129 R10=fp0
+142: R0=0 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4_w=0 R5=0 R6=pkt(off=44,r=0xfffffffffffffffe) R7=129 R10=fp0
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+142: (bf) r6 = r1                     ; R1=ctx() R6_w=ctx()
+143: (18) r1 = 0xffff8f28ecef6308     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+145: (b7) r2 = 18                     ; R2_w=18
+146: (b7) r3 = 0                      ; R3_w=0
+147: (b7) r4 = 0                      ; R4_w=0
+148: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 148 first_idx 46 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 147: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 146: (b7) r3 = 0
+mark_precise: frame0: regs=r2 stack= before 145: (b7) r2 = 18
+149: R0=scalar()
+149: (bf) r1 = r6                     ; R1_w=ctx() R6=ctx()
+; if (vlans.id[i] == 0) @ prog.c:373
+150: (57) r7 &= 1                     ; R7_w=1
+151: (55) if r7 != 0x0 goto pc-96
+mark_precise: frame0: last_idx 151 first_idx 149 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 150: (57) r7 &= 1
+mark_precise: frame0: regs=r7 stack= before 149: (bf) r1 = r6
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=scalar() R6_rw=ctx() R7_r=P129 R10=fp0
+mark_precise: frame0: last_idx 148 first_idx 46 subseq_idx 149 
+mark_precise: frame0: regs=r7 stack= before 148: (85) call bpf_trace_printk#6
+mark_precise: frame0: regs=r7 stack= before 147: (b7) r4 = 0
+mark_precise: frame0: regs=r7 stack= before 146: (b7) r3 = 0
+mark_precise: frame0: regs=r7 stack= before 145: (b7) r2 = 18
+mark_precise: frame0: regs=r7 stack= before 143: (18) r1 = 0xffff8f28ecef6308
+mark_precise: frame0: regs=r7 stack= before 142: (bf) r6 = r1
+mark_precise: frame0: regs=r7 stack= before 53: (15) if r4 == 0x0 goto pc+88
+mark_precise: frame0: regs=r7 stack= before 52: (57) r4 &= 65535
+mark_precise: frame0: regs=r7 stack= before 46: (2d) if r6 > r2 goto pc+5
+mark_precise: frame0: parent state regs= stack=:  R0_w=0 R1_r=ctx() R2_r=pkt_end() R3_r=pkt(off=40,r=40) R4_rw=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5_w=0 R6_rw=pkt(off=44,r=40) R7_r=P129 R10=fp0
+151: R7_w=1
+56: safe
+
+from 36 to 38: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=pkt(off=36,r=40) R5=1 R6=pkt(off=22,r=40) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+38: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=pkt(off=36,r=40) R5=1 R6=pkt(off=22,r=40) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+; return !!(h_proto == bpf_htons(ETH_P_8021Q) || @ prog.c:248
+38: (55) if r7 != 0xa888 goto pc+1    ; R7=0xa888
+39: (b7) r5 = 0                       ; R5_w=0
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+40: (5f) r5 &= r0                     ; R0=1 R5_w=0
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+41: (69) r4 = *(u16 *)(r4 +0)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+42: (57) r4 &= -241                   ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+43: (57) r5 &= 1                      ; R5=0
+44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: last_idx 44 first_idx 44 subseq_idx -1 
+mark_precise: frame0: parent state regs=r5 stack=:  R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5_rw=P0 R6=pkt(off=22,r=40) R7=0xa888 R10=fp0
+mark_precise: frame0: last_idx 43 first_idx 36 subseq_idx 44 
+mark_precise: frame0: regs=r5 stack= before 43: (57) r5 &= 1
+mark_precise: frame0: regs=r5 stack= before 42: (57) r4 &= -241
+mark_precise: frame0: regs=r5 stack= before 41: (69) r4 = *(u16 *)(r4 +0)
+mark_precise: frame0: regs=r5 stack= before 40: (5f) r5 &= r0
+mark_precise: frame0: regs=r0,r5 stack= before 39: (b7) r5 = 0
+mark_precise: frame0: regs=r0 stack= before 38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: regs=r0 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs=r0 stack=:  R0_rw=P1 R1_r=ctx() R2_r=pkt_end() R3_rw=pkt(off=40,r=40) R4_r=pkt(off=36,r=40) R5_rw=P1 R6_r=pkt(off=22,r=40) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 35 first_idx 26 subseq_idx 36 
+mark_precise: frame0: regs=r0 stack= before 35: (b7) r0 = 1
+44: R5=0
+45: (07) r6 += 22                     ; R6_w=pkt(off=44,r=40)
+46: (2d) if r6 > r2 goto pc+5         ; R2=pkt_end() R6_w=pkt(off=44,r=44)
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+47: (69) r2 = *(u16 *)(r3 +0)         ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R3=pkt(off=40,r=44)
+48: (57) r2 &= 65295                  ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+49: (b7) r7 = 1                       ; R7_w=1
+; if (vlans.id[i] == 0) @ prog.c:373
+50: (15) if r2 == 0x0 goto pc+1       ; R2_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+51: (b7) r7 = 0                       ; R7=0
+52: (57) r4 &= 65535                  ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+53: (15) if r4 == 0x0 goto pc+88      ; R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+54: (57) r7 &= 1
+frame 0: propagating r7
+mark_precise: frame0: last_idx 55 first_idx 52 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 54: (57) r7 &= 1
+mark_precise: frame0: regs=r7 stack= before 53: (15) if r4 == 0x0 goto pc+88
+mark_precise: frame0: regs=r7 stack= before 52: (57) r4 &= 65535
+mark_precise: frame0: parent state regs=r7 stack=:  R0=1 R1_r=ctx() R2_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R3=pkt(off=40,r=44) R4_r=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6_w=pkt(off=44,r=44) R7_rw=P0 R10=fp0
+mark_precise: frame0: last_idx 51 first_idx 44 subseq_idx 52 
+mark_precise: frame0: regs=r7 stack= before 51: (b7) r7 = 0
+55: safe
+
+from 53 to 142: R0=1 R1=ctx() R2=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R3=pkt(off=40,r=44) R4_w=0 R5=0 R6=pkt(off=44,r=44) R7=0 R10=fp0
+142: R0=1 R1=ctx() R2=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R3=pkt(off=40,r=44) R4_w=0 R5=0 R6=pkt(off=44,r=44) R7=0 R10=fp0
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+142: (bf) r6 = r1                     ; R1=ctx() R6_w=ctx()
+143: (18) r1 = 0xffff8f28ecef6308     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+145: (b7) r2 = 18                     ; R2_w=18
+146: (b7) r3 = 0                      ; R3_w=0
+147: (b7) r4 = 0                      ; R4_w=0
+148: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 148 first_idx 52 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 147: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 146: (b7) r3 = 0
+mark_precise: frame0: regs=r2 stack= before 145: (b7) r2 = 18
+149: R0=scalar()
+149: (bf) r1 = r6                     ; R1_w=ctx() R6=ctx()
+; if (vlans.id[i] == 0) @ prog.c:373
+150: (57) r7 &= 1
+frame 0: propagating r7
+mark_precise: frame0: last_idx 151 first_idx 149 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 150: (57) r7 &= 1
+mark_precise: frame0: regs=r7 stack= before 149: (bf) r1 = r6
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=scalar() R6_rw=ctx() R7_r=P0 R10=fp0
+mark_precise: frame0: last_idx 148 first_idx 52 subseq_idx 149 
+mark_precise: frame0: regs=r7 stack= before 148: (85) call bpf_trace_printk#6
+mark_precise: frame0: regs=r7 stack= before 147: (b7) r4 = 0
+mark_precise: frame0: regs=r7 stack= before 146: (b7) r3 = 0
+mark_precise: frame0: regs=r7 stack= before 145: (b7) r2 = 18
+mark_precise: frame0: regs=r7 stack= before 143: (18) r1 = 0xffff8f28ecef6308
+mark_precise: frame0: regs=r7 stack= before 142: (bf) r6 = r1
+mark_precise: frame0: regs=r7 stack= before 53: (15) if r4 == 0x0 goto pc+88
+mark_precise: frame0: regs=r7 stack= before 52: (57) r4 &= 65535
+mark_precise: frame0: parent state regs= stack=:  R0=1 R1_r=ctx() R2_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R3=pkt(off=40,r=44) R4_r=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6_w=pkt(off=44,r=44) R7_rw=P0 R10=fp0
+151: safe
+frame 0: propagating r7
+mark_precise: frame0: last_idx 52 first_idx 44 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 50: (15) if r2 == 0x0 goto pc+1
+mark_precise: frame0: regs=r7 stack= before 49: (b7) r7 = 1
+
+from 50 to 52: safe
+
+from 46 to 52: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6_w=pkt(off=44,r=0xfffffffffffffffe) R7=0xa888 R10=fp0
+52: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6_w=pkt(off=44,r=0xfffffffffffffffe) R7=0xa888 R10=fp0
+52: (57) r4 &= 65535                  ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+53: (15) if r4 == 0x0 goto pc+88      ; R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+54: (57) r7 &= 1
+frame 0: propagating r7
+mark_precise: frame0: last_idx 55 first_idx 44 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 54: (57) r7 &= 1
+mark_precise: frame0: regs=r7 stack= before 53: (15) if r4 == 0x0 goto pc+88
+mark_precise: frame0: regs=r7 stack= before 52: (57) r4 &= 65535
+mark_precise: frame0: regs=r7 stack= before 46: (2d) if r6 > r2 goto pc+5
+mark_precise: frame0: regs=r7 stack= before 45: (07) r6 += 22
+mark_precise: frame0: regs=r7 stack= before 44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: parent state regs=r7 stack=:  R0=1 R1_r=ctx() R2_r=pkt_end() R3_r=pkt(off=40,r=40) R4_rw=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5_rw=P0 R6_r=pkt(off=22,r=40) R7_r=P0xa888 R10=fp0
+mark_precise: frame0: last_idx 43 first_idx 36 subseq_idx 44 
+mark_precise: frame0: regs=r7 stack= before 43: (57) r5 &= 1
+mark_precise: frame0: regs=r7 stack= before 42: (57) r4 &= -241
+mark_precise: frame0: regs=r7 stack= before 41: (69) r4 = *(u16 *)(r4 +0)
+mark_precise: frame0: regs=r7 stack= before 40: (5f) r5 &= r0
+mark_precise: frame0: regs=r7 stack= before 39: (b7) r5 = 0
+mark_precise: frame0: regs=r7 stack= before 38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: regs=r7 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs= stack=:  R0_rw=P1 R1_r=ctx() R2_r=pkt_end() R3_rw=pkt(off=40,r=40) R4_r=pkt(off=36,r=40) R5_rw=P1 R6_r=pkt(off=22,r=40) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+55: safe
+
+from 53 to 142: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4_w=0 R5=0 R6_w=pkt(off=44,r=0xfffffffffffffffe) R7=0xa888 R10=fp0
+142: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4_w=0 R5=0 R6_w=pkt(off=44,r=0xfffffffffffffffe) R7=0xa888 R10=fp0
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+142: (bf) r6 = r1                     ; R1=ctx() R6_w=ctx()
+143: (18) r1 = 0xffff8f28ecef6308     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+145: (b7) r2 = 18                     ; R2_w=18
+146: (b7) r3 = 0                      ; R3_w=0
+147: (b7) r4 = 0                      ; R4_w=0
+148: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 148 first_idx 44 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 147: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 146: (b7) r3 = 0
+mark_precise: frame0: regs=r2 stack= before 145: (b7) r2 = 18
+149: R0=scalar()
+149: (bf) r1 = r6                     ; R1_w=ctx() R6=ctx()
+; if (vlans.id[i] == 0) @ prog.c:373
+150: (57) r7 &= 1
+frame 0: propagating r7
+mark_precise: frame0: last_idx 151 first_idx 149 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 150: (57) r7 &= 1
+mark_precise: frame0: regs=r7 stack= before 149: (bf) r1 = r6
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=scalar() R6_rw=ctx() R7_r=P0xa888 R10=fp0
+mark_precise: frame0: last_idx 148 first_idx 44 subseq_idx 149 
+mark_precise: frame0: regs=r7 stack= before 148: (85) call bpf_trace_printk#6
+mark_precise: frame0: regs=r7 stack= before 147: (b7) r4 = 0
+mark_precise: frame0: regs=r7 stack= before 146: (b7) r3 = 0
+mark_precise: frame0: regs=r7 stack= before 145: (b7) r2 = 18
+mark_precise: frame0: regs=r7 stack= before 143: (18) r1 = 0xffff8f28ecef6308
+mark_precise: frame0: regs=r7 stack= before 142: (bf) r6 = r1
+mark_precise: frame0: regs=r7 stack= before 53: (15) if r4 == 0x0 goto pc+88
+mark_precise: frame0: regs=r7 stack= before 52: (57) r4 &= 65535
+mark_precise: frame0: regs=r7 stack= before 46: (2d) if r6 > r2 goto pc+5
+mark_precise: frame0: regs=r7 stack= before 45: (07) r6 += 22
+mark_precise: frame0: regs=r7 stack= before 44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: parent state regs= stack=:  R0=1 R1_r=ctx() R2_r=pkt_end() R3_r=pkt(off=40,r=40) R4_rw=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5_rw=P0 R6_r=pkt(off=22,r=40) R7_r=P0xa888 R10=fp0
+151: safe
+
+from 38 to 40: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=pkt(off=36,r=40) R5=1 R6=pkt(off=22,r=40) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+40: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=pkt(off=36,r=40) R5=1 R6=pkt(off=22,r=40) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+40: (5f) r5 &= r0                     ; R0=1 R5_w=1
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+41: (69) r4 = *(u16 *)(r4 +0)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+42: (57) r4 &= -241                   ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+43: (57) r5 &= 1                      ; R5_w=1
+44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: last_idx 44 first_idx 36 subseq_idx -1 
+mark_precise: frame0: regs=r5 stack= before 43: (57) r5 &= 1
+mark_precise: frame0: regs=r5 stack= before 42: (57) r4 &= -241
+mark_precise: frame0: regs=r5 stack= before 41: (69) r4 = *(u16 *)(r4 +0)
+mark_precise: frame0: regs=r5 stack= before 40: (5f) r5 &= r0
+mark_precise: frame0: regs=r0,r5 stack= before 38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: regs=r0,r5 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs= stack=:  R0_rw=P1 R1_r=ctx() R2_r=pkt_end() R3_rw=pkt(off=40,r=40) R4_r=pkt(off=36,r=40) R5_rw=P1 R6_r=pkt(off=22,r=40) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+44: R5_w=1
+; if (vlans.id[i] == 0) @ prog.c:373
+52: (57) r4 &= 65535                  ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+53: (15) if r4 == 0x0 goto pc+88      ; R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+54: (57) r7 &= 1                      ; R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+55: (15) if r7 == 0x0 goto pc+17      ; R7=1
+56: safe
+
+from 55 to 73: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=1 R6=pkt(off=22,r=40) R7=0 R10=fp0
+73: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=1 R6=pkt(off=22,r=40) R7=0 R10=fp0
+; if (icmp6h + 1 > data_end) @ prog.c:334
+73: (b7) r2 = 2                       ; R2_w=2
+74: (63) *(u32 *)(r10 -4) = r2        ; R2_w=2 R10=fp0 fp-8=mmmm????
+; __u64 bytes = (__u64)ctx->data_end - (__u64)ctx->data; @ prog.c:225
+75: (61) r7 = *(u32 *)(r1 +0)         ; R1=ctx() R7_w=pkt(r=0)
+76: (61) r6 = *(u32 *)(r1 +4)         ; R1=ctx() R6_w=pkt_end()
+77: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+;  @ prog.c:0
+78: (07) r2 += -4                     ; R2_w=fp-4
+; rec = bpf_map_lookup_elem(&xdp_stats_map, &action); @ prog.c:228
+79: (18) r1 = 0xffff8f28ecef4400      ; R1_w=map_ptr(map=xdp_stats_map,ks=4,vs=16)
+81: (85) call bpf_map_lookup_elem#1
+82: safe
+
+from 53 to 142: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=0 R5=1 R6=pkt(off=22,r=40) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+142: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=40,r=40) R4=0 R5=1 R6=pkt(off=22,r=40) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+142: (bf) r6 = r1                     ; R1=ctx() R6_w=ctx()
+143: (18) r1 = 0xffff8f28ecef6308     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+145: (b7) r2 = 18                     ; R2_w=18
+146: (b7) r3 = 0                      ; R3_w=0
+147: (b7) r4 = 0                      ; R4_w=0
+148: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 148 first_idx 142 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 147: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 146: (b7) r3 = 0
+mark_precise: frame0: regs=r2 stack= before 145: (b7) r2 = 18
+149: R0_w=scalar()
+149: (bf) r1 = r6                     ; R1_w=ctx() R6_w=ctx()
+; if (vlans.id[i] == 0) @ prog.c:373
+150: (57) r7 &= 1                     ; R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+151: (55) if r7 != 0x0 goto pc-96     ; R7_w=0
+152: (05) goto pc-80
+; if (icmp6h + 1 > data_end) @ prog.c:334
+73: (b7) r2 = 2                       ; R2_w=2
+74: (63) *(u32 *)(r10 -4) = r2        ; R2_w=2 R10=fp0 fp-8=mmmm????
+; __u64 bytes = (__u64)ctx->data_end - (__u64)ctx->data; @ prog.c:225
+75: (61) r7 = *(u32 *)(r1 +0)         ; R1=ctx() R7_w=pkt(r=0)
+76: (61) r6 = *(u32 *)(r1 +4)         ; R1=ctx() R6_w=pkt_end()
+77: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+;  @ prog.c:0
+78: (07) r2 += -4                     ; R2_w=fp-4
+; rec = bpf_map_lookup_elem(&xdp_stats_map, &action); @ prog.c:228
+79: (18) r1 = 0xffff8f28ecef4400      ; R1_w=map_ptr(map=xdp_stats_map,ks=4,vs=16)
+81: (85) call bpf_map_lookup_elem#1
+82: safe
+
+from 151 to 56: safe
+
+from 32 to 133: R0=0 R1=ctx() R2=pkt_end() R3_w=pkt(off=40,r=0xfffffffffffffffe) R4=pkt(off=36,r=36) R5=pkt(off=18,r=36) R6=pkt(off=22,r=36) R10=fp0
+133: R0=0 R1=ctx() R2=pkt_end() R3_w=pkt(off=40,r=0xfffffffffffffffe) R4=pkt(off=36,r=36) R5=pkt(off=18,r=36) R6=pkt(off=22,r=36) R10=fp0
+; bpf_printk("ICMP Header: Type = %d, Code = %d\n", @ prog.c:406
+133: (bf) r6 = r1                     ; R1=ctx() R6_w=ctx()
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+134: (18) r1 = 0xffff8f28ecef6308     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+136: (b7) r2 = 18                     ; R2_w=18
+137: (b7) r3 = 0                      ; R3_w=0
+138: (b7) r4 = 0                      ; R4_w=0
+139: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 139 first_idx 26 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 138: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 137: (b7) r3 = 0
+mark_precise: frame0: regs=r2 stack= before 136: (b7) r2 = 18
+140: R0=scalar()
+140: (bf) r1 = r6                     ; R1_w=ctx() R6=ctx()
+141: (05) goto pc-86
+56: safe
+
+from 29 to 133: R0=0 R1=ctx() R2=pkt_end() R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4=pkt(off=36,r=36) R5=pkt(off=18,r=36) R6=pkt(off=22,r=36) R10=fp0
+133: R0=0 R1=ctx() R2=pkt_end() R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4=pkt(off=36,r=36) R5=pkt(off=18,r=36) R6=pkt(off=22,r=36) R10=fp0
+; bpf_printk("ICMP Header: Type = %d, Code = %d\n", @ prog.c:406
+133: (bf) r6 = r1                     ; R1=ctx() R6_w=ctx()
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+134: (18) r1 = 0xffff8f28ecef6308     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+136: (b7) r2 = 18                     ; R2_w=18
+137: (b7) r3 = 0                      ; R3_w=0
+138: (b7) r4 = 0                      ; R4_w=0
+139: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 139 first_idx 26 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 138: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 137: (b7) r3 = 0
+mark_precise: frame0: regs=r2 stack= before 136: (b7) r2 = 18
+140: safe
+
+from 28 to 30: R0=0 R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(off=36,r=36) R5=pkt(off=18,r=36) R6=pkt(off=22,r=36) R10=fp0
+30: R0=0 R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(off=36,r=36) R5=pkt(off=18,r=36) R6=pkt(off=22,r=36) R10=fp0
+; if (vlh + 1 > data_end) @ prog.c:275
+30: (bf) r3 = r6                      ; R3_w=pkt(off=22,r=36) R6=pkt(off=22,r=36)
+31: (07) r3 += 18                     ; R3_w=pkt(off=40,r=36)
+32: (2d) if r3 > r2 goto pc+100       ; R2=pkt_end() R3_w=pkt(off=40,r=40)
+; h_proto = vlh->h_vlan_encapsulated_proto; @ prog.c:277
+33: (69) r7 = *(u16 *)(r4 +2)         ; R4=pkt(off=36,r=40) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+34: (b7) r5 = 1                       ; R5_w=1
+35: (b7) r0 = 1
+frame 0: propagating r0,r5,r7
+mark_precise: frame0: last_idx 36 first_idx 30 subseq_idx -1 
+mark_precise: frame0: regs=r0,r5,r7 stack= before 35: (b7) r0 = 1
+mark_precise: frame0: regs=r5,r7 stack= before 34: (b7) r5 = 1
+mark_precise: frame0: regs=r7 stack= before 33: (69) r7 = *(u16 *)(r4 +2)
+36: safe
+
+from 32 to 133: R0=0 R1=ctx() R2=pkt_end() R3_w=pkt(off=40,r=0xfffffffffffffffe) R4=pkt(off=36,r=36) R5=pkt(off=18,r=36) R6=pkt(off=22,r=36) R10=fp0
+133: R0=0 R1=ctx() R2=pkt_end() R3_w=pkt(off=40,r=0xfffffffffffffffe) R4=pkt(off=36,r=36) R5=pkt(off=18,r=36) R6=pkt(off=22,r=36) R10=fp0
+; bpf_printk("ICMP Header: Type = %d, Code = %d\n", @ prog.c:406
+133: (bf) r6 = r1                     ; R1=ctx() R6_w=ctx()
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+134: (18) r1 = 0xffff8f28ecef6308     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+136: (b7) r2 = 18                     ; R2_w=18
+137: (b7) r3 = 0                      ; R3_w=0
+138: (b7) r4 = 0                      ; R4_w=0
+139: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 139 first_idx 30 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 138: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 137: (b7) r3 = 0
+mark_precise: frame0: regs=r2 stack= before 136: (b7) r2 = 18
+140: safe
+
+from 26 to 93: safe
+
+from 22 to 73: safe
+
+from 21 to 65: R1=ctx() R2=pkt_end() R3=0xdd86 R4=pkt(off=22,r=22) R5=pkt(off=18,r=22) R6=pkt(off=22,r=22) R10=fp0
+65: R1=ctx() R2=pkt_end() R3=0xdd86 R4=pkt(off=22,r=22) R5=pkt(off=18,r=22) R6=pkt(off=22,r=22) R10=fp0
+; if (ip6h + 1 > data_end) @ prog.c:300
+65: (bf) r3 = r6                      ; R3_w=pkt(off=22,r=22) R6=pkt(off=22,r=22)
+66: (07) r3 += 40                     ; R3_w=pkt(off=62,r=22)
+67: (2d) if r3 > r2 goto pc+5         ; R2=pkt_end() R3_w=pkt(off=62,r=62)
+; return ip6h->nexthdr; @ prog.c:304
+68: (71) r3 = *(u8 *)(r6 +6)          ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=22,r=62)
+; if (ip6_next_header == IPPROTO_ICMPV6) { @ prog.c:383
+69: (55) if r3 != 0x3a goto pc+3      ; R3_w=58
+70: (b7) r0 = 0                       ; R0_w=0
+; if (icmp6h + 1 > data_end) @ prog.c:334
+71: (07) r6 += 48                     ; R6_w=pkt(off=70,r=62)
+72: (2d) if r6 > r2 goto pc+20        ; R2=pkt_end() R6_w=pkt(off=70,r=70)
+73: safe
+
+from 72 to 93: safe
+
+from 69 to 73: safe
+
+from 67 to 73: safe
+
+from 20 to 94: R1=ctx() R2=pkt_end() R3=8 R4=pkt(off=22,r=22) R5=pkt(off=18,r=22) R6=pkt(off=22,r=22) R10=fp0
+94: R1=ctx() R2=pkt_end() R3=8 R4=pkt(off=22,r=22) R5=pkt(off=18,r=22) R6=pkt(off=22,r=22) R10=fp0
+; if (iph + 1 > data_end) @ prog.c:314
+94: (bf) r3 = r6                      ; R3_w=pkt(off=22,r=22) R6=pkt(off=22,r=22)
+95: (07) r3 += 20                     ; R3_w=pkt(off=42,r=22)
+96: (2d) if r3 > r2 goto pc-24        ; R2=pkt_end() R3_w=pkt(off=42,r=42)
+; hdrsize = iph->ihl * 4; @ prog.c:317
+97: (71) r3 = *(u8 *)(r6 +0)          ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=22,r=42)
+98: (67) r3 <<= 2                     ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1020,var_off=(0x0; 0x3fc))
+99: (57) r3 &= 60                     ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+100: (b7) r4 = 20                     ; R4_w=20
+; if (hdrsize < sizeof(*iph)) @ prog.c:318
+101: (2d) if r4 > r3 goto pc-29       ; R3_w=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c)) R4_w=20
+; if (nh->pos + hdrsize > data_end) @ prog.c:320
+102: (bf) r7 = r6                     ; R6=pkt(off=22,r=42) R7_w=pkt(off=22,r=42)
+103: (0f) r7 += r3
+mark_precise: frame0: last_idx 103 first_idx 94 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 102: (bf) r7 = r6
+mark_precise: frame0: regs=r3 stack= before 101: (2d) if r4 > r3 goto pc-29
+mark_precise: frame0: regs=r3,r4 stack= before 100: (b7) r4 = 20
+mark_precise: frame0: regs=r3 stack= before 99: (57) r3 &= 60
+mark_precise: frame0: regs=r3 stack= before 98: (67) r3 <<= 2
+mark_precise: frame0: regs=r3 stack= before 97: (71) r3 = *(u8 *)(r6 +0)
+104: R3=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c)) R7=pkt(id=6,off=22,r=0,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+104: (2d) if r7 > r2 goto pc-32       ; R2=pkt_end() R7=pkt(id=6,off=22,r=22,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+; return iph->protocol; @ prog.c:325
+105: (71) r3 = *(u8 *)(r6 +9)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=22,r=42)
+; if (ip_next_header == IPPROTO_ICMP) { @ prog.c:396
+106: (55) if r3 != 0x1 goto pc-34     ; R3_w=1
+107: (b7) r0 = 0                      ; R0_w=0
+; if (icmph + 1 > data_end) @ prog.c:347
+108: (bf) r3 = r7                     ; R3_w=pkt(id=6,off=22,r=22,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c)) R7=pkt(id=6,off=22,r=22,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+109: (07) r3 += 8                     ; R3_w=pkt(id=6,off=30,r=22,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+110: (2d) if r3 > r2 goto pc-18       ; R2=pkt_end() R3_w=pkt(id=6,off=30,r=30,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+; bpf_printk("IPv4 Header: Source Address = %x, Destination Address = %x\n", @ prog.c:403
+111: (61) r3 = *(u32 *)(r6 +12)       ; R3_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=pkt(off=22,r=42)
+112: (dc) r3 = be32 r3                ; R3_w=scalar()
+113: (61) r4 = *(u32 *)(r6 +16)       ; R4_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=pkt(off=22,r=42)
+114: (dc) r4 = be32 r4                ; R4_w=scalar()
+115: (bf) r8 = r1                     ; R1=ctx() R8_w=ctx()
+116: (18) r1 = 0xffff8f28ecef631a     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128,off=18)
+118: (b7) r2 = 60                     ; R2_w=60
+119: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 119 first_idx 104 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 118: (b7) r2 = 60
+120: R0=scalar()
+; bpf_printk("Protocol = %d\n", iphdr->protocol); @ prog.c:405
+120: (71) r3 = *(u8 *)(r6 +9)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=22,r=42)
+121: (18) r1 = 0xffff8f28ecef6356     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128,off=78)
+123: (b7) r2 = 15                     ; R2_w=15
+124: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 124 first_idx 120 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 123: (b7) r2 = 15
+125: R0_w=scalar()
+; bpf_printk("ICMP Header: Type = %d, Code = %d\n", @ prog.c:406
+125: (71) r4 = *(u8 *)(r7 +1)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R7=pkt(id=6,off=22,r=30,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+126: (71) r3 = *(u8 *)(r7 +0)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R7=pkt(id=6,off=22,r=30,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+127: (18) r1 = 0xffff8f28ecef6365     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128,off=93)
+129: (b7) r2 = 35                     ; R2_w=35
+130: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 130 first_idx 120 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 129: (b7) r2 = 35
+131: R0=scalar()
+131: (bf) r1 = r8                     ; R1_w=ctx() R8=ctx()
+132: (05) goto pc-60
+73: safe
+
+from 110 to 93: safe
+
+from 106 to 73: safe
+
+from 104 to 73: safe
+
+from 101 to 73: safe
+
+from 96 to 73: safe
+
+from 17 to 20: R1=ctx() R2=pkt_end() R3=129 R4_w=pkt(off=22,r=0xfffffffffffffffe) R5=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+20: R1=ctx() R2=pkt_end() R3=129 R4_w=pkt(off=22,r=0xfffffffffffffffe) R5=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+; if (nh_type == bpf_htons(ETH_P_8021Q)) { @ prog.c:366
+20: (15) if r3 == 0x8 goto pc+73
+mark_precise: frame0: last_idx 20 first_idx 15 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 17: (2d) if r4 > r2 goto pc+2
+mark_precise: frame0: regs=r3 stack= before 16: (bf) r6 = r5
+mark_precise: frame0: regs=r3 stack= before 15: (07) r4 += 22
+mark_precise: frame0: parent state regs=r3 stack=:  R1_r=ctx() R2_r=pkt_end() R3_rw=P129 R4_r=pkt(r=18) R5_rw=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+mark_precise: frame0: last_idx 14 first_idx 7 subseq_idx 15 
+mark_precise: frame0: regs=r3 stack= before 14: (55) if r3 != 0x81 goto pc+5
+mark_precise: frame0: regs=r3 stack= before 13: (bf) r6 = r5
+mark_precise: frame0: regs=r3 stack= before 12: (15) if r3 == 0xa888 goto pc+2
+mark_precise: frame0: regs=r3 stack= before 11: (69) r3 = *(u16 *)(r6 +2)
+20: R3=129
+21: (15) if r3 == 0xdd86 goto pc+43
+mark_precise: frame0: last_idx 21 first_idx 21 subseq_idx -1 
+mark_precise: frame0: parent state regs=r3 stack=:  R1=ctx() R2=pkt_end() R3_r=P129 R4_w=pkt(off=22,r=0xfffffffffffffffe) R5=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+mark_precise: frame0: last_idx 20 first_idx 15 subseq_idx 21 
+mark_precise: frame0: regs=r3 stack= before 20: (15) if r3 == 0x8 goto pc+73
+mark_precise: frame0: regs=r3 stack= before 17: (2d) if r4 > r2 goto pc+2
+mark_precise: frame0: regs=r3 stack= before 16: (bf) r6 = r5
+mark_precise: frame0: regs=r3 stack= before 15: (07) r4 += 22
+mark_precise: frame0: parent state regs= stack=:  R1_r=ctx() R2_r=pkt_end() R3_rw=P129 R4_r=pkt(r=18) R5_rw=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+21: R3=129
+22: (55) if r3 != 0x81 goto pc+50
+mark_precise: frame0: last_idx 22 first_idx 21 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 21: (15) if r3 == 0xdd86 goto pc+43
+mark_precise: frame0: parent state regs= stack=:  R1=ctx() R2=pkt_end() R3_r=P129 R4_w=pkt(off=22,r=0xfffffffffffffffe) R5=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+22: R3=129
+23: (b7) r0 = 0                       ; R0_w=0
+; if (nh->pos + hdrsize > data_end) @ prog.c:263
+24: (bf) r4 = r6                      ; R4_w=pkt(off=18,r=18) R6=pkt(off=18,r=18)
+25: (07) r4 += 14                     ; R4_w=pkt(off=32,r=18)
+26: (2d) if r4 > r2 goto pc+66        ; R2=pkt_end() R4_w=pkt(off=32,r=32)
+; h_proto = eth->h_proto; @ prog.c:269
+27: (69) r3 = *(u16 *)(r6 +12)        ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R6=pkt(off=18,r=32)
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+28: (15) if r3 == 0xa888 goto pc+1    ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+29: (55) if r3 != 0x81 goto pc+103    ; R3=129
+; if (vlh + 1 > data_end) @ prog.c:275
+30: (bf) r3 = r6                      ; R3_w=pkt(off=18,r=32) R6=pkt(off=18,r=32)
+31: (07) r3 += 18                     ; R3_w=pkt(off=36,r=32)
+32: (2d) if r3 > r2 goto pc+100       ; R2=pkt_end() R3_w=pkt(off=36,r=36)
+; h_proto = vlh->h_vlan_encapsulated_proto; @ prog.c:277
+33: (69) r7 = *(u16 *)(r4 +2)         ; R4=pkt(off=32,r=36) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+34: (b7) r5 = 1                       ; R5_w=1
+35: (b7) r0 = 1                       ; R0_w=1
+; return !!(h_proto == bpf_htons(ETH_P_8021Q) || @ prog.c:248
+36: (55) if r7 != 0x81 goto pc+1      ; R7_w=129
+37: (b7) r0 = 0                       ; R0=0
+38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: last_idx 38 first_idx 38 subseq_idx -1 
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=0 R1=ctx() R2=pkt_end() R3_w=pkt(off=36,r=36) R4=pkt(off=32,r=36) R5_w=1 R6=pkt(off=18,r=36) R7_rw=P129 R10=fp0
+mark_precise: frame0: last_idx 37 first_idx 29 subseq_idx 38 
+mark_precise: frame0: regs=r7 stack= before 37: (b7) r0 = 0
+mark_precise: frame0: regs=r7 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: regs=r7 stack= before 35: (b7) r0 = 1
+mark_precise: frame0: regs=r7 stack= before 34: (b7) r5 = 1
+mark_precise: frame0: regs=r7 stack= before 33: (69) r7 = *(u16 *)(r4 +2)
+38: R7=129
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+40: (5f) r5 &= r0                     ; R0=0 R5_w=0
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+41: (69) r4 = *(u16 *)(r4 +0)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+42: (57) r4 &= -241                   ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+43: (57) r5 &= 1                      ; R5_w=0
+44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: last_idx 44 first_idx 38 subseq_idx -1 
+mark_precise: frame0: regs=r5 stack= before 43: (57) r5 &= 1
+mark_precise: frame0: regs=r5 stack= before 42: (57) r4 &= -241
+mark_precise: frame0: regs=r5 stack= before 41: (69) r4 = *(u16 *)(r4 +0)
+mark_precise: frame0: regs=r5 stack= before 40: (5f) r5 &= r0
+mark_precise: frame0: regs=r0,r5 stack= before 38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: parent state regs=r0,r5 stack=:  R0_rw=P0 R1=ctx() R2=pkt_end() R3_w=pkt(off=36,r=36) R4_r=pkt(off=32,r=36) R5_rw=P1 R6=pkt(off=18,r=36) R7_rw=P129 R10=fp0
+mark_precise: frame0: last_idx 37 first_idx 29 subseq_idx 38 
+mark_precise: frame0: regs=r0,r5 stack= before 37: (b7) r0 = 0
+mark_precise: frame0: regs=r5 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: regs=r5 stack= before 35: (b7) r0 = 1
+mark_precise: frame0: regs=r5 stack= before 34: (b7) r5 = 1
+44: R5_w=0
+45: (07) r6 += 22                     ; R6_w=pkt(off=40,r=36)
+46: (2d) if r6 > r2 goto pc+5         ; R2=pkt_end() R6_w=pkt(off=40,r=40)
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+47: (69) r2 = *(u16 *)(r3 +0)         ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R3=pkt(off=36,r=40)
+48: (57) r2 &= 65295                  ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+49: (b7) r7 = 1                       ; R7=1
+; if (vlans.id[i] == 0) @ prog.c:373
+50: (15) if r2 == 0x0 goto pc+1       ; R2=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+51: (b7) r7 = 0
+frame 0: propagating r7
+mark_precise: frame0: last_idx 52 first_idx 50 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 51: (b7) r7 = 0
+52: safe
+frame 0: propagating r7
+mark_precise: frame0: last_idx 52 first_idx 50 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 50: (15) if r2 == 0x0 goto pc+1
+mark_precise: frame0: parent state regs=r7 stack=:  R0=0 R1_r=ctx() R2_rw=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R3=pkt(off=36,r=40) R4_rw=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5_w=0 R6_w=pkt(off=40,r=40) R7_rw=P1 R10=fp0
+mark_precise: frame0: last_idx 49 first_idx 38 subseq_idx 50 
+mark_precise: frame0: regs=r7 stack= before 49: (b7) r7 = 1
+
+from 50 to 52: safe
+
+from 46 to 52: R0=0 R1=ctx() R2=pkt_end() R3=pkt(off=36,r=36) R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5_w=0 R6_w=pkt(off=40,r=0xfffffffffffffffe) R7=129 R10=fp0
+52: R0=0 R1=ctx() R2=pkt_end() R3=pkt(off=36,r=36) R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5_w=0 R6_w=pkt(off=40,r=0xfffffffffffffffe) R7=129 R10=fp0
+52: (57) r4 &= 65535                  ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+53: (15) if r4 == 0x0 goto pc+88      ; R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+54: (57) r7 &= 1
+55: safe
+
+from 53 to 142: safe
+
+from 36 to 38: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=36,r=36) R4=pkt(off=32,r=36) R5=1 R6=pkt(off=18,r=36) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+38: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=36,r=36) R4=pkt(off=32,r=36) R5=1 R6=pkt(off=18,r=36) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+; return !!(h_proto == bpf_htons(ETH_P_8021Q) || @ prog.c:248
+38: (55) if r7 != 0xa888 goto pc+1    ; R7=0xa888
+39: (b7) r5 = 0                       ; R5_w=0
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+40: (5f) r5 &= r0                     ; R0=1 R5_w=0
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+41: (69) r4 = *(u16 *)(r4 +0)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+42: (57) r4 &= -241                   ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+43: (57) r5 &= 1                      ; R5_w=0
+44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: last_idx 44 first_idx 38 subseq_idx -1 
+mark_precise: frame0: regs=r5 stack= before 43: (57) r5 &= 1
+mark_precise: frame0: regs=r5 stack= before 42: (57) r4 &= -241
+mark_precise: frame0: regs=r5 stack= before 41: (69) r4 = *(u16 *)(r4 +0)
+mark_precise: frame0: regs=r5 stack= before 40: (5f) r5 &= r0
+mark_precise: frame0: regs=r0,r5 stack= before 39: (b7) r5 = 0
+mark_precise: frame0: regs=r0 stack= before 38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: parent state regs=r0 stack=:  R0_rw=P1 R1=ctx() R2=pkt_end() R3_w=pkt(off=36,r=36) R4_r=pkt(off=32,r=36) R5_w=1 R6=pkt(off=18,r=36) R7_rw=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 36 first_idx 29 subseq_idx 38 
+mark_precise: frame0: regs=r0 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: regs=r0 stack= before 35: (b7) r0 = 1
+44: R5_w=0
+45: (07) r6 += 22                     ; R6=pkt(off=40,r=36)
+46: (2d) if r6 > r2 goto pc+5         ; R2=pkt_end() R6=pkt(off=40,r=40)
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+47: (69) r2 = *(u16 *)(r3 +0)         ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R3=pkt(off=36,r=40)
+48: (57) r2 &= 65295                  ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+49: (b7) r7 = 1
+frame 0: propagating r7
+mark_precise: frame0: last_idx 50 first_idx 46 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 49: (b7) r7 = 1
+50: safe
+
+from 46 to 52: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=36,r=36) R4=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=40,r=0xfffffffffffffffe) R7=0xa888 R10=fp0
+52: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=36,r=36) R4=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=40,r=0xfffffffffffffffe) R7=0xa888 R10=fp0
+; if (vlans.id[i] == 0) @ prog.c:373
+52: (57) r4 &= 65535                  ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+53: (15) if r4 == 0x0 goto pc+88      ; R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+54: (57) r7 &= 1
+55: safe
+
+from 53 to 142: safe
+
+from 38 to 40: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=36,r=36) R4=pkt(off=32,r=36) R5=1 R6=pkt(off=18,r=36) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+40: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=36,r=36) R4=pkt(off=32,r=36) R5=1 R6=pkt(off=18,r=36) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+40: (5f) r5 &= r0                     ; R0=1 R5_w=1
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+41: (69) r4 = *(u16 *)(r4 +0)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+42: (57) r4 &= -241                   ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+43: (57) r5 &= 1                      ; R5_w=1
+44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: last_idx 44 first_idx 40 subseq_idx -1 
+mark_precise: frame0: regs=r5 stack= before 43: (57) r5 &= 1
+mark_precise: frame0: regs=r5 stack= before 42: (57) r4 &= -241
+mark_precise: frame0: regs=r5 stack= before 41: (69) r4 = *(u16 *)(r4 +0)
+mark_precise: frame0: regs=r5 stack= before 40: (5f) r5 &= r0
+mark_precise: frame0: parent state regs=r0,r5 stack=:  R0_r=P1 R1=ctx() R2=pkt_end() R3=pkt(off=36,r=36) R4_r=pkt(off=32,r=36) R5_r=P1 R6=pkt(off=18,r=36) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 38 first_idx 38 subseq_idx 40 
+mark_precise: frame0: regs=r0,r5 stack= before 38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: parent state regs=r5 stack=:  R0_rw=P1 R1_r=ctx() R2_r=pkt_end() R3_rw=pkt(off=36,r=36) R4_r=pkt(off=32,r=36) R5_rw=P1 R6_r=pkt(off=18,r=36) R7_rw=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 36 first_idx 29 subseq_idx 38 
+mark_precise: frame0: regs=r5 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: regs=r5 stack= before 35: (b7) r0 = 1
+mark_precise: frame0: regs=r5 stack= before 34: (b7) r5 = 1
+44: R5_w=1
+; if (vlans.id[i] == 0) @ prog.c:373
+52: (57) r4 &= 65535                  ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+53: (15) if r4 == 0x0 goto pc+88      ; R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+54: (57) r7 &= 1
+55: safe
+
+from 53 to 142: safe
+
+from 32 to 133: R0=0 R1=ctx() R2=pkt_end() R3=pkt(off=36,r=0xfffffffffffffffe) R4=pkt(off=32,r=32) R5=pkt(off=18,r=32) R6=pkt(off=18,r=32) R10=fp0
+133: R0=0 R1=ctx() R2=pkt_end() R3=pkt(off=36,r=0xfffffffffffffffe) R4=pkt(off=32,r=32) R5=pkt(off=18,r=32) R6=pkt(off=18,r=32) R10=fp0
+; bpf_printk("ICMP Header: Type = %d, Code = %d\n", @ prog.c:406
+133: (bf) r6 = r1                     ; R1=ctx() R6_w=ctx()
+; bpf_printk("VLAN ID[%d] = %u\n", i, vlans.id[i]); @ prog.c:375
+134: (18) r1 = 0xffff8f28ecef6308     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128)
+136: (b7) r2 = 18                     ; R2_w=18
+137: (b7) r3 = 0                      ; R3_w=0
+138: (b7) r4 = 0                      ; R4_w=0
+139: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 139 first_idx 133 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 138: (b7) r4 = 0
+mark_precise: frame0: regs=r2 stack= before 137: (b7) r3 = 0
+mark_precise: frame0: regs=r2 stack= before 136: (b7) r2 = 18
+140: safe
+
+from 29 to 133: safe
+
+from 28 to 30: R0_w=0 R1=ctx() R2=pkt_end() R3_w=0xa888 R4_w=pkt(off=32,r=32) R5=pkt(off=18,r=32) R6=pkt(off=18,r=32) R10=fp0
+30: R0_w=0 R1=ctx() R2=pkt_end() R3_w=0xa888 R4_w=pkt(off=32,r=32) R5=pkt(off=18,r=32) R6=pkt(off=18,r=32) R10=fp0
+; if (vlh + 1 > data_end) @ prog.c:275
+30: (bf) r3 = r6                      ; R3_w=pkt(off=18,r=32) R6=pkt(off=18,r=32)
+31: (07) r3 += 18                     ; R3_w=pkt(off=36,r=32)
+32: (2d) if r3 > r2 goto pc+100       ; R2=pkt_end() R3_w=pkt(off=36,r=36)
+; h_proto = vlh->h_vlan_encapsulated_proto; @ prog.c:277
+33: (69) r7 = *(u16 *)(r4 +2)         ; R4_w=pkt(off=32,r=36) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+34: (b7) r5 = 1                       ; R5_w=1
+35: (b7) r0 = 1                       ; R0=1
+; return !!(h_proto == bpf_htons(ETH_P_8021Q) || @ prog.c:248
+36: (55) if r7 != 0x81 goto pc+1      ; R7=129
+37: (b7) r0 = 0
+frame 0: propagating r0,r5,r7
+mark_precise: frame0: last_idx 38 first_idx 36 subseq_idx -1 
+mark_precise: frame0: regs=r0,r5,r7 stack= before 37: (b7) r0 = 0
+mark_precise: frame0: regs=r5,r7 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs=r5,r7 stack=:  R0_w=1 R1_r=ctx() R2_r=pkt_end() R3_rw=pkt(off=36,r=36) R4_rw=pkt(off=32,r=36) R5_rw=P1 R6_r=pkt(off=18,r=36) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 35 first_idx 21 subseq_idx 36 
+mark_precise: frame0: regs=r5,r7 stack= before 35: (b7) r0 = 1
+mark_precise: frame0: regs=r5,r7 stack= before 34: (b7) r5 = 1
+mark_precise: frame0: regs=r7 stack= before 33: (69) r7 = *(u16 *)(r4 +2)
+38: safe
+frame 0: propagating r0,r5
+mark_precise: frame0: last_idx 38 first_idx 36 subseq_idx -1 
+mark_precise: frame0: regs=r0,r5 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs=r0 stack=:  R0_rw=P1 R1_r=ctx() R2_r=pkt_end() R3_rw=pkt(off=36,r=36) R4_rw=pkt(off=32,r=36) R5_rw=P1 R6_r=pkt(off=18,r=36) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 35 first_idx 21 subseq_idx 36 
+mark_precise: frame0: regs=r0 stack= before 35: (b7) r0 = 1
+
+from 36 to 38: safe
+
+from 32 to 133: safe
+
+from 26 to 93: safe
+
+from 14 to 20: R1=ctx() R2=pkt_end() R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4=pkt(r=18) R5_w=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+20: R1=ctx() R2=pkt_end() R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4=pkt(r=18) R5_w=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+; if (nh_type == bpf_htons(ETH_P_8021Q)) { @ prog.c:366
+20: (15) if r3 == 0x8 goto pc+73      ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+21: (15) if r3 == 0xdd86 goto pc+43   ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+22: (55) if r3 != 0x81 goto pc+50     ; R3=129
+23: (b7) r0 = 0                       ; R0_w=0
+; if (nh->pos + hdrsize > data_end) @ prog.c:263
+24: (bf) r4 = r6                      ; R4_w=pkt(off=18,r=18) R6=pkt(off=18,r=18)
+25: (07) r4 += 14                     ; R4_w=pkt(off=32,r=18)
+26: (2d) if r4 > r2 goto pc+66        ; R2=pkt_end() R4_w=pkt(off=32,r=32)
+; h_proto = eth->h_proto; @ prog.c:269
+27: (69) r3 = *(u16 *)(r6 +12)        ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R6=pkt(off=18,r=32)
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+28: (15) if r3 == 0xa888 goto pc+1    ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+29: safe
+
+from 28 to 30: R0=0 R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(off=32,r=32) R5=pkt(off=18,r=32) R6=pkt(off=18,r=32) R10=fp0
+30: R0=0 R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(off=32,r=32) R5=pkt(off=18,r=32) R6=pkt(off=18,r=32) R10=fp0
+; if (vlh + 1 > data_end) @ prog.c:275
+30: (bf) r3 = r6                      ; R3_w=pkt(off=18,r=32) R6=pkt(off=18,r=32)
+31: (07) r3 += 18                     ; R3_w=pkt(off=36,r=32)
+32: (2d) if r3 > r2 goto pc+100       ; R2=pkt_end() R3_w=pkt(off=36,r=36)
+; h_proto = vlh->h_vlan_encapsulated_proto; @ prog.c:277
+33: (69) r7 = *(u16 *)(r4 +2)         ; R4=pkt(off=32,r=36) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+34: (b7) r5 = 1                       ; R5_w=1
+35: (b7) r0 = 1
+frame 0: propagating r0,r5,r7
+mark_precise: frame0: last_idx 36 first_idx 30 subseq_idx -1 
+mark_precise: frame0: regs=r0,r5,r7 stack= before 35: (b7) r0 = 1
+mark_precise: frame0: regs=r5,r7 stack= before 34: (b7) r5 = 1
+mark_precise: frame0: regs=r7 stack= before 33: (69) r7 = *(u16 *)(r4 +2)
+36: safe
+
+from 32 to 133: safe
+
+from 26 to 93: safe
+
+from 22 to 73: safe
+
+from 21 to 65: R1=ctx() R2=pkt_end() R3_w=0xdd86 R4=pkt(r=18) R5_w=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+65: R1=ctx() R2=pkt_end() R3_w=0xdd86 R4=pkt(r=18) R5_w=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+; if (ip6h + 1 > data_end) @ prog.c:300
+65: (bf) r3 = r6                      ; R3_w=pkt(off=18,r=18) R6_w=pkt(off=18,r=18)
+66: (07) r3 += 40                     ; R3_w=pkt(off=58,r=18)
+67: (2d) if r3 > r2 goto pc+5         ; R2=pkt_end() R3_w=pkt(off=58,r=58)
+; return ip6h->nexthdr; @ prog.c:304
+68: (71) r3 = *(u8 *)(r6 +6)          ; R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=18,r=58)
+; if (ip6_next_header == IPPROTO_ICMPV6) { @ prog.c:383
+69: (55) if r3 != 0x3a goto pc+3      ; R3=58
+70: (b7) r0 = 0                       ; R0_w=0
+; if (icmp6h + 1 > data_end) @ prog.c:334
+71: (07) r6 += 48                     ; R6_w=pkt(off=66,r=58)
+72: (2d) if r6 > r2 goto pc+20        ; R2=pkt_end() R6_w=pkt(off=66,r=66)
+73: safe
+
+from 72 to 93: safe
+
+from 69 to 73: safe
+
+from 67 to 73: safe
+
+from 20 to 94: R1=ctx() R2=pkt_end() R3=8 R4=pkt(r=18) R5=pkt(off=18,r=18) R6=pkt(off=18,r=18) R10=fp0
+94: R1=ctx() R2=pkt_end() R3=8 R4=pkt(r=18) R5=pkt(off=18,r=18) R6=pkt(off=18,r=18) R10=fp0
+; if (iph + 1 > data_end) @ prog.c:314
+94: (bf) r3 = r6                      ; R3_w=pkt(off=18,r=18) R6=pkt(off=18,r=18)
+95: (07) r3 += 20                     ; R3_w=pkt(off=38,r=18)
+96: (2d) if r3 > r2 goto pc-24        ; R2=pkt_end() R3_w=pkt(off=38,r=38)
+; hdrsize = iph->ihl * 4; @ prog.c:317
+97: (71) r3 = *(u8 *)(r6 +0)          ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=18,r=38)
+98: (67) r3 <<= 2                     ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1020,var_off=(0x0; 0x3fc))
+99: (57) r3 &= 60                     ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+100: (b7) r4 = 20                     ; R4_w=20
+; if (hdrsize < sizeof(*iph)) @ prog.c:318
+101: (2d) if r4 > r3 goto pc-29       ; R3_w=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c)) R4_w=20
+; if (nh->pos + hdrsize > data_end) @ prog.c:320
+102: (bf) r7 = r6                     ; R6=pkt(off=18,r=38) R7_w=pkt(off=18,r=38)
+103: (0f) r7 += r3
+mark_precise: frame0: last_idx 103 first_idx 94 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 102: (bf) r7 = r6
+mark_precise: frame0: regs=r3 stack= before 101: (2d) if r4 > r3 goto pc-29
+mark_precise: frame0: regs=r3,r4 stack= before 100: (b7) r4 = 20
+mark_precise: frame0: regs=r3 stack= before 99: (57) r3 &= 60
+mark_precise: frame0: regs=r3 stack= before 98: (67) r3 <<= 2
+mark_precise: frame0: regs=r3 stack= before 97: (71) r3 = *(u8 *)(r6 +0)
+104: R3=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c)) R7=pkt(id=7,off=18,r=0,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+104: (2d) if r7 > r2 goto pc-32       ; R2=pkt_end() R7=pkt(id=7,off=18,r=18,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+; return iph->protocol; @ prog.c:325
+105: (71) r3 = *(u8 *)(r6 +9)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=18,r=38)
+; if (ip_next_header == IPPROTO_ICMP) { @ prog.c:396
+106: (55) if r3 != 0x1 goto pc-34     ; R3_w=1
+107: (b7) r0 = 0                      ; R0_w=0
+; if (icmph + 1 > data_end) @ prog.c:347
+108: (bf) r3 = r7                     ; R3_w=pkt(id=7,off=18,r=18,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c)) R7=pkt(id=7,off=18,r=18,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+109: (07) r3 += 8                     ; R3_w=pkt(id=7,off=26,r=18,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+110: (2d) if r3 > r2 goto pc-18       ; R2=pkt_end() R3_w=pkt(id=7,off=26,r=26,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+; bpf_printk("IPv4 Header: Source Address = %x, Destination Address = %x\n", @ prog.c:403
+111: (61) r3 = *(u32 *)(r6 +12)       ; R3_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=pkt(off=18,r=38)
+112: (dc) r3 = be32 r3                ; R3_w=scalar()
+113: (61) r4 = *(u32 *)(r6 +16)       ; R4_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=pkt(off=18,r=38)
+114: (dc) r4 = be32 r4                ; R4_w=scalar()
+115: (bf) r8 = r1                     ; R1=ctx() R8_w=ctx()
+116: (18) r1 = 0xffff8f28ecef631a     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128,off=18)
+118: (b7) r2 = 60                     ; R2_w=60
+119: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 119 first_idx 104 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 118: (b7) r2 = 60
+120: R0=scalar()
+; bpf_printk("Protocol = %d\n", iphdr->protocol); @ prog.c:405
+120: (71) r3 = *(u8 *)(r6 +9)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=18,r=38)
+121: (18) r1 = 0xffff8f28ecef6356     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128,off=78)
+123: (b7) r2 = 15                     ; R2_w=15
+124: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 124 first_idx 120 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 123: (b7) r2 = 15
+125: R0_w=scalar()
+; bpf_printk("ICMP Header: Type = %d, Code = %d\n", @ prog.c:406
+125: (71) r4 = *(u8 *)(r7 +1)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R7=pkt(id=7,off=18,r=26,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+126: (71) r3 = *(u8 *)(r7 +0)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R7=pkt(id=7,off=18,r=26,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+127: (18) r1 = 0xffff8f28ecef6365     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128,off=93)
+129: (b7) r2 = 35                     ; R2_w=35
+130: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 130 first_idx 120 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 129: (b7) r2 = 35
+131: safe
+
+from 110 to 93: safe
+
+from 106 to 73: safe
+
+from 104 to 73: safe
+
+from 101 to 73: safe
+
+from 96 to 73: safe
+
+from 12 to 15: R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(r=18) R5=pkt(off=18,r=18) R6=pkt(off=14,r=18) R10=fp0
+15: R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(r=18) R5=pkt(off=18,r=18) R6=pkt(off=14,r=18) R10=fp0
+; if (vlh + 1 > data_end) @ prog.c:275
+15: (07) r4 += 22                     ; R4_w=pkt(off=22,r=18)
+16: (bf) r6 = r5                      ; R5=pkt(off=18,r=18) R6_w=pkt(off=18,r=18)
+17: (2d) if r4 > r2 goto pc+2         ; R2=pkt_end() R4_w=pkt(off=22,r=22)
+;  @ prog.c:0
+18: (69) r3 = *(u16 *)(r5 +2)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R5=pkt(off=18,r=22)
+19: (bf) r6 = r4                      ; R4_w=pkt(off=22,r=22) R6_w=pkt(off=22,r=22)
+; if (nh_type == bpf_htons(ETH_P_8021Q)) { @ prog.c:366
+20: (15) if r3 == 0x8 goto pc+73      ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+21: (15) if r3 == 0xdd86 goto pc+43   ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+22: (55) if r3 != 0x81 goto pc+50     ; R3_w=129
+23: (b7) r0 = 0                       ; R0_w=0
+; if (nh->pos + hdrsize > data_end) @ prog.c:263
+24: (bf) r4 = r6                      ; R4_w=pkt(off=22,r=22) R6_w=pkt(off=22,r=22)
+25: (07) r4 += 14
+26: safe
+
+from 22 to 73: safe
+
+from 21 to 65: safe
+
+from 20 to 94: safe
+
+from 17 to 20: R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(off=22,r=0xfffffffffffffffe) R5=pkt(off=18,r=18) R6=pkt(off=18,r=18) R10=fp0
+20: R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(off=22,r=0xfffffffffffffffe) R5=pkt(off=18,r=18) R6=pkt(off=18,r=18) R10=fp0
+; if (nh_type == bpf_htons(ETH_P_8021Q)) { @ prog.c:366
+20: (15) if r3 == 0x8 goto pc+73
+mark_precise: frame0: last_idx 20 first_idx 20 subseq_idx -1 
+mark_precise: frame0: parent state regs=r3 stack=:  R1=ctx() R2=pkt_end() R3_r=P0xa888 R4_w=pkt(off=22,r=0xfffffffffffffffe) R5=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+mark_precise: frame0: last_idx 17 first_idx 15 subseq_idx 20 
+mark_precise: frame0: regs=r3 stack= before 17: (2d) if r4 > r2 goto pc+2
+mark_precise: frame0: regs=r3 stack= before 16: (bf) r6 = r5
+mark_precise: frame0: regs=r3 stack= before 15: (07) r4 += 22
+mark_precise: frame0: parent state regs=r3 stack=:  R1_r=ctx() R2_r=pkt_end() R3_rw=P0xa888 R4_r=pkt(r=18) R5_rw=pkt(off=18,r=18) R6=pkt(off=14,r=18) R10=fp0
+mark_precise: frame0: last_idx 12 first_idx 7 subseq_idx 15 
+mark_precise: frame0: regs=r3 stack= before 12: (15) if r3 == 0xa888 goto pc+2
+mark_precise: frame0: regs=r3 stack= before 11: (69) r3 = *(u16 *)(r6 +2)
+20: R3=0xa888
+21: (15) if r3 == 0xdd86 goto pc+43
+mark_precise: frame0: last_idx 21 first_idx 20 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 20: (15) if r3 == 0x8 goto pc+73
+mark_precise: frame0: parent state regs= stack=:  R1=ctx() R2=pkt_end() R3_r=P0xa888 R4_w=pkt(off=22,r=0xfffffffffffffffe) R5=pkt(off=18,r=18) R6_w=pkt(off=18,r=18) R10=fp0
+21: R3=0xa888
+22: safe
+
+from 10 to 20: R1=ctx() R2=pkt_end() R3=129 R4=pkt(r=14) R5_w=pkt(off=18,r=0xfffffffffffffffe) R6=pkt(off=14,r=14) R10=fp0
+20: R1=ctx() R2=pkt_end() R3=129 R4=pkt(r=14) R5_w=pkt(off=18,r=0xfffffffffffffffe) R6=pkt(off=14,r=14) R10=fp0
+20: (15) if r3 == 0x8 goto pc+73
+mark_precise: frame0: last_idx 20 first_idx 7 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 10: (2d) if r5 > r2 goto pc+9
+mark_precise: frame0: regs=r3 stack= before 9: (07) r5 += 18
+mark_precise: frame0: regs=r3 stack= before 8: (bf) r5 = r4
+mark_precise: frame0: regs=r3 stack= before 7: (55) if r3 != 0x81 goto pc+12
+mark_precise: frame0: parent state regs=r3 stack=:  R1_r=ctx() R2_rw=pkt_end() R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4_rw=pkt(r=14) R6_rw=pkt(off=14,r=14) R10=fp0
+mark_precise: frame0: last_idx 6 first_idx 0 subseq_idx 7 
+mark_precise: frame0: regs=r3 stack= before 6: (15) if r3 == 0xa888 goto pc+1
+mark_precise: frame0: regs=r3 stack= before 5: (69) r3 = *(u16 *)(r4 +12)
+20: R3=129
+21: (15) if r3 == 0xdd86 goto pc+43
+mark_precise: frame0: last_idx 21 first_idx 7 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 20: (15) if r3 == 0x8 goto pc+73
+mark_precise: frame0: regs=r3 stack= before 10: (2d) if r5 > r2 goto pc+9
+mark_precise: frame0: regs=r3 stack= before 9: (07) r5 += 18
+mark_precise: frame0: regs=r3 stack= before 8: (bf) r5 = r4
+mark_precise: frame0: regs=r3 stack= before 7: (55) if r3 != 0x81 goto pc+12
+mark_precise: frame0: parent state regs= stack=:  R1_r=ctx() R2_rw=pkt_end() R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4_rw=pkt(r=14) R6_rw=pkt(off=14,r=14) R10=fp0
+21: R3=129
+22: (55) if r3 != 0x81 goto pc+50
+mark_precise: frame0: last_idx 22 first_idx 7 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 21: (15) if r3 == 0xdd86 goto pc+43
+mark_precise: frame0: regs=r3 stack= before 20: (15) if r3 == 0x8 goto pc+73
+mark_precise: frame0: regs=r3 stack= before 10: (2d) if r5 > r2 goto pc+9
+mark_precise: frame0: regs=r3 stack= before 9: (07) r5 += 18
+mark_precise: frame0: regs=r3 stack= before 8: (bf) r5 = r4
+mark_precise: frame0: regs=r3 stack= before 7: (55) if r3 != 0x81 goto pc+12
+mark_precise: frame0: parent state regs= stack=:  R1_r=ctx() R2_rw=pkt_end() R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4_rw=pkt(r=14) R6_rw=pkt(off=14,r=14) R10=fp0
+22: R3=129
+23: (b7) r0 = 0                       ; R0_w=0
+; if (nh->pos + hdrsize > data_end) @ prog.c:263
+24: (bf) r4 = r6                      ; R4_w=pkt(off=14,r=14) R6=pkt(off=14,r=14)
+25: (07) r4 += 14                     ; R4=pkt(off=28,r=14)
+26: (2d) if r4 > r2 goto pc+66        ; R2=pkt_end() R4=pkt(off=28,r=28)
+; h_proto = eth->h_proto; @ prog.c:269
+27: (69) r3 = *(u16 *)(r6 +12)        ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R6=pkt(off=14,r=28)
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+28: (15) if r3 == 0xa888 goto pc+1    ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+29: (55) if r3 != 0x81 goto pc+103    ; R3_w=129
+; if (vlh + 1 > data_end) @ prog.c:275
+30: (bf) r3 = r6                      ; R3_w=pkt(off=14,r=28) R6=pkt(off=14,r=28)
+31: (07) r3 += 18                     ; R3_w=pkt(off=32,r=28)
+32: (2d) if r3 > r2 goto pc+100       ; R2=pkt_end() R3_w=pkt(off=32,r=32)
+; h_proto = vlh->h_vlan_encapsulated_proto; @ prog.c:277
+33: (69) r7 = *(u16 *)(r4 +2)         ; R4=pkt(off=28,r=32) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+34: (b7) r5 = 1                       ; R5_w=1
+35: (b7) r0 = 1                       ; R0=1
+; return !!(h_proto == bpf_htons(ETH_P_8021Q) || @ prog.c:248
+36: (55) if r7 != 0x81 goto pc+1      ; R7=129
+37: (b7) r0 = 0                       ; R0_w=0
+38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: last_idx 38 first_idx 36 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 37: (b7) r0 = 0
+mark_precise: frame0: regs=r7 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=1 R1=ctx() R2=pkt_end() R3_w=pkt(off=32,r=32) R4=pkt(off=28,r=32) R5_w=1 R6=pkt(off=14,r=32) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 35 first_idx 26 subseq_idx 36 
+mark_precise: frame0: regs=r7 stack= before 35: (b7) r0 = 1
+mark_precise: frame0: regs=r7 stack= before 34: (b7) r5 = 1
+mark_precise: frame0: regs=r7 stack= before 33: (69) r7 = *(u16 *)(r4 +2)
+38: R7=129
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+40: (5f) r5 &= r0                     ; R0_w=0 R5_w=0
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+41: (69) r4 = *(u16 *)(r4 +0)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+42: (57) r4 &= -241                   ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+43: (57) r5 &= 1                      ; R5_w=0
+44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: last_idx 44 first_idx 36 subseq_idx -1 
+mark_precise: frame0: regs=r5 stack= before 43: (57) r5 &= 1
+mark_precise: frame0: regs=r5 stack= before 42: (57) r4 &= -241
+mark_precise: frame0: regs=r5 stack= before 41: (69) r4 = *(u16 *)(r4 +0)
+mark_precise: frame0: regs=r5 stack= before 40: (5f) r5 &= r0
+mark_precise: frame0: regs=r0,r5 stack= before 38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: regs=r0,r5 stack= before 37: (b7) r0 = 0
+mark_precise: frame0: regs=r5 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs=r5 stack=:  R0_w=1 R1=ctx() R2=pkt_end() R3_w=pkt(off=32,r=32) R4_r=pkt(off=28,r=32) R5_rw=P1 R6=pkt(off=14,r=32) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 35 first_idx 26 subseq_idx 36 
+mark_precise: frame0: regs=r5 stack= before 35: (b7) r0 = 1
+mark_precise: frame0: regs=r5 stack= before 34: (b7) r5 = 1
+44: R5_w=0
+45: (07) r6 += 22                     ; R6=pkt(off=36,r=32)
+46: (2d) if r6 > r2 goto pc+5         ; R2=pkt_end() R6=pkt(off=36,r=36)
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+47: (69) r2 = *(u16 *)(r3 +0)         ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R3=pkt(off=32,r=36)
+48: (57) r2 &= 65295                  ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+49: (b7) r7 = 1
+frame 0: propagating r7
+mark_precise: frame0: last_idx 50 first_idx 46 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 49: (b7) r7 = 1
+50: safe
+
+from 46 to 52: R0=0 R1=ctx() R2=pkt_end() R3=pkt(off=32,r=32) R4=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=36,r=0xfffffffffffffffe) R7=129 R10=fp0
+52: R0=0 R1=ctx() R2=pkt_end() R3=pkt(off=32,r=32) R4=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f)) R5=0 R6=pkt(off=36,r=0xfffffffffffffffe) R7=129 R10=fp0
+; if (vlans.id[i] == 0) @ prog.c:373
+52: (57) r4 &= 65535                  ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+53: (15) if r4 == 0x0 goto pc+88      ; R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+54: (57) r7 &= 1
+55: safe
+
+from 53 to 142: safe
+
+from 36 to 38: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=32,r=32) R4=pkt(off=28,r=32) R5=1 R6=pkt(off=14,r=32) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+38: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=32,r=32) R4=pkt(off=28,r=32) R5=1 R6=pkt(off=14,r=32) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+; return !!(h_proto == bpf_htons(ETH_P_8021Q) || @ prog.c:248
+38: (55) if r7 != 0xa888 goto pc+1    ; R7=0xa888
+39: (b7) r5 = 0                       ; R5_w=0
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+40: (5f) r5 &= r0                     ; R0=1 R5_w=0
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+41: (69) r4 = *(u16 *)(r4 +0)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+42: (57) r4 &= -241                   ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+43: (57) r5 &= 1                      ; R5_w=0
+44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: last_idx 44 first_idx 38 subseq_idx -1 
+mark_precise: frame0: regs=r5 stack= before 43: (57) r5 &= 1
+mark_precise: frame0: regs=r5 stack= before 42: (57) r4 &= -241
+mark_precise: frame0: regs=r5 stack= before 41: (69) r4 = *(u16 *)(r4 +0)
+mark_precise: frame0: regs=r5 stack= before 40: (5f) r5 &= r0
+mark_precise: frame0: regs=r0,r5 stack= before 39: (b7) r5 = 0
+mark_precise: frame0: regs=r0 stack= before 38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: parent state regs=r0 stack=:  R0_r=P1 R1=ctx() R2=pkt_end() R3=pkt(off=32,r=32) R4_r=pkt(off=28,r=32) R5=1 R6=pkt(off=14,r=32) R7_r=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 36 first_idx 36 subseq_idx 38 
+mark_precise: frame0: regs=r0 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs=r0 stack=:  R0_rw=P1 R1_r=ctx() R2_r=pkt_end() R3_rw=pkt(off=32,r=32) R4_r=pkt(off=28,r=32) R5_rw=P1 R6_r=pkt(off=14,r=32) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 35 first_idx 26 subseq_idx 36 
+mark_precise: frame0: regs=r0 stack= before 35: (b7) r0 = 1
+44: R5_w=0
+45: (07) r6 += 22
+46: safe
+
+from 38 to 40: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=32,r=32) R4=pkt(off=28,r=32) R5=1 R6=pkt(off=14,r=32) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+40: R0=1 R1=ctx() R2=pkt_end() R3=pkt(off=32,r=32) R4=pkt(off=28,r=32) R5=1 R6=pkt(off=14,r=32) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+40: (5f) r5 &= r0                     ; R0=1 R5_w=1
+; vlans->id[i] = bpf_ntohs(vlh->h_vlan_TCI) & VLAN_VID_MASK; @ prog.c:279
+41: (69) r4 = *(u16 *)(r4 +0)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+42: (57) r4 &= -241                   ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+43: (57) r5 &= 1                      ; R5_w=1
+44: (55) if r5 != 0x0 goto pc+7
+mark_precise: frame0: last_idx 44 first_idx 40 subseq_idx -1 
+mark_precise: frame0: regs=r5 stack= before 43: (57) r5 &= 1
+mark_precise: frame0: regs=r5 stack= before 42: (57) r4 &= -241
+mark_precise: frame0: regs=r5 stack= before 41: (69) r4 = *(u16 *)(r4 +0)
+mark_precise: frame0: regs=r5 stack= before 40: (5f) r5 &= r0
+mark_precise: frame0: parent state regs=r0,r5 stack=:  R0_r=P1 R1=ctx() R2=pkt_end() R3=pkt(off=32,r=32) R4_r=pkt(off=28,r=32) R5_r=P1 R6=pkt(off=14,r=32) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 38 first_idx 38 subseq_idx 40 
+mark_precise: frame0: regs=r0,r5 stack= before 38: (55) if r7 != 0xa888 goto pc+1
+mark_precise: frame0: parent state regs=r5 stack=:  R0_r=P1 R1_r=ctx() R2_r=pkt_end() R3_r=pkt(off=32,r=32) R4_r=pkt(off=28,r=32) R5_r=P1 R6_r=pkt(off=14,r=32) R7_r=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+mark_precise: frame0: last_idx 36 first_idx 36 subseq_idx 38 
+mark_precise: frame0: regs=r5 stack= before 36: (55) if r7 != 0x81 goto pc+1
+mark_precise: frame0: parent state regs= stack=:  R0_rw=P1 R1_r=ctx() R2_r=pkt_end() R3_rw=pkt(off=32,r=32) R4_r=pkt(off=28,r=32) R5_rw=P1 R6_r=pkt(off=14,r=32) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0
+44: R5_w=1
+; if (vlans.id[i] == 0) @ prog.c:373
+52: (57) r4 &= 65535                  ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+53: (15) if r4 == 0x0 goto pc+88      ; R4_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=0xff0f,var_off=(0x0; 0xff0f))
+54: (57) r7 &= 1
+55: safe
+
+from 53 to 142: safe
+
+from 32 to 133: safe
+
+from 29 to 133: safe
+
+from 28 to 30: R0=0 R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(off=28,r=28) R5=pkt(off=18,r=28) R6=pkt(off=14,r=28) R10=fp0
+30: R0=0 R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(off=28,r=28) R5=pkt(off=18,r=28) R6=pkt(off=14,r=28) R10=fp0
+; if (vlh + 1 > data_end) @ prog.c:275
+30: (bf) r3 = r6                      ; R3_w=pkt(off=14,r=28) R6=pkt(off=14,r=28)
+31: (07) r3 += 18                     ; R3_w=pkt(off=32,r=28)
+32: (2d) if r3 > r2 goto pc+100       ; R2=pkt_end() R3_w=pkt(off=32,r=32)
+; h_proto = vlh->h_vlan_encapsulated_proto; @ prog.c:277
+33: (69) r7 = *(u16 *)(r4 +2)         ; R4=pkt(off=28,r=32) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+34: (b7) r5 = 1                       ; R5_w=1
+35: (b7) r0 = 1
+frame 0: propagating r0,r5,r7
+mark_precise: frame0: last_idx 36 first_idx 30 subseq_idx -1 
+mark_precise: frame0: regs=r0,r5,r7 stack= before 35: (b7) r0 = 1
+mark_precise: frame0: regs=r5,r7 stack= before 34: (b7) r5 = 1
+mark_precise: frame0: regs=r7 stack= before 33: (69) r7 = *(u16 *)(r4 +2)
+36: safe
+
+from 32 to 133: safe
+
+from 26 to 93: safe
+
+from 7 to 20: R1=ctx() R2=pkt_end() R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4=pkt(r=14) R6=pkt(off=14,r=14) R10=fp0
+20: R1=ctx() R2=pkt_end() R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4=pkt(r=14) R6=pkt(off=14,r=14) R10=fp0
+; if (nh_type == bpf_htons(ETH_P_8021Q)) { @ prog.c:366
+20: (15) if r3 == 0x8 goto pc+73      ; R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+21: (15) if r3 == 0xdd86 goto pc+43   ; R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+22: (55) if r3 != 0x81 goto pc+50     ; R3=129
+23: (b7) r0 = 0                       ; R0_w=0
+; if (nh->pos + hdrsize > data_end) @ prog.c:263
+24: (bf) r4 = r6                      ; R4_w=pkt(off=14,r=14) R6=pkt(off=14,r=14)
+25: (07) r4 += 14
+26: safe
+
+from 22 to 73: safe
+
+from 21 to 65: R1=ctx() R2=pkt_end() R3=0xdd86 R4=pkt(r=14) R6=pkt(off=14,r=14) R10=fp0
+65: R1=ctx() R2=pkt_end() R3=0xdd86 R4=pkt(r=14) R6=pkt(off=14,r=14) R10=fp0
+; if (ip6h + 1 > data_end) @ prog.c:300
+65: (bf) r3 = r6                      ; R3_w=pkt(off=14,r=14) R6=pkt(off=14,r=14)
+66: (07) r3 += 40                     ; R3=pkt(off=54,r=14)
+67: (2d) if r3 > r2 goto pc+5         ; R2=pkt_end() R3=pkt(off=54,r=54)
+; return ip6h->nexthdr; @ prog.c:304
+68: (71) r3 = *(u8 *)(r6 +6)          ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=14,r=54)
+; if (ip6_next_header == IPPROTO_ICMPV6) { @ prog.c:383
+69: (55) if r3 != 0x3a goto pc+3      ; R3_w=58
+70: (b7) r0 = 0                       ; R0_w=0
+; if (icmp6h + 1 > data_end) @ prog.c:334
+71: (07) r6 += 48                     ; R6_w=pkt(off=62,r=54)
+72: (2d) if r6 > r2 goto pc+20        ; R2=pkt_end() R6_w=pkt(off=62,r=62)
+73: safe
+
+from 72 to 93: safe
+
+from 69 to 73: safe
+
+from 67 to 73: safe
+
+from 20 to 94: R1=ctx() R2=pkt_end() R3=8 R4=pkt(r=14) R6=pkt(off=14,r=14) R10=fp0
+94: R1=ctx() R2=pkt_end() R3=8 R4=pkt(r=14) R6=pkt(off=14,r=14) R10=fp0
+; if (iph + 1 > data_end) @ prog.c:314
+94: (bf) r3 = r6                      ; R3_w=pkt(off=14,r=14) R6=pkt(off=14,r=14)
+95: (07) r3 += 20                     ; R3_w=pkt(off=34,r=14)
+96: (2d) if r3 > r2 goto pc-24        ; R2=pkt_end() R3_w=pkt(off=34,r=34)
+; hdrsize = iph->ihl * 4; @ prog.c:317
+97: (71) r3 = *(u8 *)(r6 +0)          ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=14,r=34)
+98: (67) r3 <<= 2                     ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1020,var_off=(0x0; 0x3fc))
+99: (57) r3 &= 60                     ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+100: (b7) r4 = 20                     ; R4_w=20
+; if (hdrsize < sizeof(*iph)) @ prog.c:318
+101: (2d) if r4 > r3 goto pc-29       ; R3_w=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c)) R4_w=20
+; if (nh->pos + hdrsize > data_end) @ prog.c:320
+102: (bf) r7 = r6                     ; R6=pkt(off=14,r=34) R7_w=pkt(off=14,r=34)
+103: (0f) r7 += r3
+mark_precise: frame0: last_idx 103 first_idx 94 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 102: (bf) r7 = r6
+mark_precise: frame0: regs=r3 stack= before 101: (2d) if r4 > r3 goto pc-29
+mark_precise: frame0: regs=r3,r4 stack= before 100: (b7) r4 = 20
+mark_precise: frame0: regs=r3 stack= before 99: (57) r3 &= 60
+mark_precise: frame0: regs=r3 stack= before 98: (67) r3 <<= 2
+mark_precise: frame0: regs=r3 stack= before 97: (71) r3 = *(u8 *)(r6 +0)
+104: R3=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c)) R7=pkt(id=8,off=14,r=0,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+104: (2d) if r7 > r2 goto pc-32       ; R2=pkt_end() R7=pkt(id=8,off=14,r=14,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+; return iph->protocol; @ prog.c:325
+105: (71) r3 = *(u8 *)(r6 +9)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=14,r=34)
+; if (ip_next_header == IPPROTO_ICMP) { @ prog.c:396
+106: (55) if r3 != 0x1 goto pc-34     ; R3_w=1
+107: (b7) r0 = 0                      ; R0_w=0
+; if (icmph + 1 > data_end) @ prog.c:347
+108: (bf) r3 = r7                     ; R3_w=pkt(id=8,off=14,r=14,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c)) R7=pkt(id=8,off=14,r=14,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+109: (07) r3 += 8                     ; R3_w=pkt(id=8,off=22,r=14,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+110: (2d) if r3 > r2 goto pc-18       ; R2=pkt_end() R3_w=pkt(id=8,off=22,r=22,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+; bpf_printk("IPv4 Header: Source Address = %x, Destination Address = %x\n", @ prog.c:403
+111: (61) r3 = *(u32 *)(r6 +12)       ; R3_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=pkt(off=14,r=34)
+112: (dc) r3 = be32 r3                ; R3_w=scalar()
+113: (61) r4 = *(u32 *)(r6 +16)       ; R4_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=pkt(off=14,r=34)
+114: (dc) r4 = be32 r4                ; R4_w=scalar()
+115: (bf) r8 = r1                     ; R1=ctx() R8_w=ctx()
+116: (18) r1 = 0xffff8f28ecef631a     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128,off=18)
+118: (b7) r2 = 60                     ; R2_w=60
+119: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 119 first_idx 104 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 118: (b7) r2 = 60
+120: R0=scalar()
+; bpf_printk("Protocol = %d\n", iphdr->protocol); @ prog.c:405
+120: (71) r3 = *(u8 *)(r6 +9)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6=pkt(off=14,r=34)
+121: (18) r1 = 0xffff8f28ecef6356     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128,off=78)
+123: (b7) r2 = 15                     ; R2_w=15
+124: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 124 first_idx 120 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 123: (b7) r2 = 15
+125: R0_w=scalar()
+; bpf_printk("ICMP Header: Type = %d, Code = %d\n", @ prog.c:406
+125: (71) r4 = *(u8 *)(r7 +1)         ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R7=pkt(id=8,off=14,r=22,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+126: (71) r3 = *(u8 *)(r7 +0)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R7=pkt(id=8,off=14,r=22,smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=60,var_off=(0x0; 0x3c))
+127: (18) r1 = 0xffff8f28ecef6365     ; R1_w=map_value(map=prog.rodata,ks=4,vs=128,off=93)
+129: (b7) r2 = 35                     ; R2_w=35
+130: (85) call bpf_trace_printk#6
+mark_precise: frame0: last_idx 130 first_idx 120 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 129: (b7) r2 = 35
+131: safe
+
+from 110 to 93: safe
+
+from 106 to 73: safe
+
+from 104 to 73: safe
+
+from 101 to 73: safe
+
+from 96 to 73: safe
+
+from 6 to 8: R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(r=14) R6=pkt(off=14,r=14) R10=fp0
+8: R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(r=14) R6=pkt(off=14,r=14) R10=fp0
+; if (vlh + 1 > data_end) @ prog.c:275
+8: (bf) r5 = r4                       ; R4=pkt(r=14) R5_w=pkt(r=14)
+9: (07) r5 += 18                      ; R5_w=pkt(off=18,r=14)
+10: (2d) if r5 > r2 goto pc+9         ; R2=pkt_end() R5_w=pkt(off=18,r=18)
+;  @ prog.c:0
+11: (69) r3 = *(u16 *)(r6 +2)         ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R6=pkt(off=14,r=18)
+; if (!proto_is_vlan(h_proto)) @ prog.c:273
+12: (15) if r3 == 0xa888 goto pc+2    ; R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+13: (bf) r6 = r5                      ; R5_w=pkt(off=18,r=18) R6_w=pkt(off=18,r=18)
+14: (55) if r3 != 0x81 goto pc+5      ; R3_w=129
+frame 0: propagating r3
+mark_precise: frame0: last_idx 15 first_idx 8 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 14: (55) if r3 != 0x81 goto pc+5
+mark_precise: frame0: regs=r3 stack= before 13: (bf) r6 = r5
+mark_precise: frame0: regs=r3 stack= before 12: (15) if r3 == 0xa888 goto pc+2
+mark_precise: frame0: regs=r3 stack= before 11: (69) r3 = *(u16 *)(r6 +2)
+15: safe
+
+from 14 to 20: R1=ctx() R2=pkt_end() R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4=pkt(r=18) R5=pkt(off=18,r=18) R6=pkt(off=18,r=18) R10=fp0
+20: R1=ctx() R2=pkt_end() R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R4=pkt(r=18) R5=pkt(off=18,r=18) R6=pkt(off=18,r=18) R10=fp0
+; if (nh_type == bpf_htons(ETH_P_8021Q)) { @ prog.c:366
+20: (15) if r3 == 0x8 goto pc+73      ; R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+21: (15) if r3 == 0xdd86 goto pc+43   ; R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+22: safe
+
+from 21 to 65: R1=ctx() R2=pkt_end() R3=0xdd86 R4=pkt(r=18) R5=pkt(off=18,r=18) R6=pkt(off=18,r=18) R10=fp0
+65: R1=ctx() R2=pkt_end() R3=0xdd86 R4=pkt(r=18) R5=pkt(off=18,r=18) R6=pkt(off=18,r=18) R10=fp0
+; if (ip6h + 1 > data_end) @ prog.c:300
+65: (bf) r3 = r6                      ; R3_w=pkt(off=18,r=18) R6=pkt(off=18,r=18)
+66: (07) r3 += 40                     ; R3_w=pkt(off=58,r=18)
+67: (2d) if r3 > r2 goto pc+5         ; R2=pkt_end() R3_w=pkt(off=58,r=58)
+; return ip6h->nexthdr; @ prog.c:304
+68: (71) r3 = *(u8 *)(r6 +6)
+69: safe
+
+from 67 to 73: safe
+
+from 20 to 94: safe
+frame 0: propagating r3
+mark_precise: frame0: last_idx 15 first_idx 8 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 12: (15) if r3 == 0xa888 goto pc+2
+mark_precise: frame0: regs=r3 stack= before 11: (69) r3 = *(u16 *)(r6 +2)
+
+from 12 to 15: safe
+
+from 10 to 20: R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(r=14) R5=pkt(off=18,r=0xfffffffffffffffe) R6=pkt(off=14,r=14) R10=fp0
+20: R1=ctx() R2=pkt_end() R3=0xa888 R4=pkt(r=14) R5=pkt(off=18,r=0xfffffffffffffffe) R6=pkt(off=14,r=14) R10=fp0
+; if (nh_type == bpf_htons(ETH_P_8021Q)) { @ prog.c:366
+20: (15) if r3 == 0x8 goto pc+73
+mark_precise: frame0: last_idx 20 first_idx 20 subseq_idx -1 
+mark_precise: frame0: parent state regs=r3 stack=:  R1=ctx() R2=pkt_end() R3_r=P0xa888 R4=pkt(r=14) R5_w=pkt(off=18,r=0xfffffffffffffffe) R6=pkt(off=14,r=14) R10=fp0
+mark_precise: frame0: last_idx 10 first_idx 8 subseq_idx 20 
+mark_precise: frame0: regs=r3 stack= before 10: (2d) if r5 > r2 goto pc+9
+mark_precise: frame0: regs=r3 stack= before 9: (07) r5 += 18
+mark_precise: frame0: regs=r3 stack= before 8: (bf) r5 = r4
+mark_precise: frame0: parent state regs=r3 stack=:  R1_r=ctx() R2_rw=pkt_end() R3_rw=P0xa888 R4_rw=pkt(r=14) R6_rw=pkt(off=14,r=14) R10=fp0
+mark_precise: frame0: last_idx 6 first_idx 0 subseq_idx 8 
+mark_precise: frame0: regs=r3 stack= before 6: (15) if r3 == 0xa888 goto pc+1
+mark_precise: frame0: regs=r3 stack= before 5: (69) r3 = *(u16 *)(r4 +12)
+20: R3=0xa888
+21: safe
+
+from 4 to 73: safe
+verification time 1706 usec
+stack depth 8
+processed 636 insns (limit 1000000) max_states_per_insn 3 total_states 60 peak_states 60 mark_read 6
+-- END PROG LOAD LOG --

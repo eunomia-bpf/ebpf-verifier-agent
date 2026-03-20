@@ -1,0 +1,7 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-73088287/prog.o
+libbpf: elf: section(3) WriteBuffer, size 288, link 0, flags 6, type=1
+libbpf: sec 'WriteBuffer': found program 'WriteBuffer_main' at insn offset 0 (0 bytes), code size 36 insns (288 bytes)
+libbpf: elf: section(4) .relWriteBuffer, size 16, link 26, flags 40, type=9
+libbpf: elf: section(5) maps, size 20, link 0, flags 3, type=1
+libbpf: elf: legacy map definitions in 'maps' section are not supported by libbpf v1.0+
+Error: failed to open object file

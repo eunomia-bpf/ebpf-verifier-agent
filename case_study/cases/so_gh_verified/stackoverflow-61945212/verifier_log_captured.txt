@@ -27,7 +27,7 @@ Live regs before insn:
   1: .1........ (63) *(u32 *)(r10 -4) = r1
   2: .......... (bf) r3 = r10
   3: ...3...... (07) r3 += -4
-  4: ...3...... (18) r1 = 0xffff8f172a676400
+  4: ...3...... (18) r1 = 0xffff8f27126f2000
   6: .1.3...... (b7) r2 = 0
   7: .123...... (b7) r4 = 0
   8: .1234..... (85) call bpf_map_update_elem#2
@@ -35,19 +35,19 @@ Live regs before insn:
  10: 0......... (95) exit
 arg#0 reference type('UNKNOWN ') size cannot be determined: -22
 0: R1=ctx() R10=fp0
-; int bpf_prog(void *ctx) { @ prog.c:184
+; int bpf_prog(void *ctx) { @ prog.c:213
 0: (b7) r1 = 123                      ; R1_w=123
-; value = 123; @ prog.c:187
+; value = 123; @ prog.c:216
 1: (63) *(u32 *)(r10 -4) = r1         ; R1_w=123 R10=fp0 fp-8=mmmm????
 2: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
 3: (07) r3 += -4                      ; R3_w=fp-4
-; bpf_map_update_elem(&queue_map, NULL, &value, BPF_ANY); @ prog.c:188
-4: (18) r1 = 0xffff8f172a676400       ; R1_w=map_ptr(map=queue_map,ks=0,vs=4)
+; bpf_map_update_elem(&queue_map, NULL, &value, BPF_ANY); @ prog.c:217
+4: (18) r1 = 0xffff8f27126f2000       ; R1_w=map_ptr(map=queue_map,ks=0,vs=4)
 6: (b7) r2 = 0                        ; R2_w=0
 7: (b7) r4 = 0                        ; R4_w=0
 8: (85) call bpf_map_update_elem#2
 R2 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf, trusted_ptr_
-verification time 40 usec
+verification time 41 usec
 stack depth 8
 processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
 -- END PROG LOAD LOG --

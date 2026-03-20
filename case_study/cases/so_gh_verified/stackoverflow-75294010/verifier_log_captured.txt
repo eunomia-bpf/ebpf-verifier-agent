@@ -1,0 +1,11 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-75294010/prog.o
+libbpf: elf: section(3) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-75294010/prog.o is GPL
+libbpf: elf: section(4) .maps, size 40, link 0, flags 3, type=1
+libbpf: elf: section(13) .BTF, size 621, link 0, flags 0, type=1
+libbpf: elf: section(19) .symtab, size 264, link 1, flags 0, type=2
+libbpf: looking for externs among 11 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'write_buffer_heap': at sec_idx 4, offset 0.
+libbpf: map 'write_buffer_heap': can't determine value size for type [11]: -22.
+Error: failed to open object file
