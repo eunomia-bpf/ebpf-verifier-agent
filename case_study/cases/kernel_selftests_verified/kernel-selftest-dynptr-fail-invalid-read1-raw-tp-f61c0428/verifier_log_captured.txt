@@ -1,0 +1,33 @@
+func#0 @0
+Live regs before insn:
+  0: .......... (bf) r6 = r10
+  1: ......6... (07) r6 += -16
+  2: ......6... (18) r1 = 0xffff8f179eae9400
+  4: .1....6... (b4) w2 = 64
+  5: .12...6... (b7) r3 = 0
+  6: .123..6... (bf) r4 = r6
+  7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+  8: ......6... (18) r1 = 0xffffd2b8de21c000
+ 10: .1....6... (61) r2 = *(u32 *)(r10 -16)
+ 11: .12...6... (63) *(u32 *)(r1 +0) = r2
+ 12: ......6... (bf) r1 = r6
+ 13: .1........ (b7) r2 = 0
+ 14: .12....... (85) call bpf_ringbuf_discard_dynptr#200
+ 15: .......... (b4) w0 = 0
+ 16: 0......... (95) exit
+arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+0: R1=ctx() R10=fp0
+; int invalid_read1(void *ctx) @ prog.c:78
+0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+; bpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &ptr); @ prog.c:82
+1: (07) r6 += -16                     ; R6_w=fp-16
+2: (18) r1 = 0xffff8f179eae9400       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+4: (b4) w2 = 64                       ; R2_w=64
+5: (b7) r3 = 0                        ; R3_w=0
+6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16
+7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+; val = *(int *)&ptr; @ prog.c:85
+8: (18) r1 = 0xffffd2b8de21c000       ; R1_w=map_value(map=prog.bss,ks=4,vs=24) refs=2
+10: (61) r2 = *(u32 *)(r10 -16)
+invalid read from stack off -16+0 size 4
+processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0

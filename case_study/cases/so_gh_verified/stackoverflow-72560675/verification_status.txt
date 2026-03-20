@@ -1,0 +1,11 @@
+case_id: stackoverflow-72560675
+source_bucket: stackoverflow
+language: c
+source_origin: source_snippets[0] -> wrapped
+compile_ok: True
+verifier_status: rejected
+verifier_error_match: mismatch
+fixed_status: not_attempted
+original_error: WARNING: libbpf: prog 'trace_read_exit': BPF program load failed: Permission denied
+captured_error: invalid access to map value, value_size=2048 off=0 size=65535
+notes: <none>

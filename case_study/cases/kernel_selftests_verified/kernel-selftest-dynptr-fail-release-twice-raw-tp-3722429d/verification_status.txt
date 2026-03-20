@@ -1,0 +1,17 @@
+case_id: kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d
+checked_at_utc: 2026-03-20T00:37:18.713936+00:00
+source_file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+target_function: release_twice
+section: ?raw_tp
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 14
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d/prog.o","program_name":"release_twice","section_name":"raw_tp","load_ok":false,"error_code":-22,"error_message":"Invalid argument","verifier_log":"func#0 @0\nLive regs before insn:\n  0: .......... (bf) r6 = r10\n  1: ......6... (07) r6 += -16\n  2: ......6... (18) r1 = 0xffff8f01640e0700\n  4: .1....6... (b4) w2 = 16\n  5: .12...6... (b7) r3 = 0\n  6: .123..6... (bf) r4 = r6\n  7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198\n  8: ......6... (bf) r1 = r6\n  9: .1....6... (b7) r2 = 0\n 10: .12...6... (85) call bpf_ringbuf_discard_dynptr#200\n 11: ......6... (bf) r1 = r6\n 12: .1........ (b7) r2 = 0\n 13: .12....... (85) call bpf_ringbuf_discard_dynptr#200\n 14: .......... (b4) w0 = 0\n 15: 0......... (95) exit\narg#0 reference type('UNKNOWN ') size cannot be determined: -22\n0: R1=ctx() R10=fp0\n; int release_twice(void *ctx) @ prog.c:78\n0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0\n; bpf_ringbuf_reserve_dynptr(&ringbuf, 16, 0, &ptr); @ prog.c:82\n1: (07) r6 += -16                     ; R6_w=fp-16\n2: (18) r1 = 0xffff8f01640e0700       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)\n4: (b4) w2 = 16                       ; R2_w=16\n5: (b7) r3 = 0                        ; R3_w=0\n6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16\n7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2\n; bpf_ringbuf_discard_dynptr(&ptr, 0); @ prog.c:84\n8: (bf) r1 = r6                       ; R1_w=fp-16 R6_w=fp-16 refs=2\n9: (b7) r2 = 0                        ; R2_w=0 refs=2\n10: (85) call bpf_ringbuf_discard_dynptr#200          ;\n; bpf_ringbuf_discard_dynptr(&ptr, 0); @ prog.c:87\n11: (bf) r1 = r6                      ; R1_w=fp-16 R6=fp-16\n12: (b7) r2 = 0                       ; R2_w=0\n13: (85) call bpf_ringbuf_discard_dynptr#200\narg 1 is an unacquired reference\nprocessed 13 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n"}

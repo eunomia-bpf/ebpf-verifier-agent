@@ -1,0 +1,11 @@
+case_id: stackoverflow-72575736
+source_bucket: stackoverflow
+language: rust
+source_origin: source_snippets[0] ->
+compile_ok: False
+verifier_status: not_run
+verifier_error_match: unknown
+fixed_status: not_attempted
+original_error: ret=-1 os error=Permission denied (os error 13): 0: (61) r6 = *(u32 *)(r1 +4)
+captured_error: <none>
+notes: No source variant compiled with the exact clang command requested.

@@ -1,0 +1,14 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-79485758/buggy.c:14:19: error: use of undeclared identifier 'field_offset'
+   14 |     ; if ((data + field_offset + sizeof(uint16_t)) > data_end)
+      |                   ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-79485758/buggy.c:15:7: error: expected ';' after expression
+   15 |     47: (2d) if r0 > r2 goto pc+36
+      |       ^
+      |       ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-79485758/buggy.c:15:11: error: invalid digit 'd' in decimal constant
+   15 |     47: (2d) if r0 > r2 goto pc+36
+      |           ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-79485758/buggy.c:15:5: warning: expression result unused [-Wunused-value]
+   15 |     47: (2d) if r0 > r2 goto pc+36
+      |     ^~
+1 warning and 3 errors generated.

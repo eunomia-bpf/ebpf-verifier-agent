@@ -1,0 +1,130 @@
+func#0 @0
+func#1 @17
+func#2 @19
+Live regs before insn:
+  0: ..2345.... (bf) r1 = r10
+  1: .12345.... (07) r1 += -8
+  2: .12345.... (85) call pc+14
+  3: ..2345.... (bf) r6 = r10
+  4: ..23456... (07) r6 += -16
+  5: ..23456... (bf) r1 = r6
+  6: .123456... (85) call pc+10
+  7: ..23456... (bf) r7 = r10
+  8: ..234567.. (07) r7 += -24
+  9: ..234567.. (bf) r1 = r7
+ 10: .1234567.. (85) call pc+6
+ 11: ..234567.. (bf) r1 = r7
+ 12: .123456... (85) call pc+6
+ 13: ..23456... (bf) r1 = r6
+ 14: .12345.... (85) call pc+4
+ 15: .......... (b4) w0 = 0
+ 16: 0......... (95) exit
+ 17: .1........ (85) call bpf_local_irq_save#72094
+ 18: 0......... (95) exit
+ 19: .1........ (85) call bpf_local_irq_restore#72093
+ 20: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int irq_restore_missing_3_minus_2_subprog(struct __sk_buff *ctx) @ prog.c:32
+0: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+; local_irq_save(&flags1); @ prog.c:38
+1: (07) r1 += -8                      ; R1_w=fp-8
+2: (85) call pc+14
+caller:
+ R10=fp0
+callee:
+ frame1: R1_w=fp[0]-8 R10=fp0
+17: frame1: R1_w=fp[0]-8 R10=fp0
+; bpf_local_irq_save(flags); @ prog.c:22
+17: (85) call bpf_local_irq_save#72094        ; frame1: refs=1
+; } @ prog.c:23
+18: (95) exit
+returning from callee:
+ frame1: R10=fp0 refs=1
+to caller at 3:
+ R10=fp0 fp-8_w=ffffffff refs=1
+
+from 18 to 3: R10=fp0 fp-8_w=ffffffff refs=1
+; local_irq_save(&flags1); @ prog.c:38
+3: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0 refs=1
+4: (07) r6 += -16                     ; R6_w=fp-16 refs=1
+; local_irq_save(&flags2); @ prog.c:39
+5: (bf) r1 = r6                       ; R1=fp-16 R6=fp-16 refs=1
+6: (85) call pc+10
+caller:
+ R6=fp-16 R10=fp0 fp-8=ffffffff refs=1
+callee:
+ frame1: R1=fp[0]-16 R10=fp0 refs=1
+17: frame1: R1=fp[0]-16 R10=fp0 refs=1
+; bpf_local_irq_save(flags); @ prog.c:22
+17: (85) call bpf_local_irq_save#72094        ; frame1: refs=1,2
+; } @ prog.c:23
+18: (95) exit
+returning from callee:
+ frame1: R10=fp0 refs=1,2
+to caller at 7:
+ R6=fp-16 R10=fp0 fp-8=ffffffff fp-16_w=ffffffff refs=1,2
+
+from 18 to 7: R6=fp-16 R10=fp0 fp-8=ffffffff fp-16_w=ffffffff refs=1,2
+; local_irq_save(&flags2); @ prog.c:39
+7: (bf) r7 = r10                      ; R7_w=fp0 R10=fp0 refs=1,2
+; local_irq_save(&flags1); @ prog.c:38
+8: (07) r7 += -24                     ; R7_w=fp-24 refs=1,2
+; local_irq_save(&flags3); @ prog.c:40
+9: (bf) r1 = r7                       ; R1_w=fp-24 R7_w=fp-24 refs=1,2
+10: (85) call pc+6
+caller:
+ R6=fp-16 R7_w=fp-24 R10=fp0 fp-8=ffffffff fp-16_w=ffffffff refs=1,2
+callee:
+ frame1: R1_w=fp[0]-24 R10=fp0 refs=1,2
+17: frame1: R1_w=fp[0]-24 R10=fp0 refs=1,2
+; bpf_local_irq_save(flags); @ prog.c:22
+17: (85) call bpf_local_irq_save#72094        ; frame1: refs=1,2,3
+; } @ prog.c:23
+18: (95) exit
+returning from callee:
+ frame1: R10=fp0 refs=1,2,3
+to caller at 11:
+ R6=fp-16 R7=fp-24 R10=fp0 fp-8=ffffffff fp-16=ffffffff fp-24=ffffffff refs=1,2,3
+
+from 18 to 11: R6=fp-16 R7=fp-24 R10=fp0 fp-8=ffffffff fp-16=ffffffff fp-24=ffffffff refs=1,2,3
+; local_irq_restore(&flags3); @ prog.c:41
+11: (bf) r1 = r7                      ; R1_w=fp-24 R7=fp-24 refs=1,2,3
+12: (85) call pc+6
+caller:
+ R6=fp-16 R7=fp-24 R10=fp0 fp-8=ffffffff fp-16=ffffffff fp-24=ffffffff refs=1,2,3
+callee:
+ frame1: R1_w=fp[0]-24 R10=fp0 refs=1,2,3
+19: frame1: R1_w=fp[0]-24 R10=fp0 refs=1,2,3
+; bpf_local_irq_restore(flags); @ prog.c:27
+19: (85) call bpf_local_irq_restore#72093     ; frame1: refs=1,2
+; } @ prog.c:28
+20: (95) exit
+returning from callee:
+ frame1: R10=fp0 refs=1,2
+to caller at 13:
+ R6=fp-16 R7=fp-24 R10=fp0 fp-8=ffffffff fp-16=ffffffff refs=1,2
+
+from 20 to 13: R6=fp-16 R7=fp-24 R10=fp0 fp-8=ffffffff fp-16=ffffffff refs=1,2
+; local_irq_restore(&flags2); @ prog.c:42
+13: (bf) r1 = r6                      ; R1_w=fp-16 R6=fp-16 refs=1,2
+14: (85) call pc+4
+caller:
+ R6=fp-16 R7=fp-24 R10=fp0 fp-8=ffffffff fp-16=ffffffff refs=1,2
+callee:
+ frame1: R1_w=fp[0]-16 R10=fp0 refs=1,2
+19: frame1: R1_w=fp[0]-16 R10=fp0 refs=1,2
+; bpf_local_irq_restore(flags); @ prog.c:27
+19: (85) call bpf_local_irq_restore#72093     ; frame1: refs=1
+; } @ prog.c:28
+20: (95) exit
+returning from callee:
+ frame1: R10=fp0 refs=1
+to caller at 15:
+ R6=fp-16 R7=fp-24 R10=fp0 fp-8=ffffffff refs=1
+
+from 20 to 15: R6=fp-16 R7=fp-24 R10=fp0 fp-8=ffffffff refs=1
+; return 0; @ prog.c:43
+15: (b4) w0 = 0                       ; R0_w=0 refs=1
+16: (95) exit
+BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region
+processed 27 insns (limit 1000000) max_states_per_insn 1 total_states 3 peak_states 3 mark_read 2

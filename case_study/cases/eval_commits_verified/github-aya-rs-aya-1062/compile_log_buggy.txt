@@ -1,0 +1,4 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1062/buggy.c:15:9: error: use of undeclared identifier 'let'
+   15 |         let ret_value_len: i32 = match ctx.ret() {
+      |         ^
+1 error generated.

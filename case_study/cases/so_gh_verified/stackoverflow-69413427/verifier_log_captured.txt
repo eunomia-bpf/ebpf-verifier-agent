@@ -1,0 +1,7 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-69413427/prog.o
+libbpf: elf: section(3) fexit/vfs_unlink, size 144, link 0, flags 6, type=1
+libbpf: sec 'fexit/vfs_unlink': found program 'vfs_unlink_exit' at insn offset 0 (0 bytes), code size 18 insns (144 bytes)
+libbpf: elf: section(4) .relfexit/vfs_unlink, size 32, link 27, flags 40, type=9
+libbpf: elf: section(5) maps, size 20, link 0, flags 3, type=1
+libbpf: elf: legacy map definitions in 'maps' section are not supported by libbpf v1.0+
+Error: failed to open object file

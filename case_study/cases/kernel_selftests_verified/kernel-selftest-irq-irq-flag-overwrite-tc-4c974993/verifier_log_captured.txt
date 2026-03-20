@@ -1,0 +1,27 @@
+func#0 @0
+Live regs before insn:
+  0: .......... (bf) r6 = r10
+  1: ......6... (07) r6 += -8
+  2: ......6... (bf) r1 = r6
+  3: .1....6... (85) call bpf_local_irq_save#72094
+  4: ......6... (18) r1 = 0xdeadbeef
+  6: .1....6... (7b) *(u64 *)(r10 -8) = r1
+  7: ......6... (bf) r1 = r6
+  8: .1........ (85) call bpf_local_irq_restore#72093
+  9: .......... (b4) w0 = 0
+ 10: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int irq_flag_overwrite(struct __sk_buff *ctx) @ prog.c:22
+0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+; bpf_local_irq_save(&flags); @ prog.c:26
+1: (07) r6 += -8                      ; R6_w=fp-8
+2: (bf) r1 = r6                       ; R1_w=fp-8 R6_w=fp-8
+3: (85) call bpf_local_irq_save#72094         ; fp-8_w=ffffffff refs=1
+4: (18) r1 = 0xdeadbeef               ; R1_w=0xdeadbeef refs=1
+; flags = 0xdeadbeef; @ prog.c:27
+6: (7b) *(u64 *)(r10 -8) = r1         ; R1_w=0xdeadbeef R10=fp0 fp-8_w=0xdeadbeef refs=1
+; bpf_local_irq_restore(&flags); @ prog.c:28
+7: (bf) r1 = r6                       ; R1_w=fp-8 R6_w=fp-8 refs=1
+8: (85) call bpf_local_irq_restore#72093
+expected an initialized irq flag as arg#0
+processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0

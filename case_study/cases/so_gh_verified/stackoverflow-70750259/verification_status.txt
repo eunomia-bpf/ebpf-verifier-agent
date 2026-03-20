@@ -1,0 +1,11 @@
+case_id: stackoverflow-70750259
+source_bucket: stackoverflow
+language: c
+source_origin: source_snippets[0] -> wrapped
+compile_ok: True
+verifier_status: rejected
+verifier_error_match: mismatch
+fixed_status: not_attempted
+original_error: math between pkt pointer and register with unbounded min value is not allowed
+captured_error: Error: failed to load object file
+notes: <none>

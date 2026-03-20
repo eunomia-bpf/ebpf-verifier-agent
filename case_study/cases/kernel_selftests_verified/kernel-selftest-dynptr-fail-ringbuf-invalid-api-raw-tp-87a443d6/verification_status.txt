@@ -1,0 +1,17 @@
+case_id: kernel-selftest-dynptr-fail-ringbuf-invalid-api-raw-tp-87a443d6
+checked_at_utc: 2026-03-20T00:37:18.788301+00:00
+source_file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+target_function: ringbuf_invalid_api
+section: ?raw_tp
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 14
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-dynptr-fail-ringbuf-invalid-api-raw-tp-87a443d6/prog.o","program_name":"ringbuf_invalid_api","section_name":"raw_tp","load_ok":false,"error_code":-13,"error_message":"Permission denied","verifier_log":"func#0 @0\nLive regs before insn:\n  0: .......... (bf) r6 = r10\n  1: ......6... (07) r6 += -16\n  2: ......6... (18) r1 = 0xffff8f018692b400\n  4: .1....6... (b4) w2 = 32\n  5: .12...6... (b7) r3 = 0\n  6: .123..6... (bf) r4 = r6\n  7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198\n  8: ......6... (bf) r1 = r6\n  9: .1........ (b7) r2 = 0\n 10: .12....... (b7) r3 = 32\n 11: .123...... (85) call bpf_dynptr_data#203\n 12: 0......... (15) if r0 == 0x0 goto pc+5\n 13: 0......... (b4) w1 = 123\n 14: 01........ (63) *(u32 *)(r0 +0) = r1\n 15: 0......... (bf) r1 = r0\n 16: .1........ (b7) r2 = 0\n 17: .12....... (85) call bpf_ringbuf_submit#132\n 18: .......... (bf) r1 = r10\n 19: .1........ (07) r1 += -16\n 20: .1........ (b7) r2 = 0\n 21: .12....... (85) call bpf_ringbuf_discard_dynptr#200\n 22: .......... (b4) w0 = 0\n 23: 0......... (95) exit\narg#0 reference type('UNKNOWN ') size cannot be determined: -22\n0: R1=ctx() R10=fp0\n; int ringbuf_invalid_api(void *ctx) @ prog.c:75\n0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0\n; bpf_ringbuf_reserve_dynptr(&ringbuf, sizeof(*sample), 0, &ptr); @ prog.c:80\n1: (07) r6 += -16                     ; R6_w=fp-16\n2: (18) r1 = 0xffff8f018692b400       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)\n4: (b4) w2 = 32                       ; R2_w=32\n5: (b7) r3 = 0                        ; R3_w=0\n6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16\n7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2\n; sample = bpf_dynptr_data(&ptr, 0, sizeof(*sample)); @ prog.c:81\n8: (bf) r1 = r6                       ; R1_w=fp-16 R6_w=fp-16 refs=2\n9: (b7) r2 = 0                        ; R2_w=0 refs=2\n10: (b7) r3 = 32                      ; R3_w=32 refs=2\n11: (85) call bpf_dynptr_data#203\nmark_precise: frame0: last_idx 11 first_idx 0 subseq_idx -1 \nmark_precise: frame0: regs=r3 stack= before 10: (b7) r3 = 32\n12: R0=mem_or_null(id=3,ref_obj_id=2,sz=32) fp-16=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2\n; if (!sample) @ prog.c:82\n12: (15) if r0 == 0x0 goto pc+5       ; R0=mem(ref_obj_id=2,sz=32) refs=2\n13: (b4) w1 = 123                     ; R1_w=123 refs=2\n; sample->pid = 123; @ prog.c:85\n14: (63) *(u32 *)(r0 +0) = r1         ; R0=mem(ref_obj_id=2,sz=32) R1_w=123 refs=2\n; bpf_ringbuf_submit(sample, 0); @ prog.c:88\n15: (bf) r1 = r0                      ; R0=mem(ref_obj_id=2,sz=32) R1_w=mem(ref_obj_id=2,sz=32) refs=2\n16: (b7) r2 = 0                       ; R2_w=0 refs=2\n17: (85) call bpf_ringbuf_submit#132\nR1 type=mem expected=ringbuf_mem\nprocessed 17 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n"}

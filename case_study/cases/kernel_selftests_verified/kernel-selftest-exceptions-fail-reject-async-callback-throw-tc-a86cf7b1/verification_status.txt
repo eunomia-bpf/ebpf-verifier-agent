@@ -1,0 +1,17 @@
+case_id: kernel-selftest-exceptions-fail-reject-async-callback-throw-tc-a86cf7b1
+checked_at_utc: 2026-03-20T00:37:19.775365+00:00
+source_file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+target_function: reject_async_callback_throw
+section: ?tc
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 7
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: no
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-exceptions-fail-reject-async-callback-throw-tc-a86cf7b1/prog.o","program_name":"reject_async_callback_throw","section_name":"tc","load_ok":false,"error_code":-524,"error_message":"error -524","verifier_log":"func#0 @0\nfunc#1 @15\nLive regs before insn:\n  0: .......... (b4) w6 = 0\n  1: ......6... (63) *(u32 *)(r10 -4) = r6\n  2: ......6... (bf) r2 = r10\n  3: ..2...6... (07) r2 += -4\n  4: ..2...6... (18) r1 = 0xffff8f0160767c00\n  6: .12...6... (85) call bpf_map_lookup_elem#1\n  7: 0.....6... (15) if r0 == 0x0 goto pc+5\n  8: 0......... (bf) r1 = r0\n  9: .1........ (18) r2 = 0x5\n 11: .12....... (85) call bpf_timer_set_callback#170\n 12: 0......... (bf) r6 = r0\n 13: ......6... (bc) w0 = w6\n 14: 0......... (95) exit\n 15: .......... (b7) r1 = 0\n 16: .1........ (85) call bpf_throw#73439\n 17: .......... (b4) w0 = 0\n 18: 0......... (95) exit\n0: R1=ctx() R10=fp0\n; int reject_async_callback_throw(struct __sk_buff *ctx) @ prog.c:44\n0: (b4) w6 = 0                        ; R6_w=0\n; elem = bpf_map_lookup_elem(&hmap, &(int){0}); @ prog.c:48\n1: (63) *(u32 *)(r10 -4) = r6\nmark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1 \nmark_precise: frame0: regs=r6 stack= before 0: (b4) w6 = 0\n2: R6_w=0 R10=fp0 fp-8=0000????\n2: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0\n3: (07) r2 += -4                      ; R2_w=fp-4\n4: (18) r1 = 0xffff8f0160767c00       ; R1_w=map_ptr(map=hmap,ks=4,vs=16)\n6: (85) call bpf_map_lookup_elem#1    ; R0_w=map_value_or_null(id=1,map=hmap,ks=4,vs=16)\n; if (!elem) @ prog.c:49\n7: (15) if r0 == 0x0 goto pc+5        ; R0_w=map_value(map=hmap,ks=4,vs=16)\n; return bpf_timer_set_callback(&elem->timer, timer_cb); @ prog.c:51\n8: (bf) r1 = r0                       ; R0=map_value(map=hmap,ks=4,vs=16) R1=map_value(map=hmap,ks=4,vs=16)\n9: (18) r2 = 0x5                      ; R2_w=func()\n11: (85) call bpf_timer_set_callback#170      ; R0_w=scalar() R6=0 R10=fp0 fp-8=0000????\n12: (bf) r6 = r0                      ; R0_w=scalar(id=2) R6_w=scalar(id=2)\n; } @ prog.c:52\n13: (bc) w0 = w6                      ; R0_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6_w=scalar(id=2)\n14: (95) exit\n\nfrom 11 to 15: R1=map_ptr(map=hmap,ks=4,vs=16) R2=map_key(map=hmap,ks=4,vs=16) R3=map_value(map=hmap,ks=4,vs=16) R10=fp0 async_cb\n15: R1=map_ptr(map=hmap,ks=4,vs=16) R2=map_key(map=hmap,ks=4,vs=16) R3=map_value(map=hmap,ks=4,vs=16) R10=fp0 async_cb\n; bpf_throw(0); @ prog.c:38\n15: (b7) r1 = 0                       ; R1_w=0 async_cb\n16: (85) call bpf_throw#73439\nJIT does not support calling kfunc bpf_throw#73439\nprocessed 15 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n"}

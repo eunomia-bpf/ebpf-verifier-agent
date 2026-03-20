@@ -1,0 +1,17 @@
+case_id: kernel-selftest-irq-irq-restore-ooo-tc-84ede29d
+checked_at_utc: 2026-03-20T00:37:24.816442+00:00
+source_file: tools/testing/selftests/bpf/progs/irq.c
+target_function: irq_restore_ooo
+section: ?tc
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 7
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-irq-irq-restore-ooo-tc-84ede29d/prog.o","program_name":"irq_restore_ooo","section_name":"tc","load_ok":false,"error_code":-13,"error_message":"Permission denied","verifier_log":"func#0 @0\nLive regs before insn:\n  0: .......... (bf) r6 = r10\n  1: ......6... (07) r6 += -8\n  2: ......6... (bf) r1 = r6\n  3: .1....6... (85) call bpf_local_irq_save#72094\n  4: ......6... (bf) r7 = r10\n  5: ......67.. (07) r7 += -16\n  6: ......67.. (bf) r1 = r7\n  7: .1....67.. (85) call bpf_local_irq_save#72094\n  8: ......67.. (bf) r1 = r6\n  9: .1.....7.. (85) call bpf_local_irq_restore#72093\n 10: .......7.. (bf) r1 = r7\n 11: .1........ (85) call bpf_local_irq_restore#72093\n 12: .......... (b4) w0 = 0\n 13: 0......... (95) exit\n0: R1=ctx() R10=fp0\n; int irq_restore_ooo(struct __sk_buff *ctx) @ prog.c:22\n0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0\n; bpf_local_irq_save(&flags1); @ prog.c:27\n1: (07) r6 += -8                      ; R6_w=fp-8\n2: (bf) r1 = r6                       ; R1_w=fp-8 R6_w=fp-8\n3: (85) call bpf_local_irq_save#72094         ; fp-8_w=ffffffff refs=1\n4: (bf) r7 = r10                      ; R7_w=fp0 R10=fp0 refs=1\n5: (07) r7 += -16                     ; R7_w=fp-16 refs=1\n; bpf_local_irq_save(&flags2); @ prog.c:28\n6: (bf) r1 = r7                       ; R1_w=fp-16 R7_w=fp-16 refs=1\n7: (85) call bpf_local_irq_save#72094         ; fp-16=ffffffff refs=1,2\n; bpf_local_irq_restore(&flags1); @ prog.c:29\n8: (bf) r1 = r6                       ; R1_w=fp-8 R6=fp-8 refs=1,2\n9: (85) call bpf_local_irq_restore#72093\ncannot restore irq state out of order, expected id=2 acquired at insn_idx=7\nprocessed 10 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n"}

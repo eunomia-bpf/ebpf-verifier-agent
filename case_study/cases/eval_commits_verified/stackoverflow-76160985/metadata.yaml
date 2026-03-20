@@ -1,0 +1,46 @@
+case_id: stackoverflow-76160985
+source: stackoverflow
+case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-76160985.yaml
+buggy_origin: source_snippets
+fixed_origin: source_snippets
+repository_hint: null
+compile_command_buggy:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-76160985/buggy.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-76160985/buggy.o
+compile_command_fixed:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-76160985/fixed.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-76160985/fixed.o
+load_command_buggy:
+- sudo
+- bpftool
+- -d
+- prog
+- loadall
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-76160985/buggy.o
+- /sys/fs/bpf/stackoverflow-76160985_buggy
+load_command_fixed:
+- sudo
+- bpftool
+- -d
+- prog
+- loadall
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-76160985/fixed.o
+- /sys/fs/bpf/stackoverflow-76160985_fixed

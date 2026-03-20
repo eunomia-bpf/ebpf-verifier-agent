@@ -1,0 +1,27 @@
+func#0 @0
+Live regs before insn:
+  0: .......... (b7) r1 = 0
+  1: .1........ (7b) *(u64 *)(r10 -8) = r1
+  2: .1........ (7b) *(u64 *)(r10 -16) = r1
+  3: .......... (bf) r1 = r10
+  4: .1........ (07) r1 += -16
+  5: .1........ (bf) r2 = r10
+  6: .12....... (07) r2 += -32
+  7: .12....... (85) call bpf_dynptr_clone#71541
+  8: .......... (b4) w0 = 0
+  9: 0......... (95) exit
+arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+0: R1=ctx() R10=fp0
+; int clone_invalid1(void *ctx) @ prog.c:80
+0: (b7) r1 = 0                        ; R1_w=0
+; struct bpf_dynptr ptr1 = {}; @ prog.c:82
+1: (7b) *(u64 *)(r10 -8) = r1         ; R1_w=0 R10=fp0 fp-8_w=0
+2: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=0 R10=fp0 fp-16_w=0
+3: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+4: (07) r1 += -16                     ; R1_w=fp-16
+5: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+6: (07) r2 += -32                     ; R2_w=fp-32
+; bpf_dynptr_clone(&ptr1, &ptr2); @ prog.c:86
+7: (85) call bpf_dynptr_clone#71541
+Expected an initialized dynptr as arg #0
+processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0

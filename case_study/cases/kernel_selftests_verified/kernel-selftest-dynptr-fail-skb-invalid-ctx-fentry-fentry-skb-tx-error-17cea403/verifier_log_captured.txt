@@ -1,0 +1,22 @@
+func#0 @0
+Live regs before insn:
+  0: .1........ (79) r1 = *(u64 *)(r1 +0)
+  1: .1........ (bf) r3 = r10
+  2: .1.3...... (07) r3 += -16
+  3: .1.3...... (b7) r2 = 0
+  4: .123...... (85) call bpf_dynptr_from_skb#71549
+  5: .......... (b4) w0 = 0
+  6: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int BPF_PROG(skb_invalid_ctx_fentry, void *skb) @ prog.c:77
+0: (79) r1 = *(u64 *)(r1 +0)
+func 'skb_tx_error' arg0 has btf_id 925 type STRUCT 'sk_buff'
+1: R1_w=ptr_sk_buff()
+1: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+;  @ prog.c:0
+2: (07) r3 += -16                     ; R3_w=fp-16
+; bpf_dynptr_from_skb(skb, 0, &ptr); @ prog.c:82
+3: (b7) r2 = 0                        ; R2_w=0
+4: (85) call bpf_dynptr_from_skb#71549
+R1 must be referenced or trusted
+processed 5 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0

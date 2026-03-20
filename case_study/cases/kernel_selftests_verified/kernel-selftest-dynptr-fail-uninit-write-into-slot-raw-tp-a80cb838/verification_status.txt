@@ -1,0 +1,17 @@
+case_id: kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838
+checked_at_utc: 2026-03-20T00:37:19.279168+00:00
+source_file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+target_function: uninit_write_into_slot
+section: ?raw_tp
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 14
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838/prog.o","program_name":"uninit_write_into_slot","section_name":"raw_tp","load_ok":false,"error_code":-13,"error_message":"Permission denied","verifier_log":"func#0 @0\nLive regs before insn:\n  0: .......... (bf) r4 = r10\n  1: ....4..... (07) r4 += -16\n  2: ....4..... (18) r1 = 0xffff8f15d5c7a800\n  4: .1..4..... (b4) w2 = 80\n  5: .12.4..... (b7) r3 = 0\n  6: .1234..... (85) call bpf_ringbuf_reserve_dynptr#198\n  7: .......... (bf) r1 = r10\n  8: .1........ (07) r1 += -80\n  9: .1........ (b4) w2 = 80\n 10: .12....... (85) call bpf_get_current_comm#16\n 11: .......... (b4) w0 = 0\n 12: 0......... (95) exit\narg#0 reference type('UNKNOWN ') size cannot be determined: -22\n0: R1=ctx() R10=fp0\n; bpf_ringbuf_reserve_dynptr(&ringbuf, 80, 0, &data.ptr); @ prog.c:85\n0: (bf) r4 = r10                      ; R4_w=fp0 R10=fp0\n1: (07) r4 += -16                     ; R4_w=fp-16\n2: (18) r1 = 0xffff8f15d5c7a800       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)\n4: (b4) w2 = 80                       ; R2_w=80\n5: (b7) r3 = 0                        ; R3_w=0\n6: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2\n7: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=2\n8: (07) r1 += -80                     ; R1_w=fp-80 refs=2\n; bpf_get_current_comm(data.buf, 80); @ prog.c:87\n9: (b4) w2 = 80                       ; R2_w=80 refs=2\n10: (85) call bpf_get_current_comm#16\npotential write to dynptr at off=-16 disallowed\nprocessed 10 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n"}

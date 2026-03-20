@@ -1,0 +1,17 @@
+func#0 @0
+Live regs before insn:
+  0: .......... (18) r1 = 0xffffd2b8defda000
+  2: .1........ (b4) w2 = 0
+  3: .12....... (b4) w3 = 1
+  4: .123...... (85) call bpf_iter_num_new#71887
+  5: .......... (b4) w0 = 0
+  6: 0......... (95) exit
+arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+0: R1=ctx() R10=fp0
+; bpf_iter_num_new(&global_it, 0, 1); @ prog.c:71
+0: (18) r1 = 0xffffd2b8defda000       ; R1_w=map_value(map=prog.bss,ks=4,vs=1192)
+2: (b4) w2 = 0                        ; R2_w=0
+3: (b4) w3 = 1                        ; R3_w=1
+4: (85) call bpf_iter_num_new#71887
+arg#0 expected pointer to an iterator on stack
+processed 4 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0

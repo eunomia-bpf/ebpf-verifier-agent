@@ -1,0 +1,17 @@
+case_id: kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403
+checked_at_utc: 2026-03-20T00:37:18.872710+00:00
+source_file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+target_function: skb_invalid_ctx_fentry
+section: fentry/skb_tx_error
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 14
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403/prog.o","program_name":"skb_invalid_ctx_fentry","section_name":"fentry/skb_tx_error","load_ok":false,"error_code":-22,"error_message":"Invalid argument","verifier_log":"func#0 @0\nLive regs before insn:\n  0: .1........ (79) r1 = *(u64 *)(r1 +0)\n  1: .1........ (bf) r3 = r10\n  2: .1.3...... (07) r3 += -16\n  3: .1.3...... (b7) r2 = 0\n  4: .123...... (85) call bpf_dynptr_from_skb#71549\n  5: .......... (b4) w0 = 0\n  6: 0......... (95) exit\n0: R1=ctx() R10=fp0\n; int BPF_PROG(skb_invalid_ctx_fentry, void *skb) @ prog.c:77\n0: (79) r1 = *(u64 *)(r1 +0)\nfunc 'skb_tx_error' arg0 has btf_id 925 type STRUCT 'sk_buff'\n1: R1_w=ptr_sk_buff()\n1: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0\n;  @ prog.c:0\n2: (07) r3 += -16                     ; R3_w=fp-16\n; bpf_dynptr_from_skb(skb, 0, &ptr); @ prog.c:82\n3: (b7) r2 = 0                        ; R2_w=0\n4: (85) call bpf_dynptr_from_skb#71549\nR1 must be referenced or trusted\nprocessed 5 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n"}

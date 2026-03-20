@@ -1,0 +1,10 @@
+case_id: stackoverflow-60506220
+source: stackoverflow
+case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-60506220.yaml
+buggy_origin: source_snippets
+fixed_origin: null
+repository_hint: null
+compile_command_buggy: []
+compile_command_fixed: null
+load_command_buggy: []
+load_command_fixed: null

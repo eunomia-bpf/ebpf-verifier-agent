@@ -1,0 +1,11 @@
+case_id: stackoverflow-72005172
+source_bucket: stackoverflow
+language: c
+source_origin: source_snippets[0] ->
+compile_ok: False
+verifier_status: not_run
+verifier_error_match: unknown
+fixed_status: not_attempted
+original_error: Prog section 'classifier' rejected: Permission denied (13)!
+captured_error: <none>
+notes: No source variant compiled with the exact clang command requested.

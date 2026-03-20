@@ -1,0 +1,65 @@
+case_id: eval-bcc-89c7f409b4a6
+source: eval_commits
+repository: https://github.com/iovisor/bcc
+repo_name: bcc
+commit_hash: 89c7f409b4a683abc5524057dfb6d2047ba1a827
+parent_commit: bd301e1bcb163fa38b2cdc6793d6681a4fa16ff2
+case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits/eval-bcc-89c7f409b4a6.yaml
+score: 4
+changed_files:
+- libbpf-tools/ksnoop.bpf.c
+selected_source_file: libbpf-tools/ksnoop.bpf.c
+buggy_include_closure:
+- libbpf-tools/ksnoop.bpf.c
+- libbpf-tools/ksnoop.h
+- libbpf-tools/x86/vmlinux.h
+fixed_include_closure:
+- libbpf-tools/ksnoop.bpf.c
+- libbpf-tools/ksnoop.h
+- libbpf-tools/x86/vmlinux.h
+unresolved_buggy_includes: []
+unresolved_fixed_includes: []
+compile_command_buggy:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-89c7f409b4a6/headers/buggy/libbpf-tools/x86
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-89c7f409b4a6/headers/buggy/libbpf-tools
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-89c7f409b4a6/buggy.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-89c7f409b4a6/buggy.o
+compile_command_fixed:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-89c7f409b4a6/headers/fixed/libbpf-tools/x86
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-89c7f409b4a6/headers/fixed/libbpf-tools
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-89c7f409b4a6/fixed.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-89c7f409b4a6/fixed.o
+load_command_buggy:
+- sudo
+- bpftool
+- -d
+- prog
+- loadall
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-89c7f409b4a6/buggy.o
+- /sys/fs/bpf/eval-bcc-89c7f409b4a6_buggy
+load_command_fixed:
+- sudo
+- bpftool
+- -d
+- prog
+- loadall
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-89c7f409b4a6/fixed.o
+- /sys/fs/bpf/eval-bcc-89c7f409b4a6_fixed

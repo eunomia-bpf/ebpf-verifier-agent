@@ -1,0 +1,31 @@
+func#0 @0
+Live regs before insn:
+  0: .1........ (79) r1 = *(u64 *)(r1 +8)
+  1: .1........ (7b) *(u64 *)(r10 -8) = r1
+  2: .......... (bf) r1 = r10
+  3: .1........ (07) r1 += -8
+  4: .1........ (7b) *(u64 *)(r10 -16) = r1
+  5: .......... (bf) r1 = r10
+  6: .1........ (07) r1 += -16
+  7: .1........ (85) call bpf_cgroup_acquire#71302
+  8: 0......... (15) if r0 == 0x0 goto pc+2
+  9: 0......... (bf) r1 = r0
+ 10: .1........ (85) call bpf_cgroup_release#71323
+ 11: .......... (b4) w0 = 0
+ 12: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int BPF_PROG(cgrp_kfunc_acquire_fp, struct cgroup *cgrp, const char *path) @ prog.c:15
+0: (79) r1 = *(u64 *)(r1 +8)          ; R1_w=scalar()
+1: (7b) *(u64 *)(r10 -8) = r1         ; R1_w=scalar(id=1) R10=fp0 fp-8_w=scalar(id=1)
+2: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+;  @ prog.c:0
+3: (07) r1 += -8                      ; R1_w=fp-8
+; struct cgroup *acquired, *stack_cgrp = (struct cgroup *)&path; @ prog.c:17
+4: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=fp-8 R10=fp0 fp-16_w=fp-8
+5: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+;  @ prog.c:0
+6: (07) r1 += -16                     ; R1_w=fp-16
+; acquired = bpf_cgroup_acquire((struct cgroup *)&stack_cgrp); @ prog.c:20
+7: (85) call bpf_cgroup_acquire#71302
+arg#0 pointer type STRUCT cgroup must point to scalar, or struct with scalar
+processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0

@@ -1,0 +1,4 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-74178703/buggy.c:7:1: error: expected identifier or '('
+    7 | if (offset + i >= 1024) {
+      | ^
+1 error generated.

@@ -1,0 +1,11 @@
+case_id: stackoverflow-75643912
+source_bucket: stackoverflow
+language: c
+source_origin: body[0] ->
+compile_ok: False
+verifier_status: not_run
+verifier_error_match: unknown
+fixed_status: not_attempted
+original_error: invalid access to packet, off=14 size=1, R4(id=3,off=14,r=14)
+captured_error: <none>
+notes: No source variant compiled with the exact clang command requested.

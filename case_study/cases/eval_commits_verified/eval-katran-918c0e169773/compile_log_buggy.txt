@@ -1,0 +1,89 @@
+In file included from <built-in>:4:
+/usr/src/linux-headers-6.15.11-061511-generic/include/uapi/linux/types.h:10:2: warning: "Attempt to use kernel headers from user space, see https://kernelnewbies.org/KernelHeaders" [-W#warnings]
+   10 | #warning "Attempt to use kernel headers from user space, see https://kernelnewbies.org/KernelHeaders"
+      |  ^
+In file included from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/buggy.c:6:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/uapi/linux/in.h:334:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/uapi/asm/byteorder.h:5:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/uapi/linux/byteorder/little_endian.h:14:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/uapi/linux/swab.h:8:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/uapi/asm/swab.h:6:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/linux/compiler.h:390:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/generated/asm/rwonce.h:1:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/asm-generic/rwonce.h:27:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/linux/kcsan-checks.h:13:
+/usr/src/linux-headers-6.15.11-061511-generic/include/linux/compiler_attributes.h:55:9: warning: '__always_inline' macro redefined [-Wmacro-redefined]
+   55 | #define __always_inline                 inline __attribute__((__always_inline__))
+      |         ^
+/usr/include/sys/cdefs.h:441:10: note: previous definition is here
+  441 | # define __always_inline __inline __attribute__ ((__always_inline__))
+      |          ^
+In file included from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/buggy.c:6:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/uapi/linux/in.h:334:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/uapi/asm/byteorder.h:5:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/uapi/linux/byteorder/little_endian.h:14:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/uapi/linux/swab.h:8:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/uapi/asm/swab.h:6:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/linux/compiler.h:390:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/generated/asm/rwonce.h:1:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/asm-generic/rwonce.h:27:
+In file included from /usr/src/linux-headers-6.15.11-061511-generic/include/linux/kcsan-checks.h:13:
+/usr/src/linux-headers-6.15.11-061511-generic/include/linux/compiler_attributes.h:83:9: warning: '__attribute_const__' macro redefined [-Wmacro-redefined]
+   83 | #define __attribute_const__             __attribute__((__const__))
+      |         ^
+/usr/include/sys/cdefs.h:332:10: note: previous definition is here
+  332 | # define __attribute_const__ __attribute__ ((__const__))
+      |          ^
+In file included from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/buggy.c:18:
+In file included from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/pckt_encap.h:37:
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/pckt_parsing.h:90:15: warning: comparison of distinct pointer types ('struct udphdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+   90 |   if (udp + 1 > data_end) {
+      |       ~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/pckt_parsing.h:116:15: warning: comparison of distinct pointer types ('struct tcphdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  116 |   if (tcp + 1 > data_end) {
+      |       ~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/pckt_parsing.h:159:53: warning: comparison of distinct pointer types ('__u8 *' (aka 'unsigned char *') and 'void *') [-Wcompare-distinct-pointer-types]
+  159 |     if (quic_data + sizeof(struct quic_long_header) > data_end) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/pckt_parsing.h:184:54: warning: comparison of distinct pointer types ('__u8 *' (aka 'unsigned char *') and 'void *') [-Wcompare-distinct-pointer-types]
+  184 |     if (quic_data + sizeof(struct quic_short_header) > data_end) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^ ~~~~~~~~
+In file included from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/buggy.c:18:
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/pckt_encap.h:125:19: warning: comparison of distinct pointer types ('struct eth_hdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  125 |   if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+      |       ~~~~~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/pckt_encap.h:125:45: warning: comparison of distinct pointer types ('struct eth_hdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  125 |   if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+      |                                 ~~~~~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/pckt_encap.h:125:68: warning: comparison of distinct pointer types ('struct ipv6hdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  125 |   if (new_eth + 1 > data_end || old_eth + 1 > data_end || ip6h + 1 > data_end) {
+      |                                                           ~~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/pckt_encap.h:176:19: warning: comparison of distinct pointer types ('struct eth_hdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  176 |   if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+      |       ~~~~~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/pckt_encap.h:176:45: warning: comparison of distinct pointer types ('struct eth_hdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  176 |   if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+      |                                 ~~~~~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/pckt_encap.h:176:67: warning: comparison of distinct pointer types ('struct iphdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  176 |   if (new_eth + 1 > data_end || old_eth + 1 > data_end || iph + 1 > data_end) {
+      |                                                           ~~~~~~~ ^ ~~~~~~~~
+In file included from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/buggy.c:20:
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/handle_icmp.h:228:20: warning: comparison of distinct pointer types ('struct icmp6hdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  228 |   if (icmp_hdr + 1 > data_end) {
+      |       ~~~~~~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/handle_icmp.h:242:16: warning: comparison of distinct pointer types ('struct ipv6hdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  242 |   if (ip6h + 1 > data_end) {
+      |       ~~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/handle_icmp.h:258:20: warning: comparison of distinct pointer types ('struct icmphdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  258 |   if (icmp_hdr + 1 > data_end) {
+      |       ~~~~~~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/headers/buggy/katran/lib/bpf/handle_icmp.h:269:15: warning: comparison of distinct pointer types ('struct iphdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  269 |   if (iph + 1 > data_end) {
+      |       ~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/buggy.c:180:18: warning: comparison of distinct pointer types ('struct ipv6hdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  180 |     if (ip6h + 1 > data_end) {
+      |         ~~~~~~~~ ^ ~~~~~~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-918c0e169773/buggy.c:214:17: warning: comparison of distinct pointer types ('struct iphdr *' and 'void *') [-Wcompare-distinct-pointer-types]
+  214 |     if (iph + 1 > data_end) {
+      |         ~~~~~~~ ^ ~~~~~~~~
+19 warnings generated.

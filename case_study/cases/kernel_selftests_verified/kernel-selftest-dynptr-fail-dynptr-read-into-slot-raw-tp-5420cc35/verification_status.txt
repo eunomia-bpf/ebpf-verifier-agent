@@ -1,0 +1,17 @@
+case_id: kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35
+checked_at_utc: 2026-03-20T00:37:17.483267+00:00
+source_file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+target_function: dynptr_read_into_slot
+section: ?raw_tp
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 14
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35/prog.o","program_name":"dynptr_read_into_slot","section_name":"raw_tp","load_ok":false,"error_code":-13,"error_message":"Permission denied","verifier_log":"func#0 @0\nLive regs before insn:\n  0: .......... (bf) r6 = r10\n  1: ......6... (07) r6 += -16\n  2: ......6... (18) r1 = 0xffff8f01868d8500\n  4: .1....6... (b4) w2 = 64\n  5: .12...6... (b7) r3 = 0\n  6: .123..6... (bf) r4 = r6\n  7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198\n  8: ......6... (bf) r1 = r10\n  9: .1....6... (07) r1 += -64\n 10: .1....6... (b7) r2 = 64\n 11: .12...6... (bf) r3 = r6\n 12: .123...... (b7) r4 = 0\n 13: .1234..... (b7) r5 = 0\n 14: .12345.... (85) call bpf_dynptr_read#201\n 15: .......... (b4) w0 = 0\n 16: 0......... (95) exit\narg#0 reference type('UNKNOWN ') size cannot be determined: -22\n0: R1=ctx() R10=fp0\n; bpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &data.ptr); @ prog.c:88\n0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0\n1: (07) r6 += -16                     ; R6_w=fp-16\n2: (18) r1 = 0xffff8f01868d8500       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)\n4: (b4) w2 = 64                       ; R2_w=64\n5: (b7) r3 = 0                        ; R3_w=0\n6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16\n7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2\n8: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=2\n9: (07) r1 += -64                     ; R1_w=fp-64 refs=2\n; bpf_dynptr_read(data.buf, sizeof(data.buf), &data.ptr, 0, 0); @ prog.c:90\n10: (b7) r2 = 64                      ; R2_w=64 refs=2\n11: (bf) r3 = r6                      ; R3_w=fp-16 R6_w=fp-16 refs=2\n12: (b7) r4 = 0                       ; R4_w=0 refs=2\n13: (b7) r5 = 0                       ; R5_w=0 refs=2\n14: (85) call bpf_dynptr_read#201\npotential write to dynptr at off=-16 disallowed\nprocessed 14 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n"}

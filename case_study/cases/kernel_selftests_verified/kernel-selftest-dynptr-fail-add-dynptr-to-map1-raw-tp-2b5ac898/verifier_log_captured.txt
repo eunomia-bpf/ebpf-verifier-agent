@@ -1,0 +1,53 @@
+func#0 @0
+Live regs before insn:
+  0: .......... (b4) w1 = 0
+  1: .1........ (63) *(u32 *)(r10 -20) = r1
+  2: .......... (18) r1 = 0xffffd2b8ce609000
+  4: .1........ (61) r2 = *(u32 *)(r1 +0)
+  5: ..2....... (bf) r6 = r10
+  6: ..2...6... (07) r6 += -16
+  7: ..2...6... (18) r1 = 0xffff8f15d5c7bb00
+  9: .12...6... (b7) r3 = 0
+ 10: .123..6... (bf) r4 = r6
+ 11: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+ 12: ......6... (bf) r2 = r10
+ 13: ..2...6... (07) r2 += -20
+ 14: ..2...6... (18) r1 = 0xffff8f016ec0ac00
+ 16: .12...6... (bf) r3 = r6
+ 17: .123..6... (b7) r4 = 0
+ 18: .1234.6... (85) call bpf_map_update_elem#2
+ 19: ......6... (bf) r1 = r6
+ 20: .1........ (b7) r2 = 0
+ 21: .12....... (85) call bpf_ringbuf_submit_dynptr#199
+ 22: .......... (b4) w0 = 0
+ 23: 0......... (95) exit
+arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+0: R1=ctx() R10=fp0
+; int add_dynptr_to_map1(void *ctx) @ prog.c:75
+0: (b4) w1 = 0                        ; R1_w=0
+; int key = 0; @ prog.c:78
+1: (63) *(u32 *)(r10 -20) = r1
+mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 0: (b4) w1 = 0
+2: R1_w=0 R10=fp0 fp-24=0000????
+; bpf_ringbuf_reserve_dynptr(&ringbuf, val, 0, &ptr); @ prog.c:80
+2: (18) r1 = 0xffffd2b8ce609000       ; R1_w=map_value(map=prog.bss,ks=4,vs=24)
+4: (61) r2 = *(u32 *)(r1 +0)          ; R1_w=map_value(map=prog.bss,ks=4,vs=24) R2_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+5: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+; int key = 0; @ prog.c:78
+6: (07) r6 += -16                     ; R6_w=fp-16
+; bpf_ringbuf_reserve_dynptr(&ringbuf, val, 0, &ptr); @ prog.c:80
+7: (18) r1 = 0xffff8f15d5c7bb00       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+9: (b7) r3 = 0                        ; R3_w=0
+10: (bf) r4 = r6                      ; R4_w=fp-16 R6_w=fp-16
+11: (85) call bpf_ringbuf_reserve_dynptr#198          ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+12: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0 refs=2
+; int key = 0; @ prog.c:78
+13: (07) r2 += -20                    ; R2_w=fp-20 refs=2
+; bpf_map_update_elem(&array_map1, &key, &ptr, 0); @ prog.c:83
+14: (18) r1 = 0xffff8f016ec0ac00      ; R1_w=map_ptr(map=array_map1,ks=4,vs=16) refs=2
+16: (bf) r3 = r6                      ; R3_w=fp-16 R6_w=fp-16 refs=2
+17: (b7) r4 = 0                       ; R4_w=0 refs=2
+18: (85) call bpf_map_update_elem#2
+invalid read from stack R3 off -16+0 size 16
+processed 16 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0

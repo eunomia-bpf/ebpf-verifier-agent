@@ -1,0 +1,59 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:1:5: error: expected parameter declarator
+    1 | SEC("entry_point_prog")
+      |     ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:1:5: error: expected ')'
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:1:4: note: to match this '('
+    1 | SEC("entry_point_prog")
+      |    ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:1:1: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    1 | SEC("entry_point_prog")
+      | ^
+      | int
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:1:24: error: expected ';' after top level declarator
+    1 | SEC("entry_point_prog")
+      |                        ^
+      |                        ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:2:24: warning: declaration of 'struct xdp_md' will not be visible outside of this function [-Wvisibility]
+    2 | int entry_point(struct xdp_md *ctx)
+      |                        ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:4:15: error: use of undeclared identifier 'XDP_DROP'
+    4 |     int act = XDP_DROP;
+      |               ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:7:20: error: variable has incomplete type 'struct ip_addr'
+    7 |     struct ip_addr addr = {};
+      |                    ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:7:12: note: forward declaration of 'struct ip_addr'
+    7 |     struct ip_addr addr = {};
+      |            ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:8:21: error: variable has incomplete type 'struct some_key'
+    8 |     struct some_key key = {};
+      |                     ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:8:12: note: forward declaration of 'struct some_key'
+    8 |     struct some_key key = {};
+      |            ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:11:15: error: call to undeclared function 'bpf_map_lookup_elem'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   11 |     globals = bpf_map_lookup_elem(&globals_map, &i);
+      |               ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:11:36: error: use of undeclared identifier 'globals_map'
+   11 |     globals = bpf_map_lookup_elem(&globals_map, &i);
+      |                                    ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:13:16: error: use of undeclared identifier 'XDP_ABORTED'
+   13 |         return XDP_ABORTED;
+      |                ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:15:10: error: call to undeclared function 'some_inlined_func'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   15 |     rc = some_inlined_func(ctx, &key);
+      |          ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:18:33: error: use of undeclared identifier 'some_map'
+   18 |     temp = bpf_map_lookup_elem(&some_map, &addr);
+      |                                 ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:27:19: error: use of undeclared identifier 'XDP_PASS'
+   27 |             act = XDP_PASS;
+      |                   ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:36:16: error: expected ';' after top level declarator
+   36 | char _license[] SEC("license") = "GPL";
+      |                ^
+      |                ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-53136145/buggy.c:36:6: warning: tentative array definition assumed to have one element
+   36 | char _license[] SEC("license") = "GPL";
+      |      ^
+2 warnings and 14 errors generated.

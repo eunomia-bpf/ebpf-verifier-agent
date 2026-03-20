@@ -1,0 +1,11 @@
+case_id: github-aya-rs-aya-1002
+source_bucket: github_issues
+language: rust
+source_origin: source_snippets[0] ->
+compile_ok: False
+verifier_status: not_run
+verifier_error_match: unknown
+fixed_status: not_attempted
+original_error: processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+captured_error: <none>
+notes: No source variant compiled with the exact clang command requested.

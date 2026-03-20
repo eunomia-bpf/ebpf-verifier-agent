@@ -1,0 +1,11 @@
+case_id: github-cilium-cilium-41412
+source_bucket: github_issues
+language: c
+source_origin: body[0] ->
+compile_ok: False
+verifier_status: not_run
+verifier_error_match: unknown
+fixed_status: not_attempted
+original_error: processed 496185 insns (limit 1000000) max_states_per_insn 4 total_states 6230 peak_states 6230 mark_read 3871
+captured_error: <none>
+notes: No source variant compiled with the exact clang command requested.

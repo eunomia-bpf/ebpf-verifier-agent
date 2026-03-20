@@ -1,0 +1,17 @@
+case_id: kernel-selftest-iters-iter-new-bad-arg-raw-tp-e25f0e76
+checked_at_utc: 2026-03-20T00:37:26.863714+00:00
+source_file: tools/testing/selftests/bpf/progs/iters.c
+target_function: iter_new_bad_arg
+section: raw_tp
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 9
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-iters-iter-new-bad-arg-raw-tp-e25f0e76/prog.o","program_name":"iter_new_bad_arg","section_name":"raw_tp","load_ok":false,"error_code":-22,"error_message":"Invalid argument","verifier_log":"func#0 @0\nLive regs before insn:\n  0: .......... (18) r1 = 0xffffd2b8defda000\n  2: .1........ (b4) w2 = 0\n  3: .12....... (b4) w3 = 1\n  4: .123...... (85) call bpf_iter_num_new#71887\n  5: .......... (b4) w0 = 0\n  6: 0......... (95) exit\narg#0 reference type('UNKNOWN ') size cannot be determined: -22\n0: R1=ctx() R10=fp0\n; bpf_iter_num_new(&global_it, 0, 1); @ prog.c:71\n0: (18) r1 = 0xffffd2b8defda000       ; R1_w=map_value(map=prog.bss,ks=4,vs=1192)\n2: (b4) w2 = 0                        ; R2_w=0\n3: (b4) w3 = 1                        ; R3_w=1\n4: (85) call bpf_iter_num_new#71887\narg#0 expected pointer to an iterator on stack\nprocessed 4 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n"}

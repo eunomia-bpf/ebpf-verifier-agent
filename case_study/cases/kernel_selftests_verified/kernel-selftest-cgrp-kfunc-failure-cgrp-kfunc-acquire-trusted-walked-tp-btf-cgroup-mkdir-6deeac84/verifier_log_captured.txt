@@ -1,0 +1,20 @@
+func#0 @0
+Live regs before insn:
+  0: .1........ (79) r1 = *(u64 *)(r1 +0)
+  1: .1........ (79) r1 = *(u64 *)(r1 +1008)
+  2: .1........ (85) call bpf_cgroup_acquire#71302
+  3: 0......... (15) if r0 == 0x0 goto pc+2
+  4: 0......... (bf) r1 = r0
+  5: .1........ (85) call bpf_cgroup_release#71323
+  6: .......... (b4) w0 = 0
+  7: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int BPF_PROG(cgrp_kfunc_acquire_trusted_walked, struct cgroup *cgrp, const char *path) @ prog.c:15
+0: (79) r1 = *(u64 *)(r1 +0)
+func 'cgroup_mkdir' arg0 has btf_id 548 type STRUCT 'cgroup'
+1: R1_w=trusted_ptr_cgroup()
+; acquired = bpf_cgroup_acquire(cgrp->old_dom_cgrp); @ prog.c:20
+1: (79) r1 = *(u64 *)(r1 +1008)       ; R1_w=ptr_cgroup()
+2: (85) call bpf_cgroup_acquire#71302
+R1 must be a rcu pointer
+processed 3 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0

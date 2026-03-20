@@ -1,0 +1,99 @@
+func#0 @0
+Live regs before insn:
+  0: .......... (b4) w1 = 0
+  1: .1........ (63) *(u32 *)(r10 -4) = r1
+  2: .......... (bf) r6 = r10
+  3: ......6... (07) r6 += -16
+  4: ......6... (bf) r1 = r6
+  5: .1....6... (b4) w2 = 0
+  6: .12...6... (b4) w3 = 1000000
+  7: .123..6... (85) call bpf_iter_num_new#71887
+  8: ......6... (bf) r1 = r6
+  9: .1........ (85) call bpf_iter_num_next#71889
+ 10: 0......... (bf) r6 = r0
+ 11: ......6... (15) if r6 == 0x0 goto pc+18
+ 12: ......6... (bf) r2 = r10
+ 13: ..2...6... (07) r2 += -4
+ 14: ..2...6... (18) r1 = 0xffff8f0186d6dc00
+ 16: .12...6... (85) call bpf_map_lookup_elem#1
+ 17: 0.....6... (bf) r7 = r0
+ 18: ......67.. (bf) r1 = r10
+ 19: .1....67.. (07) r1 += -16
+ 20: .1....67.. (85) call bpf_iter_num_next#71889
+ 21: 0.....67.. (15) if r0 == 0x0 goto pc+1
+ 22: ......6... (05) goto pc-11
+ 23: ......67.. (bf) r1 = r10
+ 24: .1....67.. (07) r1 += -16
+ 25: .1....67.. (85) call bpf_iter_num_destroy#71885
+ 26: ......67.. (15) if r6 == 0x0 goto pc+6
+ 27: .......7.. (b4) w1 = 123
+ 28: .1.....7.. (63) *(u32 *)(r7 +0) = r1
+ 29: .......... (05) goto pc+3
+ 30: .......... (bf) r1 = r10
+ 31: .1........ (07) r1 += -16
+ 32: .1........ (85) call bpf_iter_num_destroy#71885
+ 33: .......... (b4) w0 = 0
+ 34: 0......... (95) exit
+arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+0: R1=ctx() R10=fp0
+; int iter_err_too_permissive3(const void *ctx) @ prog.c:54
+0: (b4) w1 = 0                        ; R1_w=0
+; int key = 0; @ prog.c:57
+1: (63) *(u32 *)(r10 -4) = r1
+mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 0: (b4) w1 = 0
+2: R1_w=0 R10=fp0 fp-8=0000????
+2: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+;  @ prog.c:0
+3: (07) r6 += -16                     ; R6_w=fp-16
+; bpf_repeat(1000000) { @ prog.c:62
+4: (bf) r1 = r6                       ; R1_w=fp-16 R6_w=fp-16
+5: (b4) w2 = 0                        ; R2_w=0
+6: (b4) w3 = 1000000                  ; R3_w=0xf4240
+7: (85) call bpf_iter_num_new#71887   ; R0_w=scalar() fp-16_w=iter_num(ref_id=1,state=active,depth=0) refs=1
+8: (bf) r1 = r6                       ; R1=fp-16 R6=fp-16 refs=1
+9: (85) call bpf_iter_num_next#71889          ; R0_w=0 fp-16=iter_num(ref_id=1,state=drained,depth=0) refs=1
+10: (bf) r6 = r0                      ; R0_w=0 R6_w=0 refs=1
+11: (15) if r6 == 0x0 goto pc+18
+mark_precise: frame0: last_idx 11 first_idx 9 subseq_idx -1 
+mark_precise: frame0: regs=r6 stack= before 10: (bf) r6 = r0
+mark_precise: frame0: regs=r0 stack= before 9: (85) call bpf_iter_num_next#71889
+11: R6_w=0 refs=1
+; *map_val = 123; @ prog.c:68
+30: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0 refs=1
+; bpf_repeat(1000000) { @ prog.c:62
+31: (07) r1 += -16                    ; R1_w=fp-16 refs=1
+32: (85) call bpf_iter_num_destroy#71885      ;
+; return 0; @ prog.c:70
+33: (b4) w0 = 0                       ; R0_w=0
+34: (95) exit
+
+from 9 to 10: R0=rdonly_mem(id=2,ref_obj_id=1,sz=4) R6=fp-16 R10=fp0 fp-8=0000???? fp-16=iter_num(ref_id=1,state=active,depth=1) refs=1
+10: R0=rdonly_mem(id=2,ref_obj_id=1,sz=4) R6=fp-16 R10=fp0 fp-8=0000???? fp-16=iter_num(ref_id=1,state=active,depth=1) refs=1
+; bpf_repeat(1000000) { @ prog.c:62
+10: (bf) r6 = r0                      ; R0=rdonly_mem(id=2,ref_obj_id=1,sz=4) R6_w=rdonly_mem(id=2,ref_obj_id=1,sz=4) refs=1
+11: (15) if r6 == 0x0 goto pc+18      ; R6_w=rdonly_mem(id=2,ref_obj_id=1,sz=4) refs=1
+12: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0 refs=1
+; map_val = bpf_map_lookup_elem(&hash_map, &key); @ prog.c:63
+13: (07) r2 += -4                     ; R2_w=fp-4 refs=1
+14: (18) r1 = 0xffff8f0186d6dc00      ; R1_w=map_ptr(map=hash_map,ks=4,vs=4) refs=1
+16: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value_or_null(id=3,map=hash_map,ks=4,vs=4) refs=1
+17: (bf) r7 = r0                      ; R0_w=map_value_or_null(id=3,map=hash_map,ks=4,vs=4) R7_w=map_value_or_null(id=3,map=hash_map,ks=4,vs=4) refs=1
+18: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0 refs=1
+19: (07) r1 += -16                    ; R1=fp-16 refs=1
+; bpf_repeat(1000000) { @ prog.c:62
+20: (85) call bpf_iter_num_next#71889         ; R0_w=0 fp-16=iter_num(ref_id=1,state=drained,depth=1) refs=1
+21: (15) if r0 == 0x0 goto pc+1
+mark_precise: frame0: last_idx 21 first_idx 20 subseq_idx -1 
+mark_precise: frame0: regs=r0 stack= before 20: (85) call bpf_iter_num_next#71889
+21: R0_w=0 refs=1
+23: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0 refs=1
+24: (07) r1 += -16                    ; R1_w=fp-16 refs=1
+25: (85) call bpf_iter_num_destroy#71885      ;
+; if (found) @ prog.c:67
+26: (15) if r6 == 0x0 goto pc+6       ; R6=scalar(umin=1)
+27: (b4) w1 = 123                     ; R1_w=123
+; *map_val = 123; @ prog.c:68
+28: (63) *(u32 *)(r7 +0) = r1
+R7 invalid mem access 'map_value_or_null'
+processed 34 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2

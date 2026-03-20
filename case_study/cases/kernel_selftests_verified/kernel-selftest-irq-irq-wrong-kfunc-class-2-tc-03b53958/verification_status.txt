@@ -1,0 +1,17 @@
+case_id: kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958
+checked_at_utc: 2026-03-20T00:37:26.389763+00:00
+source_file: tools/testing/selftests/bpf/progs/irq.c
+target_function: irq_wrong_kfunc_class_2
+section: ?tc
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 7
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958/prog.o","program_name":"irq_wrong_kfunc_class_2","section_name":"tc","load_ok":false,"error_code":-22,"error_message":"Invalid argument","verifier_log":"func#0 @0\nLive regs before insn:\n  0: .......... (bf) r1 = r10\n  1: .1........ (07) r1 += -8\n  2: .1........ (85) call bpf_local_irq_save#72094\n  3: .......... (bf) r2 = r10\n  4: ..2....... (07) r2 += -16\n  5: ..2....... (18) r1 = 0xffff8f1891506f08\n  7: .12....... (85) call bpf_res_spin_lock_irqsave#73032\n  8: 0......... (56) if w0 != 0x0 goto pc+8\n  9: .......... (bf) r1 = r10\n 10: .1........ (07) r1 += -16\n 11: .1........ (85) call bpf_local_irq_restore#72093\n 12: .......... (bf) r2 = r10\n 13: ..2....... (07) r2 += -8\n 14: ..2....... (18) r1 = 0xffff8f1891506f08\n 16: .12....... (85) call bpf_res_spin_unlock_irqrestore#73036\n 17: .......... (b4) w0 = 0\n 18: 0......... (95) exit\n0: R1=ctx() R10=fp0\n; int irq_wrong_kfunc_class_2(struct __sk_buff *ctx) @ prog.c:22\n0: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0\n; bpf_local_irq_save(&flags1); @ prog.c:26\n1: (07) r1 += -8                      ; R1_w=fp-8\n2: (85) call bpf_local_irq_save#72094         ; fp-8_w=ffffffff refs=1\n3: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0 refs=1\n4: (07) r2 += -16                     ; R2_w=fp-16 refs=1\n; if (bpf_res_spin_lock_irqsave(&lockA, &flags2)) @ prog.c:27\n5: (18) r1 = 0xffff8f1891506f08       ; R1_w=map_value(map=.data.A,ks=4,vs=4) refs=1\n7: (85) call bpf_res_spin_lock_irqsave#73032          ; R0=0 fp-16=ffffffff refs=1,2\n8: (56) if w0 != 0x0 goto pc+8\nmark_precise: frame0: last_idx 8 first_idx 8 subseq_idx -1 \nmark_precise: frame0: parent state regs=r0 stack=:  R0_rw=P0 R10=fp0 fp-8_w=ffffffff fp-16_w=ffffffff refs=1,2\nmark_precise: frame0: last_idx 7 first_idx 0 subseq_idx 8 \nmark_precise: frame0: regs=r0 stack= before 7: (85) call bpf_res_spin_lock_irqsave#73032\n8: R0=0 refs=1,2\n9: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=1,2\n; bpf_local_irq_restore(&flags2); @ prog.c:29\n10: (07) r1 += -16                    ; R1_w=fp-16 refs=1,2\n11: (85) call bpf_local_irq_restore#72093\nfunction calls are not allowed while holding a lock\nprocessed 11 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n"}

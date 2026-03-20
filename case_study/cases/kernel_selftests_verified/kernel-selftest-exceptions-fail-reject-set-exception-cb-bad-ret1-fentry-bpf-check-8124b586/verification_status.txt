@@ -1,0 +1,17 @@
+case_id: kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586
+checked_at_utc: 2026-03-20T00:37:20.813041+00:00
+source_file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+target_function: reject_set_exception_cb_bad_ret1
+section: ?fentry/bpf_check
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 7
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586/prog.o","program_name":"reject_set_exception_cb_bad_ret1","section_name":"fentry/bpf_check","load_ok":false,"error_code":-22,"error_message":"Invalid argument","verifier_log":"func#0 @0\nfunc#1 @2\nLive regs before insn:\n  0: .......... (b4) w0 = 0\n  1: 0......... (95) exit\n  2: .1........ (bf) r0 = r1\n  3: 0......... (95) exit\narg#0 reference type('UNKNOWN ') size cannot be determined: -22\n0: R1=ctx() R10=fp0\n; return 0; @ prog.c:45\n0: (b4) w0 = 0                        ; R0_w=0\n1: (95) exit\nmark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1 \nmark_precise: frame0: regs=r0 stack= before 0: (b4) w0 = 0\nValidating exception_cb_bad_ret() func#1...\n2: R1=scalar() R10=fp0\n; __noinline int exception_cb_bad_ret(u64 c) @ prog.c:35\n2: (bf) r0 = r1                       ; R0_w=scalar(id=1) R1=scalar(id=1)\n; return c; @ prog.c:37\n3: (95) exit\nmark_precise: frame0: last_idx 3 first_idx 2 subseq_idx -1 \nmark_precise: frame0: regs=r0 stack= before 2: (bf) r0 = r1\nmark_precise: frame0: falling back to forcing all scalars precise\nAt program exit the register R0 has unknown scalar value should have been in [0, 0]\nprocessed 4 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n"}

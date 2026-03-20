@@ -1,0 +1,6 @@
+In file included from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-72560675/fixed.c:2:
+In file included from /usr/include/linux/bpf.h:11:
+/usr/include/linux/types.h:5:10: fatal error: 'asm/types.h' file not found
+    5 | #include <asm/types.h>
+      |          ^~~~~~~~~~~~~
+1 error generated.

@@ -1,0 +1,52 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-68752893/prog.o
+libbpf: elf: section(3) xdp, size 64, link 0, flags 6, type=1
+libbpf: sec 'xdp': found program 'dropper' at insn offset 0 (0 bytes), code size 8 insns (64 bytes)
+libbpf: elf: section(4) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-68752893/prog.o is GPL
+libbpf: elf: section(14) .BTF, size 1148, link 0, flags 0, type=1
+libbpf: elf: section(16) .BTF.ext, size 172, link 0, flags 0, type=1
+libbpf: elf: section(24) .symtab, size 336, link 1, flags 0, type=2
+libbpf: looking for externs among 14 symbols...
+libbpf: collected 0 externs total
+libbpf: object 'prog': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: loaded kernel BTF from '/sys/kernel/btf/vmlinux'
+libbpf: sec 'xdp': found 2 CO-RE relocations
+libbpf: CO-RE relocating [2] struct xdp_md: found target candidate [14922] struct xdp_md in [vmlinux]
+libbpf: prog 'dropper': relo #0: <byte_off> [2] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'dropper': relo #0: matching candidate #0 <byte_off> [14922] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'dropper': relo #0: patched insn #0 (LDX/ST/STX) off 0 -> 0
+libbpf: CO-RE relocating [8] struct iphdr: found target candidate [23765] struct iphdr in [vmlinux]
+libbpf: prog 'dropper': relo #1: <byte_off> [8] struct iphdr.protocol (0:7 @ offset 9)
+libbpf: prog 'dropper': relo #1: matching candidate #0 <byte_off> [23765] struct iphdr.protocol (0:7 @ offset 9)
+libbpf: prog 'dropper': relo #1: patched insn #1 (ALU/ALU64) imm 9 -> 9
+libbpf: prog 'dropper': BPF program load failed: -EACCES
+libbpf: prog 'dropper': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (61) r1 = *(u32 *)(r1 +0)
+  1: .1........ (b7) r2 = 9
+  2: .12....... (0f) r1 += r2
+  3: .1........ (71) r1 = *(u8 *)(r1 +14)
+  4: .1........ (b7) r0 = 1
+  5: 01........ (15) if r1 == 0x11 goto pc+1
+  6: .......... (b7) r0 = 2
+  7: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; struct iphdr *ip = (struct iphdr *)((char*)ctx->data + ipsize); @ prog.c:187
+0: (61) r1 = *(u32 *)(r1 +0)          ; R1_w=pkt(r=0)
+1: (b7) r2 = 9                        ; R2_w=9
+2: (0f) r1 += r2
+mark_precise: frame0: last_idx 2 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 1: (b7) r2 = 9
+3: R1_w=pkt(off=9,r=0) R2_w=9
+; if (ip->protocol == IPPROTO_UDP) { @ prog.c:188
+3: (71) r1 = *(u8 *)(r1 +14)
+invalid access to packet, off=23 size=1, R1(id=0,off=23,r=0)
+R1 offset is outside of the packet
+verification time 33 usec
+stack depth 0
+processed 4 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+-- END PROG LOAD LOG --
+libbpf: prog 'dropper': failed to load: -EACCES
+libbpf: failed to load object '/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-68752893/prog.o'
+Error: failed to load object file

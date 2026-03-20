@@ -1,0 +1,17 @@
+case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99
+checked_at_utc: 2026-03-20T00:37:12.634674+00:00
+source_file: tools/testing/selftests/bpf/progs/cgrp_kfunc_failure.c
+target_function: cgrp_kfunc_release_fp
+section: tp_btf/cgroup_mkdir
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 10
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99/prog.o","program_name":"cgrp_kfunc_release_fp","section_name":"tp_btf/cgroup_mkdir","load_ok":false,"error_code":-22,"error_message":"Invalid argument","verifier_log":"func#0 @0\nLive regs before insn:\n  0: .1........ (79) r1 = *(u64 *)(r1 +8)\n  1: .1........ (7b) *(u64 *)(r10 -8) = r1\n  2: .......... (bf) r1 = r10\n  3: .1........ (07) r1 += -8\n  4: .1........ (85) call bpf_cgroup_release#71323\n  5: .......... (b4) w0 = 0\n  6: 0......... (95) exit\n0: R1=ctx() R10=fp0\n; int BPF_PROG(cgrp_kfunc_release_fp, struct cgroup *cgrp, const char *path) @ prog.c:15\n0: (79) r1 = *(u64 *)(r1 +8)          ; R1_w=scalar()\n1: (7b) *(u64 *)(r10 -8) = r1         ; R1_w=scalar(id=1) R10=fp0 fp-8_w=scalar(id=1)\n2: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0\n;  @ prog.c:0\n3: (07) r1 += -8                      ; R1_w=fp-8\n; bpf_cgroup_release(acquired); @ prog.c:20\n4: (85) call bpf_cgroup_release#71323\narg#0 pointer type STRUCT cgroup must point to scalar, or struct with scalar\nprocessed 5 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n"}

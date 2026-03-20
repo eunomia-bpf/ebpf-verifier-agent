@@ -1,0 +1,52 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-61945212/fixed.o
+libbpf: elf: section(3) tracepoint/syscalls/sys_enter_execve, size 80, link 0, flags 6, type=1
+libbpf: sec 'tracepoint/syscalls/sys_enter_execve': found program 'bpf_prog' at insn offset 0 (0 bytes), code size 10 insns (80 bytes)
+libbpf: elf: section(4) .reltracepoint/syscalls/sys_enter_execve, size 16, link 25, flags 40, type=9
+libbpf: elf: section(5) .maps, size 24, link 0, flags 3, type=1
+libbpf: elf: section(6) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-61945212/fixed.o is GPL
+libbpf: elf: section(15) .BTF, size 705, link 0, flags 0, type=1
+libbpf: elf: section(17) .BTF.ext, size 128, link 0, flags 0, type=1
+libbpf: elf: section(25) .symtab, size 312, link 1, flags 0, type=2
+libbpf: looking for externs among 13 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'queue_map': at sec_idx 5, offset 0.
+libbpf: map 'queue_map': found type = 22.
+libbpf: map 'queue_map': found value [2], sz = 4.
+libbpf: map 'queue_map': found max_entries = 100.
+libbpf: sec '.reltracepoint/syscalls/sys_enter_execve': collecting relocation for section(3) 'tracepoint/syscalls/sys_enter_execve'
+libbpf: sec '.reltracepoint/syscalls/sys_enter_execve': relo #0: insn #4 against 'queue_map'
+libbpf: prog 'bpf_prog': found map 0 (queue_map, sec 5, off 0) for insn #4
+libbpf: object 'fixed': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: map 'queue_map': created successfully, fd=4
+libbpf: prog 'bpf_prog': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .......... (b7) r1 = 123
+  1: .1........ (63) *(u32 *)(r10 -4) = r1
+  2: .......... (bf) r2 = r10
+  3: ..2....... (07) r2 += -4
+  4: ..2....... (18) r1 = 0xffff8f0164ccb400
+  6: .12....... (b7) r3 = 0
+  7: .123...... (85) call bpf_map_push_elem#87
+  8: .......... (b7) r0 = 0
+  9: 0......... (95) exit
+arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+0: R1=ctx() R10=fp0
+; int bpf_prog(void *ctx) { @ fixed.c:189
+0: (b7) r1 = 123                      ; R1_w=123
+; value = 123; @ fixed.c:192
+1: (63) *(u32 *)(r10 -4) = r1         ; R1_w=123 R10=fp0 fp-8=mmmm????
+2: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+3: (07) r2 += -4                      ; R2_w=fp-4
+; bpf_map_push_elem(&queue_map, &value, BPF_ANY); @ fixed.c:193
+4: (18) r1 = 0xffff8f0164ccb400       ; R1_w=map_ptr(map=queue_map,ks=0,vs=4)
+6: (b7) r3 = 0                        ; R3_w=0
+7: (85) call bpf_map_push_elem#87     ; R0_w=scalar()
+; return 0; @ fixed.c:194
+8: (b7) r0 = 0                        ; R0_w=0
+9: (95) exit
+verification time 40 usec
+stack depth 8
+processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+-- END PROG LOAD LOG --

@@ -1,0 +1,894 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-118bf168f9f6/buggy.o
+libbpf: elf: section(3) kprobe/tcp_v4_connect, size 256, link 0, flags 6, type=1
+libbpf: sec 'kprobe/tcp_v4_connect': found program 'tcp_v4_connect' at insn offset 0 (0 bytes), code size 32 insns (256 bytes)
+libbpf: elf: section(4) .relkprobe/tcp_v4_connect, size 48, link 35, flags 40, type=9
+libbpf: elf: section(5) kretprobe/tcp_v4_connect, size 1176, link 0, flags 6, type=1
+libbpf: sec 'kretprobe/tcp_v4_connect': found program 'tcp_v4_connect_ret' at insn offset 0 (0 bytes), code size 147 insns (1176 bytes)
+libbpf: elf: section(6) .relkretprobe/tcp_v4_connect, size 176, link 35, flags 40, type=9
+libbpf: elf: section(7) kprobe/tcp_v6_connect, size 256, link 0, flags 6, type=1
+libbpf: sec 'kprobe/tcp_v6_connect': found program 'tcp_v6_connect' at insn offset 0 (0 bytes), code size 32 insns (256 bytes)
+libbpf: elf: section(8) .relkprobe/tcp_v6_connect, size 48, link 35, flags 40, type=9
+libbpf: elf: section(9) kretprobe/tcp_v6_connect, size 1200, link 0, flags 6, type=1
+libbpf: sec 'kretprobe/tcp_v6_connect': found program 'tcp_v6_connect_ret' at insn offset 0 (0 bytes), code size 150 insns (1200 bytes)
+libbpf: elf: section(10) .relkretprobe/tcp_v6_connect, size 176, link 35, flags 40, type=9
+libbpf: elf: section(11) .rodata, size 280, link 0, flags 2, type=1
+libbpf: elf: section(12) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-118bf168f9f6/buggy.o is GPL
+libbpf: elf: section(13) .maps, size 120, link 0, flags 3, type=1
+libbpf: elf: section(14) .bss, size 8, link 0, flags 3, type=8
+libbpf: elf: section(25) .BTF, size 15590, link 0, flags 0, type=1
+libbpf: elf: section(27) .BTF.ext, size 2748, link 0, flags 0, type=1
+libbpf: elf: section(35) .symtab, size 1320, link 1, flags 0, type=2
+libbpf: looking for externs among 55 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'sockets': at sec_idx 13, offset 0.
+libbpf: map 'sockets': found type = 1.
+libbpf: map 'sockets': found key [8], sz = 4.
+libbpf: map 'sockets': found value [12], sz = 8.
+libbpf: map 'sockets': found max_entries = 8192.
+libbpf: map 'ipv4_count': at sec_idx 13, offset 32.
+libbpf: map 'ipv4_count': found type = 1.
+libbpf: map 'ipv4_count': found key [180], sz = 12.
+libbpf: map 'ipv4_count': found value [129], sz = 8.
+libbpf: map 'ipv4_count': found max_entries = 8192.
+libbpf: map 'ipv6_count': at sec_idx 13, offset 64.
+libbpf: map 'ipv6_count': found type = 1.
+libbpf: map 'ipv6_count': found key [185], sz = 34.
+libbpf: map 'ipv6_count': found value [129], sz = 8.
+libbpf: map 'ipv6_count': found max_entries = 8192.
+libbpf: map 'events': at sec_idx 13, offset 96.
+libbpf: map 'events': found type = 4.
+libbpf: map 'events': found key_size = 4.
+libbpf: map 'events': found value_size = 4.
+libbpf: map 'buggy.rodata' (global data): at sec_idx 11, offset 0, flags 480.
+libbpf: map 4 is "buggy.rodata"
+libbpf: map 'buggy.bss' (global data): at sec_idx 14, offset 0, flags 0.
+libbpf: map 5 is "buggy.bss"
+libbpf: sec '.relkprobe/tcp_v4_connect': collecting relocation for section(3) 'kprobe/tcp_v4_connect'
+libbpf: sec '.relkprobe/tcp_v4_connect': relo #0: insn #4 against 'filter_pid'
+libbpf: prog 'tcp_v4_connect': found data map 4 (buggy.rodata, sec 11, off 0) for insn 4
+libbpf: sec '.relkprobe/tcp_v4_connect': relo #1: insn #12 against 'filter_uid'
+libbpf: prog 'tcp_v4_connect': found data map 4 (buggy.rodata, sec 11, off 0) for insn 12
+libbpf: sec '.relkprobe/tcp_v4_connect': relo #2: insn #26 against 'sockets'
+libbpf: prog 'tcp_v4_connect': found map 0 (sockets, sec 13, off 0) for insn #26
+libbpf: sec '.relkretprobe/tcp_v4_connect': collecting relocation for section(5) 'kretprobe/tcp_v4_connect'
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #0: insn #7 against 'sockets'
+libbpf: prog 'tcp_v4_connect_ret': found map 0 (sockets, sec 13, off 0) for insn #7
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #1: insn #23 against 'filter_ports_len'
+libbpf: prog 'tcp_v4_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 23
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #2: insn #33 against 'filter_ports'
+libbpf: prog 'tcp_v4_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 33
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #3: insn #35 against 'filter_ports_len'
+libbpf: prog 'tcp_v4_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 35
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #4: insn #46 against 'do_count'
+libbpf: prog 'tcp_v4_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 46
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #5: insn #69 against 'ipv4_count'
+libbpf: prog 'tcp_v4_connect_ret': found map 1 (ipv4_count, sec 13, off 32) for insn #69
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #6: insn #76 against 'ipv4_count'
+libbpf: prog 'tcp_v4_connect_ret': found map 1 (ipv4_count, sec 13, off 32) for insn #76
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #7: insn #78 against '.bss'
+libbpf: prog 'tcp_v4_connect_ret': found data map 5 (buggy.bss, sec 14, off 0) for insn 78
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #8: insn #86 against 'ipv4_count'
+libbpf: prog 'tcp_v4_connect_ret': found map 1 (ipv4_count, sec 13, off 32) for insn #86
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #9: insn #133 against 'events'
+libbpf: prog 'tcp_v4_connect_ret': found map 3 (events, sec 13, off 96) for insn #133
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #10: insn #142 against 'sockets'
+libbpf: prog 'tcp_v4_connect_ret': found map 0 (sockets, sec 13, off 0) for insn #142
+libbpf: sec '.relkprobe/tcp_v6_connect': collecting relocation for section(7) 'kprobe/tcp_v6_connect'
+libbpf: sec '.relkprobe/tcp_v6_connect': relo #0: insn #4 against 'filter_pid'
+libbpf: prog 'tcp_v6_connect': found data map 4 (buggy.rodata, sec 11, off 0) for insn 4
+libbpf: sec '.relkprobe/tcp_v6_connect': relo #1: insn #12 against 'filter_uid'
+libbpf: prog 'tcp_v6_connect': found data map 4 (buggy.rodata, sec 11, off 0) for insn 12
+libbpf: sec '.relkprobe/tcp_v6_connect': relo #2: insn #26 against 'sockets'
+libbpf: prog 'tcp_v6_connect': found map 0 (sockets, sec 13, off 0) for insn #26
+libbpf: sec '.relkretprobe/tcp_v6_connect': collecting relocation for section(9) 'kretprobe/tcp_v6_connect'
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #0: insn #7 against 'sockets'
+libbpf: prog 'tcp_v6_connect_ret': found map 0 (sockets, sec 13, off 0) for insn #7
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #1: insn #23 against 'filter_ports_len'
+libbpf: prog 'tcp_v6_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 23
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #2: insn #33 against 'filter_ports'
+libbpf: prog 'tcp_v6_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 33
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #3: insn #35 against 'filter_ports_len'
+libbpf: prog 'tcp_v6_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 35
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #4: insn #46 against 'do_count'
+libbpf: prog 'tcp_v6_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 46
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #5: insn #72 against 'ipv6_count'
+libbpf: prog 'tcp_v6_connect_ret': found map 2 (ipv6_count, sec 13, off 64) for insn #72
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #6: insn #79 against 'ipv6_count'
+libbpf: prog 'tcp_v6_connect_ret': found map 2 (ipv6_count, sec 13, off 64) for insn #79
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #7: insn #81 against '.rodata'
+libbpf: prog 'tcp_v6_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 81
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #8: insn #89 against 'ipv6_count'
+libbpf: prog 'tcp_v6_connect_ret': found map 2 (ipv6_count, sec 13, off 64) for insn #89
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #9: insn #136 against 'events'
+libbpf: prog 'tcp_v6_connect_ret': found map 3 (events, sec 13, off 96) for insn #136
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #10: insn #145 against 'sockets'
+libbpf: prog 'tcp_v6_connect_ret': found map 0 (sockets, sec 13, off 0) for insn #145
+libbpf: object 'buggy': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: loaded kernel BTF from '/sys/kernel/btf/vmlinux'
+libbpf: sec 'kprobe/tcp_v4_connect': found 1 CO-RE relocations
+libbpf: CO-RE relocating [193] struct pt_regs: found target candidate [185] struct pt_regs in [vmlinux]
+libbpf: prog 'tcp_v4_connect': relo #0: <byte_off> [193] struct pt_regs.di (0:14 @ offset 112)
+libbpf: prog 'tcp_v4_connect': relo #0: matching candidate #0 <byte_off> [185] struct pt_regs.di (0:14 @ offset 112)
+libbpf: prog 'tcp_v4_connect': relo #0: patched insn #0 (LDX/ST/STX) off 112 -> 112
+libbpf: sec 'kretprobe/tcp_v4_connect': found 6 CO-RE relocations
+libbpf: prog 'tcp_v4_connect_ret': relo #0: <byte_off> [193] struct pt_regs.ax (0:10 @ offset 80)
+libbpf: prog 'tcp_v4_connect_ret': relo #0: matching candidate #0 <byte_off> [185] struct pt_regs.ax (0:10 @ offset 80)
+libbpf: prog 'tcp_v4_connect_ret': relo #0: patched insn #1 (LDX/ST/STX) off 80 -> 80
+libbpf: CO-RE relocating [13] struct sock: found target candidate [3137] struct sock in [vmlinux]
+libbpf: prog 'tcp_v4_connect_ret': relo #1: <byte_off> [13] struct sock.__sk_common.skc_dport (0:0:2:1:0 @ offset 12)
+libbpf: prog 'tcp_v4_connect_ret': relo #1: matching candidate #0 <byte_off> [3137] struct sock.__sk_common.skc_dport (0:0:2:1:0 @ offset 12)
+libbpf: prog 'tcp_v4_connect_ret': relo #1: patched insn #14 (ALU/ALU64) imm 12 -> 12
+libbpf: prog 'tcp_v4_connect_ret': relo #2: <byte_off> [13] struct sock.__sk_common.skc_rcv_saddr (0:0:0:1:1 @ offset 4)
+libbpf: prog 'tcp_v4_connect_ret': relo #2: matching candidate #0 <byte_off> [3137] struct sock.__sk_common.skc_rcv_saddr (0:0:0:1:1 @ offset 4)
+libbpf: prog 'tcp_v4_connect_ret': relo #2: patched insn #53 (ALU/ALU64) imm 4 -> 4
+libbpf: prog 'tcp_v4_connect_ret': relo #3: <byte_off> [13] struct sock.__sk_common.skc_daddr (0:0:0:1:0 @ offset 0)
+libbpf: prog 'tcp_v4_connect_ret': relo #3: matching candidate #0 <byte_off> [3137] struct sock.__sk_common.skc_daddr (0:0:0:1:0 @ offset 0)
+libbpf: prog 'tcp_v4_connect_ret': relo #3: patched insn #61 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'tcp_v4_connect_ret': relo #4: <byte_off> [13] struct sock.__sk_common.skc_rcv_saddr (0:0:0:1:1 @ offset 4)
+libbpf: prog 'tcp_v4_connect_ret': relo #4: matching candidate #0 <byte_off> [3137] struct sock.__sk_common.skc_rcv_saddr (0:0:0:1:1 @ offset 4)
+libbpf: prog 'tcp_v4_connect_ret': relo #4: patched insn #112 (ALU/ALU64) imm 4 -> 4
+libbpf: prog 'tcp_v4_connect_ret': relo #5: <byte_off> [13] struct sock.__sk_common.skc_daddr (0:0:0:1:0 @ offset 0)
+libbpf: prog 'tcp_v4_connect_ret': relo #5: matching candidate #0 <byte_off> [3137] struct sock.__sk_common.skc_daddr (0:0:0:1:0 @ offset 0)
+libbpf: prog 'tcp_v4_connect_ret': relo #5: patched insn #120 (ALU/ALU64) imm 0 -> 0
+libbpf: sec 'kprobe/tcp_v6_connect': found 1 CO-RE relocations
+libbpf: prog 'tcp_v6_connect': relo #0: <byte_off> [193] struct pt_regs.di (0:14 @ offset 112)
+libbpf: prog 'tcp_v6_connect': relo #0: matching candidate #0 <byte_off> [185] struct pt_regs.di (0:14 @ offset 112)
+libbpf: prog 'tcp_v6_connect': relo #0: patched insn #0 (LDX/ST/STX) off 112 -> 112
+libbpf: sec 'kretprobe/tcp_v6_connect': found 6 CO-RE relocations
+libbpf: prog 'tcp_v6_connect_ret': relo #0: <byte_off> [193] struct pt_regs.ax (0:10 @ offset 80)
+libbpf: prog 'tcp_v6_connect_ret': relo #0: matching candidate #0 <byte_off> [185] struct pt_regs.ax (0:10 @ offset 80)
+libbpf: prog 'tcp_v6_connect_ret': relo #0: patched insn #1 (LDX/ST/STX) off 80 -> 80
+libbpf: prog 'tcp_v6_connect_ret': relo #1: <byte_off> [13] struct sock.__sk_common.skc_dport (0:0:2:1:0 @ offset 12)
+libbpf: prog 'tcp_v6_connect_ret': relo #1: matching candidate #0 <byte_off> [3137] struct sock.__sk_common.skc_dport (0:0:2:1:0 @ offset 12)
+libbpf: prog 'tcp_v6_connect_ret': relo #1: patched insn #14 (ALU/ALU64) imm 12 -> 12
+libbpf: prog 'tcp_v6_connect_ret': relo #2: <byte_off> [13] struct sock.__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32 (0:0:14:0:2 @ offset 72)
+libbpf: prog 'tcp_v6_connect_ret': relo #2: matching candidate #0 <byte_off> [3137] struct sock.__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32 (0:0:14:0:2 @ offset 72)
+libbpf: prog 'tcp_v6_connect_ret': relo #2: patched insn #56 (ALU/ALU64) imm 72 -> 72
+libbpf: prog 'tcp_v6_connect_ret': relo #3: <byte_off> [13] struct sock.__sk_common.skc_v6_daddr.in6_u.u6_addr32 (0:0:13:0:2 @ offset 56)
+libbpf: prog 'tcp_v6_connect_ret': relo #3: matching candidate #0 <byte_off> [3137] struct sock.__sk_common.skc_v6_daddr.in6_u.u6_addr32 (0:0:13:0:2 @ offset 56)
+libbpf: prog 'tcp_v6_connect_ret': relo #3: patched insn #64 (ALU/ALU64) imm 56 -> 56
+libbpf: prog 'tcp_v6_connect_ret': relo #4: <byte_off> [13] struct sock.__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32 (0:0:14:0:2 @ offset 72)
+libbpf: prog 'tcp_v6_connect_ret': relo #4: matching candidate #0 <byte_off> [3137] struct sock.__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32 (0:0:14:0:2 @ offset 72)
+libbpf: prog 'tcp_v6_connect_ret': relo #4: patched insn #115 (ALU/ALU64) imm 72 -> 72
+libbpf: prog 'tcp_v6_connect_ret': relo #5: <byte_off> [13] struct sock.__sk_common.skc_v6_daddr.in6_u.u6_addr32 (0:0:13:0:2 @ offset 56)
+libbpf: prog 'tcp_v6_connect_ret': relo #5: matching candidate #0 <byte_off> [3137] struct sock.__sk_common.skc_v6_daddr.in6_u.u6_addr32 (0:0:13:0:2 @ offset 56)
+libbpf: prog 'tcp_v6_connect_ret': relo #5: patched insn #123 (ALU/ALU64) imm 56 -> 56
+libbpf: map 'sockets': created successfully, fd=4
+libbpf: map 'ipv4_count': created successfully, fd=5
+libbpf: map 'ipv6_count': created successfully, fd=6
+libbpf: map 'events': setting size to 24
+libbpf: map 'events': created successfully, fd=7
+libbpf: map 'buggy.rodata': created successfully, fd=8
+libbpf: map 'buggy.bss': created successfully, fd=9
+libbpf: prog 'tcp_v4_connect': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (79) r1 = *(u64 *)(r1 +112)
+  1: .1........ (7b) *(u64 *)(r10 -8) = r1
+  2: .......... (85) call bpf_get_current_pid_tgid#14
+  3: 0......... (63) *(u32 *)(r10 -12) = r0
+  4: 0......... (18) r1 = 0xffffd2b8c3376008
+  6: 01........ (61) r2 = *(u32 *)(r1 +0)
+  7: 012....... (15) if r2 == 0x0 goto pc+3
+  8: 01........ (61) r1 = *(u32 *)(r1 +0)
+  9: 01........ (77) r0 >>= 32
+ 10: 01........ (5d) if r1 != r0 goto pc+19
+ 11: .......... (85) call bpf_get_current_uid_gid#15
+ 12: 0......... (18) r1 = 0xffffd2b8c3376004
+ 14: 01........ (61) r2 = *(u32 *)(r1 +0)
+ 15: 012....... (18) r3 = 0xffffffff
+ 17: 0123...... (1d) if r2 == r3 goto pc+4
+ 18: 01........ (61) r1 = *(u32 *)(r1 +0)
+ 19: 01........ (67) r0 <<= 32
+ 20: 01........ (77) r0 >>= 32
+ 21: 01........ (5d) if r1 != r0 goto pc+8
+ 22: .......... (bf) r2 = r10
+ 23: ..2....... (07) r2 += -12
+ 24: ..2....... (bf) r3 = r10
+ 25: ..23...... (07) r3 += -8
+ 26: ..23...... (18) r1 = 0xffff8f0186d82400
+ 28: .123...... (b7) r4 = 0
+ 29: .1234..... (85) call bpf_map_update_elem#2
+ 30: .......... (b7) r0 = 0
+ 31: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int BPF_KPROBE(tcp_v4_connect, struct sock *sk) @ buggy.c:194
+0: (79) r1 = *(u64 *)(r1 +112)        ; R1_w=scalar()
+1: (7b) *(u64 *)(r10 -8) = r1         ; R1_w=scalar(id=1) R10=fp0 fp-8_w=scalar(id=1)
+; __u64 pid_tgid = bpf_get_current_pid_tgid(); @ buggy.c:68
+2: (85) call bpf_get_current_pid_tgid#14      ; R0_w=scalar()
+; __u32 tid = pid_tgid; @ buggy.c:70
+3: (63) *(u32 *)(r10 -12) = r0        ; R0_w=scalar() R10=fp0 fp-16=mmmm????
+; if (filter_pid && pid != filter_pid) @ buggy.c:73
+4: (18) r1 = 0xffffd2b8c3376008       ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280,off=8)
+6: (61) r2 = *(u32 *)(r1 +0)          ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280,off=8) R2_w=0
+7: (15) if r2 == 0x0 goto pc+3
+mark_precise: frame0: last_idx 7 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 6: (61) r2 = *(u32 *)(r1 +0)
+7: R2_w=0
+; uid = bpf_get_current_uid_gid(); @ buggy.c:76
+11: (85) call bpf_get_current_uid_gid#15      ; R0_w=scalar()
+; if (filter_uid != (uid_t) -1 && uid != filter_uid) @ buggy.c:77
+12: (18) r1 = 0xffffd2b8c3376004      ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280,off=4)
+14: (61) r2 = *(u32 *)(r1 +0)         ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280,off=4) R2_w=0xffffffff
+15: (18) r3 = 0xffffffff              ; R3_w=0xffffffff
+17: (1d) if r2 == r3 goto pc+4
+mark_precise: frame0: last_idx 17 first_idx 11 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 15: (18) r3 = 0xffffffff
+mark_precise: frame0: regs=r2 stack= before 14: (61) r2 = *(u32 *)(r1 +0)
+mark_precise: frame0: last_idx 17 first_idx 11 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 15: (18) r3 = 0xffffffff
+17: R2_w=0xffffffff R3_w=0xffffffff
+22: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+; bpf_map_update_elem(&sockets, &tid, &sk, 0); @ buggy.c:80
+23: (07) r2 += -12                    ; R2_w=fp-12
+24: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0
+25: (07) r3 += -8                     ; R3_w=fp-8
+26: (18) r1 = 0xffff8f0186d82400      ; R1_w=map_ptr(map=sockets,ks=4,vs=8)
+28: (b7) r4 = 0                       ; R4_w=0
+29: (85) call bpf_map_update_elem#2   ; R0=scalar()
+; int BPF_KPROBE(tcp_v4_connect, struct sock *sk) @ buggy.c:194
+30: (b7) r0 = 0                       ; R0_w=0
+31: (95) exit
+verification time 86 usec
+stack depth 16
+processed 21 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
+-- END PROG LOAD LOG --
+libbpf: prog 'tcp_v4_connect_ret': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (bf) r6 = r1
+  1: ......6... (79) r7 = *(u64 *)(r6 +80)
+  2: ......67.. (85) call bpf_get_current_pid_tgid#14
+  3: 0.....67.. (bf) r8 = r0
+  4: ......678. (63) *(u32 *)(r10 -76) = r8
+  5: ......678. (bf) r2 = r10
+  6: ..2...678. (07) r2 += -76
+  7: ..2...678. (18) r1 = 0xffff8f0186d82400
+  9: .12...678. (85) call bpf_map_lookup_elem#1
+ 10: 0.....678. (15) if r0 == 0x0 goto pc+134
+ 11: 0.....678. (67) r7 <<= 32
+ 12: 0.....678. (77) r7 >>= 32
+ 13: 0.....678. (55) if r7 != 0x0 goto pc+126
+ 14: 0.....6.8. (b7) r1 = 12
+ 15: 01....6.8. (79) r7 = *(u64 *)(r0 +0)
+ 16: .1....678. (bf) r3 = r7
+ 17: .1.3..678. (0f) r3 += r1
+ 18: ...3..678. (bf) r1 = r10
+ 19: .1.3..678. (07) r1 += -78
+ 20: .1.3..678. (b7) r2 = 2
+ 21: .123..678. (85) call bpf_probe_read_kernel#113
+ 22: ......678. (69) r9 = *(u16 *)(r10 -78)
+ 23: ......6789 (18) r1 = 0xffffd2b8c3376000
+ 25: .1....6789 (61) r2 = *(u32 *)(r1 +0)
+ 26: .12...6789 (15) if r2 == 0x0 goto pc+19
+ 27: .1....6789 (61) r1 = *(u32 *)(r1 +0)
+ 28: .1....6789 (67) r1 <<= 32
+ 29: .1....6789 (c7) r1 s>>= 32
+ 30: .1....6789 (b7) r2 = 1
+ 31: .12...6789 (6d) if r2 s> r1 goto pc+108
+ 32: ......6789 (b7) r1 = 0
+ 33: .1....6789 (18) r2 = 0xffffd2b8c3376010
+ 35: .12...6789 (18) r3 = 0xffffd2b8c3376000
+ 37: .123..6789 (05) goto pc+6
+ 38: .123..6789 (07) r2 += 4
+ 39: .123..6789 (07) r1 += 1
+ 40: .123..6789 (61) r4 = *(u32 *)(r3 +0)
+ 41: .1234.6789 (67) r4 <<= 32
+ 42: .1234.6789 (c7) r4 s>>= 32
+ 43: .1234.6789 (7d) if r1 s>= r4 goto pc+96
+ 44: .123..6789 (61) r4 = *(u32 *)(r2 +0)
+ 45: .1234.6789 (5d) if r4 != r9 goto pc-8
+ 46: ......6789 (18) r1 = 0xffffd2b8c337600c
+ 48: .1....6789 (71) r1 = *(u8 *)(r1 +0)
+ 49: .1....6789 (15) if r1 == 0x0 goto pc+43
+ 50: .......7.9 (b7) r1 = 0
+ 51: .1.....7.9 (63) *(u32 *)(r10 -64) = r1
+ 52: .1.....7.9 (7b) *(u64 *)(r10 -72) = r1
+ 53: .......7.9 (b7) r1 = 4
+ 54: .1.....7.9 (bf) r3 = r7
+ 55: .1.3...7.9 (0f) r3 += r1
+ 56: ...3...7.9 (bf) r6 = r10
+ 57: ...3..67.9 (07) r6 += -72
+ 58: ...3..67.9 (bf) r1 = r6
+ 59: .1.3..67.9 (b7) r2 = 4
+ 60: .123..67.9 (85) call bpf_probe_read_kernel#113
+ 61: ......67.9 (b7) r1 = 0
+ 62: .1....67.9 (0f) r7 += r1
+ 63: ......67.9 (bf) r1 = r10
+ 64: .1....67.9 (07) r1 += -68
+ 65: .1....67.9 (b7) r2 = 4
+ 66: .12...67.9 (bf) r3 = r7
+ 67: .123..6..9 (85) call bpf_probe_read_kernel#113
+ 68: ......6..9 (6b) *(u16 *)(r10 -64) = r9
+ 69: ......6... (18) r1 = 0xffff8f0186d80400
+ 71: .1....6... (bf) r2 = r6
+ 72: .12....... (85) call bpf_map_lookup_elem#1
+ 73: 0......... (55) if r0 != 0x0 goto pc+16
+ 74: .......... (bf) r2 = r10
+ 75: ..2....... (07) r2 += -72
+ 76: ..2....... (18) r1 = 0xffff8f0186d80400
+ 78: .12....... (18) r3 = 0xffff8f117dbf9708
+ 80: .123...... (b7) r4 = 1
+ 81: .1234..... (85) call bpf_map_update_elem#2
+ 82: 0......... (15) if r0 == 0x0 goto pc+1
+ 83: 0......... (55) if r0 != 0xffffffef goto pc+56
+ 84: .......... (bf) r2 = r10
+ 85: ..2....... (07) r2 += -72
+ 86: ..2....... (18) r1 = 0xffff8f0186d80400
+ 88: .12....... (85) call bpf_map_lookup_elem#1
+ 89: 0......... (15) if r0 == 0x0 goto pc+50
+ 90: 0......... (b7) r1 = 1
+ 91: 01........ (db) lock *(u64 *)(r0 +0) += r1
+ 92: .......... (05) goto pc+47
+ 93: ......6789 (77) r8 >>= 32
+ 94: ......6789 (b7) r1 = 0
+ 95: .1....6789 (7b) *(u64 *)(r10 -16) = r1
+ 96: .1....6789 (7b) *(u64 *)(r10 -8) = r1
+ 97: .1....6789 (7b) *(u64 *)(r10 -24) = r1
+ 98: .1....6789 (7b) *(u64 *)(r10 -32) = r1
+ 99: .1....6789 (7b) *(u64 *)(r10 -40) = r1
+100: .1....6789 (7b) *(u64 *)(r10 -48) = r1
+101: .1....6789 (7b) *(u64 *)(r10 -56) = r1
+102: .1....6789 (7b) *(u64 *)(r10 -64) = r1
+103: .1....6789 (7b) *(u64 *)(r10 -72) = r1
+104: ......6789 (63) *(u32 *)(r10 -12) = r8
+105: ......67.9 (b7) r1 = 2
+106: .1....67.9 (63) *(u32 *)(r10 -16) = r1
+107: ......67.9 (85) call bpf_get_current_uid_gid#15
+108: 0.....67.9 (63) *(u32 *)(r10 -8) = r0
+109: ......67.9 (85) call bpf_ktime_get_ns#5
+110: 0.....67.9 (37) r0 /= 1000
+111: 0.....67.9 (7b) *(u64 *)(r10 -24) = r0
+112: ......67.9 (b7) r1 = 4
+113: .1....67.9 (bf) r3 = r7
+114: .1.3..67.9 (0f) r3 += r1
+115: ...3..67.9 (bf) r8 = r10
+116: ...3..6789 (07) r8 += -72
+117: ...3..6789 (bf) r1 = r8
+118: .1.3..6789 (b7) r2 = 4
+119: .123..6789 (85) call bpf_probe_read_kernel#113
+120: ......6789 (b7) r1 = 0
+121: .1....6789 (0f) r7 += r1
+122: ......6789 (bf) r1 = r10
+123: .1....6789 (07) r1 += -56
+124: .1....6789 (b7) r2 = 4
+125: .12...6789 (bf) r3 = r7
+126: .123..6.89 (85) call bpf_probe_read_kernel#113
+127: ......6.89 (6b) *(u16 *)(r10 -4) = r9
+128: ......6.8. (bf) r1 = r10
+129: .1....6.8. (07) r1 += -40
+130: .1....6.8. (b7) r2 = 16
+131: .12...6.8. (85) call bpf_get_current_comm#16
+132: ......6.8. (bf) r1 = r6
+133: .1......8. (18) r2 = 0xffff8f117dbf8800
+135: .12.....8. (18) r3 = 0xffffffff
+137: .123....8. (bf) r4 = r8
+138: .1234..... (b7) r5 = 72
+139: .12345.... (85) call bpf_perf_event_output#25
+140: .......... (bf) r2 = r10
+141: ..2....... (07) r2 += -76
+142: ..2....... (18) r1 = 0xffff8f0186d82400
+144: .12....... (85) call bpf_map_delete_elem#3
+145: .......... (b7) r0 = 0
+146: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int BPF_KRETPROBE(tcp_v4_connect_ret, int ret) @ buggy.c:200
+0: (bf) r6 = r1                       ; R1=ctx() R6_w=ctx()
+1: (79) r7 = *(u64 *)(r6 +80)         ; R6_w=ctx() R7_w=scalar()
+; __u64 pid_tgid = bpf_get_current_pid_tgid(); @ buggy.c:156
+2: (85) call bpf_get_current_pid_tgid#14      ; R0_w=scalar()
+3: (bf) r8 = r0                       ; R0_w=scalar(id=1) R8_w=scalar(id=1)
+; __u32 tid = pid_tgid; @ buggy.c:158
+4: (63) *(u32 *)(r10 -76) = r8        ; R8_w=scalar(id=1) R10=fp0 fp-80=mmmm????
+5: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+;  @ buggy.c:0
+6: (07) r2 += -76                     ; R2_w=fp-76
+; skpp = bpf_map_lookup_elem(&sockets, &tid); @ buggy.c:163
+7: (18) r1 = 0xffff8f0186d82400       ; R1_w=map_ptr(map=sockets,ks=4,vs=8)
+9: (85) call bpf_map_lookup_elem#1    ; R0=map_value_or_null(id=2,map=sockets,ks=4,vs=8)
+; if (!skpp) @ buggy.c:164
+10: (15) if r0 == 0x0 goto pc+134     ; R0=map_value(map=sockets,ks=4,vs=8)
+;  @ buggy.c:0
+11: (67) r7 <<= 32                    ; R7_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+12: (77) r7 >>= 32                    ; R7_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+; if (ret) @ buggy.c:167
+13: (55) if r7 != 0x0 goto pc+126     ; R7_w=0
+14: (b7) r1 = 12                      ; R1_w=12
+; sk = *skpp; @ buggy.c:170
+15: (79) r7 = *(u64 *)(r0 +0)         ; R0=map_value(map=sockets,ks=4,vs=8) R7_w=scalar()
+16: (bf) r3 = r7                      ; R3_w=scalar(id=3) R7_w=scalar(id=3)
+17: (0f) r3 += r1                     ; R1_w=12 R3_w=scalar(id=3+12)
+18: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
+;  @ buggy.c:0
+19: (07) r1 += -78                    ; R1_w=fp-78
+; BPF_CORE_READ_INTO(&dport, sk, __sk_common.skc_dport); @ buggy.c:172
+20: (b7) r2 = 2                       ; R2_w=2
+21: (85) call bpf_probe_read_kernel#113
+mark_precise: frame0: last_idx 21 first_idx 10 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 20: (b7) r2 = 2
+22: R0=scalar() fp-80=mmmmmm??
+; if (filter_port(dport)) @ buggy.c:173
+22: (69) r9 = *(u16 *)(r10 -78)       ; R9_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; if (filter_ports_len == 0) @ buggy.c:55
+23: (18) r1 = 0xffffd2b8c3376000      ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280)
+25: (61) r2 = *(u32 *)(r1 +0)         ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280) R2_w=0
+26: (15) if r2 == 0x0 goto pc+19
+mark_precise: frame0: last_idx 26 first_idx 22 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 25: (61) r2 = *(u32 *)(r1 +0)
+26: R2_w=0
+; if (do_count) { @ buggy.c:176
+46: (18) r1 = 0xffffd2b8c337600c      ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280,off=12)
+48: (71) r1 = *(u8 *)(r1 +0)          ; R1_w=0
+49: (15) if r1 == 0x0 goto pc+43
+mark_precise: frame0: last_idx 49 first_idx 22 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 48: (71) r1 = *(u8 *)(r1 +0)
+49: R1_w=0
+; __atomic_add_fetch(val, 1, __ATOMIC_RELAXED); @ buggy.c:95
+93: (77) r8 >>= 32                    ; R8_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+94: (b7) r1 = 0                       ; R1_w=0
+; struct event event = {}; @ buggy.c:118
+95: (7b) *(u64 *)(r10 -16) = r1       ; R1_w=0 R10=fp0 fp-16_w=0
+96: (7b) *(u64 *)(r10 -8) = r1        ; R1_w=0 R10=fp0 fp-8_w=0
+97: (7b) *(u64 *)(r10 -24) = r1       ; R1_w=0 R10=fp0 fp-24_w=0
+98: (7b) *(u64 *)(r10 -32) = r1       ; R1_w=0 R10=fp0 fp-32_w=0
+99: (7b) *(u64 *)(r10 -40) = r1       ; R1_w=0 R10=fp0 fp-40_w=0
+100: (7b) *(u64 *)(r10 -48) = r1      ; R1_w=0 R10=fp0 fp-48_w=0
+101: (7b) *(u64 *)(r10 -56) = r1      ; R1_w=0 R10=fp0 fp-56_w=0
+102: (7b) *(u64 *)(r10 -64) = r1      ; R1_w=0 R10=fp0 fp-64_w=0
+103: (7b) *(u64 *)(r10 -72) = r1      ; R1_w=0 R10=fp0 fp-72_w=0
+; event.pid = pid; @ buggy.c:121
+104: (63) *(u32 *)(r10 -12) = r8      ; R8_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R10=fp0 fp-16_w=mmmmmmmm
+105: (b7) r1 = 2                      ; R1_w=2
+; event.af = AF_INET; @ buggy.c:120
+106: (63) *(u32 *)(r10 -16) = r1      ; R1_w=2 R10=fp0 fp-16_w=mmmm2
+; event.uid = bpf_get_current_uid_gid(); @ buggy.c:122
+107: (85) call bpf_get_current_uid_gid#15     ; R0=scalar()
+108: (63) *(u32 *)(r10 -8) = r0       ; R0=scalar() R10=fp0 fp-8=mmmmscalar()
+; event.ts_us = bpf_ktime_get_ns() / 1000; @ buggy.c:123
+109: (85) call bpf_ktime_get_ns#5     ; R0_w=scalar()
+110: (37) r0 /= 1000                  ; R0_w=scalar()
+111: (7b) *(u64 *)(r10 -24) = r0      ; R0_w=scalar(id=4) R10=fp0 fp-24_w=scalar(id=4)
+112: (b7) r1 = 4                      ; R1_w=4
+113: (bf) r3 = r7                     ; R3_w=scalar(id=3) R7=scalar(id=3)
+114: (0f) r3 += r1                    ; R1_w=4 R3_w=scalar(id=3+4)
+115: (bf) r8 = r10                    ; R8_w=fp0 R10=fp0
+;  @ buggy.c:0
+116: (07) r8 += -72                   ; R8_w=fp-72
+; BPF_CORE_READ_INTO(&event.saddr_v4, sk, __sk_common.skc_rcv_saddr); @ buggy.c:124
+117: (bf) r1 = r8                     ; R1_w=fp-72 R8_w=fp-72
+118: (b7) r2 = 4                      ; R2_w=4
+119: (85) call bpf_probe_read_kernel#113
+mark_precise: frame0: last_idx 119 first_idx 108 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 118: (b7) r2 = 4
+120: R0=scalar() fp-72=mmmmmmmm
+120: (b7) r1 = 0                      ; R1_w=0
+121: (0f) r7 += r1                    ; R1_w=0 R7_w=scalar(id=3+0)
+; struct event event = {}; @ buggy.c:118
+122: (bf) r1 = r10                    ; R1_w=fp0 R10=fp0
+123: (07) r1 += -56                   ; R1_w=fp-56
+; BPF_CORE_READ_INTO(&event.daddr_v4, sk, __sk_common.skc_daddr); @ buggy.c:125
+124: (b7) r2 = 4                      ; R2_w=4
+125: (bf) r3 = r7                     ; R3_w=scalar(id=5) R7_w=scalar(id=5)
+126: (85) call bpf_probe_read_kernel#113
+mark_precise: frame0: last_idx 126 first_idx 120 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 125: (bf) r3 = r7
+mark_precise: frame0: regs=r2 stack= before 124: (b7) r2 = 4
+127: R0_w=scalar() fp-56=mmmmmmmm
+; event.dport = dport; @ buggy.c:126
+127: (6b) *(u16 *)(r10 -4) = r9       ; R9=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm
+; struct event event = {}; @ buggy.c:118
+128: (bf) r1 = r10                    ; R1_w=fp0 R10=fp0
+129: (07) r1 += -40                   ; R1_w=fp-40
+; bpf_get_current_comm(event.task, sizeof(event.task)); @ buggy.c:127
+130: (b7) r2 = 16                     ; R2_w=16
+131: (85) call bpf_get_current_comm#16
+mark_precise: frame0: last_idx 131 first_idx 120 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 130: (b7) r2 = 16
+132: R0=scalar() fp-32=mmmmmmmm fp-40=mmmmmmmm
+; bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, @ buggy.c:129
+132: (bf) r1 = r6                     ; R1_w=ctx() R6=ctx()
+133: (18) r2 = 0xffff8f117dbf8800     ; R2_w=map_ptr(map=events,ks=4,vs=4)
+135: (18) r3 = 0xffffffff             ; R3_w=0xffffffff
+137: (bf) r4 = r8                     ; R4_w=fp-72 R8=fp-72
+138: (b7) r5 = 72                     ; R5_w=72
+139: (85) call bpf_perf_event_output#25
+mark_precise: frame0: last_idx 139 first_idx 132 subseq_idx -1 
+mark_precise: frame0: regs=r5 stack= before 138: (b7) r5 = 72
+140: R0_w=scalar()
+140: (bf) r2 = r10                    ; R2_w=fp0 R10=fp0
+; end: @ buggy.c:188
+141: (07) r2 += -76                   ; R2_w=fp-76
+; bpf_map_delete_elem(&sockets, &tid); @ buggy.c:189
+142: (18) r1 = 0xffff8f0186d82400     ; R1_w=map_ptr(map=sockets,ks=4,vs=8)
+144: (85) call bpf_map_delete_elem#3          ; R0=scalar()
+; int BPF_KRETPROBE(tcp_v4_connect_ret, int ret) @ buggy.c:200
+145: (b7) r0 = 0                      ; R0_w=0
+146: (95) exit
+
+from 13 to 140: R0=map_value(map=sockets,ks=4,vs=8) R6=ctx() R7_w=scalar(smin=umin=umin32=1,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R8=scalar(id=1) R10=fp0 fp-80=mmmm????
+140: R0=map_value(map=sockets,ks=4,vs=8) R6=ctx() R7_w=scalar(smin=umin=umin32=1,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R8=scalar(id=1) R10=fp0 fp-80=mmmm????
+; bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, @ buggy.c:129
+140: (bf) r2 = r10                    ; R2_w=fp0 R10=fp0
+; end: @ buggy.c:188
+141: (07) r2 += -76                   ; R2_w=fp-76
+; bpf_map_delete_elem(&sockets, &tid); @ buggy.c:189
+142: (18) r1 = 0xffff8f0186d82400     ; R1_w=map_ptr(map=sockets,ks=4,vs=8)
+144: (85) call bpf_map_delete_elem#3
+145: safe
+
+from 10 to 145: safe
+verification time 267 usec
+stack depth 80
+processed 85 insns (limit 1000000) max_states_per_insn 0 total_states 6 peak_states 6 mark_read 5
+-- END PROG LOAD LOG --
+libbpf: prog 'tcp_v6_connect': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (79) r1 = *(u64 *)(r1 +112)
+  1: .1........ (7b) *(u64 *)(r10 -8) = r1
+  2: .......... (85) call bpf_get_current_pid_tgid#14
+  3: 0......... (63) *(u32 *)(r10 -12) = r0
+  4: 0......... (18) r1 = 0xffffd2b8c3376008
+  6: 01........ (61) r2 = *(u32 *)(r1 +0)
+  7: 012....... (15) if r2 == 0x0 goto pc+3
+  8: 01........ (61) r1 = *(u32 *)(r1 +0)
+  9: 01........ (77) r0 >>= 32
+ 10: 01........ (5d) if r1 != r0 goto pc+19
+ 11: .......... (85) call bpf_get_current_uid_gid#15
+ 12: 0......... (18) r1 = 0xffffd2b8c3376004
+ 14: 01........ (61) r2 = *(u32 *)(r1 +0)
+ 15: 012....... (18) r3 = 0xffffffff
+ 17: 0123...... (1d) if r2 == r3 goto pc+4
+ 18: 01........ (61) r1 = *(u32 *)(r1 +0)
+ 19: 01........ (67) r0 <<= 32
+ 20: 01........ (77) r0 >>= 32
+ 21: 01........ (5d) if r1 != r0 goto pc+8
+ 22: .......... (bf) r2 = r10
+ 23: ..2....... (07) r2 += -12
+ 24: ..2....... (bf) r3 = r10
+ 25: ..23...... (07) r3 += -8
+ 26: ..23...... (18) r1 = 0xffff8f0186d82400
+ 28: .123...... (b7) r4 = 0
+ 29: .1234..... (85) call bpf_map_update_elem#2
+ 30: .......... (b7) r0 = 0
+ 31: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int BPF_KPROBE(tcp_v6_connect, struct sock *sk) @ buggy.c:206
+0: (79) r1 = *(u64 *)(r1 +112)        ; R1_w=scalar()
+1: (7b) *(u64 *)(r10 -8) = r1         ; R1_w=scalar(id=1) R10=fp0 fp-8_w=scalar(id=1)
+; __u64 pid_tgid = bpf_get_current_pid_tgid(); @ buggy.c:68
+2: (85) call bpf_get_current_pid_tgid#14      ; R0_w=scalar()
+; __u32 tid = pid_tgid; @ buggy.c:70
+3: (63) *(u32 *)(r10 -12) = r0        ; R0_w=scalar() R10=fp0 fp-16=mmmm????
+; if (filter_pid && pid != filter_pid) @ buggy.c:73
+4: (18) r1 = 0xffffd2b8c3376008       ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280,off=8)
+6: (61) r2 = *(u32 *)(r1 +0)          ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280,off=8) R2_w=0
+7: (15) if r2 == 0x0 goto pc+3
+mark_precise: frame0: last_idx 7 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 6: (61) r2 = *(u32 *)(r1 +0)
+7: R2_w=0
+; uid = bpf_get_current_uid_gid(); @ buggy.c:76
+11: (85) call bpf_get_current_uid_gid#15      ; R0_w=scalar()
+; if (filter_uid != (uid_t) -1 && uid != filter_uid) @ buggy.c:77
+12: (18) r1 = 0xffffd2b8c3376004      ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280,off=4)
+14: (61) r2 = *(u32 *)(r1 +0)         ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280,off=4) R2_w=0xffffffff
+15: (18) r3 = 0xffffffff              ; R3_w=0xffffffff
+17: (1d) if r2 == r3 goto pc+4
+mark_precise: frame0: last_idx 17 first_idx 11 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 15: (18) r3 = 0xffffffff
+mark_precise: frame0: regs=r2 stack= before 14: (61) r2 = *(u32 *)(r1 +0)
+mark_precise: frame0: last_idx 17 first_idx 11 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 15: (18) r3 = 0xffffffff
+17: R2_w=0xffffffff R3_w=0xffffffff
+22: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+; bpf_map_update_elem(&sockets, &tid, &sk, 0); @ buggy.c:80
+23: (07) r2 += -12                    ; R2_w=fp-12
+24: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0
+25: (07) r3 += -8                     ; R3_w=fp-8
+26: (18) r1 = 0xffff8f0186d82400      ; R1_w=map_ptr(map=sockets,ks=4,vs=8)
+28: (b7) r4 = 0                       ; R4_w=0
+29: (85) call bpf_map_update_elem#2   ; R0=scalar()
+; int BPF_KPROBE(tcp_v6_connect, struct sock *sk) @ buggy.c:206
+30: (b7) r0 = 0                       ; R0_w=0
+31: (95) exit
+verification time 58 usec
+stack depth 16
+processed 21 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
+-- END PROG LOAD LOG --
+libbpf: prog 'tcp_v6_connect_ret': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (bf) r6 = r1
+  1: ......6... (79) r7 = *(u64 *)(r6 +80)
+  2: ......67.. (85) call bpf_get_current_pid_tgid#14
+  3: 0.....67.. (bf) r8 = r0
+  4: ......678. (63) *(u32 *)(r10 -76) = r8
+  5: ......678. (bf) r2 = r10
+  6: ..2...678. (07) r2 += -76
+  7: ..2...678. (18) r1 = 0xffff8f0186d82400
+  9: .12...678. (85) call bpf_map_lookup_elem#1
+ 10: 0.....678. (15) if r0 == 0x0 goto pc+137
+ 11: 0.....678. (67) r7 <<= 32
+ 12: 0.....678. (77) r7 >>= 32
+ 13: 0.....678. (55) if r7 != 0x0 goto pc+129
+ 14: 0.....6.8. (b7) r1 = 12
+ 15: 01....6.8. (79) r7 = *(u64 *)(r0 +0)
+ 16: .1....678. (bf) r3 = r7
+ 17: .1.3..678. (0f) r3 += r1
+ 18: ...3..678. (bf) r1 = r10
+ 19: .1.3..678. (07) r1 += -78
+ 20: .1.3..678. (b7) r2 = 2
+ 21: .123..678. (85) call bpf_probe_read_kernel#113
+ 22: ......678. (69) r9 = *(u16 *)(r10 -78)
+ 23: ......6789 (18) r1 = 0xffffd2b8c3376000
+ 25: .1....6789 (61) r2 = *(u32 *)(r1 +0)
+ 26: .12...6789 (15) if r2 == 0x0 goto pc+19
+ 27: .1....6789 (61) r1 = *(u32 *)(r1 +0)
+ 28: .1....6789 (67) r1 <<= 32
+ 29: .1....6789 (c7) r1 s>>= 32
+ 30: .1....6789 (b7) r2 = 1
+ 31: .12...6789 (6d) if r2 s> r1 goto pc+111
+ 32: ......6789 (b7) r1 = 0
+ 33: .1....6789 (18) r2 = 0xffffd2b8c3376010
+ 35: .12...6789 (18) r3 = 0xffffd2b8c3376000
+ 37: .123..6789 (05) goto pc+6
+ 38: .123..6789 (07) r2 += 4
+ 39: .123..6789 (07) r1 += 1
+ 40: .123..6789 (61) r4 = *(u32 *)(r3 +0)
+ 41: .1234.6789 (67) r4 <<= 32
+ 42: .1234.6789 (c7) r4 s>>= 32
+ 43: .1234.6789 (7d) if r1 s>= r4 goto pc+99
+ 44: .123..6789 (61) r4 = *(u32 *)(r2 +0)
+ 45: .1234.6789 (5d) if r4 != r9 goto pc-8
+ 46: ......6789 (18) r1 = 0xffffd2b8c337600c
+ 48: .1....6789 (71) r1 = *(u8 *)(r1 +0)
+ 49: .1....6789 (15) if r1 == 0x0 goto pc+46
+ 50: .......7.9 (b7) r1 = 0
+ 51: .1.....7.9 (6b) *(u16 *)(r10 -40) = r1
+ 52: .1.....7.9 (7b) *(u64 *)(r10 -48) = r1
+ 53: .1.....7.9 (7b) *(u64 *)(r10 -56) = r1
+ 54: .1.....7.9 (7b) *(u64 *)(r10 -64) = r1
+ 55: .1.....7.9 (7b) *(u64 *)(r10 -72) = r1
+ 56: .......7.9 (b7) r1 = 72
+ 57: .1.....7.9 (bf) r3 = r7
+ 58: .1.3...7.9 (0f) r3 += r1
+ 59: ...3...7.9 (bf) r6 = r10
+ 60: ...3..67.9 (07) r6 += -72
+ 61: ...3..67.9 (bf) r1 = r6
+ 62: .1.3..67.9 (b7) r2 = 16
+ 63: .123..67.9 (85) call bpf_probe_read_kernel#113
+ 64: ......67.9 (b7) r1 = 56
+ 65: .1....67.9 (0f) r7 += r1
+ 66: ......67.9 (bf) r1 = r10
+ 67: .1....67.9 (07) r1 += -56
+ 68: .1....67.9 (b7) r2 = 16
+ 69: .12...67.9 (bf) r3 = r7
+ 70: .123..6..9 (85) call bpf_probe_read_kernel#113
+ 71: ......6..9 (6b) *(u16 *)(r10 -40) = r9
+ 72: ......6... (18) r1 = 0xffff8f0186d84000
+ 74: .1....6... (bf) r2 = r6
+ 75: .12....... (85) call bpf_map_lookup_elem#1
+ 76: 0......... (55) if r0 != 0x0 goto pc+16
+ 77: .......... (bf) r2 = r10
+ 78: ..2....... (07) r2 += -72
+ 79: ..2....... (18) r1 = 0xffff8f0186d84000
+ 81: .12....... (18) r3 = 0xffffd2b8c3376110
+ 83: .123...... (b7) r4 = 1
+ 84: .1234..... (85) call bpf_map_update_elem#2
+ 85: 0......... (15) if r0 == 0x0 goto pc+1
+ 86: 0......... (55) if r0 != 0xffffffef goto pc+56
+ 87: .......... (bf) r2 = r10
+ 88: ..2....... (07) r2 += -72
+ 89: ..2....... (18) r1 = 0xffff8f0186d84000
+ 91: .12....... (85) call bpf_map_lookup_elem#1
+ 92: 0......... (15) if r0 == 0x0 goto pc+50
+ 93: 0......... (b7) r1 = 1
+ 94: 01........ (db) lock *(u64 *)(r0 +0) += r1
+ 95: .......... (05) goto pc+47
+ 96: ......6789 (77) r8 >>= 32
+ 97: ......6789 (b7) r1 = 0
+ 98: .1....6789 (7b) *(u64 *)(r10 -16) = r1
+ 99: .1....6789 (7b) *(u64 *)(r10 -8) = r1
+100: .1....6789 (7b) *(u64 *)(r10 -24) = r1
+101: .1....6789 (7b) *(u64 *)(r10 -32) = r1
+102: .1....6789 (7b) *(u64 *)(r10 -40) = r1
+103: .1....6789 (7b) *(u64 *)(r10 -48) = r1
+104: .1....6789 (7b) *(u64 *)(r10 -56) = r1
+105: .1....6789 (7b) *(u64 *)(r10 -64) = r1
+106: .1....6789 (7b) *(u64 *)(r10 -72) = r1
+107: ......6789 (63) *(u32 *)(r10 -12) = r8
+108: ......67.9 (b7) r1 = 10
+109: .1....67.9 (63) *(u32 *)(r10 -16) = r1
+110: ......67.9 (85) call bpf_get_current_uid_gid#15
+111: 0.....67.9 (63) *(u32 *)(r10 -8) = r0
+112: ......67.9 (85) call bpf_ktime_get_ns#5
+113: 0.....67.9 (37) r0 /= 1000
+114: 0.....67.9 (7b) *(u64 *)(r10 -24) = r0
+115: ......67.9 (b7) r1 = 72
+116: .1....67.9 (bf) r3 = r7
+117: .1.3..67.9 (0f) r3 += r1
+118: ...3..67.9 (bf) r8 = r10
+119: ...3..6789 (07) r8 += -72
+120: ...3..6789 (bf) r1 = r8
+121: .1.3..6789 (b7) r2 = 16
+122: .123..6789 (85) call bpf_probe_read_kernel#113
+123: ......6789 (b7) r1 = 56
+124: .1....6789 (0f) r7 += r1
+125: ......6789 (bf) r1 = r10
+126: .1....6789 (07) r1 += -56
+127: .1....6789 (b7) r2 = 16
+128: .12...6789 (bf) r3 = r7
+129: .123..6.89 (85) call bpf_probe_read_kernel#113
+130: ......6.89 (6b) *(u16 *)(r10 -4) = r9
+131: ......6.8. (bf) r1 = r10
+132: .1....6.8. (07) r1 += -40
+133: .1....6.8. (b7) r2 = 16
+134: .12...6.8. (85) call bpf_get_current_comm#16
+135: ......6.8. (bf) r1 = r6
+136: .1......8. (18) r2 = 0xffff8f117dbf8800
+138: .12.....8. (18) r3 = 0xffffffff
+140: .123....8. (bf) r4 = r8
+141: .1234..... (b7) r5 = 72
+142: .12345.... (85) call bpf_perf_event_output#25
+143: .......... (bf) r2 = r10
+144: ..2....... (07) r2 += -76
+145: ..2....... (18) r1 = 0xffff8f0186d82400
+147: .12....... (85) call bpf_map_delete_elem#3
+148: .......... (b7) r0 = 0
+149: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int BPF_KRETPROBE(tcp_v6_connect_ret, int ret) @ buggy.c:212
+0: (bf) r6 = r1                       ; R1=ctx() R6_w=ctx()
+1: (79) r7 = *(u64 *)(r6 +80)         ; R6_w=ctx() R7_w=scalar()
+; __u64 pid_tgid = bpf_get_current_pid_tgid(); @ buggy.c:156
+2: (85) call bpf_get_current_pid_tgid#14      ; R0_w=scalar()
+3: (bf) r8 = r0                       ; R0_w=scalar(id=1) R8_w=scalar(id=1)
+; __u32 tid = pid_tgid; @ buggy.c:158
+4: (63) *(u32 *)(r10 -76) = r8        ; R8_w=scalar(id=1) R10=fp0 fp-80=mmmm????
+5: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+;  @ buggy.c:0
+6: (07) r2 += -76                     ; R2_w=fp-76
+; skpp = bpf_map_lookup_elem(&sockets, &tid); @ buggy.c:163
+7: (18) r1 = 0xffff8f0186d82400       ; R1_w=map_ptr(map=sockets,ks=4,vs=8)
+9: (85) call bpf_map_lookup_elem#1    ; R0=map_value_or_null(id=2,map=sockets,ks=4,vs=8)
+; if (!skpp) @ buggy.c:164
+10: (15) if r0 == 0x0 goto pc+137     ; R0=map_value(map=sockets,ks=4,vs=8)
+;  @ buggy.c:0
+11: (67) r7 <<= 32                    ; R7_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+12: (77) r7 >>= 32                    ; R7_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+; if (ret) @ buggy.c:167
+13: (55) if r7 != 0x0 goto pc+129     ; R7_w=0
+14: (b7) r1 = 12                      ; R1_w=12
+; sk = *skpp; @ buggy.c:170
+15: (79) r7 = *(u64 *)(r0 +0)         ; R0=map_value(map=sockets,ks=4,vs=8) R7_w=scalar()
+16: (bf) r3 = r7                      ; R3_w=scalar(id=3) R7_w=scalar(id=3)
+17: (0f) r3 += r1                     ; R1_w=12 R3_w=scalar(id=3+12)
+18: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
+;  @ buggy.c:0
+19: (07) r1 += -78                    ; R1_w=fp-78
+; BPF_CORE_READ_INTO(&dport, sk, __sk_common.skc_dport); @ buggy.c:172
+20: (b7) r2 = 2                       ; R2_w=2
+21: (85) call bpf_probe_read_kernel#113
+mark_precise: frame0: last_idx 21 first_idx 10 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 20: (b7) r2 = 2
+22: R0=scalar() fp-80=mmmmmm??
+; if (filter_port(dport)) @ buggy.c:173
+22: (69) r9 = *(u16 *)(r10 -78)       ; R9_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; if (filter_ports_len == 0) @ buggy.c:55
+23: (18) r1 = 0xffffd2b8c3376000      ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280)
+25: (61) r2 = *(u32 *)(r1 +0)         ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280) R2_w=0
+26: (15) if r2 == 0x0 goto pc+19
+mark_precise: frame0: last_idx 26 first_idx 22 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 25: (61) r2 = *(u32 *)(r1 +0)
+26: R2_w=0
+; if (do_count) { @ buggy.c:176
+46: (18) r1 = 0xffffd2b8c337600c      ; R1_w=map_value(map=buggy.rodata,ks=4,vs=280,off=12)
+48: (71) r1 = *(u8 *)(r1 +0)          ; R1_w=0
+49: (15) if r1 == 0x0 goto pc+46
+mark_precise: frame0: last_idx 49 first_idx 22 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 48: (71) r1 = *(u8 *)(r1 +0)
+49: R1_w=0
+; __atomic_add_fetch(val, 1, __ATOMIC_RELAXED); @ buggy.c:112
+96: (77) r8 >>= 32                    ; R8_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+97: (b7) r1 = 0                       ; R1_w=0
+; struct event event = {}; @ buggy.c:136
+98: (7b) *(u64 *)(r10 -16) = r1       ; R1_w=0 R10=fp0 fp-16_w=0
+99: (7b) *(u64 *)(r10 -8) = r1        ; R1_w=0 R10=fp0 fp-8_w=0
+100: (7b) *(u64 *)(r10 -24) = r1      ; R1_w=0 R10=fp0 fp-24_w=0
+101: (7b) *(u64 *)(r10 -32) = r1      ; R1_w=0 R10=fp0 fp-32_w=0
+102: (7b) *(u64 *)(r10 -40) = r1      ; R1_w=0 R10=fp0 fp-40_w=0
+103: (7b) *(u64 *)(r10 -48) = r1      ; R1_w=0 R10=fp0 fp-48_w=0
+104: (7b) *(u64 *)(r10 -56) = r1      ; R1_w=0 R10=fp0 fp-56_w=0
+105: (7b) *(u64 *)(r10 -64) = r1      ; R1_w=0 R10=fp0 fp-64_w=0
+106: (7b) *(u64 *)(r10 -72) = r1      ; R1_w=0 R10=fp0 fp-72_w=0
+; event.pid = pid; @ buggy.c:139
+107: (63) *(u32 *)(r10 -12) = r8      ; R8_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R10=fp0 fp-16_w=mmmmmmmm
+108: (b7) r1 = 10                     ; R1_w=10
+; event.af = AF_INET6; @ buggy.c:138
+109: (63) *(u32 *)(r10 -16) = r1      ; R1_w=10 R10=fp0 fp-16_w=mmmm10
+; event.uid = bpf_get_current_uid_gid(); @ buggy.c:140
+110: (85) call bpf_get_current_uid_gid#15     ; R0=scalar()
+111: (63) *(u32 *)(r10 -8) = r0       ; R0=scalar() R10=fp0 fp-8=mmmmscalar()
+; event.ts_us = bpf_ktime_get_ns() / 1000; @ buggy.c:141
+112: (85) call bpf_ktime_get_ns#5     ; R0_w=scalar()
+113: (37) r0 /= 1000                  ; R0_w=scalar()
+114: (7b) *(u64 *)(r10 -24) = r0      ; R0_w=scalar(id=4) R10=fp0 fp-24_w=scalar(id=4)
+115: (b7) r1 = 72                     ; R1_w=72
+116: (bf) r3 = r7                     ; R3_w=scalar(id=3) R7=scalar(id=3)
+117: (0f) r3 += r1                    ; R1_w=72 R3_w=scalar(id=3+72)
+118: (bf) r8 = r10                    ; R8_w=fp0 R10=fp0
+;  @ buggy.c:0
+119: (07) r8 += -72                   ; R8_w=fp-72
+; BPF_CORE_READ_INTO(&event.saddr_v6, sk, @ buggy.c:142
+120: (bf) r1 = r8                     ; R1_w=fp-72 R8_w=fp-72
+121: (b7) r2 = 16                     ; R2_w=16
+122: (85) call bpf_probe_read_kernel#113
+mark_precise: frame0: last_idx 122 first_idx 111 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 121: (b7) r2 = 16
+123: R0=scalar() fp-64=mmmmmmmm fp-72=mmmmmmmm
+123: (b7) r1 = 56                     ; R1_w=56
+124: (0f) r7 += r1                    ; R1_w=56 R7_w=scalar(id=3+56)
+; struct event event = {}; @ buggy.c:136
+125: (bf) r1 = r10                    ; R1_w=fp0 R10=fp0
+126: (07) r1 += -56                   ; R1_w=fp-56
+; BPF_CORE_READ_INTO(&event.daddr_v6, sk, @ buggy.c:144
+127: (b7) r2 = 16                     ; R2_w=16
+128: (bf) r3 = r7                     ; R3_w=scalar(id=5) R7_w=scalar(id=5)
+129: (85) call bpf_probe_read_kernel#113
+mark_precise: frame0: last_idx 129 first_idx 123 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 128: (bf) r3 = r7
+mark_precise: frame0: regs=r2 stack= before 127: (b7) r2 = 16
+130: R0_w=scalar() fp-48=mmmmmmmm fp-56=mmmmmmmm
+; event.dport = dport; @ buggy.c:146
+130: (6b) *(u16 *)(r10 -4) = r9       ; R9=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm
+; struct event event = {}; @ buggy.c:136
+131: (bf) r1 = r10                    ; R1_w=fp0 R10=fp0
+132: (07) r1 += -40                   ; R1_w=fp-40
+; bpf_get_current_comm(event.task, sizeof(event.task)); @ buggy.c:147
+133: (b7) r2 = 16                     ; R2_w=16
+134: (85) call bpf_get_current_comm#16
+mark_precise: frame0: last_idx 134 first_idx 123 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 133: (b7) r2 = 16
+135: R0=scalar() fp-32=mmmmmmmm fp-40=mmmmmmmm
+; bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, @ buggy.c:149
+135: (bf) r1 = r6                     ; R1_w=ctx() R6=ctx()
+136: (18) r2 = 0xffff8f117dbf8800     ; R2_w=map_ptr(map=events,ks=4,vs=4)
+138: (18) r3 = 0xffffffff             ; R3_w=0xffffffff
+140: (bf) r4 = r8                     ; R4_w=fp-72 R8=fp-72
+141: (b7) r5 = 72                     ; R5_w=72
+142: (85) call bpf_perf_event_output#25
+mark_precise: frame0: last_idx 142 first_idx 135 subseq_idx -1 
+mark_precise: frame0: regs=r5 stack= before 141: (b7) r5 = 72
+143: R0_w=scalar()
+143: (bf) r2 = r10                    ; R2_w=fp0 R10=fp0
+; end: @ buggy.c:188
+144: (07) r2 += -76                   ; R2_w=fp-76
+; bpf_map_delete_elem(&sockets, &tid); @ buggy.c:189
+145: (18) r1 = 0xffff8f0186d82400     ; R1_w=map_ptr(map=sockets,ks=4,vs=8)
+147: (85) call bpf_map_delete_elem#3          ; R0=scalar()
+; int BPF_KRETPROBE(tcp_v6_connect_ret, int ret) @ buggy.c:212
+148: (b7) r0 = 0                      ; R0_w=0
+149: (95) exit
+
+from 13 to 143: R0=map_value(map=sockets,ks=4,vs=8) R6=ctx() R7_w=scalar(smin=umin=umin32=1,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R8=scalar(id=1) R10=fp0 fp-80=mmmm????
+143: R0=map_value(map=sockets,ks=4,vs=8) R6=ctx() R7_w=scalar(smin=umin=umin32=1,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R8=scalar(id=1) R10=fp0 fp-80=mmmm????
+; bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, @ buggy.c:149
+143: (bf) r2 = r10                    ; R2_w=fp0 R10=fp0
+; end: @ buggy.c:188
+144: (07) r2 += -76                   ; R2_w=fp-76
+; bpf_map_delete_elem(&sockets, &tid); @ buggy.c:189
+145: (18) r1 = 0xffff8f0186d82400     ; R1_w=map_ptr(map=sockets,ks=4,vs=8)
+147: (85) call bpf_map_delete_elem#3
+148: safe
+
+from 10 to 148: safe
+verification time 239 usec
+stack depth 80
+processed 85 insns (limit 1000000) max_states_per_insn 0 total_states 6 peak_states 6 mark_read 5
+-- END PROG LOAD LOG --
+libbpf: prog 'tcp_v4_connect': pinned at '/sys/fs/bpf/eval-bcc-118bf168f9f6_buggy/tcp_v4_connect'
+libbpf: prog 'tcp_v4_connect_ret': pinned at '/sys/fs/bpf/eval-bcc-118bf168f9f6_buggy/tcp_v4_connect_ret'
+libbpf: prog 'tcp_v6_connect': pinned at '/sys/fs/bpf/eval-bcc-118bf168f9f6_buggy/tcp_v6_connect'
+libbpf: prog 'tcp_v6_connect_ret': pinned at '/sys/fs/bpf/eval-bcc-118bf168f9f6_buggy/tcp_v6_connect_ret'

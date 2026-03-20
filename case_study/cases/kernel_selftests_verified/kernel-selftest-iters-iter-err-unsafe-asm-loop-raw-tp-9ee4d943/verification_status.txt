@@ -1,0 +1,17 @@
+case_id: kernel-selftest-iters-iter-err-unsafe-asm-loop-raw-tp-9ee4d943
+checked_at_utc: 2026-03-20T00:37:26.722744+00:00
+source_file: tools/testing/selftests/bpf/progs/iters.c
+target_function: iter_err_unsafe_asm_loop
+section: ?raw_tp
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 9
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: no
+expected_message_match: no
+diagnostic_tail_match: no
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-iters-iter-err-unsafe-asm-loop-raw-tp-9ee4d943/prog.o","program_name":"iter_err_unsafe_asm_loop","section_name":null,"load_ok":false,"error_code":-2,"error_message":"No such file or directory","verifier_log":null}

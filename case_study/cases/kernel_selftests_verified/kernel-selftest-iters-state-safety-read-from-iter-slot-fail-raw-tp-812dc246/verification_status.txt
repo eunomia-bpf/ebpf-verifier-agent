@@ -1,0 +1,17 @@
+case_id: kernel-selftest-iters-state-safety-read-from-iter-slot-fail-raw-tp-812dc246
+checked_at_utc: 2026-03-20T00:37:27.193092+00:00
+source_file: tools/testing/selftests/bpf/progs/iters_state_safety.c
+target_function: read_from_iter_slot_fail
+section: ?raw_tp
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 12
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: no
+expected_message_match: no
+diagnostic_tail_match: no
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-iters-state-safety-read-from-iter-slot-fail-raw-tp-812dc246/prog.o","program_name":"read_from_iter_slot_fail","section_name":null,"load_ok":false,"error_code":-2,"error_message":"No such file or directory","verifier_log":null}

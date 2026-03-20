@@ -1,0 +1,98 @@
+case_id: eval-katran-1c79d8c6db85
+source: eval_commits
+repository: https://github.com/facebookincubator/katran
+repo_name: katran
+commit_hash: 1c79d8c6db856d9e56fde02b63b7b85e7f7a46f8
+parent_commit: dfdcf28c72ae1cfab150eb7c5bb1b1c8b67c7d5d
+case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits/eval-katran-1c79d8c6db85.yaml
+score: 6
+changed_files:
+- katran/lib/bpf/balancer_consts.h
+- katran/lib/bpf/balancer_kern.c
+selected_source_file: katran/lib/bpf/balancer_kern.c
+buggy_include_closure:
+- katran/lib/bpf/balancer_kern.c
+fixed_include_closure:
+- katran/lib/bpf/balancer_kern.c
+unresolved_buggy_includes:
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/balancer_consts.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/balancer_helpers.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/balancer_maps.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/balancer_structs.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/handle_icmp.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/pckt_encap.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/pckt_parsing.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/linux_includes/bpf.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/linux_includes/bpf_helpers.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/linux_includes/jhash.h'
+unresolved_fixed_includes:
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/balancer_consts.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/balancer_helpers.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/balancer_maps.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/balancer_structs.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/handle_icmp.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/pckt_encap.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/bpf/pckt_parsing.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/linux_includes/bpf.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/linux_includes/bpf_helpers.h'
+- 'katran/lib/bpf/balancer_kern.c: katran/lib/linux_includes/jhash.h'
+compile_command_buggy:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -D__no_sanitize_or_inline=
+- -include
+- stddef.h
+- -include
+- stdbool.h
+- -include
+- stdint.h
+- -include
+- linux/types.h
+- -I/usr/include
+- -I/usr/src/linux-headers-6.15.11-061511-generic/include/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/generated/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/generated
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include
+- -I/usr/src/linux-headers-6.15.11-061511-generic/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-1c79d8c6db85/headers/buggy/katran/lib/bpf
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-1c79d8c6db85/headers/buggy/katran/lib/linux_includes
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-1c79d8c6db85/buggy.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-1c79d8c6db85/buggy.o
+compile_command_fixed:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -D__no_sanitize_or_inline=
+- -include
+- stddef.h
+- -include
+- stdbool.h
+- -include
+- stdint.h
+- -include
+- linux/types.h
+- -I/usr/include
+- -I/usr/src/linux-headers-6.15.11-061511-generic/include/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/generated/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/generated
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include
+- -I/usr/src/linux-headers-6.15.11-061511-generic/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-1c79d8c6db85/headers/fixed/katran/lib/bpf
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-1c79d8c6db85/headers/fixed/katran/lib/linux_includes
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-1c79d8c6db85/fixed.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-katran-1c79d8c6db85/fixed.o
+load_command_buggy: []
+load_command_fixed: []

@@ -1,0 +1,17 @@
+case_id: kernel-selftest-irq-irq-save-invalid-tc-86a07a3f
+checked_at_utc: 2026-03-20T00:37:25.230851+00:00
+source_file: tools/testing/selftests/bpf/progs/irq.c
+target_function: irq_save_invalid
+section: ?tc
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 7
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-irq-irq-save-invalid-tc-86a07a3f/prog.o","program_name":"irq_save_invalid","section_name":"tc","load_ok":false,"error_code":-22,"error_message":"Invalid argument","verifier_log":"func#0 @0\nLive regs before insn:\n  0: .......... (bf) r6 = r10\n  1: ......6... (07) r6 += -8\n  2: ......6... (bf) r1 = r6\n  3: .1....6... (85) call bpf_local_irq_save#72094\n  4: ......6... (bf) r1 = r6\n  5: .1........ (85) call bpf_local_irq_save#72094\n  6: .......... (b4) w0 = 0\n  7: 0......... (95) exit\n0: R1=ctx() R10=fp0\n; int irq_save_invalid(struct __sk_buff *ctx) @ prog.c:22\n0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0\n; bpf_local_irq_save(&flags1); @ prog.c:26\n1: (07) r6 += -8                      ; R6_w=fp-8\n2: (bf) r1 = r6                       ; R1_w=fp-8 R6_w=fp-8\n3: (85) call bpf_local_irq_save#72094         ; fp-8_w=ffffffff refs=1\n; bpf_local_irq_save(&flags1); @ prog.c:27\n4: (bf) r1 = r6                       ; R1_w=fp-8 R6_w=fp-8 refs=1\n5: (85) call bpf_local_irq_save#72094\nexpected uninitialized irq flag as arg#0\nprocessed 6 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n"}

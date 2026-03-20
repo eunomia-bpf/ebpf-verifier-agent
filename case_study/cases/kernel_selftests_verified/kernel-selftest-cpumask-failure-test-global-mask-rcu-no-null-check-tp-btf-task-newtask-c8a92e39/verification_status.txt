@@ -1,0 +1,17 @@
+case_id: kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39
+checked_at_utc: 2026-03-20T00:37:14.600272+00:00
+source_file: tools/testing/selftests/bpf/progs/cpumask_failure.c
+target_function: test_global_mask_rcu_no_null_check
+section: tp_btf/task_newtask
+source_found: yes
+retained_sec_program_count: 1
+header_files_copied: 10
+compile_ok: yes
+load_attempted: yes
+verifier_rejected: yes
+verifier_log_captured: yes
+expected_message_match: yes
+diagnostic_tail_match: yes
+exact_log_match: no
+load_output_excerpt: |
+  {"object_path":"/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/kernel_selftests_verified/kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39/prog.o","program_name":"test_global_mask_rcu_no_null_check","section_name":"tp_btf/task_newtask","load_ok":false,"error_code":-13,"error_message":"Permission denied","verifier_log":"func#0 @0\nLive regs before insn:\n  0: .......... (85) call bpf_cpumask_create#71422\n  1: 0......... (15) if r0 == 0x0 goto pc+19\n  2: 0......... (18) r6 = 0xffff8f16cc476708\n  4: 0.....6... (18) r1 = 0xffff8f16cc476708\n  6: 01....6... (bf) r2 = r0\n  7: .12...6... (85) call bpf_kptr_xchg#194\n  8: 0.....6... (15) if r0 == 0x0 goto pc+2\n  9: 0.....6... (bf) r1 = r0\n 10: .1....6... (85) call bpf_cpumask_release#71436\n 11: ......6... (85) call bpf_rcu_read_lock#73012\n 12: ......6... (79) r2 = *(u64 *)(r6 +0)\n 13: ..2....... (18) r1 = 0xffff8f16cc476708\n 15: .12....... (85) call bpf_kptr_xchg#194\n 16: 0......... (bf) r6 = r0\n 17: ......6... (85) call bpf_rcu_read_unlock#73013\n 18: ......6... (15) if r6 == 0x0 goto pc+2\n 19: ......6... (bf) r1 = r6\n 20: .1........ (85) call bpf_cpumask_release#71436\n 21: .......... (b4) w0 = 0\n 22: 0......... (95) exit\n0: R1=ctx() R10=fp0\n; curr = bpf_cpumask_create(); @ prog.c:34\n0: (85) call bpf_cpumask_create#71422         ; R0_w=ptr_or_null_bpf_cpumask(id=2,ref_obj_id=2) refs=2\n; if (!curr) @ prog.c:35\n1: (15) if r0 == 0x0 goto pc+19       ; R0_w=ptr_bpf_cpumask(ref_obj_id=2) refs=2\n; prev = bpf_kptr_xchg(&global_mask, curr); @ prog.c:38\n2: (18) r6 = 0xffff8f16cc476708       ; R6_w=map_value(map=.bss.MASK,ks=4,vs=8) refs=2\n4: (18) r1 = 0xffff8f16cc476708       ; R1_w=map_value(map=.bss.MASK,ks=4,vs=8) refs=2\n6: (bf) r2 = r0                       ; R0_w=ptr_bpf_cpumask(ref_obj_id=2) R2_w=ptr_bpf_cpumask(ref_obj_id=2) refs=2\n7: (85) call bpf_kptr_xchg#194        ; R0_w=ptr_or_null_bpf_cpumask(id=4,ref_obj_id=4) refs=4\n; if (prev) @ prog.c:39\n8: (15) if r0 == 0x0 goto pc+2        ; R0_w=ptr_bpf_cpumask(ref_obj_id=4) refs=4\n; bpf_cpumask_release(prev); @ prog.c:40\n9: (bf) r1 = r0                       ; R0_w=ptr_bpf_cpumask(ref_obj_id=4) R1_w=ptr_bpf_cpumask(ref_obj_id=4) refs=4\n10: (85) call bpf_cpumask_release#71436       ;\n; bpf_rcu_read_lock(); @ prog.c:42\n11: (85) call bpf_rcu_read_lock#73012         ;\n; curr = global_mask; @ prog.c:43\n12: (79) r2 = *(u64 *)(r6 +0)         ; R2_w=rcu_ptr_or_null_bpf_cpumask(id=5) R6=map_value(map=.bss.MASK,ks=4,vs=8)\n; prev = bpf_kptr_xchg(&global_mask, curr); @ prog.c:45\n13: (18) r1 = 0xffff8f16cc476708      ; R1_w=map_value(map=.bss.MASK,ks=4,vs=8)\n15: (85) call bpf_kptr_xchg#194\nPossibly NULL pointer passed to helper arg2\nprocessed 13 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n"}

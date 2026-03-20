@@ -1,0 +1,152 @@
+func#0 @0
+func#1 @41
+Live regs before insn:
+  0: .......... (b4) w1 = 0
+  1: .1........ (63) *(u32 *)(r10 -4) = r1
+  2: .......... (bf) r6 = r10
+  3: ......6... (07) r6 += -4
+  4: ......6... (18) r1 = 0xffff8f0cc70dc200
+  6: .1....6... (bf) r2 = r6
+  7: .12...6... (18) r3 = 0xffffd2b8de135004
+  9: .123..6... (b7) r4 = 0
+ 10: .1234.6... (85) call bpf_map_update_elem#2
+ 11: ......6... (18) r1 = 0xffff8f0cc70dc200
+ 13: .1....6... (bf) r2 = r6
+ 14: .12....... (85) call bpf_map_lookup_elem#1
+ 15: 0......... (55) if r0 != 0x0 goto pc+1
+ 16: .......... (05) goto pc+22
+ 17: 0......... (bf) r6 = r10
+ 18: 0.....6... (07) r6 += -24
+ 19: 0.....6... (bf) r1 = r0
+ 20: .1....6... (b7) r2 = 4
+ 21: .12...6... (b7) r3 = 0
+ 22: .123..6... (bf) r4 = r6
+ 23: .1234.6... (85) call bpf_dynptr_from_mem#197
+ 24: ......6... (bf) r1 = r6
+ 25: .1........ (b7) r2 = 0
+ 26: .12....... (b7) r3 = 4
+ 27: .123...... (85) call bpf_dynptr_data#203
+ 28: 0......... (bf) r6 = r0
+ 29: ......6... (15) if r6 == 0x0 goto pc+9
+ 30: ......6... (bf) r3 = r10
+ 31: ...3..6... (07) r3 += -24
+ 32: ...3..6... (b4) w1 = 10
+ 33: .1.3..6... (18) r2 = 0x7
+ 35: .123..6... (b7) r4 = 0
+ 36: .1234.6... (85) call bpf_loop#181
+ 37: ......6... (b4) w1 = 1
+ 38: .1....6... (63) *(u32 *)(r6 +0) = r1
+ 39: .......... (b4) w0 = 0
+ 40: 0......... (95) exit
+ 41: ..2....... (b4) w1 = 123
+ 42: .12....... (63) *(u32 *)(r2 +0) = r1
+ 43: .......... (b4) w0 = 0
+ 44: 0......... (95) exit
+arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+0: R1=ctx() R10=fp0
+; int invalid_data_slices(void *ctx) @ prog.c:104
+0: (b4) w1 = 0                        ; R1_w=0
+; __u32 key = 0, *map_val; @ prog.c:74
+1: (63) *(u32 *)(r10 -4) = r1
+mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 0: (b4) w1 = 0
+2: R1_w=0 R10=fp0 fp-8=0000????
+2: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+;  @ prog.c:0
+3: (07) r6 += -4                      ; R6_w=fp-4
+; bpf_map_update_elem(&array_map3, &key, &val, 0); @ prog.c:76
+4: (18) r1 = 0xffff8f0cc70dc200       ; R1_w=map_ptr(map=array_map3,ks=4,vs=4)
+6: (bf) r2 = r6                       ; R2_w=fp-4 R6_w=fp-4
+7: (18) r3 = 0xffffd2b8de135004       ; R3_w=map_value(map=prog.bss,ks=4,vs=24,off=4)
+9: (b7) r4 = 0                        ; R4_w=0
+10: (85) call bpf_map_update_elem#2   ; R0_w=scalar()
+; map_val = bpf_map_lookup_elem(&array_map3, &key); @ prog.c:78
+11: (18) r1 = 0xffff8f0cc70dc200      ; R1_w=map_ptr(map=array_map3,ks=4,vs=4)
+13: (bf) r2 = r6                      ; R2_w=fp-4 R6_w=fp-4
+14: (85) call bpf_map_lookup_elem#1   ; R0=map_value(map=array_map3,ks=4,vs=4)
+; if (!map_val) @ prog.c:79
+15: (55) if r0 != 0x0 goto pc+1       ; R0=map_value(map=array_map3,ks=4,vs=4)
+17: (bf) r6 = r10                     ; R6_w=fp0 R10=fp0
+; bpf_dynptr_from_mem(map_val, sizeof(*map_val), 0, ptr); @ prog.c:82
+18: (07) r6 += -24                    ; R6_w=fp-24
+19: (bf) r1 = r0                      ; R0=map_value(map=array_map3,ks=4,vs=4) R1_w=map_value(map=array_map3,ks=4,vs=4)
+20: (b7) r2 = 4                       ; R2_w=4
+21: (b7) r3 = 0                       ; R3_w=0
+22: (bf) r4 = r6                      ; R4_w=fp-24 R6_w=fp-24
+23: (85) call bpf_dynptr_from_mem#197
+mark_precise: frame0: last_idx 23 first_idx 15 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 22: (bf) r4 = r6
+mark_precise: frame0: regs=r2 stack= before 21: (b7) r3 = 0
+mark_precise: frame0: regs=r2 stack= before 20: (b7) r2 = 4
+24: R0=scalar() fp-24=dynptr_local(id=1,dynptr_id=1)
+; slice = bpf_dynptr_data(&ptr, 0, sizeof(__u32)); @ prog.c:112
+24: (bf) r1 = r6                      ; R1_w=fp-24 R6=fp-24
+25: (b7) r2 = 0                       ; R2_w=0
+26: (b7) r3 = 4                       ; R3_w=4
+27: (85) call bpf_dynptr_data#203
+mark_precise: frame0: last_idx 27 first_idx 24 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 26: (b7) r3 = 4
+28: R0_w=mem_or_null(id=2,sz=4) fp-24=dynptr_local(id=1,dynptr_id=1)
+28: (bf) r6 = r0                      ; R0_w=mem_or_null(id=2,sz=4) R6_w=mem_or_null(id=2,sz=4)
+; if (!slice) @ prog.c:113
+29: (15) if r6 == 0x0 goto pc+9       ; R6_w=mem(sz=4)
+30: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0
+; bpf_loop(10, callback, &ptr, 0); @ prog.c:116
+31: (07) r3 += -24                    ; R3_w=fp-24
+32: (b4) w1 = 10                      ; R1=10
+33: (18) r2 = 0x7                     ; R2_w=func()
+35: (b7) r4 = 0                       ; R4=0
+36: (85) call bpf_loop#181
+mark_precise: frame0: last_idx 36 first_idx 36 subseq_idx -1 
+mark_precise: frame0: parent state regs=r4 stack=:  R0=mem(sz=4) R1_r=10 R2_rw=func() R3_r=fp-24 R4_rw=P0 R6=mem(sz=4) R10=fp0 fp-8=0000???? fp-24=dynptr_local(id=1,dynptr_id=1)
+mark_precise: frame0: last_idx 35 first_idx 33 subseq_idx 36 
+mark_precise: frame0: regs=r4 stack= before 35: (b7) r4 = 0
+mark_precise: frame0: last_idx 36 first_idx 36 subseq_idx -1 
+mark_precise: frame0: parent state regs=r1 stack=:  R0=mem(sz=4) R1_r=P10 R2_rw=func() R3_r=fp-24 R4_rw=P0 R6=mem(sz=4) R10=fp0 fp-8=0000???? fp-24=dynptr_local(id=1,dynptr_id=1)
+mark_precise: frame0: last_idx 35 first_idx 33 subseq_idx 36 
+mark_precise: frame0: regs=r1 stack= before 35: (b7) r4 = 0
+mark_precise: frame0: regs=r1 stack= before 33: (18) r2 = 0x7
+mark_precise: frame0: parent state regs=r1 stack=:  R0_w=mem(sz=4) R1_rw=P10 R3_rw=fp-24 R6_w=mem(sz=4) R10=fp0 fp-8=0000???? fp-24=dynptr_local(id=1,dynptr_id=1)
+mark_precise: frame0: last_idx 32 first_idx 24 subseq_idx 33 
+mark_precise: frame0: regs=r1 stack= before 32: (b4) w1 = 10
+37: R0_w=scalar() R6=mem(sz=4) R10=fp0 fp-8=0000???? fp-24=dynptr_local(id=1,dynptr_id=1)
+37: (b4) w1 = 1                       ; R1_w=1
+; *slice = 1; @ prog.c:119
+38: (63) *(u32 *)(r6 +0) = r1         ; R1_w=1 R6=mem(sz=4)
+; } @ prog.c:122
+39: (b4) w0 = 0                       ; R0_w=0
+40: (95) exit
+
+from 36 to 41: frame1: R1=scalar() R2=fp[0]-24 R10=fp0 cb
+41: frame1: R1=scalar() R2=fp[0]-24 R10=fp0 cb
+; static int callback(__u32 index, void *data) @ prog.c:92
+41: (b4) w1 = 123                     ; frame1: R1_w=123 cb
+; *(__u32 *)data = 123; @ prog.c:94
+42: (63) *(u32 *)(r2 +0) = r1         ; frame1: R1_w=123 R2=fp[0]-24 cb
+; return 0; @ prog.c:96
+43: (b4) w0 = 0                       ; frame1: R0_w=0 cb
+44: (95) exit
+mark_precise: frame1: last_idx 44 first_idx 36 subseq_idx -1 
+mark_precise: frame1: regs=r0 stack= before 43: (b4) w0 = 0
+returning from callee:
+ frame1: R0_w=0 R1_w=123 R2=fp[0]-24 R10=fp0 cb
+to caller at 36:
+ R0=scalar() R1=10 R2=func() R3=fp-24 R4=0 R6=scalar() R10=fp0 fp-8=0000???? fp-24_w=????123
+
+from 44 to 36: R0=scalar() R1=10 R2=func() R3=fp-24 R4=0 R6=scalar() R10=fp0 fp-8=0000???? fp-24=????123
+; bpf_loop(10, callback, &ptr, 0); @ prog.c:116
+36: (85) call bpf_loop#181
+mark_precise: frame0: last_idx 36 first_idx 36 subseq_idx -1 
+mark_precise: frame0: parent state regs=r4 stack=:  R0=scalar() R1_r=10 R2_r=func() R3_r=fp-24 R4_r=P0 R6=scalar() R10=fp0 fp-8=0000???? fp-24_w=????123
+mark_precise: frame0: last_idx 44 first_idx 36 subseq_idx 36 
+mark_precise: frame0: regs=r4 stack= before 44: (95) exit
+mark_precise: frame0: last_idx 36 first_idx 36 subseq_idx -1 
+mark_precise: frame0: parent state regs=r1 stack=:  R0=scalar() R1_r=P10 R2_r=func() R3_r=fp-24 R4_r=P0 R6=scalar() R10=fp0 fp-8=0000???? fp-24_w=????123
+mark_precise: frame0: last_idx 44 first_idx 36 subseq_idx 36 
+mark_precise: frame0: regs=r1 stack= before 44: (95) exit
+37: R0_w=scalar() R6=scalar() R10=fp0 fp-8=0000???? fp-24=????123
+37: (b4) w1 = 1                       ; R1_w=1
+; *slice = 1; @ prog.c:119
+38: (63) *(u32 *)(r6 +0) = r1
+R6 invalid mem access 'scalar'
+processed 43 insns (limit 1000000) max_states_per_insn 1 total_states 5 peak_states 5 mark_read 2

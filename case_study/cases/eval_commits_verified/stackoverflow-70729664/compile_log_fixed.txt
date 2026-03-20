@@ -1,0 +1,77 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:14:5: error: use of undeclared identifier 'TL'
+   14 |     TL;DR. You are hitting a corner-case limitation of the verifier. Changing the end of the for loop to the following may help.
+      |     ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:14:8: error: use of undeclared identifier 'DR'
+   14 |     TL;DR. You are hitting a corner-case limitation of the verifier. Changing the end of the for loop to the following may help.
+      |        ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:18:9: error: use of undeclared identifier 'nh'
+   18 |     if (nh->pos > MAX_PACKET_OFF)
+      |         ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:19:12: error: use of undeclared identifier 'INV_RET_U32'
+   19 |     return INV_RET_U32;
+      |            ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:20:9: error: use of undeclared identifier 'nh'
+   20 |     if (nh->pos >= data_end)
+      |         ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:21:12: error: use of undeclared identifier 'INV_RET_U32'
+   21 |     return INV_RET_U32;
+      |            ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:22:5: error: use of undeclared identifier 'The'
+   22 |     The full explanation is a bit long, see below.
+      |     ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:33:9: warning: missing terminating ' character [-Winvalid-pp-token]
+   33 |     That's weird because you did check the packet bounds. On instruction 2947, the packet pointer R1 is compared to R6, the pointer to the end of the packet. So following that check, the known minimum size of R1 should be updated, but it remains 0 (r=0).
+      |         ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:41:5: error: use of undeclared identifier 'As'
+   41 |     As explained in the comment, this check is here to prevent overflows. Since R1's unsigned maximum value is 73851 (umax_value=73851), the condition is true and the packet's known size is not updated.
+      |     ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:42:66: warning: missing terminating ' character [-Winvalid-pp-token]
+   42 |     A way to prevent this from happening might be to ensure there's an additional bounds check on R1. For example:
+      |                                                                  ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:47:5: error: use of undeclared identifier 'Why'
+   47 |     Why is R1's unsigned maximum value so high?
+      |     ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:47:14: warning: missing terminating ' character [-Winvalid-pp-token]
+   47 |     Why is R1's unsigned maximum value so high?
+      |              ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:52:11: error: use of undeclared identifier 'nh'
+   52 |     ; if (nh->pos + size < data_end)
+      |           ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:52:21: error: use of undeclared identifier 'size'
+   52 |     ; if (nh->pos + size < data_end)
+      |                     ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:53:9: error: expected ';' after expression
+   53 |     2937: (57) r2 &= 65535
+      |         ^
+      |         ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:53:15: error: expected ';' after expression
+   53 |     2937: (57) r2 &= 65535
+      |               ^
+      |               ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:53:16: error: use of undeclared identifier 'r2'
+   53 |     2937: (57) r2 &= 65535
+      |                ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:56:11: error: use of undeclared identifier 'nh'
+   56 |     ; if (nh->pos + size < data_end)
+      |           ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:56:21: error: use of undeclared identifier 'size'
+   56 |     ; if (nh->pos + size < data_end)
+      |                     ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:57:9: error: expected ';' after expression
+   57 |     2940: (3d) if r7 >= r6 goto pc-2881
+      |         ^
+      |         ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:57:13: error: invalid digit 'd' in decimal constant
+   57 |     2940: (3d) if r7 >= r6 goto pc-2881
+      |             ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:60:31: warning: missing terminating ' character [-Winvalid-pp-token]
+   60 |     When R2 is added to R7, R7's maximum value of course becomes larger than MAX_PACKET_OFF = 65535.
+      |                               ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:61:12: warning: missing terminating ' character [-Winvalid-pp-token]
+   61 |     Shouldn't the verifier understand that size < 516?
+      |            ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c:64:9: error: use of undeclared identifier 'size'
+   64 |     if (size > 512)
+      |         ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+5 warnings and 20 errors generated.

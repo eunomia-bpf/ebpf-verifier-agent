@@ -1,0 +1,44 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-45f5df4c5942/fixed.o
+libbpf: elf: section(3) fentry/migrate_misplaced_page, size 112, link 0, flags 6, type=1
+libbpf: sec 'fentry/migrate_misplaced_page': found program 'migrate_misplaced_page' at insn offset 0 (0 bytes), code size 14 insns (112 bytes)
+libbpf: elf: section(4) .relfentry/migrate_misplaced_page, size 16, link 30, flags 40, type=9
+libbpf: elf: section(5) fexit/migrate_misplaced_page, size 232, link 0, flags 6, type=1
+libbpf: sec 'fexit/migrate_misplaced_page': found program 'migrate_misplaced_page_exit' at insn offset 0 (0 bytes), code size 29 insns (232 bytes)
+libbpf: elf: section(6) .relfexit/migrate_misplaced_page, size 64, link 30, flags 40, type=9
+libbpf: elf: section(7) .bss, size 16, link 0, flags 3, type=8
+libbpf: elf: section(8) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-45f5df4c5942/fixed.o is GPL
+libbpf: elf: section(9) .maps, size 32, link 0, flags 3, type=1
+libbpf: elf: section(20) .BTF, size 1390, link 0, flags 0, type=1
+libbpf: elf: section(22) .BTF.ext, size 424, link 0, flags 0, type=1
+libbpf: elf: section(30) .symtab, size 504, link 1, flags 0, type=2
+libbpf: looking for externs among 21 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'start': at sec_idx 9, offset 0.
+libbpf: map 'start': found type = 1.
+libbpf: map 'start': found key [8], sz = 4.
+libbpf: map 'start': found value [12], sz = 8.
+libbpf: map 'start': found max_entries = 10240.
+libbpf: map 'fixed.bss' (global data): at sec_idx 7, offset 0, flags 400.
+libbpf: map 1 is "fixed.bss"
+libbpf: sec '.relfentry/migrate_misplaced_page': collecting relocation for section(3) 'fentry/migrate_misplaced_page'
+libbpf: sec '.relfentry/migrate_misplaced_page': relo #0: insn #8 against 'start'
+libbpf: prog 'migrate_misplaced_page': found map 0 (start, sec 9, off 0) for insn #8
+libbpf: sec '.relfexit/migrate_misplaced_page': collecting relocation for section(5) 'fexit/migrate_misplaced_page'
+libbpf: sec '.relfexit/migrate_misplaced_page': relo #0: insn #6 against 'start'
+libbpf: prog 'migrate_misplaced_page_exit': found map 0 (start, sec 9, off 0) for insn #6
+libbpf: sec '.relfexit/migrate_misplaced_page': relo #1: insn #15 against 'latency'
+libbpf: prog 'migrate_misplaced_page_exit': found data map 1 (fixed.bss, sec 7, off 0) for insn 15
+libbpf: sec '.relfexit/migrate_misplaced_page': relo #2: insn #19 against 'num'
+libbpf: prog 'migrate_misplaced_page_exit': found data map 1 (fixed.bss, sec 7, off 0) for insn 19
+libbpf: sec '.relfexit/migrate_misplaced_page': relo #3: insn #24 against 'start'
+libbpf: prog 'migrate_misplaced_page_exit': found map 0 (start, sec 9, off 0) for insn #24
+libbpf: object 'fixed': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: loaded kernel BTF from '/sys/kernel/btf/vmlinux'
+libbpf: map 'start': created successfully, fd=4
+libbpf: map 'fixed.bss': created successfully, fd=5
+libbpf: prog 'migrate_misplaced_page': failed to find kernel BTF type ID of 'migrate_misplaced_page': -ESRCH
+libbpf: prog 'migrate_misplaced_page': failed to prepare load attributes: -ESRCH
+libbpf: prog 'migrate_misplaced_page': failed to load: -ESRCH
+libbpf: failed to load object '/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-45f5df4c5942/fixed.o'
+Error: failed to load object file

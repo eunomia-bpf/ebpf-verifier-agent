@@ -1,0 +1,21 @@
+case_id: stackoverflow-70729664
+source: stackoverflow
+case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/stackoverflow/stackoverflow-70729664.yaml
+buggy_origin: source_snippets
+fixed_origin: selected_answer
+repository_hint: null
+compile_command_buggy: []
+compile_command_fixed:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70729664/fixed.o
+load_command_buggy: []
+load_command_fixed: []

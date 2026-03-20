@@ -1,0 +1,8 @@
+In file included from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-5a547e73d31d/buggy.c:7:
+In file included from /usr/include/arpa/inet.h:22:
+In file included from /usr/include/netinet/in.h:23:
+In file included from /usr/include/sys/socket.h:33:
+/usr/include/bits/socket.h:389:11: fatal error: 'asm/socket.h' file not found
+  389 | # include <asm/socket.h>
+      |           ^~~~~~~~~~~~~~
+1 error generated.

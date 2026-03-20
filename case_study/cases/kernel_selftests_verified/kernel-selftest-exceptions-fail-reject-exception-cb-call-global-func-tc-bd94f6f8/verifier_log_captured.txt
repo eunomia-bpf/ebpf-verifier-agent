@@ -1,0 +1,35 @@
+func#0 @0
+func#1 @2
+func#2 @5
+Live regs before insn:
+  0: .12345.... (85) call pc+1
+  1: 0......... (95) exit
+  2: .12345.... (79) r1 = *(u64 *)(r1 +152)
+  3: .12345.... (85) call pc+1
+  4: 0......... (95) exit
+  5: .1........ (bf) r0 = r1
+  6: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; return global_func(ctx); @ prog.c:50
+0: (85) call pc+1
+Func#1 ('global_func') is global and assumed valid.
+1: R0_w=scalar()
+1: (95) exit
+Validating global_func() func#1...
+2: R1=ctx() R10=fp0
+; return exception_cb1(ctx->tstamp); @ prog.c:42
+2: (79) r1 = *(u64 *)(r1 +152)        ; R1_w=scalar()
+3: (85) call pc+1
+Func#2 ('exception_cb1') is global and assumed valid.
+4: R0_w=scalar()
+4: (95) exit
+Func#1 ('global_func') is safe for any args that match its prototype
+Validating exception_cb1() func#2...
+5: R1=scalar() R10=fp0
+; __noinline int exception_cb1(u64 c) @ prog.c:35
+5: (bf) r0 = r1                       ; R0_w=scalar(id=1) R1=scalar(id=1)
+; return c; @ prog.c:37
+6: (95) exit
+Func#2 ('exception_cb1') is safe for any args that match its prototype
+insn 3 cannot call exception cb directly
+processed 7 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0

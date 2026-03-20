@@ -62,10 +62,19 @@ CLANG_FLAGS_UAPI = [
     "-g",
     "-Wall",
     "-Wno-unused-value",
+    "-Wno-unused-function",
+    "-Wno-macro-redefined",
     "-Wno-pointer-sign",
     "-Wno-compare-distinct-pointer-types",
     "-Wno-address-of-packed-member",
     "-Wno-tautological-compare",
+    # Only the UAPI/kernel-header path needs these forced includes. The vmlinux.h
+    # path already defines its own bool/u* types and conflicts with stdbool/stdint.
+    "-D__no_sanitize_or_inline=",
+    "-include", "stddef.h",
+    "-include", "stdbool.h",
+    "-include", "stdint.h",
+    "-include", "linux/types.h",
     f"-I/usr/src/linux-headers-{KVER}/include/uapi",
     f"-I/usr/src/linux-headers-{KVER}/arch/x86/include/generated/uapi",
     f"-I/usr/src/linux-headers-{KVER}/arch/x86/include/generated",
@@ -93,6 +102,8 @@ TEMPLATE_VMLINUX_HEADER = """\
 """
 
 TEMPLATE_UAPI_HEADER = """\
+#include <stdbool.h>
+#include <stdint.h>
 #include <linux/bpf.h>
 #include <linux/if_ether.h>
 #include <linux/ip.h>
@@ -104,6 +115,16 @@ TEMPLATE_UAPI_HEADER = """\
 #include <linux/types.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
+"""
+
+LEGACY_MAP_DEF_SHIM = """\
+struct bpf_map_def {
+    unsigned int type;
+    unsigned int key_size;
+    unsigned int value_size;
+    unsigned int max_entries;
+    unsigned int map_flags;
+};
 """
 
 LICENSE_FOOTER = '\nchar _license[] SEC("license") = "GPL";\n'
@@ -293,6 +314,13 @@ def _is_complete_program(source_code: str) -> bool:
     return has_include and (has_license or has_sec)
 
 
+def _needs_legacy_map_def_shim(source_code: str) -> bool:
+    """Return True if the source uses struct bpf_map_def without defining it."""
+    if "struct bpf_map_def" not in source_code:
+        return False
+    return re.search(r"(?:typedef\s+)?struct\s+bpf_map_def\s*\{", source_code) is None
+
+
 def _make_candidates(source_code: str, prog_type: str) -> list[tuple[str, str, list[str], bool]]:
     """
     Build (label, source, include_flags, was_wrapped) candidates to try.
@@ -305,11 +333,17 @@ def _make_candidates(source_code: str, prog_type: str) -> list[tuple[str, str, l
     candidates: list[tuple[str, str, list[str], bool]] = []
 
     is_complete = _is_complete_program(source_code)
+    needs_legacy_map_def_shim = _needs_legacy_map_def_shim(source_code)
 
     if is_complete:
         # Try raw source with both include sets
         candidates.append(("raw-vmlinux", source_code, CLANG_FLAGS_VMLINUX, False))
         candidates.append(("raw-uapi", source_code, CLANG_FLAGS_UAPI, False))
+
+        if needs_legacy_map_def_shim:
+            legacy_src = LEGACY_MAP_DEF_SHIM + "\n" + source_code
+            candidates.append(("raw-legacy-vmlinux", legacy_src, CLANG_FLAGS_VMLINUX, False))
+            candidates.append(("raw-legacy-uapi", legacy_src, CLANG_FLAGS_UAPI, False))
 
         # Also try with SEC() / license injected — handles LLM outputs that have
         # includes but forgot the SEC() annotation or license variable.
@@ -317,14 +351,19 @@ def _make_candidates(source_code: str, prog_type: str) -> list[tuple[str, str, l
         if injected != source_code:
             candidates.append(("raw-injected-vmlinux", injected, CLANG_FLAGS_VMLINUX, False))
             candidates.append(("raw-injected-uapi", injected, CLANG_FLAGS_UAPI, False))
+            if needs_legacy_map_def_shim:
+                legacy_injected = LEGACY_MAP_DEF_SHIM + "\n" + injected
+                candidates.append(("raw-injected-legacy-vmlinux", legacy_injected, CLANG_FLAGS_VMLINUX, False))
+                candidates.append(("raw-injected-legacy-uapi", legacy_injected, CLANG_FLAGS_UAPI, False))
 
     # Always add wrapped variants as fallback.
     # Inject SEC() / license into the snippet before wrapping so that the wrapped
     # result is a valid BPF object with at least one SEC-annotated program.
     snippet = _inject_sec_and_license(source_code, prog_type)
     # The injector adds a license footer, so no separate needs_license check required.
-    wrapped_vmlinux = TEMPLATE_VMLINUX_HEADER + "\n" + snippet
-    wrapped_uapi = TEMPLATE_UAPI_HEADER + "\n" + snippet
+    shim = LEGACY_MAP_DEF_SHIM + "\n" if needs_legacy_map_def_shim else ""
+    wrapped_vmlinux = TEMPLATE_VMLINUX_HEADER + "\n" + shim + snippet
+    wrapped_uapi = TEMPLATE_UAPI_HEADER + "\n" + shim + snippet
 
     candidates.append(("wrap-vmlinux", wrapped_vmlinux, CLANG_FLAGS_VMLINUX, True))
     candidates.append(("wrap-uapi", wrapped_uapi, CLANG_FLAGS_UAPI, True))

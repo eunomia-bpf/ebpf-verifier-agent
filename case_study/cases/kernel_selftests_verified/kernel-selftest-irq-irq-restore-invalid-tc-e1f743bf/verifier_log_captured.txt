@@ -1,0 +1,28 @@
+func#0 @0
+Live regs before insn:
+  0: .......... (18) r1 = 0xfaceb00c
+  2: .1........ (7b) *(u64 *)(r10 -16) = r1
+  3: .......... (bf) r1 = r10
+  4: .1........ (07) r1 += -8
+  5: .1........ (85) call bpf_local_irq_save#72094
+  6: .......... (bf) r1 = r10
+  7: .1........ (07) r1 += -16
+  8: .1........ (85) call bpf_local_irq_restore#72093
+  9: .......... (b4) w0 = 0
+ 10: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int irq_restore_invalid(struct __sk_buff *ctx) @ prog.c:22
+0: (18) r1 = 0xfaceb00c               ; R1_w=0xfaceb00c
+; unsigned long flags = 0xfaceb00c; @ prog.c:25
+2: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=0xfaceb00c R10=fp0 fp-16_w=0xfaceb00c
+3: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+4: (07) r1 += -8                      ; R1_w=fp-8
+; bpf_local_irq_save(&flags1); @ prog.c:27
+5: (85) call bpf_local_irq_save#72094         ; fp-8_w=ffffffff refs=1
+6: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=1
+; unsigned long flags = 0xfaceb00c; @ prog.c:25
+7: (07) r1 += -16                     ; R1_w=fp-16 refs=1
+; bpf_local_irq_restore(&flags); @ prog.c:28
+8: (85) call bpf_local_irq_restore#72093
+expected an initialized irq flag as arg#0
+processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0

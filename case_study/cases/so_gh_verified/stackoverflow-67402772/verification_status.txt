@@ -1,0 +1,11 @@
+case_id: stackoverflow-67402772
+source_bucket: stackoverflow
+language: c
+source_origin: source_snippets[0] -> case-rewrite
+compile_ok: True
+verifier_status: rejected
+verifier_error_match: mismatch
+fixed_status: not_attempted
+original_error: Prog section 'dump_skb_member' rejected: Permission denied (13)!
+captured_error: invalid bpf_context access off=96 size=4
+notes: <none>

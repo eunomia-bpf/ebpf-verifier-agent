@@ -1,0 +1,11 @@
+case_id: stackoverflow-70841631
+source_bucket: stackoverflow
+language: c
+source_origin: source_snippets[0] -> wrapped
+compile_ok: True
+verifier_status: rejected
+verifier_error_match: mismatch
+fixed_status: not_attempted
+original_error: processed 1000001 insns (limit 1000000) max_states_per_insn 34 total_states 10376 peak_states 7503 mark_read 3
+captured_error: Error: failed to load object file
+notes: <none>

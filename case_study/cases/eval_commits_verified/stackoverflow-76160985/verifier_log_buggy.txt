@@ -1,0 +1,12 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-76160985/buggy.o
+libbpf: elf: section(2) .text, size 904, link 0, flags 6, type=1
+libbpf: sec '.text': found program 'mystrlen' at insn offset 0 (0 bytes), code size 17 insns (136 bytes)
+libbpf: sec '.text': found program 'find_substring' at insn offset 17 (136 bytes), code size 96 insns (768 bytes)
+libbpf: elf: section(3) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-76160985/buggy.o is GPL
+libbpf: elf: section(14) .BTF, size 881, link 0, flags 0, type=1
+libbpf: elf: section(16) .BTF.ext, size 936, link 0, flags 0, type=1
+libbpf: elf: section(24) .symtab, size 624, link 1, flags 0, type=2
+libbpf: looking for externs among 26 symbols...
+libbpf: collected 0 externs total
+libbpf: object 'buggy': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...

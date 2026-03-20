@@ -1,0 +1,10 @@
+case_id: eval-bcc-f09b5b8acdd5
+source: eval_commits
+repository: https://github.com/iovisor/bcc
+repo_name: bcc
+commit_hash: f09b5b8acdd5123ba4101a80c87eaa4b8a687c4c
+parent_commit: 63a880061692cdf37e819ef8127686286b12b599
+case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits/eval-bcc-f09b5b8acdd5.yaml
+score: 4
+changed_files: []
+selected_source_file: null

@@ -1,0 +1,11 @@
+case_id: stackoverflow-69767533
+source_bucket: stackoverflow
+language: c
+source_origin: source_snippets[0] -> wrapped
+compile_ok: True
+verifier_status: accepted
+verifier_error_match: mismatch
+fixed_status: accepted:fixed[0]/raw
+original_error: R1 type=ctx expected=fp
+captured_error: -- END PROG LOAD LOG --
+notes: <none>

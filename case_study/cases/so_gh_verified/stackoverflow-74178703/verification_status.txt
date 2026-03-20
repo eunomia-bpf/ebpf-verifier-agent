@@ -1,0 +1,11 @@
+case_id: stackoverflow-74178703
+source_bucket: stackoverflow
+language: c
+source_origin: body[0] ->
+compile_ok: False
+verifier_status: not_run
+verifier_error_match: unknown
+fixed_status: not_attempted
+original_error: invalid access to map value, value_size=1024 off=1024 size=1
+captured_error: <none>
+notes: No source variant compiled with the exact clang command requested.

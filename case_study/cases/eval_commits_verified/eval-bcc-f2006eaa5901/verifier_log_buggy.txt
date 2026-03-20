@@ -1,0 +1,520 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-f2006eaa5901/buggy.o
+libbpf: elf: section(3) tp_btf/cpu_frequency, size 144, link 0, flags 6, type=1
+libbpf: sec 'tp_btf/cpu_frequency': found program 'cpu_frequency' at insn offset 0 (0 bytes), code size 18 insns (144 bytes)
+libbpf: elf: section(4) .reltp_btf/cpu_frequency, size 16, link 30, flags 40, type=9
+libbpf: elf: section(5) perf_event, size 464, link 0, flags 6, type=1
+libbpf: sec 'perf_event': found program 'do_sample' at insn offset 0 (0 bytes), code size 58 insns (464 bytes)
+libbpf: elf: section(6) .relperf_event, size 96, link 30, flags 40, type=9
+libbpf: elf: section(7) .bss, size 720, link 0, flags 3, type=8
+libbpf: elf: section(8) .maps, size 32, link 0, flags 3, type=1
+libbpf: elf: section(9) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-f2006eaa5901/buggy.o is GPL
+libbpf: elf: section(20) .BTF, size 2387, link 0, flags 0, type=1
+libbpf: elf: section(22) .BTF.ext, size 552, link 0, flags 0, type=1
+libbpf: elf: section(30) .symtab, size 624, link 1, flags 0, type=2
+libbpf: looking for externs among 26 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'hists': at sec_idx 8, offset 0.
+libbpf: map 'hists': found type = 1.
+libbpf: map 'hists': found key [8], sz = 16.
+libbpf: map 'hists': found value [12], sz = 104.
+libbpf: map 'hists': found max_entries = 1024.
+libbpf: map 'buggy.bss' (global data): at sec_idx 7, offset 0, flags 400.
+libbpf: map 1 is "buggy.bss"
+libbpf: sec '.reltp_btf/cpu_frequency': collecting relocation for section(3) 'tp_btf/cpu_frequency'
+libbpf: sec '.reltp_btf/cpu_frequency': relo #0: insn #8 against 'freqs_mhz'
+libbpf: prog 'cpu_frequency': found data map 1 (buggy.bss, sec 7, off 0) for insn 8
+libbpf: sec '.relperf_event': collecting relocation for section(5) 'perf_event'
+libbpf: sec '.relperf_event': relo #0: insn #7 against 'freqs_mhz'
+libbpf: prog 'do_sample': found data map 1 (buggy.bss, sec 7, off 0) for insn 7
+libbpf: sec '.relperf_event': relo #1: insn #18 against 'syswide'
+libbpf: prog 'do_sample': found data map 1 (buggy.bss, sec 7, off 0) for insn 18
+libbpf: sec '.relperf_event': relo #2: insn #31 against 'hists'
+libbpf: prog 'do_sample': found map 0 (hists, sec 8, off 0) for insn #31
+libbpf: sec '.relperf_event': relo #3: insn #38 against 'hists'
+libbpf: prog 'do_sample': found map 0 (hists, sec 8, off 0) for insn #38
+libbpf: sec '.relperf_event': relo #4: insn #40 against '.bss'
+libbpf: prog 'do_sample': found data map 1 (buggy.bss, sec 7, off 0) for insn 40
+libbpf: sec '.relperf_event': relo #5: insn #48 against 'hists'
+libbpf: prog 'do_sample': found map 0 (hists, sec 8, off 0) for insn #48
+libbpf: object 'buggy': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: loaded kernel BTF from '/sys/kernel/btf/vmlinux'
+libbpf: map 'hists': created successfully, fd=4
+libbpf: map 'buggy.bss': created successfully, fd=5
+libbpf: prog 'cpu_frequency': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (79) r2 = *(u64 *)(r1 +8)
+  1: .12....... (18) r3 = 0xffffff80
+  3: .123...... (bf) r4 = r2
+  4: .1234..... (5f) r4 &= r3
+  5: .12.4..... (55) if r4 != 0x0 goto pc+10
+  6: .12....... (57) r2 &= 127
+  7: .12....... (67) r2 <<= 2
+  8: .12....... (18) r3 = 0xffffd2b8c4192000
+ 10: .123...... (0f) r3 += r2
+ 11: .1.3...... (79) r1 = *(u64 *)(r1 +0)
+ 12: .1.3...... (67) r1 <<= 32
+ 13: .1.3...... (77) r1 >>= 32
+ 14: .1.3...... (37) r1 /= 1000
+ 15: .1.3...... (63) *(u32 *)(r3 +0) = r1
+ 16: .......... (b7) r0 = 0
+ 17: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int BPF_PROG(cpu_frequency, unsigned int state, unsigned int cpu_id) @ buggy.c:21
+0: (79) r2 = *(u64 *)(r1 +8)          ; R1=ctx() R2_w=scalar()
+1: (18) r3 = 0xffffff80               ; R3_w=0xffffff80
+; if (cpu_id >= MAX_CPU_NR) @ buggy.c:23
+3: (bf) r4 = r2                       ; R2_w=scalar(id=1) R4_w=scalar(id=1)
+4: (5f) r4 &= r3                      ; R3_w=0xffffff80 R4_w=scalar(smin=0,smax=umax=umax32=0xffffff80,smax32=0x7fffff80,var_off=(0x0; 0xffffff80))
+5: (55) if r4 != 0x0 goto pc+10       ; R4_w=0
+; freqs_mhz[cpu_id] = state / 1000; @ buggy.c:25
+6: (57) r2 &= 127                     ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=127,var_off=(0x0; 0x7f))
+7: (67) r2 <<= 2                      ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=508,var_off=(0x0; 0x1fc))
+8: (18) r3 = 0xffffd2b8c4192000       ; R3_w=map_value(map=buggy.bss,ks=4,vs=720)
+10: (0f) r3 += r2
+mark_precise: frame0: last_idx 10 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 8: (18) r3 = 0xffffd2b8c4192000
+mark_precise: frame0: regs=r2 stack= before 7: (67) r2 <<= 2
+mark_precise: frame0: regs=r2 stack= before 6: (57) r2 &= 127
+mark_precise: frame0: regs=r2 stack= before 5: (55) if r4 != 0x0 goto pc+10
+mark_precise: frame0: regs=r2 stack= before 4: (5f) r4 &= r3
+mark_precise: frame0: regs=r2 stack= before 3: (bf) r4 = r2
+mark_precise: frame0: regs=r2 stack= before 1: (18) r3 = 0xffffff80
+mark_precise: frame0: regs=r2 stack= before 0: (79) r2 = *(u64 *)(r1 +8)
+11: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=508,var_off=(0x0; 0x1fc)) R3_w=map_value(map=buggy.bss,ks=4,vs=720,smin=smin32=0,smax=umax=smax32=umax32=508,var_off=(0x0; 0x1fc))
+; int BPF_PROG(cpu_frequency, unsigned int state, unsigned int cpu_id) @ buggy.c:21
+11: (79) r1 = *(u64 *)(r1 +0)         ; R1_w=scalar()
+12: (67) r1 <<= 32                    ; R1_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+13: (77) r1 >>= 32                    ; R1_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+; freqs_mhz[cpu_id] = state / 1000; @ buggy.c:25
+14: (37) r1 /= 1000                   ; R1_w=scalar()
+15: (63) *(u32 *)(r3 +0) = r1         ; R1_w=scalar() R3_w=map_value(map=buggy.bss,ks=4,vs=720,smin=smin32=0,smax=umax=smax32=umax32=508,var_off=(0x0; 0x1fc))
+; int BPF_PROG(cpu_frequency, unsigned int state, unsigned int cpu_id) @ buggy.c:21
+16: (b7) r0 = 0                       ; R0_w=0
+17: (95) exit
+
+from 5 to 16: R1=ctx() R2=scalar(id=1) R3=0xffffff80 R4=scalar(smin=umin=umin32=1,smax=umax=umax32=0xffffff80,smax32=0x7fffff80,var_off=(0x0; 0xffffff80)) R10=fp0
+16: R1=ctx() R2=scalar(id=1) R3=0xffffff80 R4=scalar(smin=umin=umin32=1,smax=umax=umax32=0xffffff80,smax32=0x7fffff80,var_off=(0x0; 0xffffff80)) R10=fp0
+16: (b7) r0 = 0                       ; R0_w=0
+17: (95) exit
+verification time 215 usec
+stack depth 0
+processed 18 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 0
+-- END PROG LOAD LOG --
+libbpf: prog 'do_sample': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .......... (85) call bpf_get_current_pid_tgid#14
+  1: 0......... (bf) r6 = r0
+  2: ......6... (85) call bpf_get_smp_processor_id#8
+  3: 0.....6... (67) r0 <<= 32
+  4: 0.....6... (77) r0 >>= 32
+  5: 0.....6... (25) if r0 > 0x7f goto pc+50
+  6: 0.....6... (67) r0 <<= 2
+  7: 0.....6... (18) r1 = 0xffffd2b8c4192000
+  9: 01....6... (0f) r1 += r0
+ 10: .1....6... (61) r7 = *(u32 *)(r1 +0)
+ 11: ......67.. (15) if r7 == 0x0 goto pc+44
+ 12: ......67.. (37) r7 /= 200
+ 13: ......67.. (b7) r1 = 25
+ 14: .1....67.. (2d) if r1 > r7 goto pc+1
+ 15: ......6... (b7) r7 = 25
+ 16: ......67.. (bf) r1 = r7
+ 17: .1....67.. (67) r1 <<= 2
+ 18: .1....67.. (18) r2 = 0xffffd2b8c4192200
+ 20: .12...67.. (0f) r2 += r1
+ 21: ..2...67.. (b7) r1 = 1
+ 22: .12...67.. (c3) lock *(u32 *)(r2 +0) += r1
+ 23: ......67.. (67) r6 <<= 32
+ 24: ......67.. (77) r6 >>= 32
+ 25: ......67.. (15) if r6 == 0x0 goto pc+30
+ 26: .......7.. (bf) r6 = r10
+ 27: ......67.. (07) r6 += -16
+ 28: ......67.. (bf) r1 = r6
+ 29: .1....67.. (b7) r2 = 16
+ 30: .12...67.. (85) call bpf_get_current_comm#16
+ 31: ......67.. (18) r1 = 0xffff8f0532681c00
+ 33: .1....67.. (bf) r2 = r6
+ 34: .12....7.. (85) call bpf_map_lookup_elem#1
+ 35: 0......7.. (55) if r0 != 0x0 goto pc+16
+ 36: .......7.. (bf) r2 = r10
+ 37: ..2....7.. (07) r2 += -16
+ 38: ..2....7.. (18) r1 = 0xffff8f0532681c00
+ 40: .12....7.. (18) r3 = 0xffffd2b8c4192268
+ 42: .123...7.. (b7) r4 = 1
+ 43: .1234..7.. (85) call bpf_map_update_elem#2
+ 44: 0......7.. (15) if r0 == 0x0 goto pc+1
+ 45: 0......7.. (55) if r0 != 0xffffffef goto pc+10
+ 46: .......7.. (bf) r2 = r10
+ 47: ..2....7.. (07) r2 += -16
+ 48: ..2....7.. (18) r1 = 0xffff8f0532681c00
+ 50: .12....7.. (85) call bpf_map_lookup_elem#1
+ 51: 0......7.. (15) if r0 == 0x0 goto pc+4
+ 52: 0......7.. (67) r7 <<= 2
+ 53: 0......7.. (0f) r0 += r7
+ 54: 0......... (b7) r1 = 1
+ 55: 01........ (c3) lock *(u32 *)(r0 +0) += r1
+ 56: .......... (b7) r0 = 0
+ 57: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; u32 freq_mhz, pid = bpf_get_current_pid_tgid(); @ buggy.c:32
+0: (85) call bpf_get_current_pid_tgid#14      ; R0_w=scalar()
+1: (bf) r6 = r0                       ; R0_w=scalar(id=1) R6_w=scalar(id=1)
+; u64 slot, cpu = bpf_get_smp_processor_id(); @ buggy.c:33
+2: (85) call bpf_get_smp_processor_id#8       ; R0_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=23,var_off=(0x0; 0x1f))
+3: (67) r0 <<= 32                     ; R0_w=scalar(smin=smin32=0,smax=umax=0x1700000000,smax32=umax32=0,var_off=(0x0; 0x1f00000000))
+4: (77) r0 >>= 32                     ; R0_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=23,var_off=(0x0; 0x1f))
+; if (cpu >= MAX_CPU_NR) @ buggy.c:37
+5: (25) if r0 > 0x7f goto pc+50
+mark_precise: frame0: last_idx 5 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r0 stack= before 4: (77) r0 >>= 32
+mark_precise: frame0: regs=r0 stack= before 3: (67) r0 <<= 32
+mark_precise: frame0: regs=r0 stack= before 2: (85) call bpf_get_smp_processor_id#8
+5: R0_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=23,var_off=(0x0; 0x1f))
+; freq_mhz = freqs_mhz[cpu]; @ buggy.c:39
+6: (67) r0 <<= 2                      ; R0_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=92,var_off=(0x0; 0x7c))
+7: (18) r1 = 0xffffd2b8c4192000       ; R1_w=map_value(map=buggy.bss,ks=4,vs=720)
+9: (0f) r1 += r0
+mark_precise: frame0: last_idx 9 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r0 stack= before 7: (18) r1 = 0xffffd2b8c4192000
+mark_precise: frame0: regs=r0 stack= before 6: (67) r0 <<= 2
+mark_precise: frame0: regs=r0 stack= before 5: (25) if r0 > 0x7f goto pc+50
+mark_precise: frame0: regs=r0 stack= before 4: (77) r0 >>= 32
+mark_precise: frame0: regs=r0 stack= before 3: (67) r0 <<= 32
+mark_precise: frame0: regs=r0 stack= before 2: (85) call bpf_get_smp_processor_id#8
+10: R0_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=92,var_off=(0x0; 0x7c)) R1_w=map_value(map=buggy.bss,ks=4,vs=720,smin=smin32=0,smax=umax=smax32=umax32=92,var_off=(0x0; 0x7c))
+10: (61) r7 = *(u32 *)(r1 +0)         ; R1=map_value(map=buggy.bss,ks=4,vs=720,smin=smin32=0,smax=umax=smax32=umax32=92,var_off=(0x0; 0x7c)) R7=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+; if (!freq_mhz) @ buggy.c:40
+11: (15) if r7 == 0x0 goto pc+44      ; R7=scalar(smin=umin=umin32=1,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+; slot = freq_mhz / HIST_STEP_SIZE; @ buggy.c:46
+12: (37) r7 /= 200                    ; R7_w=scalar()
+13: (b7) r1 = 25                      ; R1_w=25
+; if (slot >= MAX_SLOTS) @ buggy.c:47
+14: (2d) if r1 > r7 goto pc+1         ; R1_w=25 R7_w=scalar(umin=25)
+15: (b7) r7 = 25                      ; R7_w=25
+; __sync_fetch_and_add(&syswide.slots[slot], 1); @ buggy.c:49
+16: (bf) r1 = r7                      ; R1_w=25 R7_w=25
+17: (67) r1 <<= 2                     ; R1_w=100
+18: (18) r2 = 0xffffd2b8c4192200      ; R2_w=map_value(map=buggy.bss,ks=4,vs=720,off=512)
+20: (0f) r2 += r1
+mark_precise: frame0: last_idx 20 first_idx 11 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 18: (18) r2 = 0xffffd2b8c4192200
+mark_precise: frame0: regs=r1 stack= before 17: (67) r1 <<= 2
+mark_precise: frame0: regs=r1 stack= before 16: (bf) r1 = r7
+mark_precise: frame0: regs=r7 stack= before 15: (b7) r7 = 25
+21: R1_w=100 R2_w=map_value(map=buggy.bss,ks=4,vs=720,off=612)
+21: (b7) r1 = 1                       ; R1_w=1
+22: (c3) lock *(u32 *)(r2 +0) += r1   ; R1_w=1 R2_w=map_value(map=buggy.bss,ks=4,vs=720,off=612)
+; if (!pid) @ buggy.c:50
+23: (67) r6 <<= 32                    ; R6_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+24: (77) r6 >>= 32                    ; R6=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+25: (15) if r6 == 0x0 goto pc+30      ; R6=scalar(smin=umin=umin32=1,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+26: (bf) r6 = r10                     ; R6_w=fp0 R10=fp0
+; bpf_get_current_comm(&hkey.comm, sizeof(hkey.comm)); @ buggy.c:52
+27: (07) r6 += -16                    ; R6_w=fp-16
+28: (bf) r1 = r6                      ; R1_w=fp-16 R6_w=fp-16
+29: (b7) r2 = 16                      ; R2_w=16
+30: (85) call bpf_get_current_comm#16
+mark_precise: frame0: last_idx 30 first_idx 25 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 29: (b7) r2 = 16
+31: R0_w=scalar() fp-8=mmmmmmmm fp-16=mmmmmmmm
+; val = bpf_map_lookup_elem(map, key); @ maps.bpf.h:15
+31: (18) r1 = 0xffff8f0532681c00      ; R1_w=map_ptr(map=hists,ks=16,vs=104)
+33: (bf) r2 = r6                      ; R2_w=fp-16 R6_w=fp-16
+34: (85) call bpf_map_lookup_elem#1   ; R0=map_value_or_null(id=2,map=hists,ks=16,vs=104)
+; if (val) @ maps.bpf.h:16
+35: (55) if r0 != 0x0 goto pc+16      ; R0=0
+36: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+; err = bpf_map_update_elem(map, key, init, BPF_NOEXIST); @ maps.bpf.h:19
+37: (07) r2 += -16                    ; R2_w=fp-16
+38: (18) r1 = 0xffff8f0532681c00      ; R1_w=map_ptr(map=hists,ks=16,vs=104)
+40: (18) r3 = 0xffffd2b8c4192268      ; R3_w=map_value(map=buggy.bss,ks=4,vs=720,off=616)
+42: (b7) r4 = 1                       ; R4_w=1
+43: (85) call bpf_map_update_elem#2   ; R0_w=scalar()
+; if (err && err != -EEXIST) @ maps.bpf.h:20
+44: (15) if r0 == 0x0 goto pc+1       ; R0_w=scalar(umin=1)
+45: (55) if r0 != 0xffffffef goto pc+10       ; R0=-17
+46: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+; return bpf_map_lookup_elem(map, key); @ maps.bpf.h:23
+47: (07) r2 += -16                    ; R2_w=fp-16
+48: (18) r1 = 0xffff8f0532681c00      ; R1_w=map_ptr(map=hists,ks=16,vs=104)
+50: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value_or_null(id=3,map=hists,ks=16,vs=104)
+; if (!hist) @ buggy.c:54
+51: (15) if r0 == 0x0 goto pc+4       ; R0_w=map_value(map=hists,ks=16,vs=104)
+; __sync_fetch_and_add(&hist->slots[slot], 1); @ buggy.c:56
+52: (67) r7 <<= 2                     ; R7_w=100
+53: (0f) r0 += r7
+mark_precise: frame0: last_idx 53 first_idx 45 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 52: (67) r7 <<= 2
+mark_precise: frame0: regs=r7 stack= before 51: (15) if r0 == 0x0 goto pc+4
+mark_precise: frame0: regs=r7 stack= before 50: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r7 stack= before 48: (18) r1 = 0xffff8f0532681c00
+mark_precise: frame0: regs=r7 stack= before 47: (07) r2 += -16
+mark_precise: frame0: regs=r7 stack= before 46: (bf) r2 = r10
+mark_precise: frame0: regs=r7 stack= before 45: (55) if r0 != 0xffffffef goto pc+10
+mark_precise: frame0: parent state regs=r7 stack=:  R0_rw=scalar(umin=1) R6=fp-16 R7_r=P25 R10=fp0 fp-8_r=mmmmmmmm fp-16_r=mmmmmmmm
+mark_precise: frame0: last_idx 44 first_idx 35 subseq_idx 45 
+mark_precise: frame0: regs=r7 stack= before 44: (15) if r0 == 0x0 goto pc+1
+mark_precise: frame0: regs=r7 stack= before 43: (85) call bpf_map_update_elem#2
+mark_precise: frame0: regs=r7 stack= before 42: (b7) r4 = 1
+mark_precise: frame0: regs=r7 stack= before 40: (18) r3 = 0xffffd2b8c4192268
+mark_precise: frame0: regs=r7 stack= before 38: (18) r1 = 0xffff8f0532681c00
+mark_precise: frame0: regs=r7 stack= before 37: (07) r2 += -16
+mark_precise: frame0: regs=r7 stack= before 36: (bf) r2 = r10
+mark_precise: frame0: regs=r7 stack= before 35: (55) if r0 != 0x0 goto pc+16
+mark_precise: frame0: parent state regs=r7 stack=:  R0_rw=map_value_or_null(id=2,map=hists,ks=16,vs=104) R6_w=fp-16 R7_r=P25 R10=fp0 fp-8_r=mmmmmmmm fp-16_r=mmmmmmmm
+mark_precise: frame0: last_idx 34 first_idx 25 subseq_idx 35 
+mark_precise: frame0: regs=r7 stack= before 34: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r7 stack= before 33: (bf) r2 = r6
+mark_precise: frame0: regs=r7 stack= before 31: (18) r1 = 0xffff8f0532681c00
+mark_precise: frame0: regs=r7 stack= before 30: (85) call bpf_get_current_comm#16
+mark_precise: frame0: regs=r7 stack= before 29: (b7) r2 = 16
+mark_precise: frame0: regs=r7 stack= before 28: (bf) r1 = r6
+mark_precise: frame0: regs=r7 stack= before 27: (07) r6 += -16
+mark_precise: frame0: regs=r7 stack= before 26: (bf) r6 = r10
+mark_precise: frame0: regs=r7 stack= before 25: (15) if r6 == 0x0 goto pc+30
+mark_precise: frame0: parent state regs=r7 stack=:  R0=scalar(smin=smin32=0,smax=umax=smax32=umax32=92,var_off=(0x0; 0x7c)) R1_w=1 R2_w=map_value(map=buggy.bss,ks=4,vs=720,off=612) R6_rw=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R7_rw=P25 R10=fp0
+mark_precise: frame0: last_idx 24 first_idx 11 subseq_idx 25 
+mark_precise: frame0: regs=r7 stack= before 24: (77) r6 >>= 32
+mark_precise: frame0: regs=r7 stack= before 23: (67) r6 <<= 32
+mark_precise: frame0: regs=r7 stack= before 22: (c3) lock *(u32 *)(r2 +0) += r1
+mark_precise: frame0: regs=r7 stack= before 21: (b7) r1 = 1
+mark_precise: frame0: regs=r7 stack= before 20: (0f) r2 += r1
+mark_precise: frame0: regs=r7 stack= before 18: (18) r2 = 0xffffd2b8c4192200
+mark_precise: frame0: regs=r7 stack= before 17: (67) r1 <<= 2
+mark_precise: frame0: regs=r7 stack= before 16: (bf) r1 = r7
+mark_precise: frame0: regs=r7 stack= before 15: (b7) r7 = 25
+54: R0_w=map_value(map=hists,ks=16,vs=104,off=100) R7_w=100
+54: (b7) r1 = 1                       ; R1_w=1
+55: (c3) lock *(u32 *)(r0 +0) += r1   ; R0=map_value(map=hists,ks=16,vs=104,off=100) R1=1
+; } @ buggy.c:58
+56: (b7) r0 = 0                       ; R0_w=0
+57: (95) exit
+
+from 51 to 56: safe
+
+from 45 to 56: safe
+
+from 44 to 46: R0_w=0 R6=fp-16 R7=25 R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm
+46: R0_w=0 R6=fp-16 R7=25 R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm
+; if (err && err != -EEXIST) @ maps.bpf.h:20
+46: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+; return bpf_map_lookup_elem(map, key); @ maps.bpf.h:23
+47: (07) r2 += -16                    ; R2_w=fp-16
+48: (18) r1 = 0xffff8f0532681c00      ; R1_w=map_ptr(map=hists,ks=16,vs=104)
+50: (85) call bpf_map_lookup_elem#1   ; R0=map_value_or_null(id=4,map=hists,ks=16,vs=104)
+; if (!hist) @ buggy.c:54
+51: (15) if r0 == 0x0 goto pc+4       ; R0=map_value(map=hists,ks=16,vs=104)
+; __sync_fetch_and_add(&hist->slots[slot], 1); @ buggy.c:56
+52: (67) r7 <<= 2                     ; R7_w=100
+53: (0f) r0 += r7
+mark_precise: frame0: last_idx 53 first_idx 51 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 52: (67) r7 <<= 2
+mark_precise: frame0: regs=r7 stack= before 51: (15) if r0 == 0x0 goto pc+4
+mark_precise: frame0: parent state regs=r7 stack=:  R0_rw=map_value_or_null(id=4,map=hists,ks=16,vs=104) R6=fp-16 R7_r=P25 R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm
+mark_precise: frame0: last_idx 50 first_idx 35 subseq_idx 51 
+mark_precise: frame0: regs=r7 stack= before 50: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r7 stack= before 48: (18) r1 = 0xffff8f0532681c00
+mark_precise: frame0: regs=r7 stack= before 47: (07) r2 += -16
+mark_precise: frame0: regs=r7 stack= before 46: (bf) r2 = r10
+mark_precise: frame0: regs=r7 stack= before 44: (15) if r0 == 0x0 goto pc+1
+mark_precise: frame0: regs=r7 stack= before 43: (85) call bpf_map_update_elem#2
+mark_precise: frame0: regs=r7 stack= before 42: (b7) r4 = 1
+mark_precise: frame0: regs=r7 stack= before 40: (18) r3 = 0xffffd2b8c4192268
+mark_precise: frame0: regs=r7 stack= before 38: (18) r1 = 0xffff8f0532681c00
+mark_precise: frame0: regs=r7 stack= before 37: (07) r2 += -16
+mark_precise: frame0: regs=r7 stack= before 36: (bf) r2 = r10
+mark_precise: frame0: regs=r7 stack= before 35: (55) if r0 != 0x0 goto pc+16
+mark_precise: frame0: parent state regs= stack=:  R0_rw=map_value_or_null(id=2,map=hists,ks=16,vs=104) R6_w=fp-16 R7_r=P25 R10=fp0 fp-8_r=mmmmmmmm fp-16_r=mmmmmmmm
+54: R0_w=map_value(map=hists,ks=16,vs=104,off=100) R7_w=100
+54: (b7) r1 = 1                       ; R1_w=1
+55: (c3) lock *(u32 *)(r0 +0) += r1
+56: safe
+
+from 51 to 56: safe
+
+from 35 to 52: R0=map_value(map=hists,ks=16,vs=104) R6=fp-16 R7=25 R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm
+52: R0=map_value(map=hists,ks=16,vs=104) R6=fp-16 R7=25 R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm
+52: (67) r7 <<= 2                     ; R7_w=100
+53: (0f) r0 += r7
+mark_precise: frame0: last_idx 53 first_idx 35 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 52: (67) r7 <<= 2
+mark_precise: frame0: regs=r7 stack= before 35: (55) if r0 != 0x0 goto pc+16
+mark_precise: frame0: parent state regs= stack=:  R0_rw=map_value_or_null(id=2,map=hists,ks=16,vs=104) R6_w=fp-16 R7_r=P25 R10=fp0 fp-8_r=mmmmmmmm fp-16_r=mmmmmmmm
+54: R0_w=map_value(map=hists,ks=16,vs=104,off=100) R7_w=100
+54: (b7) r1 = 1                       ; R1_w=1
+55: (c3) lock *(u32 *)(r0 +0) += r1
+56: safe
+
+from 25 to 56: safe
+
+from 14 to 16: R0=scalar(smin=smin32=0,smax=umax=smax32=umax32=92,var_off=(0x0; 0x7c)) R1_w=25 R6=scalar(id=1) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0
+16: R0=scalar(smin=smin32=0,smax=umax=smax32=umax32=92,var_off=(0x0; 0x7c)) R1_w=25 R6=scalar(id=1) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0
+; __sync_fetch_and_add(&syswide.slots[slot], 1); @ buggy.c:49
+16: (bf) r1 = r7                      ; R1_w=scalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R7_w=scalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f))
+17: (67) r1 <<= 2                     ; R1_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c))
+18: (18) r2 = 0xffffd2b8c4192200      ; R2_w=map_value(map=buggy.bss,ks=4,vs=720,off=512)
+20: (0f) r2 += r1
+mark_precise: frame0: last_idx 20 first_idx 11 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 18: (18) r2 = 0xffffd2b8c4192200
+mark_precise: frame0: regs=r1 stack= before 17: (67) r1 <<= 2
+mark_precise: frame0: regs=r1 stack= before 16: (bf) r1 = r7
+mark_precise: frame0: regs=r7 stack= before 14: (2d) if r1 > r7 goto pc+1
+mark_precise: frame0: regs=r1,r7 stack= before 13: (b7) r1 = 25
+mark_precise: frame0: regs=r7 stack= before 12: (37) r7 /= 200
+mark_precise: frame0: regs=r7 stack= before 11: (15) if r7 == 0x0 goto pc+44
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=92,var_off=(0x0; 0x7c)) R1_w=map_value(map=buggy.bss,ks=4,vs=720,smin=smin32=0,smax=umax=smax32=umax32=92,var_off=(0x0; 0x7c)) R6_rw=scalar(id=1) R7_rw=Pscalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R10=fp0
+mark_precise: frame0: last_idx 10 first_idx 0 subseq_idx 11 
+mark_precise: frame0: regs=r7 stack= before 10: (61) r7 = *(u32 *)(r1 +0)
+21: R1_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c)) R2_w=map_value(map=buggy.bss,ks=4,vs=720,off=512,smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c))
+21: (b7) r1 = 1                       ; R1_w=1
+22: (c3) lock *(u32 *)(r2 +0) += r1   ; R1_w=1 R2_w=map_value(map=buggy.bss,ks=4,vs=720,off=512,smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c))
+; if (!pid) @ buggy.c:50
+23: (67) r6 <<= 32                    ; R6_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+24: (77) r6 >>= 32                    ; R6_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+25: (15) if r6 == 0x0 goto pc+30      ; R6_w=scalar(smin=umin=umin32=1,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+26: (bf) r6 = r10                     ; R6_w=fp0 R10=fp0
+; bpf_get_current_comm(&hkey.comm, sizeof(hkey.comm)); @ buggy.c:52
+27: (07) r6 += -16                    ; R6_w=fp-16
+28: (bf) r1 = r6                      ; R1_w=fp-16 R6_w=fp-16
+29: (b7) r2 = 16                      ; R2_w=16
+30: (85) call bpf_get_current_comm#16
+mark_precise: frame0: last_idx 30 first_idx 11 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 29: (b7) r2 = 16
+31: R0=scalar() fp-8=mmmmmmmm fp-16=mmmmmmmm
+; val = bpf_map_lookup_elem(map, key); @ maps.bpf.h:15
+31: (18) r1 = 0xffff8f0532681c00      ; R1_w=map_ptr(map=hists,ks=16,vs=104)
+33: (bf) r2 = r6                      ; R2_w=fp-16 R6=fp-16
+34: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value_or_null(id=6,map=hists,ks=16,vs=104)
+; if (val) @ maps.bpf.h:16
+35: (55) if r0 != 0x0 goto pc+16      ; R0_w=0
+36: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+; err = bpf_map_update_elem(map, key, init, BPF_NOEXIST); @ maps.bpf.h:19
+37: (07) r2 += -16                    ; R2_w=fp-16
+38: (18) r1 = 0xffff8f0532681c00      ; R1_w=map_ptr(map=hists,ks=16,vs=104)
+40: (18) r3 = 0xffffd2b8c4192268      ; R3_w=map_value(map=buggy.bss,ks=4,vs=720,off=616)
+42: (b7) r4 = 1                       ; R4_w=1
+43: (85) call bpf_map_update_elem#2   ; R0=scalar()
+; if (err && err != -EEXIST) @ maps.bpf.h:20
+44: (15) if r0 == 0x0 goto pc+1       ; R0=scalar(umin=1)
+45: (55) if r0 != 0xffffffef goto pc+10       ; R0=-17
+46: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+; return bpf_map_lookup_elem(map, key); @ maps.bpf.h:23
+47: (07) r2 += -16                    ; R2_w=fp-16
+48: (18) r1 = 0xffff8f0532681c00      ; R1_w=map_ptr(map=hists,ks=16,vs=104)
+50: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value_or_null(id=7,map=hists,ks=16,vs=104)
+; if (!hist) @ buggy.c:54
+51: (15) if r0 == 0x0 goto pc+4       ; R0_w=map_value(map=hists,ks=16,vs=104)
+; __sync_fetch_and_add(&hist->slots[slot], 1); @ buggy.c:56
+52: (67) r7 <<= 2                     ; R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c))
+53: (0f) r0 += r7
+mark_precise: frame0: last_idx 53 first_idx 44 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 52: (67) r7 <<= 2
+mark_precise: frame0: regs=r7 stack= before 51: (15) if r0 == 0x0 goto pc+4
+mark_precise: frame0: regs=r7 stack= before 50: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r7 stack= before 48: (18) r1 = 0xffff8f0532681c00
+mark_precise: frame0: regs=r7 stack= before 47: (07) r2 += -16
+mark_precise: frame0: regs=r7 stack= before 46: (bf) r2 = r10
+mark_precise: frame0: regs=r7 stack= before 45: (55) if r0 != 0xffffffef goto pc+10
+mark_precise: frame0: regs=r7 stack= before 44: (15) if r0 == 0x0 goto pc+1
+mark_precise: frame0: parent state regs=r7 stack=:  R0_rw=scalar() R6=fp-16 R7_r=Pscalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0 fp-8_r=mmmmmmmm fp-16_r=mmmmmmmm
+mark_precise: frame0: last_idx 43 first_idx 31 subseq_idx 44 
+mark_precise: frame0: regs=r7 stack= before 43: (85) call bpf_map_update_elem#2
+mark_precise: frame0: regs=r7 stack= before 42: (b7) r4 = 1
+mark_precise: frame0: regs=r7 stack= before 40: (18) r3 = 0xffffd2b8c4192268
+mark_precise: frame0: regs=r7 stack= before 38: (18) r1 = 0xffff8f0532681c00
+mark_precise: frame0: regs=r7 stack= before 37: (07) r2 += -16
+mark_precise: frame0: regs=r7 stack= before 36: (bf) r2 = r10
+mark_precise: frame0: regs=r7 stack= before 35: (55) if r0 != 0x0 goto pc+16
+mark_precise: frame0: regs=r7 stack= before 34: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r7 stack= before 33: (bf) r2 = r6
+mark_precise: frame0: regs=r7 stack= before 31: (18) r1 = 0xffff8f0532681c00
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=scalar() R6_rw=fp-16 R7_rw=Pscalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0 fp-8_r=mmmmmmmm fp-16_r=mmmmmmmm
+mark_precise: frame0: last_idx 30 first_idx 11 subseq_idx 31 
+mark_precise: frame0: regs=r7 stack= before 30: (85) call bpf_get_current_comm#16
+mark_precise: frame0: regs=r7 stack= before 29: (b7) r2 = 16
+mark_precise: frame0: regs=r7 stack= before 28: (bf) r1 = r6
+mark_precise: frame0: regs=r7 stack= before 27: (07) r6 += -16
+mark_precise: frame0: regs=r7 stack= before 26: (bf) r6 = r10
+mark_precise: frame0: regs=r7 stack= before 25: (15) if r6 == 0x0 goto pc+30
+mark_precise: frame0: regs=r7 stack= before 24: (77) r6 >>= 32
+mark_precise: frame0: regs=r7 stack= before 23: (67) r6 <<= 32
+mark_precise: frame0: regs=r7 stack= before 22: (c3) lock *(u32 *)(r2 +0) += r1
+mark_precise: frame0: regs=r7 stack= before 21: (b7) r1 = 1
+mark_precise: frame0: regs=r7 stack= before 20: (0f) r2 += r1
+mark_precise: frame0: regs=r7 stack= before 18: (18) r2 = 0xffffd2b8c4192200
+mark_precise: frame0: regs=r7 stack= before 17: (67) r1 <<= 2
+mark_precise: frame0: regs=r7 stack= before 16: (bf) r1 = r7
+mark_precise: frame0: regs=r7 stack= before 14: (2d) if r1 > r7 goto pc+1
+mark_precise: frame0: regs=r1,r7 stack= before 13: (b7) r1 = 25
+mark_precise: frame0: regs=r7 stack= before 12: (37) r7 /= 200
+mark_precise: frame0: regs=r7 stack= before 11: (15) if r7 == 0x0 goto pc+44
+mark_precise: frame0: parent state regs= stack=:  R0_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=92,var_off=(0x0; 0x7c)) R1_w=map_value(map=buggy.bss,ks=4,vs=720,smin=smin32=0,smax=umax=smax32=umax32=92,var_off=(0x0; 0x7c)) R6_rw=scalar(id=1) R7_rw=Pscalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R10=fp0
+54: R0_w=map_value(map=hists,ks=16,vs=104,smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c)) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c))
+54: (b7) r1 = 1                       ; R1_w=1
+55: (c3) lock *(u32 *)(r0 +0) += r1
+56: safe
+
+from 51 to 56: safe
+
+from 45 to 56: safe
+
+from 44 to 46: R0=0 R6=fp-16 R7=scalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm
+46: R0=0 R6=fp-16 R7=scalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm
+; if (err && err != -EEXIST) @ maps.bpf.h:20
+46: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+; return bpf_map_lookup_elem(map, key); @ maps.bpf.h:23
+47: (07) r2 += -16                    ; R2_w=fp-16
+48: (18) r1 = 0xffff8f0532681c00      ; R1_w=map_ptr(map=hists,ks=16,vs=104)
+50: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value_or_null(id=8,map=hists,ks=16,vs=104)
+; if (!hist) @ buggy.c:54
+51: (15) if r0 == 0x0 goto pc+4       ; R0_w=map_value(map=hists,ks=16,vs=104)
+; __sync_fetch_and_add(&hist->slots[slot], 1); @ buggy.c:56
+52: (67) r7 <<= 2                     ; R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c))
+53: (0f) r0 += r7
+mark_precise: frame0: last_idx 53 first_idx 46 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 52: (67) r7 <<= 2
+mark_precise: frame0: regs=r7 stack= before 51: (15) if r0 == 0x0 goto pc+4
+mark_precise: frame0: regs=r7 stack= before 50: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r7 stack= before 48: (18) r1 = 0xffff8f0532681c00
+mark_precise: frame0: regs=r7 stack= before 47: (07) r2 += -16
+mark_precise: frame0: regs=r7 stack= before 46: (bf) r2 = r10
+mark_precise: frame0: parent state regs=r7 stack=:  R0=0 R6=fp-16 R7_r=Pscalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0 fp-8_r=mmmmmmmm fp-16_r=mmmmmmmm
+mark_precise: frame0: last_idx 44 first_idx 44 subseq_idx 46 
+mark_precise: frame0: regs=r7 stack= before 44: (15) if r0 == 0x0 goto pc+1
+mark_precise: frame0: parent state regs= stack=:  R0_rw=scalar() R6=fp-16 R7_r=Pscalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0 fp-8_r=mmmmmmmm fp-16_r=mmmmmmmm
+54: R0_w=map_value(map=hists,ks=16,vs=104,smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c)) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c))
+54: (b7) r1 = 1                       ; R1_w=1
+55: (c3) lock *(u32 *)(r0 +0) += r1
+56: safe
+
+from 51 to 56: safe
+
+from 35 to 52: R0=map_value(map=hists,ks=16,vs=104) R6=fp-16 R7=scalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm
+52: R0=map_value(map=hists,ks=16,vs=104) R6=fp-16 R7=scalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm
+52: (67) r7 <<= 2                     ; R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c))
+53: (0f) r0 += r7
+mark_precise: frame0: last_idx 53 first_idx 52 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 52: (67) r7 <<= 2
+mark_precise: frame0: parent state regs=r7 stack=:  R0_rw=map_value(map=hists,ks=16,vs=104) R6=fp-16 R7_r=Pscalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm
+mark_precise: frame0: last_idx 35 first_idx 31 subseq_idx 52 
+mark_precise: frame0: regs=r7 stack= before 35: (55) if r0 != 0x0 goto pc+16
+mark_precise: frame0: regs=r7 stack= before 34: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r7 stack= before 33: (bf) r2 = r6
+mark_precise: frame0: regs=r7 stack= before 31: (18) r1 = 0xffff8f0532681c00
+mark_precise: frame0: parent state regs= stack=:  R0_w=scalar() R6_rw=fp-16 R7_rw=Pscalar(id=5,smin=smin32=0,smax=umax=smax32=umax32=24,var_off=(0x0; 0x1f)) R10=fp0 fp-8_r=mmmmmmmm fp-16_r=mmmmmmmm
+54: R0_w=map_value(map=hists,ks=16,vs=104,smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c)) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=96,var_off=(0x0; 0x7c))
+54: (b7) r1 = 1                       ; R1_w=1
+55: (c3) lock *(u32 *)(r0 +0) += r1
+56: safe
+
+from 25 to 56: safe
+
+from 11 to 56: safe
+verification time 353 usec
+stack depth 16
+processed 127 insns (limit 1000000) max_states_per_insn 1 total_states 10 peak_states 10 mark_read 3
+-- END PROG LOAD LOG --
+libbpf: prog 'cpu_frequency': pinned at '/sys/fs/bpf/eval-bcc-f2006eaa5901_buggy/cpu_frequency'
+libbpf: prog 'do_sample': pinned at '/sys/fs/bpf/eval-bcc-f2006eaa5901_buggy/do_sample'

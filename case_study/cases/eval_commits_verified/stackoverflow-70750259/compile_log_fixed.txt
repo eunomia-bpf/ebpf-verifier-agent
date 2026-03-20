@@ -1,0 +1,47 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:14:5: error: use of undeclared identifier 'TL'
+   14 |     TL;DR. From the verifier's point of view, ext_len is unbounded because of how it was computed. To allow you to add this value to the packet pointer, you need to add a new bound check. See below for full explanation.
+      |     ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:14:8: error: use of undeclared identifier 'DR'
+   14 |     TL;DR. From the verifier's point of view, ext_len is unbounded because of how it was computed. To allow you to add this value to the packet pointer, you need to add a new bound check. See below for full explanation.
+      |        ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:14:29: warning: missing terminating ' character [-Winvalid-pp-token]
+   14 |     TL;DR. From the verifier's point of view, ext_len is unbounded because of how it was computed. To allow you to add this value to the packet pointer, you need to add a new bound check. See below for full explanation.
+      |                             ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:21:30: error: use of undeclared identifier 'ext_len'
+   21 |     ; if (data_end < (data + ext_len)) {
+      |                              ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:22:7: error: expected ';' after expression
+   22 |     24: (0f) r5 += r0
+      |       ^
+      |       ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:22:11: error: invalid digit 'f' in octal constant
+   22 |     24: (0f) r5 += r0
+      |           ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:27:144: warning: missing terminating ' character [-Winvalid-pp-token]
+   27 |     Before instruction 22 (r0 |= r6), R0 had bounds (umax_value=65280,var_off=(0x0; 0xff00)). R6 did as well. Unfortunately, the verifier doesn't seem to be able to track those bounds after the logic OR, and loses them. Newer kernel versions may be able to track this better.
+      |                                                                                                                                                ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:32:5: error: use of undeclared identifier 'That'
+   32 |     That probably didn't work because ext_len has type __u16 (i.e., unsigned short) so the compiler probably optimize out the check for a negative sign.
+      |     ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:32:23: warning: missing terminating ' character [-Winvalid-pp-token]
+   32 |     That probably didn't work because ext_len has type __u16 (i.e., unsigned short) so the compiler probably optimize out the check for a negative sign.
+      |                       ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:36:180: warning: missing terminating ' character [-Winvalid-pp-token]
+   36 |     The best way to solve this is probably to add a lower bound check as suggested by Quentin. You will however need to make the ext_len variable signed so that the compiler doesn't optimize out the bound check.
+      |                                                                                                                                                                                    ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:39:17: error: 'section' attribute only applies to functions, global variables, Objective-C methods, and Objective-C properties
+   39 | char _license[] SEC("license") = "GPL";
+      |                 ^
+/usr/include/bpf/bpf_helpers.h:39:17: note: expanded from macro 'SEC'
+   39 |         __attribute__((section(name), used))                                \
+      |                        ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:39:40: error: expected '}'
+   39 | char _license[] SEC("license") = "GPL";
+      |                                        ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:9:1: note: to match this '{'
+    9 | {
+      | ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-70750259/fixed.c:22:5: warning: expression result unused [-Wunused-value]
+   22 |     24: (0f) r5 += r0
+      |     ^~
+5 warnings and 8 errors generated.

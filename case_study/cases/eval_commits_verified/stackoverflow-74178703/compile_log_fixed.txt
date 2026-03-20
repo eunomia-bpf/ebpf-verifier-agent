@@ -1,0 +1,20 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-74178703/fixed.c:7:1: error: type specifier missing, defaults to 'int'; ISO C99 and later do not support implicit int [-Wimplicit-int]
+    7 | TL;DR. When it checks the memcpy's memory access, the verifier has lost information from the previous bounds check (offset + i >= 1024) and therefore errors.
+      | ^
+      | int
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-74178703/fixed.c:7:4: error: unknown type name 'DR'
+    7 | TL;DR. When it checks the memcpy's memory access, the verifier has lost information from the previous bounds check (offset + i >= 1024) and therefore errors.
+      |    ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-74178703/fixed.c:7:6: error: expected identifier or '('
+    7 | TL;DR. When it checks the memcpy's memory access, the verifier has lost information from the previous bounds check (offset + i >= 1024) and therefore errors.
+      |      ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-74178703/fixed.c:7:33: warning: missing terminating ' character [-Winvalid-pp-token]
+    7 | TL;DR. When it checks the memcpy's memory access, the verifier has lost information from the previous bounds check (offset + i >= 1024) and therefore errors.
+      |                                 ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-74178703/fixed.c:15:223: warning: missing terminating ' character [-Winvalid-pp-token]
+   15 | The verifier complains that, when i=1 (i.e., r1=invP1) and offset=1023 (i.e., R0's umax_value=1023), the memory load could read outside of the 1024 bytes of the value. This is easily checked by adding R3's umax_value to R3's off to the access size (1023 + 1 + 1).
+      |                                                                                                                                                                                                                               ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-74178703/fixed.c:22:40: warning: missing terminating ' character [-Winvalid-pp-token]
+   22 | I believe this is happening because you're compiler reorganized your code to move the computation of b + offset outside the loop body.
+      |                                        ^
+3 warnings and 3 errors generated.

@@ -1,0 +1,11 @@
+case_id: stackoverflow-78236856
+source_bucket: stackoverflow
+language: c
+source_origin: source_snippets[0] -> wrapped
+compile_ok: True
+verifier_status: rejected
+verifier_error_match: exact
+fixed_status: not_attempted
+original_error: invalid access to map value, value_size=20 off=76 size=4
+captured_error: invalid access to map value, value_size=20 off=76 size=4
+notes: <none>

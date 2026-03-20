@@ -1,0 +1,78 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:15:30: error: expected ';' after expression
+   15 |         bpf_probe_read_kernel: true,
+      |                              ^
+      |                              ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:16:22: error: expected ';' after expression
+   16 |         bpf_perf_link: true,
+      |                      ^
+      |                      ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:16:9: error: use of undeclared identifier 'bpf_perf_link'
+   16 |         bpf_perf_link: true,
+      |         ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:17:24: error: expected ';' after expression
+   17 |         bpf_global_data: true,
+      |                        ^
+      |                        ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:17:9: error: use of undeclared identifier 'bpf_global_data'
+   17 |         bpf_global_data: true,
+      |         ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:18:19: error: expected ';' after expression
+   18 |         bpf_cookie: true,
+      |                   ^
+      |                   ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:18:9: error: use of undeclared identifier 'bpf_cookie'; did you mean 'bpf_loop'?
+   18 |         bpf_cookie: true,
+      |         ^~~~~~~~~~
+      |         bpf_loop
+/usr/include/bpf/bpf_helper_defs.h:4234:15: note: 'bpf_loop' declared here
+ 4234 | static long (*bpf_loop)(__u32 nr_loops, void *callback_fn, void *callback_ctx, __u64 flags) = (void *) 181;
+      |               ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:19:23: error: expected ';' after expression
+   19 |         cpumap_prog_id: true,
+      |                       ^
+      |                       ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:19:9: error: use of undeclared identifier 'cpumap_prog_id'
+   19 |         cpumap_prog_id: true,
+      |         ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:20:23: error: expected ';' after expression
+   20 |         devmap_prog_id: true,
+      |                       ^
+      |                       ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:20:9: error: use of undeclared identifier 'devmap_prog_id'
+   20 |         devmap_prog_id: true,
+      |         ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:21:26: error: expected ';' after expression
+   21 |         prog_info_map_ids: true,
+      |                          ^
+      |                          ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:21:9: error: use of undeclared identifier 'prog_info_map_ids'
+   21 |         prog_info_map_ids: true,
+      |         ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:22:33: error: expected ';' after expression
+   22 |         prog_info_gpl_compatible: true,
+      |                                 ^
+      |                                 ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:22:9: error: use of undeclared identifier 'prog_info_gpl_compatible'
+   22 |         prog_info_gpl_compatible: true,
+      |         ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:23:12: error: expected ';' after expression
+   23 |         btf: Some(
+      |            ^
+      |            ;
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:23:9: error: use of undeclared identifier 'btf'
+   23 |         btf: Some(
+      |         ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:23:14: error: call to undeclared function 'Some'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   23 |         btf: Some(
+      |              ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:24:13: error: use of undeclared identifier 'BtfFeatures'
+   24 |             BtfFeatures {
+      |             ^
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:14:15: warning: left operand of comma operator has no effect [-Wunused-value]
+   14 |     bpf_name: true,
+      |               ^~~~
+/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/github-aya-rs-aya-1056/fixed.c:15:9: warning: expression result unused [-Wunused-value]
+   15 |         bpf_probe_read_kernel: true,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+2 warnings and 20 errors generated.

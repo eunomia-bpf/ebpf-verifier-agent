@@ -1,0 +1,11 @@
+case_id: stackoverflow-61945212
+source_bucket: stackoverflow
+language: c
+source_origin: source_snippets[0] -> case-rewrite
+compile_ok: True
+verifier_status: rejected
+verifier_error_match: mismatch
+fixed_status: accepted:fixed[0]/raw
+original_error: R2 type=inv expected=fp
+captured_error: R2 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf, trusted_ptr_
+notes: <none>
