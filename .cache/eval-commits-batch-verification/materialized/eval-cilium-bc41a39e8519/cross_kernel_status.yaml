@@ -1,0 +1,23 @@
+case_id: eval-cilium-bc41a39e8519
+host_kernel: 6.15.11-061511-generic
+guest_kernel: 5.10.0-39-amd64
+buggy_6_15:
+  compiles: false
+  verifier_pass: null
+  reason: 'materialization_error: CalledProcessError: Command ''[''git'', ''show'', ''b1605abae9760f0422213de0ccce73ac931359ca:bpf/tests/builtins.c'']'' returned non-zero exit status 128.'
+fixed_6_15:
+  compiles: false
+  verifier_pass: null
+  reason: 'materialization_error: CalledProcessError: Command ''[''git'', ''show'', ''b1605abae9760f0422213de0ccce73ac931359ca:bpf/tests/builtins.c'']'' returned non-zero exit status 128.'
+buggy_5_10:
+  attempted: false
+  category: host_materialization_error
+  headline: host_materialization_error
+  returncode: null
+fixed_5_10:
+  attempted: false
+  category: host_materialization_error
+  headline: host_materialization_error
+  returncode: null
+confirmed: false
+confirmation_reason: 'materialization_error: CalledProcessError: Command ''[''git'', ''show'', ''b1605abae9760f0422213de0ccce73ac931359ca:bpf/tests/builtins.c'']'' returned non-zero exit status 128.'

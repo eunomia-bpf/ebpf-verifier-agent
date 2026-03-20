@@ -1,0 +1,320 @@
+kernel=5.10.0-39-amd64
+libbpf: loading /tmp/buggy.o
+libbpf: elf: section(2) .text, size 4144, link 0, flags 6, type=1
+libbpf: sec '.text': found program 'handle_block_rq_insert' at insn offset 0 (0 bytes), code size 150 insns (1200 bytes)
+libbpf: sec '.text': found program 'handle_block_rq_issue' at insn offset 150 (1200 bytes), code size 190 insns (1520 bytes)
+libbpf: sec '.text': found program 'handle_block_rq_complete' at insn offset 340 (2720 bytes), code size 178 insns (1424 bytes)
+libbpf: elf: section(3) .rel.text, size 528, link 40, flags 40, type=9
+libbpf: elf: section(4) tp_btf/block_rq_insert, size 24, link 0, flags 6, type=1
+libbpf: sec 'tp_btf/block_rq_insert': found program 'block_rq_insert_btf' at insn offset 0 (0 bytes), code size 3 insns (24 bytes)
+libbpf: elf: section(5) .reltp_btf/block_rq_insert, size 16, link 40, flags 40, type=9
+libbpf: elf: section(6) tp_btf/block_rq_issue, size 24, link 0, flags 6, type=1
+libbpf: sec 'tp_btf/block_rq_issue': found program 'block_rq_issue_btf' at insn offset 0 (0 bytes), code size 3 insns (24 bytes)
+libbpf: elf: section(7) .reltp_btf/block_rq_issue, size 16, link 40, flags 40, type=9
+libbpf: elf: section(8) tp_btf/block_rq_complete, size 32, link 0, flags 6, type=1
+libbpf: sec 'tp_btf/block_rq_complete': found program 'block_rq_complete_btf' at insn offset 0 (0 bytes), code size 4 insns (32 bytes)
+libbpf: elf: section(9) .reltp_btf/block_rq_complete, size 16, link 40, flags 40, type=9
+libbpf: elf: section(10) raw_tp/block_rq_insert, size 24, link 0, flags 6, type=1
+libbpf: sec 'raw_tp/block_rq_insert': found program 'block_rq_insert' at insn offset 0 (0 bytes), code size 3 insns (24 bytes)
+libbpf: elf: section(11) .relraw_tp/block_rq_insert, size 16, link 40, flags 40, type=9
+libbpf: elf: section(12) raw_tp/block_rq_issue, size 24, link 0, flags 6, type=1
+libbpf: sec 'raw_tp/block_rq_issue': found program 'block_rq_issue' at insn offset 0 (0 bytes), code size 3 insns (24 bytes)
+libbpf: elf: section(13) .relraw_tp/block_rq_issue, size 16, link 40, flags 40, type=9
+libbpf: elf: section(14) raw_tp/block_rq_complete, size 32, link 0, flags 6, type=1
+libbpf: sec 'raw_tp/block_rq_complete': found program 'block_rq_complete' at insn offset 0 (0 bytes), code size 4 insns (32 bytes)
+libbpf: elf: section(15) .relraw_tp/block_rq_complete, size 16, link 40, flags 40, type=9
+libbpf: elf: section(16) .rodata, size 12, link 0, flags 2, type=1
+libbpf: elf: section(17) license, size 4, link 0, flags 3, type=1
+libbpf: license of /tmp/buggy.o is GPL
+libbpf: elf: section(18) .maps, size 96, link 0, flags 3, type=1
+libbpf: elf: section(19) .bss, size 108, link 0, flags 3, type=8
+libbpf: elf: section(30) .BTF, size 15562, link 0, flags 0, type=1
+libbpf: elf: section(32) .BTF.ext, size 3852, link 0, flags 0, type=1
+libbpf: elf: section(40) .symtab, size 2112, link 1, flags 0, type=2
+libbpf: looking for externs among 88 symbols...
+libbpf: collected 1 externs total
+libbpf: extern (kcfg) #0: symbol 71, off 0, name LINUX_KERNEL_VERSION
+libbpf: map 'cgroup_map': at sec_idx 18, offset 0.
+libbpf: map 'cgroup_map': found type = 8.
+libbpf: map 'cgroup_map': found key [6], sz = 4.
+libbpf: map 'cgroup_map': found value [6], sz = 4.
+libbpf: map 'cgroup_map': found max_entries = 1.
+libbpf: map 'start': at sec_idx 18, offset 32.
+libbpf: map 'start': found type = 1.
+libbpf: map 'start': found max_entries = 10240.
+libbpf: map 'start': found key [16], sz = 8.
+libbpf: map 'start': found value [23], sz = 8.
+libbpf: map 'hists': at sec_idx 18, offset 64.
+libbpf: map 'hists': found type = 1.
+libbpf: map 'hists': found max_entries = 10240.
+libbpf: map 'hists': found key [75], sz = 8.
+libbpf: map 'hists': found value [77], sz = 108.
+libbpf: map 'buggy.rodata' (global data): at sec_idx 16, offset 0, flags 480.
+libbpf: map 3 is "buggy.rodata"
+libbpf: map 'buggy.bss' (global data): at sec_idx 19, offset 0, flags 400.
+libbpf: map 4 is "buggy.bss"
+libbpf: map 'buggy.kconfig' (global data): at sec_idx 40, offset 0, flags 480.
+libbpf: map 5 is "buggy.kconfig"
+libbpf: sec '.rel.text': collecting relocation for section(2) '.text'
+libbpf: sec '.rel.text': relo #0: insn #0 against 'LINUX_KERNEL_VERSION'
+libbpf: prog 'handle_block_rq_insert': found extern #0 'LINUX_KERNEL_VERSION' (sym 71) for insn #0
+libbpf: sec '.rel.text': relo #1: insn #8 against 'filter_cg'
+libbpf: prog 'handle_block_rq_insert': found data map 3 (buggy.rodata, sec 16, off 0) for insn 8
+libbpf: sec '.rel.text': relo #2: insn #12 against 'cgroup_map'
+libbpf: prog 'handle_block_rq_insert': found map 0 (cgroup_map, sec 18, off 0) for insn #12
+libbpf: sec '.rel.text': relo #3: insn #19 against 'filter_dev'
+libbpf: prog 'handle_block_rq_insert': found data map 3 (buggy.rodata, sec 16, off 0) for insn 19
+libbpf: sec '.rel.text': relo #4: insn #34 against 'filter_cg'
+libbpf: prog 'handle_block_rq_insert': found data map 3 (buggy.rodata, sec 16, off 0) for insn 34
+libbpf: sec '.rel.text': relo #5: insn #38 against 'cgroup_map'
+libbpf: prog 'handle_block_rq_insert': found map 0 (cgroup_map, sec 18, off 0) for insn #38
+libbpf: sec '.rel.text': relo #6: insn #45 against 'filter_dev'
+libbpf: prog 'handle_block_rq_insert': found data map 3 (buggy.rodata, sec 16, off 0) for insn 45
+libbpf: sec '.rel.text': relo #7: insn #93 against 'targ_dev'
+libbpf: prog 'handle_block_rq_insert': found data map 3 (buggy.rodata, sec 16, off 0) for insn 93
+libbpf: sec '.rel.text': relo #8: insn #135 against 'targ_dev'
+libbpf: prog 'handle_block_rq_insert': found data map 3 (buggy.rodata, sec 16, off 0) for insn 135
+libbpf: sec '.rel.text': relo #9: insn #145 against 'start'
+libbpf: prog 'handle_block_rq_insert': found map 1 (start, sec 18, off 32) for insn #145
+libbpf: sec '.rel.text': relo #10: insn #150 against 'LINUX_KERNEL_VERSION'
+libbpf: prog 'handle_block_rq_issue': found extern #0 'LINUX_KERNEL_VERSION' (sym 71) for insn #0
+libbpf: sec '.rel.text': relo #11: insn #158 against 'filter_cg'
+libbpf: prog 'handle_block_rq_issue': found data map 3 (buggy.rodata, sec 16, off 0) for insn 8
+libbpf: sec '.rel.text': relo #12: insn #162 against 'cgroup_map'
+libbpf: prog 'handle_block_rq_issue': found map 0 (cgroup_map, sec 18, off 0) for insn #12
+libbpf: sec '.rel.text': relo #13: insn #167 against 'targ_queued'
+libbpf: prog 'handle_block_rq_issue': found data map 3 (buggy.rodata, sec 16, off 0) for insn 17
+libbpf: sec '.rel.text': relo #14: insn #189 against 'filter_dev'
+libbpf: prog 'handle_block_rq_issue': found data map 3 (buggy.rodata, sec 16, off 0) for insn 39
+libbpf: sec '.rel.text': relo #15: insn #204 against 'filter_cg'
+libbpf: prog 'handle_block_rq_issue': found data map 3 (buggy.rodata, sec 16, off 0) for insn 54
+libbpf: sec '.rel.text': relo #16: insn #208 against 'cgroup_map'
+libbpf: prog 'handle_block_rq_issue': found map 0 (cgroup_map, sec 18, off 0) for insn #58
+libbpf: sec '.rel.text': relo #17: insn #213 against 'targ_queued'
+libbpf: prog 'handle_block_rq_issue': found data map 3 (buggy.rodata, sec 16, off 0) for insn 63
+libbpf: sec '.rel.text': relo #18: insn #235 against 'filter_dev'
+libbpf: prog 'handle_block_rq_issue': found data map 3 (buggy.rodata, sec 16, off 0) for insn 85
+libbpf: sec '.rel.text': relo #19: insn #283 against 'targ_dev'
+libbpf: prog 'handle_block_rq_issue': found data map 3 (buggy.rodata, sec 16, off 0) for insn 133
+libbpf: sec '.rel.text': relo #20: insn #325 against 'targ_dev'
+libbpf: prog 'handle_block_rq_issue': found data map 3 (buggy.rodata, sec 16, off 0) for insn 175
+libbpf: sec '.rel.text': relo #21: insn #335 against 'start'
+libbpf: prog 'handle_block_rq_issue': found map 1 (start, sec 18, off 32) for insn #185
+libbpf: sec '.rel.text': relo #22: insn #345 against 'filter_cg'
+libbpf: prog 'handle_block_rq_complete': found data map 3 (buggy.rodata, sec 16, off 0) for insn 5
+libbpf: sec '.rel.text': relo #23: insn #349 against 'cgroup_map'
+libbpf: prog 'handle_block_rq_complete': found map 0 (cgroup_map, sec 18, off 0) for insn #9
+libbpf: sec '.rel.text': relo #24: insn #356 against 'start'
+libbpf: prog 'handle_block_rq_complete': found map 1 (start, sec 18, off 32) for insn #16
+libbpf: sec '.rel.text': relo #25: insn #364 against 'targ_per_disk'
+libbpf: prog 'handle_block_rq_complete': found data map 3 (buggy.rodata, sec 16, off 0) for insn 24
+libbpf: sec '.rel.text': relo #26: insn #408 against 'targ_per_flag'
+libbpf: prog 'handle_block_rq_complete': found data map 3 (buggy.rodata, sec 16, off 0) for insn 68
+libbpf: sec '.rel.text': relo #27: insn #421 against 'hists'
+libbpf: prog 'handle_block_rq_complete': found map 2 (hists, sec 18, off 64) for insn #81
+libbpf: sec '.rel.text': relo #28: insn #427 against 'hists'
+libbpf: prog 'handle_block_rq_complete': found map 2 (hists, sec 18, off 64) for insn #87
+libbpf: sec '.rel.text': relo #29: insn #430 against '.bss'
+libbpf: prog 'handle_block_rq_complete': found data map 4 (buggy.bss, sec 19, off 0) for insn 90
+libbpf: sec '.rel.text': relo #30: insn #434 against 'hists'
+libbpf: prog 'handle_block_rq_complete': found map 2 (hists, sec 18, off 64) for insn #94
+libbpf: sec '.rel.text': relo #31: insn #439 against 'targ_ms'
+libbpf: prog 'handle_block_rq_complete': found data map 3 (buggy.rodata, sec 16, off 0) for insn 99
+libbpf: sec '.rel.text': relo #32: insn #514 against 'start'
+libbpf: prog 'handle_block_rq_complete': found map 1 (start, sec 18, off 32) for insn #174
+libbpf: sec '.reltp_btf/block_rq_insert': collecting relocation for section(4) 'tp_btf/block_rq_insert'
+libbpf: sec '.reltp_btf/block_rq_insert': relo #0: insn #0 against '.text'
+libbpf: sec '.reltp_btf/block_rq_issue': collecting relocation for section(6) 'tp_btf/block_rq_issue'
+libbpf: sec '.reltp_btf/block_rq_issue': relo #0: insn #0 against '.text'
+libbpf: sec '.reltp_btf/block_rq_complete': collecting relocation for section(8) 'tp_btf/block_rq_complete'
+libbpf: sec '.reltp_btf/block_rq_complete': relo #0: insn #1 against '.text'
+libbpf: sec '.relraw_tp/block_rq_insert': collecting relocation for section(10) 'raw_tp/block_rq_insert'
+libbpf: sec '.relraw_tp/block_rq_insert': relo #0: insn #0 against '.text'
+libbpf: sec '.relraw_tp/block_rq_issue': collecting relocation for section(12) 'raw_tp/block_rq_issue'
+libbpf: sec '.relraw_tp/block_rq_issue': relo #0: insn #0 against '.text'
+libbpf: sec '.relraw_tp/block_rq_complete': collecting relocation for section(14) 'raw_tp/block_rq_complete'
+libbpf: sec '.relraw_tp/block_rq_complete': relo #0: insn #1 against '.text'
+libbpf: loading kernel BTF '/sys/kernel/btf/vmlinux': 0
+libbpf: extern (kcfg) LINUX_KERNEL_VERSION=0x50a00
+libbpf: Error in bpf_create_map_xattr(cgroup_map):ERROR: strerror_r(-524)=22(-524). Retrying without BTF.
+libbpf: map 'cgroup_map': created successfully, fd=4
+libbpf: map 'start': created successfully, fd=5
+libbpf: map 'hists': created successfully, fd=6
+libbpf: map 'buggy.rodata': created successfully, fd=7
+libbpf: map 'buggy.bss': created successfully, fd=8
+libbpf: map 'buggy.kconfig': created successfully, fd=9
+libbpf: sec '.text': found 35 CO-RE relocations
+libbpf: prog 'handle_block_rq_insert': relo #0: kind <field_exists> (2), spec is [86] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: CO-RE relocating [86] struct request___x: found target candidate [2114] struct request
+libbpf: prog 'handle_block_rq_insert': relo #0: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'handle_block_rq_insert': relo #0: patched insn #23 (ALU/ALU64) imm 1 -> 1
+libbpf: prog 'handle_block_rq_insert': relo #1: kind <byte_off> (0), spec is [86] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_insert': relo #1: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'handle_block_rq_insert': relo #1: patched insn #25 (ALU/ALU64) imm 8 -> 160
+libbpf: prog 'handle_block_rq_insert': relo #2: kind <field_exists> (2), spec is [86] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_insert': relo #2: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'handle_block_rq_insert': relo #2: patched insn #49 (ALU/ALU64) imm 1 -> 1
+libbpf: prog 'handle_block_rq_insert': relo #3: kind <byte_off> (0), spec is [86] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_insert': relo #3: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'handle_block_rq_insert': relo #3: patched insn #51 (ALU/ALU64) imm 8 -> 160
+libbpf: prog 'handle_block_rq_insert': relo #4: kind <byte_off> (0), spec is [86] struct request___x.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_insert': relo #4: matching candidate #0 [2114] struct request.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_insert': relo #4: patched insn #58 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_insert': relo #5: kind <byte_off> (0), spec is [89] struct request_queue___x.disk (0:0 @ offset 0)
+libbpf: CO-RE relocating [89] struct request_queue___x: found target candidate [1371] struct request_queue
+libbpf: prog 'handle_block_rq_insert': relo #5: non-matching candidate #0 [1371] struct request_queue (0 @ offset 0)
+libbpf: prog 'handle_block_rq_insert': relo #5: no matching targets found
+libbpf: prog 'handle_block_rq_insert': relo #5: substituting insn #65 w/ invalid insn
+libbpf: prog 'handle_block_rq_insert': relo #6: kind <byte_off> (0), spec is [90] struct gendisk.major (0:0 @ offset 0)
+libbpf: CO-RE relocating [90] struct gendisk: found target candidate [2063] struct gendisk
+libbpf: prog 'handle_block_rq_insert': relo #6: matching candidate #0 [2063] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_insert': relo #6: patched insn #75 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_insert': relo #7: kind <byte_off> (0), spec is [90] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'handle_block_rq_insert': relo #7: matching candidate #0 [2063] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'handle_block_rq_insert': relo #7: patched insn #82 (ALU/ALU64) imm 4 -> 4
+libbpf: prog 'handle_block_rq_insert': relo #8: kind <byte_off> (0), spec is [86] struct request___x.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_insert': relo #8: matching candidate #0 [2114] struct request.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_insert': relo #8: patched insn #100 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_insert': relo #9: kind <byte_off> (0), spec is [89] struct request_queue___x.disk (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_insert': relo #9: non-matching candidate #0 [1371] struct request_queue (0 @ offset 0)
+libbpf: prog 'handle_block_rq_insert': relo #9: no matching targets found
+libbpf: prog 'handle_block_rq_insert': relo #9: substituting insn #107 w/ invalid insn
+libbpf: prog 'handle_block_rq_insert': relo #10: kind <byte_off> (0), spec is [90] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_insert': relo #10: matching candidate #0 [2063] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_insert': relo #10: patched insn #117 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_insert': relo #11: kind <byte_off> (0), spec is [90] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'handle_block_rq_insert': relo #11: matching candidate #0 [2063] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'handle_block_rq_insert': relo #11: patched insn #124 (ALU/ALU64) imm 4 -> 4
+libbpf: prog 'handle_block_rq_issue': relo #12: kind <byte_off> (0), spec is [17] struct request.q (0:0 @ offset 0)
+libbpf: CO-RE relocating [17] struct request: found target candidate [2114] struct request
+libbpf: prog 'handle_block_rq_issue': relo #12: matching candidate #0 [2114] struct request.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #12: patched insn #21 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_issue': relo #13: kind <byte_off> (0), spec is [136] struct request_queue.elevator (0:1 @ offset 8)
+libbpf: CO-RE relocating [136] struct request_queue: found target candidate [1371] struct request_queue
+libbpf: prog 'handle_block_rq_issue': relo #13: matching candidate #0 [1371] struct request_queue.elevator (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_issue': relo #13: patched insn #28 (ALU/ALU64) imm 8 -> 8
+libbpf: prog 'handle_block_rq_issue': relo #14: kind <field_exists> (2), spec is [86] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_issue': relo #14: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'handle_block_rq_issue': relo #14: patched insn #43 (ALU/ALU64) imm 1 -> 1
+libbpf: prog 'handle_block_rq_issue': relo #15: kind <byte_off> (0), spec is [86] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_issue': relo #15: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'handle_block_rq_issue': relo #15: patched insn #45 (ALU/ALU64) imm 8 -> 160
+libbpf: prog 'handle_block_rq_issue': relo #16: kind <byte_off> (0), spec is [17] struct request.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #16: matching candidate #0 [2114] struct request.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #16: patched insn #67 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_issue': relo #17: kind <byte_off> (0), spec is [136] struct request_queue.elevator (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_issue': relo #17: matching candidate #0 [1371] struct request_queue.elevator (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_issue': relo #17: patched insn #74 (ALU/ALU64) imm 8 -> 8
+libbpf: prog 'handle_block_rq_issue': relo #18: kind <field_exists> (2), spec is [86] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_issue': relo #18: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'handle_block_rq_issue': relo #18: patched insn #89 (ALU/ALU64) imm 1 -> 1
+libbpf: prog 'handle_block_rq_issue': relo #19: kind <byte_off> (0), spec is [86] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_issue': relo #19: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'handle_block_rq_issue': relo #19: patched insn #91 (ALU/ALU64) imm 8 -> 160
+libbpf: prog 'handle_block_rq_issue': relo #20: kind <byte_off> (0), spec is [86] struct request___x.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #20: matching candidate #0 [2114] struct request.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #20: patched insn #98 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_issue': relo #21: kind <byte_off> (0), spec is [89] struct request_queue___x.disk (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #21: non-matching candidate #0 [1371] struct request_queue (0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #21: no matching targets found
+libbpf: prog 'handle_block_rq_issue': relo #21: substituting insn #105 w/ invalid insn
+libbpf: prog 'handle_block_rq_issue': relo #22: kind <byte_off> (0), spec is [90] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #22: matching candidate #0 [2063] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #22: patched insn #115 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_issue': relo #23: kind <byte_off> (0), spec is [90] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'handle_block_rq_issue': relo #23: matching candidate #0 [2063] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'handle_block_rq_issue': relo #23: patched insn #122 (ALU/ALU64) imm 4 -> 4
+libbpf: prog 'handle_block_rq_issue': relo #24: kind <byte_off> (0), spec is [86] struct request___x.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #24: matching candidate #0 [2114] struct request.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #24: patched insn #140 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_issue': relo #25: kind <byte_off> (0), spec is [89] struct request_queue___x.disk (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #25: non-matching candidate #0 [1371] struct request_queue (0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #25: no matching targets found
+libbpf: prog 'handle_block_rq_issue': relo #25: substituting insn #147 w/ invalid insn
+libbpf: prog 'handle_block_rq_issue': relo #26: kind <byte_off> (0), spec is [90] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #26: matching candidate #0 [2063] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_issue': relo #26: patched insn #157 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_issue': relo #27: kind <byte_off> (0), spec is [90] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'handle_block_rq_issue': relo #27: matching candidate #0 [2063] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'handle_block_rq_issue': relo #27: patched insn #164 (ALU/ALU64) imm 4 -> 4
+libbpf: prog 'handle_block_rq_complete': relo #28: kind <field_exists> (2), spec is [86] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_complete': relo #28: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'handle_block_rq_complete': relo #28: patched insn #29 (ALU/ALU64) imm 1 -> 1
+libbpf: prog 'handle_block_rq_complete': relo #29: kind <byte_off> (0), spec is [86] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'handle_block_rq_complete': relo #29: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'handle_block_rq_complete': relo #29: patched insn #31 (ALU/ALU64) imm 8 -> 160
+libbpf: prog 'handle_block_rq_complete': relo #30: kind <byte_off> (0), spec is [86] struct request___x.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_complete': relo #30: matching candidate #0 [2114] struct request.q (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_complete': relo #30: patched insn #33 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_complete': relo #31: kind <byte_off> (0), spec is [89] struct request_queue___x.disk (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_complete': relo #31: non-matching candidate #0 [1371] struct request_queue (0 @ offset 0)
+libbpf: prog 'handle_block_rq_complete': relo #31: no matching targets found
+libbpf: prog 'handle_block_rq_complete': relo #31: substituting insn #39 w/ invalid insn
+libbpf: prog 'handle_block_rq_complete': relo #32: kind <byte_off> (0), spec is [90] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_complete': relo #32: matching candidate #0 [2063] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'handle_block_rq_complete': relo #32: patched insn #49 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'handle_block_rq_complete': relo #33: kind <byte_off> (0), spec is [90] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'handle_block_rq_complete': relo #33: matching candidate #0 [2063] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'handle_block_rq_complete': relo #33: patched insn #56 (ALU/ALU64) imm 4 -> 4
+libbpf: prog 'handle_block_rq_complete': relo #34: kind <byte_off> (0), spec is [17] struct request.cmd_flags (0:3 @ offset 24)
+libbpf: prog 'handle_block_rq_complete': relo #34: matching candidate #0 [2114] struct request.cmd_flags (0:3 @ offset 24)
+libbpf: prog 'handle_block_rq_complete': relo #34: patched insn #72 (ALU/ALU64) imm 24 -> 24
+libbpf: prog 'block_rq_insert_btf': added 150 insns from sub-prog 'handle_block_rq_insert'
+libbpf: prog 'block_rq_insert_btf': insn #0 relocated, imm 2 points to subprog 'handle_block_rq_insert' (now at 3 offset)
+libbpf: prog 'block_rq_issue_btf': added 190 insns from sub-prog 'handle_block_rq_issue'
+libbpf: prog 'block_rq_issue_btf': insn #0 relocated, imm 2 points to subprog 'handle_block_rq_issue' (now at 3 offset)
+libbpf: prog 'block_rq_complete_btf': added 178 insns from sub-prog 'handle_block_rq_complete'
+libbpf: prog 'block_rq_complete_btf': insn #1 relocated, imm 2 points to subprog 'handle_block_rq_complete' (now at 4 offset)
+libbpf: prog 'block_rq_insert': added 150 insns from sub-prog 'handle_block_rq_insert'
+libbpf: prog 'block_rq_insert': insn #0 relocated, imm 2 points to subprog 'handle_block_rq_insert' (now at 3 offset)
+libbpf: prog 'block_rq_issue': added 190 insns from sub-prog 'handle_block_rq_issue'
+libbpf: prog 'block_rq_issue': insn #0 relocated, imm 2 points to subprog 'handle_block_rq_issue' (now at 3 offset)
+libbpf: prog 'block_rq_complete': added 178 insns from sub-prog 'handle_block_rq_complete'
+libbpf: prog 'block_rq_complete': insn #1 relocated, imm 2 points to subprog 'handle_block_rq_complete' (now at 4 offset)
+libbpf: load bpf program failed: Permission denied
+libbpf: -- BEGIN DUMP LOG ---
+libbpf: 
+func#0 @0
+func#1 @3
+arg#0 type is not a struct
+Unrecognized arg#0 type PTR
+0: R1=ctx(id=0,off=0,imm=0) R10=fp0
+; return handle_block_rq_insert(ctx);
+0: (85) call pc+2
+arg#0 type is not a struct
+Unrecognized arg#0 type PTR
+caller:
+ R10=fp0
+callee:
+ frame1: R1=ctx(id=0,off=0,imm=0) R10=fp0
+3: frame1: R1=ctx(id=0,off=0,imm=0) R10=fp0
+; if (LINUX_KERNEL_VERSION < KERNEL_VERSION(5, 11, 0))
+3: (18) r2 = 0xffffa7fd402d8000
+5: frame1: R1=ctx(id=0,off=0,imm=0) R2_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R10=fp0
+5: (61) r2 = *(u32 *)(r2 +0)
+ frame1: R1=ctx(id=0,off=0,imm=0) R2_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R10=fp0
+6: frame1: R1=ctx(id=0,off=0,imm=0) R2_w=inv330240 R10=fp0
+6: (67) r2 <<= 32
+7: frame1: R1=ctx(id=0,off=0,imm=0) R2_w=inv1418369999831040 R10=fp0
+7: (c7) r2 s>>= 32
+8: frame1: R1=ctx(id=0,off=0,imm=0) R2_w=inv330240 R10=fp0
+; if (LINUX_KERNEL_VERSION < KERNEL_VERSION(5, 11, 0))
+8: (65) if r2 s> 0x50aff goto pc+26
+last_idx 8 first_idx 0
+regs=4 stack=0 before 7: (c7) r2 s>>= 32
+regs=4 stack=0 before 6: (67) r2 <<= 32
+regs=4 stack=0 before 5: (61) r2 = *(u32 *)(r2 +0)
+9: frame1: R1=ctx(id=0,off=0,imm=0) R2_w=inv330240 R10=fp0
+; return trace_rq_start((void *)ctx[1], false);
+9: (79) r6 = *(u64 *)(r1 +8)
+func 'block_rq_insert' doesn't have 2-th argument
+invalid bpf_context access off=8 size=8
+verification time 39 usec
+stack depth 0+0
+processed 7 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+
+libbpf: -- END LOG --
+libbpf: failed to load program 'block_rq_insert_btf'
+libbpf: failed to load object '/tmp/buggy.o'
+Error: failed to load object file
+Verifier log saved to /home/yunwei37/workspace/ebpf-verifier-agent/.cache/qemu/debian-11-5.10/verifier-logs/buggy.o.log

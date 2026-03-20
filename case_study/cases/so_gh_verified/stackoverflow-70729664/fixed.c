@@ -203,7 +203,124 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
+#define INV_RET_U32 4294967295U
+#define INV_RET_U16 65535U
+#define INV_RET_U8 255U
+#define DATA_CHUNK 0
 #define MAX_PACKET_OFF 0xffff
+
+struct chunk_metrics {
+    __u16 last_len;
+    __u8 last_type;
+    __u8 seen_data;
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, __u32);
+    __type(value, struct chunk_metrics);
+} chunk_metrics_map SEC(".maps");
+
+struct hdr_cursor {
+    void *pos;
+};
+
+static __always_inline __u16 parse_ethhdr(struct hdr_cursor *nh, void *data_end)
+{
+    struct ethhdr *eth = nh->pos;
+    int hdrsize = sizeof(*eth);
+
+    if (nh->pos + hdrsize > data_end)
+        return INV_RET_U16;
+    nh->pos += hdrsize;
+    return eth->h_proto;
+}
+
+static __always_inline __u8 parse_iphdr(struct hdr_cursor *nh, void *data_end)
+{
+    struct iphdr *iph = nh->pos;
+    int hdrsize;
+
+    if (iph + 1 > data_end)
+        return INV_RET_U8;
+    hdrsize = iph->ihl * 4;
+    if (hdrsize < sizeof(*iph))
+        return INV_RET_U8;
+    if (nh->pos + hdrsize > data_end)
+        return INV_RET_U8;
+    nh->pos += hdrsize;
+    return iph->protocol;
+}
+
+static __always_inline __u8 parse_sctp_chunk_type(void *data, void *data_end)
+{
+    if (data + 1 > data_end)
+        return INV_RET_U8;
+    return *(__u8 *)data;
+}
+
+static __always_inline __u16 parse_sctp_chunk_size(void *data, void *data_end)
+{
+    if (data + 4 > data_end)
+        return INV_RET_U16;
+    return bpf_ntohs(*(__u16 *)(data + 2));
+}
+
+static __always_inline __u32 parse_sctp_hdr(struct hdr_cursor *nh, void *data_end)
+{
+    struct sctphdr *sctph = nh->pos;
+    int hdrsize = sizeof(*sctph);
+
+    if (sctph + 1 > data_end)
+        return INV_RET_U32;
+    nh->pos += hdrsize;
+
+#pragma clang loop unroll(full)
+    for (int i = 0; i < 16; ++i) {
+        __u8 type = parse_sctp_chunk_type(nh->pos, data_end);
+        __u32 size;
+
+        if (type == INV_RET_U8)
+            return INV_RET_U32;
+
+        size = parse_sctp_chunk_size(nh->pos, data_end);
+        if (size > 512)
+            return INV_RET_U32;
+
+        size += (size % 4) == 0 ? 0 : 4 - size % 4;
+        if (size > 516 || size > MAX_PACKET_OFF)
+            return INV_RET_U32;
+
+        if ((char *)nh->pos + size >= (char *)data_end)
+            return INV_RET_U32;
+        nh->pos = (char *)nh->pos + size;
+    }
+
+    return INV_RET_U32;
+}
+
+SEC("xdp")
+int xdp_parse_sctp(struct xdp_md *ctx)
+{
+    void *data_end = (void *)(long)ctx->data_end;
+    void *data = (void *)(long)ctx->data;
+    struct hdr_cursor nh;
+    __u32 nh_type;
+    __u32 ip_type;
+
+    nh.pos = data;
+    nh_type = parse_ethhdr(&nh, data_end);
+    if (bpf_ntohs(nh_type) != ETH_P_IP)
+        return XDP_PASS;
+
+    ip_type = parse_iphdr(&nh, data_end);
+    if (ip_type != IPPROTO_SCTP)
+        return XDP_PASS;
+
+    parse_sctp_hdr(&nh, data_end);
+    return XDP_PASS;
+}
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

@@ -1,0 +1,61 @@
+case_id: eval-cilium-412fc8437c4f
+source: eval_commits
+repository: https://github.com/cilium/cilium
+repo_name: cilium
+commit_hash: 412fc8437c4fced5620d895758b8e50cb92a02be
+parent_commit: 26783369db1e15a00f00f6f0e4f1f17c7a2bd4b6
+case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits/eval-cilium-412fc8437c4f.yaml
+score: 6
+changed_files:
+- bpf/lib/overloadable_skb.h
+selected_source_file: bpf/tests/ipsec_redirect_tunnel.c
+buggy_include_closure:
+- bpf/node_config.h
+- bpf/tests/common.h
+- bpf/tests/ipsec_redirect_generic.h
+- bpf/tests/ipsec_redirect_tunnel.c
+- bpf/tests/lib/ipcache.h
+- bpf/tests/lib/ipsec.h
+- bpf/tests/lib/node.h
+- bpf/tests/pktgen.h
+fixed_include_closure:
+- bpf/node_config.h
+- bpf/tests/common.h
+- bpf/tests/ipsec_redirect_generic.h
+- bpf/tests/ipsec_redirect_tunnel.c
+- bpf/tests/lib/ipcache.h
+- bpf/tests/lib/ipsec.h
+- bpf/tests/lib/node.h
+- bpf/tests/pktgen.h
+unresolved_buggy_includes:
+- 'bpf/tests/ipsec_redirect_tunnel.c: ../lib/ipsec.h'
+unresolved_fixed_includes:
+- 'bpf/tests/ipsec_redirect_tunnel.c: ../lib/ipsec.h'
+compile_command_buggy:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-412fc8437c4f/headers/buggy
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-412fc8437c4f/buggy.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-412fc8437c4f/buggy.o
+compile_command_fixed:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-412fc8437c4f/headers/fixed
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-412fc8437c4f/fixed.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-412fc8437c4f/fixed.o
+load_command_buggy: []
+load_command_fixed: []

@@ -348,7 +348,7 @@ class TestRealCase:
 
         # Use R0 as the criterion register (common for this case: r5 += r0 at insn 39)
         # Try to find the first used register at the error instruction
-        from interface.extractor.engine.dataflow import compute_reaching_defs, extract_uses
+        from interface.extractor.engine.dataflow import compute_reaching_defs
         chain = compute_reaching_defs(instructions)
         uses = chain.uses_at(error_insn.insn_idx)
         if not uses:

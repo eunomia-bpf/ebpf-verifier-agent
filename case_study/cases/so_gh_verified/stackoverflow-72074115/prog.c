@@ -203,35 +203,32 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-static __always_inline struct bictcp *inet_csk_ca(const struct sock *sk)
+static const __u8 v[] = {
+    /* 0x00 */ 0, 54, 54, 54, 118, 118, 118, 118,
+    /* 0x08 */ 123, 129, 134, 138, 143, 147, 151, 156,
+    /* 0x10 */ 157, 161, 164, 168, 170, 173, 176, 179,
+    /* 0x18 */ 181, 185, 187, 190, 192, 194, 197, 199,
+    /* 0x20 */ 200, 202, 204, 206, 209, 211, 213, 215,
+    /* 0x28 */ 217, 219, 221, 222, 224, 225, 227, 229,
+    /* 0x30 */ 231, 232, 234, 236, 237, 239, 240, 242,
+    /* 0x38 */ 244, 245, 246, 248, 250, 251, 252, 254,
+};
+
+static __always_inline __u32 cubic_root_like(__u32 shift, __u32 b)
 {
-    return (struct bictcp *)((char *)(struct inet_connection_sock *)sk + offsetof(struct inet_connection_sock, icsk_ca_priv));
+    if (shift >= 64)
+        return 0;
+
+    return ((__u32)(((__u32)v[shift] + 10) << b)) >> 6;
 }
 
-static __always_inline struct tcp_sock *tcp_sk(const struct sock *sk)
+SEC("tracepoint/syscalls/sys_enter_execve")
+int cubic_root_probe(void *ctx)
 {
-    return (struct tcp_sock *)sk;
-}
+    __u32 shift = bpf_get_prandom_u32();
+    __u32 b = shift & 0x7;
 
-#define tcp_jiffies32 ((__u32)bpf_jiffies64())
-#define after(seq2, seq1) ((__s32)((seq1) - (seq2)) < 0)
-
-SEC("struct_ops/bictcp_cwnd_event")
-void BPF_PROG(bictcp_cwnd_event, struct sock *sk, enum tcp_ca_event event)
-{
-    if (event == CA_EVENT_TX_START) {
-        struct bictcp *ca = inet_csk_ca(sk);
-        __u32 now = tcp_jiffies32;
-        __s32 delta;
-
-        delta = now - tcp_sk(sk)->lsndtime;
-        if (ca->epoch_start && delta > 0) {
-            ca->epoch_start += delta;
-            if (after(ca->epoch_start, now))
-                ca->epoch_start = now;
-        }
-        return;
-    }
+    return cubic_root_like(shift, b);
 }
 
 /* === WRAPPER: added license === */

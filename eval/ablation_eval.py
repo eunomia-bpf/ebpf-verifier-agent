@@ -48,6 +48,11 @@ from interface.extractor.trace_parser import parse_trace
 DEFAULT_MANIFEST_PATH = ROOT / "case_study" / "eval_manifest.yaml"
 DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "ablation_results.json"
 CASE_ROOT = ROOT / "case_study" / "cases"
+CANONICAL_CASE_DIRS = (
+    CASE_ROOT / "kernel_selftests",
+    CASE_ROOT / "stackoverflow",
+    CASE_ROOT / "github_issues",
+)
 EXPECTED_ELIGIBLE_CASES = 262
 METHOD_KEYS = ("bpfix", "baseline", "ablation_a", "ablation_b", "ablation_c")
 
@@ -109,16 +114,17 @@ def extract_verifier_log(case_data: dict[str, Any]) -> str:
     return ""
 
 
-def build_case_path_index() -> dict[str, Path]:
+def build_case_path_index(case_dirs: tuple[Path, ...] = CANONICAL_CASE_DIRS) -> dict[str, Path]:
     index: dict[str, Path] = {}
-    for path in sorted(CASE_ROOT.rglob("*.yaml")):
-        if path.name == "index.yaml":
-            continue
-        case_data = load_yaml(path) or {}
-        case_id = str(case_data.get("case_id") or path.stem)
-        if case_id in index and index[case_id] != path:
-            raise ValueError(f"duplicate case_id {case_id}: {index[case_id]} vs {path}")
-        index[case_id] = path
+    for case_dir in case_dirs:
+        for path in sorted(case_dir.glob("*.yaml")):
+            if path.name == "index.yaml":
+                continue
+            case_data = load_yaml(path) or {}
+            case_id = str(case_data.get("case_id") or path.stem)
+            if case_id in index and index[case_id] != path:
+                raise ValueError(f"duplicate case_id {case_id}: {index[case_id]} vs {path}")
+            index[case_id] = path
     return index
 
 

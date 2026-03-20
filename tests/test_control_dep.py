@@ -29,7 +29,6 @@ from interface.extractor.engine.control_dep import (
     controlling_branches,
     control_dependent_instructions,
 )
-from interface.extractor.trace_parser import parse_trace
 
 
 # ---------------------------------------------------------------------------

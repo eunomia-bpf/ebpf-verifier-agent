@@ -1,0 +1,95 @@
+case_id: eval-katran-745374f1cf04
+source: eval_commits
+repository: https://github.com/facebookincubator/katran
+repo_name: katran
+commit_hash: 745374f1cf04c20f309037c7a1cb202787db5c98
+parent_commit: 33424d7124665d1e72d409bbfdb157bcc6630a26
+case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits/eval-katran-745374f1cf04.yaml
+score: 6
+changed_files:
+- katran/lib/bpf/pckt_parsing.h
+selected_source_file: katran/decap/bpf/decap.bpf.c
+buggy_include_closure:
+- katran/decap/bpf/decap.bpf.c
+- katran/decap/bpf/decap_maps.h
+fixed_include_closure:
+- katran/decap/bpf/decap.bpf.c
+- katran/decap/bpf/decap_maps.h
+unresolved_buggy_includes:
+- 'katran/decap/bpf/decap.bpf.c: katran/lib/bpf/balancer_consts.h'
+- 'katran/decap/bpf/decap.bpf.c: katran/lib/bpf/pckt_encap.h'
+- 'katran/decap/bpf/decap.bpf.c: katran/lib/bpf/pckt_parsing.h'
+- 'katran/decap/bpf/decap.bpf.c: katran/lib/linux_includes/bpf.h'
+- 'katran/decap/bpf/decap.bpf.c: katran/lib/linux_includes/bpf_helpers.h'
+- 'katran/decap/bpf/decap_maps.h: katran/lib/bpf/balancer_consts.h'
+- 'katran/decap/bpf/decap_maps.h: katran/lib/linux_includes/bpf.h'
+- 'katran/decap/bpf/decap_maps.h: katran/lib/linux_includes/bpf_helpers.h'
+unresolved_fixed_includes:
+- 'katran/decap/bpf/decap.bpf.c: katran/lib/bpf/balancer_consts.h'
+- 'katran/decap/bpf/decap.bpf.c: katran/lib/bpf/pckt_encap.h'
+- 'katran/decap/bpf/decap.bpf.c: katran/lib/bpf/pckt_parsing.h'
+- 'katran/decap/bpf/decap.bpf.c: katran/lib/linux_includes/bpf.h'
+- 'katran/decap/bpf/decap.bpf.c: katran/lib/linux_includes/bpf_helpers.h'
+- 'katran/decap/bpf/decap_maps.h: katran/lib/bpf/balancer_consts.h'
+- 'katran/decap/bpf/decap_maps.h: katran/lib/linux_includes/bpf.h'
+- 'katran/decap/bpf/decap_maps.h: katran/lib/linux_includes/bpf_helpers.h'
+compile_command_buggy:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -D__no_sanitize_or_inline=
+- -include
+- stddef.h
+- -include
+- stdbool.h
+- -include
+- stdint.h
+- -include
+- linux/types.h
+- -I/usr/include
+- -I/usr/src/linux-headers-6.15.11-061511-generic/include/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/generated/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/generated
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include
+- -I/usr/src/linux-headers-6.15.11-061511-generic/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-katran-745374f1cf04/headers/buggy/katran/lib/bpf
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-katran-745374f1cf04/headers/buggy/katran/lib/linux_includes
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-katran-745374f1cf04/buggy.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-katran-745374f1cf04/buggy.o
+compile_command_fixed:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -D__no_sanitize_or_inline=
+- -include
+- stddef.h
+- -include
+- stdbool.h
+- -include
+- stdint.h
+- -include
+- linux/types.h
+- -I/usr/include
+- -I/usr/src/linux-headers-6.15.11-061511-generic/include/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/generated/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/generated
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include/uapi
+- -I/usr/src/linux-headers-6.15.11-061511-generic/arch/x86/include
+- -I/usr/src/linux-headers-6.15.11-061511-generic/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-katran-745374f1cf04/headers/fixed/katran/lib/bpf
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-katran-745374f1cf04/headers/fixed/katran/lib/linux_includes
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-katran-745374f1cf04/fixed.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-katran-745374f1cf04/fixed.o
+load_command_buggy: []
+load_command_fixed: []

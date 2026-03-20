@@ -1,0 +1,171 @@
+libbpf: loading object from case_study/cases/so_gh_verified/stackoverflow-72560675/fixed.o
+libbpf: elf: section(3) tracepoint/syscalls/sys_enter_read, size 112, link 0, flags 6, type=1
+libbpf: sec 'tracepoint/syscalls/sys_enter_read': found program 'trace_read_enter' at insn offset 0 (0 bytes), code size 14 insns (112 bytes)
+libbpf: elf: section(4) .reltracepoint/syscalls/sys_enter_read, size 16, link 29, flags 40, type=9
+libbpf: elf: section(5) tracepoint/syscalls/sys_exit_read, size 216, link 0, flags 6, type=1
+libbpf: sec 'tracepoint/syscalls/sys_exit_read': found program 'trace_read_exit' at insn offset 0 (0 bytes), code size 27 insns (216 bytes)
+libbpf: elf: section(6) .reltracepoint/syscalls/sys_exit_read, size 32, link 29, flags 40, type=9
+libbpf: elf: section(7) .maps, size 64, link 0, flags 3, type=1
+libbpf: elf: section(8) license, size 4, link 0, flags 3, type=1
+libbpf: license of case_study/cases/so_gh_verified/stackoverflow-72560675/fixed.o is GPL
+libbpf: elf: section(19) .BTF, size 1831, link 0, flags 0, type=1
+libbpf: elf: section(21) .BTF.ext, size 440, link 0, flags 0, type=1
+libbpf: elf: section(29) .symtab, size 456, link 1, flags 0, type=2
+libbpf: looking for externs among 19 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'saved_read_ctx': at sec_idx 7, offset 0.
+libbpf: map 'saved_read_ctx': found type = 2.
+libbpf: map 'saved_read_ctx': found key [2], sz = 4.
+libbpf: map 'saved_read_ctx': found value [9], sz = 8.
+libbpf: map 'saved_read_ctx': found max_entries = 1.
+libbpf: map 'heap': at sec_idx 7, offset 32.
+libbpf: map 'heap': found type = 6.
+libbpf: map 'heap': found key [2], sz = 4.
+libbpf: map 'heap': found value [15], sz = 2048.
+libbpf: map 'heap': found max_entries = 1.
+libbpf: sec '.reltracepoint/syscalls/sys_enter_read': collecting relocation for section(3) 'tracepoint/syscalls/sys_enter_read'
+libbpf: sec '.reltracepoint/syscalls/sys_enter_read': relo #0: insn #8 against 'saved_read_ctx'
+libbpf: prog 'trace_read_enter': found map 0 (saved_read_ctx, sec 7, off 0) for insn #8
+libbpf: sec '.reltracepoint/syscalls/sys_exit_read': collecting relocation for section(5) 'tracepoint/syscalls/sys_exit_read'
+libbpf: sec '.reltracepoint/syscalls/sys_exit_read': relo #0: insn #5 against 'saved_read_ctx'
+libbpf: prog 'trace_read_exit': found map 0 (saved_read_ctx, sec 7, off 0) for insn #5
+libbpf: sec '.reltracepoint/syscalls/sys_exit_read': relo #1: insn #15 against 'heap'
+libbpf: prog 'trace_read_exit': found map 1 (heap, sec 7, off 32) for insn #15
+libbpf: object 'fixed': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: map 'saved_read_ctx': created successfully, fd=4
+libbpf: map 'heap': created successfully, fd=5
+libbpf: prog 'trace_read_enter': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (b7) r2 = 0
+  1: .12....... (63) *(u32 *)(r10 -4) = r2
+  2: .1........ (79) r1 = *(u64 *)(r1 +24)
+  3: .1........ (7b) *(u64 *)(r10 -16) = r1
+  4: .......... (bf) r2 = r10
+  5: ..2....... (07) r2 += -4
+  6: ..2....... (bf) r3 = r10
+  7: ..23...... (07) r3 += -16
+  8: ..23...... (18) r1 = 0xffff8f291ddaec00
+ 10: .123...... (b7) r4 = 0
+ 11: .1234..... (85) call bpf_map_update_elem#2
+ 12: .......... (b7) r0 = 0
+ 13: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int trace_read_enter(struct read_enter_ctx *ctx) @ fixed.c:245
+0: (b7) r2 = 0                        ; R2_w=0
+; int zero = 0; @ fixed.c:247
+1: (63) *(u32 *)(r10 -4) = r2
+mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 0: (b7) r2 = 0
+2: R2_w=0 R10=fp0 fp-8=0000????
+; void *p = ctx->buf; @ fixed.c:248
+2: (79) r1 = *(u64 *)(r1 +24)         ; R1_w=scalar()
+3: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=scalar(id=1) R10=fp0 fp-16_w=scalar(id=1)
+4: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+;  @ fixed.c:0
+5: (07) r2 += -4                      ; R2_w=fp-4
+6: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+7: (07) r3 += -16                     ; R3_w=fp-16
+; bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY); @ fixed.c:250
+8: (18) r1 = 0xffff8f291ddaec00       ; R1_w=map_ptr(map=saved_read_ctx,ks=4,vs=8)
+10: (b7) r4 = 0                       ; R4_w=0
+11: (85) call bpf_map_update_elem#2   ; R0_w=scalar()
+; return 0; @ fixed.c:251
+12: (b7) r0 = 0                       ; R0_w=0
+13: (95) exit
+verification time 51 usec
+stack depth 16
+processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+-- END PROG LOAD LOG --
+libbpf: prog 'trace_read_exit': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (bf) r6 = r1
+  1: ......6... (b7) r1 = 0
+  2: .1....6... (63) *(u32 *)(r10 -4) = r1
+  3: ......6... (bf) r2 = r10
+  4: ..2...6... (07) r2 += -4
+  5: ..2...6... (18) r1 = 0xffff8f291ddaec00
+  7: .12...6... (85) call bpf_map_lookup_elem#1
+  8: 0.....6... (bf) r7 = r0
+  9: ......67.. (15) if r7 == 0x0 goto pc+15
+ 10: ......67.. (79) r1 = *(u64 *)(r6 +16)
+ 11: .1....67.. (b7) r2 = 1
+ 12: .12...67.. (6d) if r2 s> r1 goto pc+12
+ 13: ......67.. (bf) r2 = r10
+ 14: ..2...67.. (07) r2 += -4
+ 15: ..2...67.. (18) r1 = 0xffff8f291ddafa00
+ 17: .12...67.. (85) call bpf_map_lookup_elem#1
+ 18: 0.....67.. (15) if r0 == 0x0 goto pc+6
+ 19: 0.....67.. (79) r2 = *(u64 *)(r6 +16)
+ 20: 0.2....7.. (57) r2 &= 2047
+ 21: 0.2....7.. (15) if r2 == 0x0 goto pc+3
+ 22: 0.2....7.. (79) r3 = *(u64 *)(r7 +0)
+ 23: 0.23...... (bf) r1 = r0
+ 24: .123...... (85) call bpf_probe_read#4
+ 25: .......... (b7) r0 = 0
+ 26: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int trace_read_exit(struct read_exit_ctx *ctx) @ fixed.c:255
+0: (bf) r6 = r1                       ; R1=ctx() R6_w=ctx()
+1: (b7) r1 = 0                        ; R1_w=0
+; int zero = 0; @ fixed.c:259
+2: (63) *(u32 *)(r10 -4) = r1
+mark_precise: frame0: last_idx 2 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 1: (b7) r1 = 0
+3: R1_w=0 R10=fp0 fp-8=0000????
+3: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+;  @ fixed.c:0
+4: (07) r2 += -4                      ; R2_w=fp-4
+; ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero); @ fixed.c:262
+5: (18) r1 = 0xffff8f291ddaec00       ; R1_w=map_ptr(map=saved_read_ctx,ks=4,vs=8)
+7: (85) call bpf_map_lookup_elem#1    ; R0_w=map_value(map=saved_read_ctx,ks=4,vs=8)
+8: (bf) r7 = r0                       ; R0_w=map_value(map=saved_read_ctx,ks=4,vs=8) R7_w=map_value(map=saved_read_ctx,ks=4,vs=8)
+; if (!ubuf) @ fixed.c:263
+9: (15) if r7 == 0x0 goto pc+15       ; R7_w=map_value(map=saved_read_ctx,ks=4,vs=8)
+; if (ctx->ret <= 0) @ fixed.c:266
+10: (79) r1 = *(u64 *)(r6 +16)        ; R1_w=scalar() R6_w=ctx()
+11: (b7) r2 = 1                       ; R2=1
+12: (6d) if r2 s> r1 goto pc+12       ; R1=scalar(smin=umin=1,umax=0x7fffffffffffffff,var_off=(0x0; 0x7fffffffffffffff)) R2=1
+13: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+; map_buf = bpf_map_lookup_elem(&heap, &zero); @ fixed.c:269
+14: (07) r2 += -4                     ; R2_w=fp-4
+15: (18) r1 = 0xffff8f291ddafa00      ; R1_w=map_ptr(map=heap,ks=4,vs=2048)
+17: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value(map=heap,ks=4,vs=2048)
+; if (!map_buf) { @ fixed.c:270
+18: (15) if r0 == 0x0 goto pc+6       ; R0_w=map_value(map=heap,ks=4,vs=2048)
+; min = ((__u32)ctx->ret) & 0x7ff; @ fixed.c:274
+19: (79) r2 = *(u64 *)(r6 +16)        ; R2_w=scalar() R6=ctx()
+20: (57) r2 &= 2047                   ; R2=scalar(smin=smin32=0,smax=umax=smax32=umax32=2047,var_off=(0x0; 0x7ff))
+; if (min == 0) @ fixed.c:275
+21: (15) if r2 == 0x0 goto pc+3       ; R2=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=2047,var_off=(0x0; 0x7ff))
+; if (bpf_probe_read(map_buf, min, *ubuf)) { @ fixed.c:278
+22: (79) r3 = *(u64 *)(r7 +0)         ; R3_w=scalar() R7=map_value(map=saved_read_ctx,ks=4,vs=8)
+23: (bf) r1 = r0                      ; R0=map_value(map=heap,ks=4,vs=2048) R1_w=map_value(map=heap,ks=4,vs=2048)
+24: (85) call bpf_probe_read#4
+mark_precise: frame0: last_idx 24 first_idx 21 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 23: (bf) r1 = r0
+mark_precise: frame0: regs=r2 stack= before 22: (79) r3 = *(u64 *)(r7 +0)
+mark_precise: frame0: regs=r2 stack= before 21: (15) if r2 == 0x0 goto pc+3
+mark_precise: frame0: parent state regs=r2 stack=:  R0_rw=map_value(map=heap,ks=4,vs=2048) R2_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=2047,var_off=(0x0; 0x7ff)) R6=ctx() R7_r=map_value(map=saved_read_ctx,ks=4,vs=8) R10=fp0 fp-8=0000????
+mark_precise: frame0: last_idx 20 first_idx 12 subseq_idx 21 
+mark_precise: frame0: regs=r2 stack= before 20: (57) r2 &= 2047
+mark_precise: frame0: regs=r2 stack= before 19: (79) r2 = *(u64 *)(r6 +16)
+25: R0_w=scalar()
+; } @ fixed.c:282
+25: (b7) r0 = 0                       ; R0_w=0
+26: (95) exit
+
+from 21 to 25: R0=map_value(map=heap,ks=4,vs=2048) R2=0 R6=ctx() R7=map_value(map=saved_read_ctx,ks=4,vs=8) R10=fp0 fp-8=0000????
+25: R0=map_value(map=heap,ks=4,vs=2048) R2=0 R6=ctx() R7=map_value(map=saved_read_ctx,ks=4,vs=8) R10=fp0 fp-8=0000????
+25: (b7) r0 = 0                       ; R0_w=0
+26: (95) exit
+
+from 12 to 25: R0=map_value(map=saved_read_ctx,ks=4,vs=8) R1=scalar(smax=0) R2=1 R6=ctx() R7=map_value(map=saved_read_ctx,ks=4,vs=8) R10=fp0 fp-8=0000????
+25: R0=map_value(map=saved_read_ctx,ks=4,vs=8) R1=scalar(smax=0) R2=1 R6=ctx() R7=map_value(map=saved_read_ctx,ks=4,vs=8) R10=fp0 fp-8=0000????
+25: (b7) r0 = 0                       ; R0_w=0
+26: (95) exit
+verification time 99 usec
+stack depth 8
+processed 29 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2
+-- END PROG LOAD LOG --

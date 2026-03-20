@@ -8,6 +8,7 @@ import json
 import re
 import statistics
 from collections import Counter, defaultdict
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -17,10 +18,10 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MANIFEST_PATH = ROOT / "case_study" / "eval_manifest.yaml"
 DEFAULT_BATCH_RESULTS_PATH = ROOT / "eval" / "results" / "batch_diagnostic_results.json"
-DEFAULT_LATENCY_RESULTS_PATH = ROOT / "eval" / "results" / "latency_benchmark_v4.json"
+DEFAULT_LATENCY_RESULTS_PATH = ROOT / "eval" / "results" / "latency_benchmark.json"
 DEFAULT_BASELINE_RESULTS_PATH = ROOT / "eval" / "results" / "baseline_results.json"
 DEFAULT_LABELS_PATH = ROOT / "case_study" / "ground_truth.yaml"
-DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "eval-refresh-2026-03-18.md"
+DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "eval-refresh.md"
 
 
 def parse_args() -> argparse.Namespace:
@@ -338,8 +339,9 @@ def main() -> int:
     baseline_payload = dict(load_json(args.baseline_results_path) or {})
     labels_payload = dict(load_yaml(args.labels_path) or {})
 
+    generated_on = datetime.now(timezone.utc).date().isoformat()
     lines = [
-        "# Eval Refresh 2026-03-18",
+        f"# Eval Refresh {generated_on}",
         "",
         f"- Manifest: `{args.manifest_path.relative_to(ROOT)}`",
         f"- Batch results: `{args.batch_results_path.relative_to(ROOT)}`",

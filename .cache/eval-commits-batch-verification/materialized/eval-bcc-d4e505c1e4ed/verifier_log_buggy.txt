@@ -1,0 +1,1231 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-d4e505c1e4ed/buggy.o
+libbpf: elf: section(2) .text, size 1048, link 0, flags 6, type=1
+libbpf: sec '.text': found program 'trace_rq_issue' at insn offset 0 (0 bytes), code size 131 insns (1048 bytes)
+libbpf: elf: section(3) .rel.text, size 128, link 30, flags 40, type=9
+libbpf: elf: section(4) tp_btf/block_rq_issue, size 104, link 0, flags 6, type=1
+libbpf: sec 'tp_btf/block_rq_issue': found program 'block_rq_issue' at insn offset 0 (0 bytes), code size 13 insns (104 bytes)
+libbpf: elf: section(5) .reltp_btf/block_rq_issue, size 32, link 30, flags 40, type=9
+libbpf: elf: section(6) .rodata, size 24, link 0, flags 2, type=1
+libbpf: elf: section(7) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-d4e505c1e4ed/buggy.o is GPL
+libbpf: elf: section(8) .maps, size 32, link 0, flags 3, type=1
+libbpf: elf: section(9) .bss, size 80, link 0, flags 3, type=8
+libbpf: elf: section(20) .BTF, size 7419, link 0, flags 0, type=1
+libbpf: elf: section(22) .BTF.ext, size 1092, link 0, flags 0, type=1
+libbpf: elf: section(30) .symtab, size 912, link 1, flags 0, type=2
+libbpf: looking for externs among 38 symbols...
+libbpf: collected 1 externs total
+libbpf: extern (kcfg) #0: symbol 32, off 0, name LINUX_KERNEL_VERSION
+libbpf: map 'hists': at sec_idx 8, offset 0.
+libbpf: map 'hists': found type = 1.
+libbpf: map 'hists': found key [8], sz = 16.
+libbpf: map 'hists': found value [12], sz = 80.
+libbpf: map 'hists': found max_entries = 10240.
+libbpf: map 'buggy.rodata' (global data): at sec_idx 6, offset 0, flags 480.
+libbpf: map 1 is "buggy.rodata"
+libbpf: map 'buggy.bss' (global data): at sec_idx 9, offset 0, flags 0.
+libbpf: map 2 is "buggy.bss"
+libbpf: map 'buggy.kconfig' (global data): at sec_idx 30, offset 0, flags 480.
+libbpf: map 3 is "buggy.kconfig"
+libbpf: sec '.rel.text': collecting relocation for section(2) '.text'
+libbpf: sec '.rel.text': relo #0: insn #1 against 'filter_dev'
+libbpf: prog 'trace_rq_issue': found data map 1 (buggy.rodata, sec 6, off 0) for insn 1
+libbpf: sec '.rel.text': relo #1: insn #45 against 'targ_dev'
+libbpf: prog 'trace_rq_issue': found data map 1 (buggy.rodata, sec 6, off 0) for insn 45
+libbpf: sec '.rel.text': relo #2: insn #55 against 'targ_comm'
+libbpf: prog 'trace_rq_issue': found data map 1 (buggy.rodata, sec 6, off 0) for insn 55
+libbpf: sec '.rel.text': relo #3: insn #68 against 'targ_comm'
+libbpf: prog 'trace_rq_issue': found data map 1 (buggy.rodata, sec 6, off 0) for insn 68
+libbpf: sec '.rel.text': relo #4: insn #77 against 'hists'
+libbpf: prog 'trace_rq_issue': found map 0 (hists, sec 8, off 0) for insn #77
+libbpf: sec '.rel.text': relo #5: insn #83 against 'hists'
+libbpf: prog 'trace_rq_issue': found map 0 (hists, sec 8, off 0) for insn #83
+libbpf: sec '.rel.text': relo #6: insn #86 against '.bss'
+libbpf: prog 'trace_rq_issue': found data map 2 (buggy.bss, sec 9, off 0) for insn 86
+libbpf: sec '.rel.text': relo #7: insn #90 against 'hists'
+libbpf: prog 'trace_rq_issue': found map 0 (hists, sec 8, off 0) for insn #90
+libbpf: sec '.reltp_btf/block_rq_issue': collecting relocation for section(4) 'tp_btf/block_rq_issue'
+libbpf: sec '.reltp_btf/block_rq_issue': relo #0: insn #0 against 'LINUX_KERNEL_VERSION'
+libbpf: prog 'block_rq_issue': found extern #0 'LINUX_KERNEL_VERSION' (sym 32) for insn #0
+libbpf: sec '.reltp_btf/block_rq_issue': relo #1: insn #10 against '.text'
+libbpf: object 'buggy': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: loaded kernel BTF from '/sys/kernel/btf/vmlinux'
+libbpf: extern (kcfg) 'LINUX_KERNEL_VERSION': set to 0x60f0b
+libbpf: sec '.text': found 7 CO-RE relocations
+libbpf: CO-RE relocating [78] struct request___x: found target candidate [13977] struct request in [vmlinux]
+libbpf: prog 'trace_rq_issue': relo #0: <field_exists> [78] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'trace_rq_issue': relo #0: non-matching candidate #0 <field_exists> [13977] struct request (0 @ offset 0)
+libbpf: prog 'trace_rq_issue': relo #0: no matching targets found
+libbpf: prog 'trace_rq_issue': relo #0: patched insn #5 (ALU/ALU64) imm 1 -> 0
+libbpf: prog 'trace_rq_issue': relo #1: <byte_off> [78] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'trace_rq_issue': relo #1: non-matching candidate #0 <byte_off> [13977] struct request (0 @ offset 0)
+libbpf: prog 'trace_rq_issue': relo #1: no matching targets found
+libbpf: prog 'trace_rq_issue': relo #1: substituting insn #7 w/ invalid insn
+libbpf: prog 'trace_rq_issue': relo #2: <byte_off> [78] struct request___x.q (0:0 @ offset 0)
+libbpf: prog 'trace_rq_issue': relo #2: matching candidate #0 <byte_off> [13977] struct request.q (0:0 @ offset 0)
+libbpf: prog 'trace_rq_issue': relo #2: patched insn #10 (ALU/ALU64) imm 0 -> 0
+libbpf: CO-RE relocating [81] struct request_queue___x: found target candidate [1088] struct request_queue in [vmlinux]
+libbpf: prog 'trace_rq_issue': relo #3: <byte_off> [81] struct request_queue___x.disk (0:0 @ offset 0)
+libbpf: prog 'trace_rq_issue': relo #3: matching candidate #0 <byte_off> [1088] struct request_queue.disk (0:18 @ offset 104)
+libbpf: prog 'trace_rq_issue': relo #3: patched insn #17 (ALU/ALU64) imm 0 -> 104
+libbpf: CO-RE relocating [82] struct gendisk: found target candidate [642] struct gendisk in [vmlinux]
+libbpf: prog 'trace_rq_issue': relo #4: <byte_off> [82] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'trace_rq_issue': relo #4: matching candidate #0 <byte_off> [642] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'trace_rq_issue': relo #4: patched insn #27 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'trace_rq_issue': relo #5: <byte_off> [82] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'trace_rq_issue': relo #5: matching candidate #0 <byte_off> [642] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'trace_rq_issue': relo #5: patched insn #34 (ALU/ALU64) imm 4 -> 4
+libbpf: CO-RE relocating [23] struct request: found target candidate [13977] struct request in [vmlinux]
+libbpf: prog 'trace_rq_issue': relo #6: <byte_off> [23] struct request.__data_len (0:8 @ offset 44)
+libbpf: prog 'trace_rq_issue': relo #6: matching candidate #0 <byte_off> [13977] struct request.__data_len (0:8 @ offset 44)
+libbpf: prog 'trace_rq_issue': relo #6: patched insn #95 (LDX/ST/STX) off 44 -> 44
+libbpf: prog 'block_rq_issue': added 131 insns from sub-prog 'trace_rq_issue'
+libbpf: prog 'block_rq_issue': insn #10 relocated, imm 2 points to subprog 'trace_rq_issue' (now at 13 offset)
+libbpf: map 'hists': created successfully, fd=4
+libbpf: map 'buggy.rodata': created successfully, fd=5
+libbpf: map 'buggy.bss': created successfully, fd=6
+libbpf: map 'buggy.kconfig': created successfully, fd=7
+libbpf: prog 'block_rq_issue': -- BEGIN PROG LOAD LOG --
+func#0 @0
+func#1 @13
+Live regs before insn:
+  0: .1...5.... (18) r2 = 0xffffd00e8dbda000
+  2: .12..5.... (61) r3 = *(u32 *)(r2 +0)
+  3: .1.3.5.... (b7) r2 = 1
+  4: .123.5.... (b7) r4 = 330496
+  5: .12345.... (2d) if r4 > r3 goto pc+1
+  6: .1.345.... (b7) r2 = 0
+  7: .12345.... (67) r2 <<= 3
+  8: .12345.... (0f) r1 += r2
+  9: .12345.... (79) r1 = *(u64 *)(r1 +0)
+ 10: .12345.... (85) call pc+2
+ 11: .......... (b7) r0 = 0
+ 12: 0......... (95) exit
+ 13: .12345.... (bf) r6 = r1
+ 14: ..23456... (18) r1 = 0xffffd00e8dbd2010
+ 16: .123456... (71) r1 = *(u8 *)(r1 +0)
+ 17: .123456... (15) if r1 == 0x0 goto pc+46
+ 18: ..23456... (b7) r1 = 0
+ 19: .123456... (15) if r1 == 0x0 goto pc+3
+ 20: .123456... (85) call unknown#195896080
+ 21: .1....6... (bf) r3 = r6
+ 22: .1.3..6... (05) goto pc+9
+ 23: ......6... (b7) r1 = 0
+ 24: .1....6... (bf) r3 = r6
+ 25: .1.3..6... (0f) r3 += r1
+ 26: ...3..6... (bf) r1 = r10
+ 27: .1.3..6... (07) r1 += -8
+ 28: .1.3..6... (b7) r2 = 8
+ 29: .123..6... (85) call bpf_probe_read_kernel#113
+ 30: ......6... (b7) r1 = 104
+ 31: .1....6... (79) r3 = *(u64 *)(r10 -8)
+ 32: .1.3..6... (0f) r3 += r1
+ 33: ...3..6... (bf) r1 = r10
+ 34: .1.3..6... (07) r1 += -24
+ 35: .1.3..6... (b7) r2 = 8
+ 36: .123..6... (85) call bpf_probe_read_kernel#113
+ 37: 0.....6... (79) r7 = *(u64 *)(r10 -24)
+ 38: 0.....67.. (b7) r1 = 0
+ 39: 01....67.. (15) if r7 == 0x0 goto pc+18
+ 40: ......67.. (b7) r1 = 0
+ 41: .1....67.. (bf) r3 = r7
+ 42: .1.3..67.. (0f) r3 += r1
+ 43: ...3..67.. (bf) r1 = r10
+ 44: .1.3..67.. (07) r1 += -24
+ 45: .1.3..67.. (b7) r2 = 4
+ 46: .123..67.. (85) call bpf_probe_read_kernel#113
+ 47: ......67.. (b7) r1 = 4
+ 48: .1....67.. (0f) r7 += r1
+ 49: ......67.. (61) r8 = *(u32 *)(r10 -24)
+ 50: ......678. (bf) r1 = r10
+ 51: .1....678. (07) r1 += -24
+ 52: .1....678. (b7) r2 = 4
+ 53: .12...678. (bf) r3 = r7
+ 54: .123..6.8. (85) call bpf_probe_read_kernel#113
+ 55: 0.....6.8. (67) r8 <<= 20
+ 56: 0.....6.8. (61) r1 = *(u32 *)(r10 -24)
+ 57: 01....6.8. (4f) r1 |= r8
+ 58: 01....6... (18) r2 = 0xffffd00e8dbd2014
+ 60: 012...6... (61) r2 = *(u32 *)(r2 +0)
+ 61: 012...6... (67) r1 <<= 32
+ 62: 012...6... (77) r1 >>= 32
+ 63: 012...6... (5d) if r2 != r1 goto pc+79
+ 64: ......6... (bf) r1 = r10
+ 65: .1....6... (07) r1 += -24
+ 66: .1....6... (b7) r2 = 16
+ 67: .12...6... (85) call bpf_get_current_comm#16
+ 68: 0.....6... (18) r1 = 0xffffd00e8dbd2000
+ 70: 01....6... (71) r1 = *(u8 *)(r1 +0)
+ 71: 01....6... (15) if r1 == 0x0 goto pc+16
+ 72: 0.....6... (b7) r1 = 0
+ 73: 01....6... (05) goto pc+4
+ 74: 012...6... (71) r2 = *(u8 *)(r2 +1)
+ 75: 012...6... (25) if r1 > 0xe goto pc+12
+ 76: 012...6... (07) r1 += 1
+ 77: 012...6... (15) if r2 == 0x0 goto pc+10
+ 78: 01....6... (bf) r3 = r10
+ 79: 01.3..6... (07) r3 += -24
+ 80: 01.3..6... (0f) r3 += r1
+ 81: 01.3..6... (18) r2 = 0xffffd00e8dbd2000
+ 83: 0123..6... (0f) r2 += r1
+ 84: 0123..6... (71) r4 = *(u8 *)(r2 +0)
+ 85: 01234.6... (71) r3 = *(u8 *)(r3 +0)
+ 86: 01234.6... (1d) if r3 == r4 goto pc-13
+ 87: 0......... (05) goto pc+55
+ 88: ......6... (bf) r2 = r10
+ 89: ..2...6... (07) r2 += -24
+ 90: ..2...6... (18) r1 = 0xffff8f270c66e800
+ 92: .12...6... (85) call bpf_map_lookup_elem#1
+ 93: 0.....6... (55) if r0 != 0x0 goto pc+14
+ 94: ......6... (bf) r7 = r10
+ 95: ......67.. (07) r7 += -24
+ 96: ......67.. (18) r1 = 0xffff8f270c66e800
+ 98: .1....67.. (bf) r2 = r7
+ 99: .12...67.. (18) r3 = 0xffff8f291ddad108
+101: .123..67.. (b7) r4 = 0
+102: .1234.67.. (85) call bpf_map_update_elem#2
+103: ......67.. (18) r1 = 0xffff8f270c66e800
+105: .1....67.. (bf) r2 = r7
+106: .12...6... (85) call bpf_map_lookup_elem#1
+107: 0.....6... (15) if r0 == 0x0 goto pc+35
+108: 0.....6... (61) r4 = *(u32 *)(r6 +44)
+109: 0...4..... (bf) r3 = r4
+110: 0..34..... (77) r3 >>= 10
+111: 0..34..... (b7) r1 = 1
+112: 01.34..... (b7) r2 = 1
+113: 01234..... (25) if r4 > 0x3ffffff goto pc+1
+114: 01.3...... (b7) r2 = 0
+115: 0123...... (67) r2 <<= 4
+116: 0123...... (7f) r3 >>= r2
+117: 0123...... (b7) r4 = 1
+118: 01234..... (25) if r3 > 0xff goto pc+1
+119: 0123...... (b7) r4 = 0
+120: 01234..... (67) r4 <<= 3
+121: 01234..... (7f) r3 >>= r4
+122: 01234..... (b7) r5 = 1
+123: 012345.... (25) if r3 > 0xf goto pc+1
+124: 01234..... (b7) r5 = 0
+125: 012345.... (67) r5 <<= 2
+126: 012345.... (7f) r3 >>= r5
+127: 012345.... (b7) r6 = 1
+128: 0123456... (25) if r3 > 0x3 goto pc+1
+129: 012345.... (b7) r6 = 0
+130: 0123456... (67) r6 <<= 1
+131: 0123456... (7f) r3 >>= r6
+132: 0123456... (77) r3 >>= 1
+133: 0123456... (4f) r2 |= r3
+134: 012.456... (4f) r2 |= r4
+135: 012..56... (4f) r2 |= r5
+136: 012...6... (4f) r2 |= r6
+137: 012....... (b7) r3 = 19
+138: 0123...... (2d) if r3 > r2 goto pc+1
+139: 01........ (b7) r2 = 19
+140: 012....... (67) r2 <<= 2
+141: 012....... (0f) r0 += r2
+142: 01........ (c3) lock *(u32 *)(r0 +0) += r1
+143: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; if (LINUX_KERNEL_VERSION >= KERNEL_VERSION(5, 11, 0)) @ buggy.c:79
+0: (18) r2 = 0xffffd00e8dbda000       ; R2_w=map_value(map=buggy.kconfig,ks=4,vs=4)
+2: (61) r3 = *(u32 *)(r2 +0)          ; R2_w=map_value(map=buggy.kconfig,ks=4,vs=4) R3_w=0x60f0b
+3: (b7) r2 = 1                        ; R2_w=1
+4: (b7) r4 = 330496                   ; R4_w=0x50b00
+5: (2d) if r4 > r3 goto pc+1
+mark_precise: frame0: last_idx 5 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r4 stack= before 4: (b7) r4 = 330496
+mark_precise: frame0: last_idx 5 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r3 stack= before 4: (b7) r4 = 330496
+mark_precise: frame0: regs=r3 stack= before 3: (b7) r2 = 1
+mark_precise: frame0: regs=r3 stack= before 2: (61) r3 = *(u32 *)(r2 +0)
+5: R3_w=0x60f0b R4_w=0x50b00
+6: (b7) r2 = 0                        ; R2_w=0
+7: (67) r2 <<= 3                      ; R2_w=0
+8: (0f) r1 += r2
+mark_precise: frame0: last_idx 8 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 7: (67) r2 <<= 3
+mark_precise: frame0: regs=r2 stack= before 6: (b7) r2 = 0
+9: R1_w=ctx() R2_w=0
+;  @ buggy.c:0
+9: (79) r1 = *(u64 *)(r1 +0)
+func 'block_rq_issue' arg0 has btf_id 13977 type STRUCT 'request'
+10: R1_w=trusted_ptr_request()
+10: (85) call pc+2
+caller:
+ R10=fp0
+callee:
+ frame1: R1_w=trusted_ptr_request() R2_w=0 R3_w=0x60f0b R4_w=0x50b00 R10=fp0
+13: frame1: R1=trusted_ptr_request() R2=0 R3=0x60f0b R4=0x50b00 R10=fp0
+; static int trace_rq_issue(struct request *rq) @ buggy.c:37
+13: (bf) r6 = r1                      ; frame1: R1=trusted_ptr_request() R6_w=trusted_ptr_request()
+; if (filter_dev) { @ buggy.c:43
+14: (18) r1 = 0xffffd00e8dbd2010      ; frame1: R1_w=map_value(map=buggy.rodata,ks=4,vs=24,off=16)
+16: (71) r1 = *(u8 *)(r1 +0)          ; frame1: R1_w=0
+17: (15) if r1 == 0x0 goto pc+46
+mark_precise: frame1: last_idx 17 first_idx 13 subseq_idx -1 
+mark_precise: frame1: regs=r1 stack= before 16: (71) r1 = *(u8 *)(r1 +0)
+17: frame1: R1_w=0
+; if (targ_dev != dev) @ buggy.c:49
+64: (bf) r1 = r10                     ; frame1: R1_w=fp0 R10=fp0
+; bpf_get_current_comm(&hkey.comm, sizeof(hkey.comm)); @ buggy.c:52
+65: (07) r1 += -24                    ; frame1: R1_w=fp-24
+66: (b7) r2 = 16                      ; frame1: R2_w=16
+67: (85) call bpf_get_current_comm#16
+mark_precise: frame1: last_idx 67 first_idx 13 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 66: (b7) r2 = 16
+68: frame1: R0=scalar() fp-16=mmmmmmmm fp-24=mmmmmmmm
+; for (i = 0; targ_comm[i] != '\0' && i < TASK_COMM_LEN; i++) { @ buggy.c:30
+68: (18) r1 = 0xffffd00e8dbd2000      ; frame1: R1_w=map_value(map=buggy.rodata,ks=4,vs=24)
+70: (71) r1 = *(u8 *)(r1 +0)          ; frame1: R1_w=0
+71: (15) if r1 == 0x0 goto pc+16
+mark_precise: frame1: last_idx 71 first_idx 68 subseq_idx -1 
+mark_precise: frame1: regs=r1 stack= before 70: (71) r1 = *(u8 *)(r1 +0)
+71: frame1: R1_w=0
+; if (comm[i] != targ_comm[i]) @ buggy.c:31
+88: (bf) r2 = r10                     ; frame1: R2_w=fp0 R10=fp0
+; histp = bpf_map_lookup_elem(&hists, &hkey); @ buggy.c:56
+89: (07) r2 += -24                    ; frame1: R2_w=fp-24
+90: (18) r1 = 0xffff8f270c66e800      ; frame1: R1_w=map_ptr(map=hists,ks=16,vs=80)
+92: (85) call bpf_map_lookup_elem#1   ; frame1: R0_w=map_value_or_null(id=1,map=hists,ks=16,vs=80)
+; if (!histp) { @ buggy.c:57
+93: (55) if r0 != 0x0 goto pc+14      ; frame1: R0_w=0
+94: (bf) r7 = r10                     ; frame1: R7_w=fp0 R10=fp0
+; bpf_map_update_elem(&hists, &hkey, &initial_hist, 0); @ buggy.c:58
+95: (07) r7 += -24                    ; frame1: R7_w=fp-24
+96: (18) r1 = 0xffff8f270c66e800      ; frame1: R1_w=map_ptr(map=hists,ks=16,vs=80)
+98: (bf) r2 = r7                      ; frame1: R2_w=fp-24 R7_w=fp-24
+99: (18) r3 = 0xffff8f291ddad108      ; frame1: R3_w=map_value(map=buggy.bss,ks=4,vs=80)
+101: (b7) r4 = 0                      ; frame1: R4_w=0
+102: (85) call bpf_map_update_elem#2          ; frame1: R0=scalar()
+; histp = bpf_map_lookup_elem(&hists, &hkey); @ buggy.c:59
+103: (18) r1 = 0xffff8f270c66e800     ; frame1: R1_w=map_ptr(map=hists,ks=16,vs=80)
+105: (bf) r2 = r7                     ; frame1: R2_w=fp-24 R7=fp-24
+106: (85) call bpf_map_lookup_elem#1          ; frame1: R0_w=map_value_or_null(id=2,map=hists,ks=16,vs=80)
+; if (!histp) @ buggy.c:60
+107: (15) if r0 == 0x0 goto pc+35     ; frame1: R0_w=map_value(map=hists,ks=16,vs=80)
+; slot = log2l(rq->__data_len / 1024); @ buggy.c:63
+108: (61) r4 = *(u32 *)(r6 +44)       ; frame1: R4_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=trusted_ptr_request()
+109: (bf) r3 = r4                     ; frame1: R3_w=scalar(id=3,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R4_w=scalar(id=3,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+110: (77) r3 >>= 10                   ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0x3fffff,var_off=(0x0; 0x3fffff))
+111: (b7) r1 = 1                      ; frame1: R1_w=1
+112: (b7) r2 = 1                      ; frame1: R2=1
+113: (25) if r4 > 0x3ffffff goto pc+1         ; frame1: R4=scalar(id=3,smin=smin32=0,smax=umax=smax32=umax32=0x3ffffff,var_off=(0x0; 0x3ffffff))
+114: (b7) r2 = 0                      ; frame1: R2_w=0
+; r = (v > 0xFFFF) << 4; v >>= r; @ bits.bpf.h:12
+115: (67) r2 <<= 4                    ; frame1: R2_w=0
+116: (7f) r3 >>= r2                   ; frame1: R2_w=0 R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0x3fffff,var_off=(0x0; 0x3fffff))
+117: (b7) r4 = 1                      ; frame1: R4_w=1
+118: (25) if r3 > 0xff goto pc+1      ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff))
+119: (b7) r4 = 0                      ; frame1: R4_w=0
+; shift = (v > 0xFF) << 3; v >>= shift; r |= shift; @ bits.bpf.h:13
+120: (67) r4 <<= 3                    ; frame1: R4_w=0
+121: (7f) r3 >>= r4                   ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R4_w=0
+122: (b7) r5 = 1                      ; frame1: R5=1
+123: (25) if r3 > 0xf goto pc+1       ; frame1: R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf))
+124: (b7) r5 = 0                      ; frame1: R5_w=0
+; shift = (v > 0xF) << 2; v >>= shift; r |= shift; @ bits.bpf.h:14
+125: (67) r5 <<= 2                    ; frame1: R5_w=0
+126: (7f) r3 >>= r5                   ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R5_w=0
+127: (b7) r6 = 1                      ; frame1: R6_w=1
+128: (25) if r3 > 0x3 goto pc+1       ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3))
+129: (b7) r6 = 0                      ; frame1: R6_w=0
+; shift = (v > 0x3) << 1; v >>= shift; r |= shift; @ bits.bpf.h:15
+130: (67) r6 <<= 1                    ; frame1: R6_w=0
+131: (7f) r3 >>= r6                   ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R6_w=0
+; r |= (v >> 1); @ bits.bpf.h:16
+132: (77) r3 >>= 1                    ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+133: (4f) r2 |= r3                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+134: (4f) r2 |= r4                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R4=0
+135: (4f) r2 |= r5                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R5_w=0
+136: (4f) r2 |= r6                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R6_w=0
+137: (b7) r3 = 19                     ; frame1: R3=19
+; if (slot >= MAX_SLOTS) @ buggy.c:64
+138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx -1 
+mark_precise: frame1: parent state regs=r3 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R3_rw=P19 R4=0 R5_w=0 R6_w=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 123 subseq_idx 138 
+mark_precise: frame1: regs=r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx -1 
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R3_rw=P19 R4=0 R5_w=0 R6_w=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 123 subseq_idx 138 
+mark_precise: frame1: regs=r2 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 129: (b7) r6 = 0
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 127: (b7) r6 = 1
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 126: (7f) r3 >>= r5
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 125: (67) r5 <<= 2
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 124: (b7) r5 = 0
+mark_precise: frame1: regs=r2,r3,r4 stack= before 123: (25) if r3 > 0xf goto pc+1
+mark_precise: frame1: parent state regs=r2,r3,r4 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=P0 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R4_rw=P0 R5_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 122 first_idx 113 subseq_idx 123 
+mark_precise: frame1: regs=r2,r3,r4 stack= before 122: (b7) r5 = 1
+mark_precise: frame1: regs=r2,r3,r4 stack= before 121: (7f) r3 >>= r4
+mark_precise: frame1: regs=r2,r3,r4 stack= before 120: (67) r4 <<= 3
+mark_precise: frame1: regs=r2,r3,r4 stack= before 119: (b7) r4 = 0
+mark_precise: frame1: regs=r2,r3 stack= before 118: (25) if r3 > 0xff goto pc+1
+mark_precise: frame1: regs=r2,r3 stack= before 117: (b7) r4 = 1
+mark_precise: frame1: regs=r2,r3 stack= before 116: (7f) r3 >>= r2
+mark_precise: frame1: regs=r2,r3 stack= before 115: (67) r2 <<= 4
+mark_precise: frame1: regs=r2,r3 stack= before 114: (b7) r2 = 0
+mark_precise: frame1: regs=r3 stack= before 113: (25) if r4 > 0x3ffffff goto pc+1
+mark_precise: frame1: parent state regs=r3 stack=:  frame1: R0_w=map_value(map=hists,ks=16,vs=80) R1_w=1 R2_w=1 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0x3fffff,var_off=(0x0; 0x3fffff)) R4_rw=scalar(id=3,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 112 first_idx 103 subseq_idx 113 
+mark_precise: frame1: regs=r3 stack= before 112: (b7) r2 = 1
+mark_precise: frame1: regs=r3 stack= before 111: (b7) r1 = 1
+mark_precise: frame1: regs=r3 stack= before 110: (77) r3 >>= 10
+mark_precise: frame1: regs=r3 stack= before 109: (bf) r3 = r4
+mark_precise: frame1: regs=r4 stack= before 108: (61) r4 = *(u32 *)(r6 +44)
+138: frame1: R2=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R3=19
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=4,var_off=(0x0; 0x4))
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 138 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: regs=r2 stack= before 138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R3_rw=P19 R4=0 R5_w=0 R6_w=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=smin32=0,smax=umax=smax32=umax32=4,var_off=(0x0; 0x4)) R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=4,var_off=(0x0; 0x4))
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=smin32=0,smax=umax=smax32=umax32=4,var_off=(0x0; 0x4)) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=smin32=0,smax=umax=smax32=umax32=4,var_off=(0x0; 0x4)) R1=1 R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=4,var_off=(0x0; 0x4)) R3=19 R4=0 R5=0 R6=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,smin=smin32=0,smax=umax=smax32=umax32=4,var_off=(0x0; 0x4)) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,smin=smin32=0,smax=umax=smax32=umax32=4,var_off=(0x0; 0x4)) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 128 to 130: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3_w=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4=0 R5_w=0 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+130: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3_w=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4=0 R5_w=0 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; shift = (v > 0x3) << 1; v >>= shift; r |= shift; @ bits.bpf.h:15
+130: (67) r6 <<= 1                    ; frame1: R6_w=2
+131: (7f) r3 >>= r6                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R6_w=2
+; r |= (v >> 1); @ bits.bpf.h:16
+132: (77) r3 >>= 1                    ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+133: (4f) r2 |= r3                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+134: (4f) r2 |= r4                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R4=0
+135: (4f) r2 |= r5                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R5_w=0
+136: (4f) r2 |= r6                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=2,smax=umax=smax32=umax32=3,var_off=(0x2; 0x1)) R6_w=2
+137: (b7) r3 = 19                     ; frame1: R3=19
+; if (slot >= MAX_SLOTS) @ buggy.c:64
+138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx -1 
+mark_precise: frame1: parent state regs=r3 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=scalar(smin=umin=smin32=umin32=2,smax=umax=smax32=umax32=3,var_off=(0x2; 0x1)) R3_rw=P19 R4=0 R5_w=0 R6_w=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 123 subseq_idx 138 
+mark_precise: frame1: regs=r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx -1 
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=umin=smin32=umin32=2,smax=umax=smax32=umax32=3,var_off=(0x2; 0x1)) R3_rw=P19 R4=0 R5_w=0 R6_w=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 123 subseq_idx 138 
+mark_precise: frame1: regs=r2 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 127: (b7) r6 = 1
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 126: (7f) r3 >>= r5
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 125: (67) r5 <<= 2
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 124: (b7) r5 = 0
+mark_precise: frame1: regs=r2,r3,r4 stack= before 123: (25) if r3 > 0xf goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1_r=1 R2_rw=P0 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R4_rw=P0 R5_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+138: frame1: R2=scalar(smin=umin=smin32=umin32=2,smax=umax=smax32=umax32=3,var_off=(0x2; 0x1)) R3=19
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=12,var_off=(0x8; 0x4))
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 138 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: regs=r2 stack= before 138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=umin=smin32=umin32=2,smax=umax=smax32=umax32=3,var_off=(0x2; 0x1)) R3_rw=P19 R4=0 R5_w=0 R6_w=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=12,var_off=(0x8; 0x4)) R2_w=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=12,var_off=(0x8; 0x4))
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=12,var_off=(0x8; 0x4)) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=12,var_off=(0x8; 0x4)) R1=1 R2_w=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=12,var_off=(0x8; 0x4)) R3=19 R4=0 R5=0 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=12,var_off=(0x8; 0x4)) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=12,var_off=(0x8; 0x4)) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 123 to 125: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R4=0 R5=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+125: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R4=0 R5=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; shift = (v > 0xF) << 2; v >>= shift; r |= shift; @ bits.bpf.h:14
+125: (67) r5 <<= 2                    ; frame1: R5_w=4
+126: (7f) r3 >>= r5                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R5_w=4
+127: (b7) r6 = 1                      ; frame1: R6=1
+128: (25) if r3 > 0x3 goto pc+1       ; frame1: R3=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3))
+129: (b7) r6 = 0                      ; frame1: R6_w=0
+; shift = (v > 0x3) << 1; v >>= shift; r |= shift; @ bits.bpf.h:15
+130: (67) r6 <<= 1                    ; frame1: R6_w=0
+131: (7f) r3 >>= r6                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R6_w=0
+; r |= (v >> 1); @ bits.bpf.h:16
+132: (77) r3 >>= 1                    ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+133: (4f) r2 |= r3                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+134: (4f) r2 |= r4                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R4=0
+135: (4f) r2 |= r5                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=5,var_off=(0x4; 0x1)) R5=4
+136: (4f) r2 |= r6                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=5,var_off=(0x4; 0x1)) R6_w=0
+137: (b7) r3 = 19                     ; frame1: R3_w=19
+; if (slot >= MAX_SLOTS) @ buggy.c:64
+138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: last_idx 138 first_idx 128 subseq_idx -1 
+mark_precise: frame1: regs=r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: last_idx 138 first_idx 128 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 129: (b7) r6 = 0
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: parent state regs=r2,r3,r4,r5 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_r=P0 R3_rw=Pscalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4_r=P0 R5_rw=P4 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 127 first_idx 123 subseq_idx 128 
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 127: (b7) r6 = 1
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 126: (7f) r3 >>= r5
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 125: (67) r5 <<= 2
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 123: (25) if r3 > 0xf goto pc+1
+mark_precise: frame1: parent state regs=r5 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1_r=1 R2_rw=P0 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R4_rw=P0 R5_rw=P1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 122 first_idx 113 subseq_idx 123 
+mark_precise: frame1: regs=r5 stack= before 122: (b7) r5 = 1
+138: frame1: R2_w=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=5,var_off=(0x4; 0x1)) R3_w=19
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=20,var_off=(0x10; 0x4))
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 140 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=5,var_off=(0x4; 0x1)) R3_w=19 R4=0 R5=4 R6_w=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 138 first_idx 128 subseq_idx 140 
+mark_precise: frame1: regs=r2 stack= before 138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: regs=r2,r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 129: (b7) r6 = 0
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_r=P0 R3_rw=Pscalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4_r=P0 R5_rw=P4 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=20,var_off=(0x10; 0x4)) R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=20,var_off=(0x10; 0x4))
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=20,var_off=(0x10; 0x4)) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=20,var_off=(0x10; 0x4)) R1=1 R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=20,var_off=(0x10; 0x4)) R3=19 R4=0 R5=4 R6=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=20,var_off=(0x10; 0x4)) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=20,var_off=(0x10; 0x4)) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 128 to 130: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4=0 R5=4 R6=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+130: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4=0 R5=4 R6=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; shift = (v > 0x3) << 1; v >>= shift; r |= shift; @ bits.bpf.h:15
+130: (67) r6 <<= 1                    ; frame1: R6_w=2
+131: (7f) r3 >>= r6                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R6_w=2
+; r |= (v >> 1); @ bits.bpf.h:16
+132: (77) r3 >>= 1                    ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+133: (4f) r2 |= r3                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+134: (4f) r2 |= r4                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R4=0
+135: (4f) r2 |= r5                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=5,var_off=(0x4; 0x1)) R5=4
+136: (4f) r2 |= r6                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=6,smax=umax=smax32=umax32=7,var_off=(0x6; 0x1)) R6_w=2
+137: (b7) r3 = 19                     ; frame1: R3=19
+; if (slot >= MAX_SLOTS) @ buggy.c:64
+138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx -1 
+mark_precise: frame1: parent state regs=r3 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=scalar(smin=umin=smin32=umin32=6,smax=umax=smax32=umax32=7,var_off=(0x6; 0x1)) R3_rw=P19 R4=0 R5=4 R6_w=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 128 subseq_idx 138 
+mark_precise: frame1: regs=r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx -1 
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=umin=smin32=umin32=6,smax=umax=smax32=umax32=7,var_off=(0x6; 0x1)) R3_rw=P19 R4=0 R5=4 R6_w=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 128 subseq_idx 138 
+mark_precise: frame1: regs=r2 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: parent state regs=r6 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1_r=1 R2_r=P0 R3_rw=Pscalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4_r=P0 R5_rw=P4 R6_rw=P1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 127 first_idx 123 subseq_idx 128 
+mark_precise: frame1: regs=r6 stack= before 127: (b7) r6 = 1
+138: frame1: R2=scalar(smin=umin=smin32=umin32=6,smax=umax=smax32=umax32=7,var_off=(0x6; 0x1)) R3=19
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=24,smax=umax=smax32=umax32=28,var_off=(0x18; 0x4))
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 138 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: regs=r2 stack= before 138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=umin=smin32=umin32=6,smax=umax=smax32=umax32=7,var_off=(0x6; 0x1)) R3_rw=P19 R4=0 R5=4 R6_w=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=24,smax=umax=smax32=umax32=28,var_off=(0x18; 0x4)) R2_w=scalar(smin=umin=smin32=umin32=24,smax=umax=smax32=umax32=28,var_off=(0x18; 0x4))
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=24,smax=umax=smax32=umax32=28,var_off=(0x18; 0x4)) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=24,smax=umax=smax32=umax32=28,var_off=(0x18; 0x4)) R1=1 R2_w=scalar(smin=umin=smin32=umin32=24,smax=umax=smax32=umax32=28,var_off=(0x18; 0x4)) R3=19 R4=0 R5=4 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=24,smax=umax=smax32=umax32=28,var_off=(0x18; 0x4)) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=24,smax=umax=smax32=umax32=28,var_off=(0x18; 0x4)) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 118 to 120: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_w=0 R3_w=scalar(smin=umin=smin32=umin32=256,smax=umax=smax32=umax32=0x3fffff,var_off=(0x0; 0x3fffff)) R4_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+120: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_w=0 R3_w=scalar(smin=umin=smin32=umin32=256,smax=umax=smax32=umax32=0x3fffff,var_off=(0x0; 0x3fffff)) R4_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; shift = (v > 0xFF) << 3; v >>= shift; r |= shift; @ bits.bpf.h:13
+120: (67) r4 <<= 3                    ; frame1: R4_w=8
+121: (7f) r3 >>= r4                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=16383,var_off=(0x0; 0x3fff)) R4_w=8
+122: (b7) r5 = 1                      ; frame1: R5=1
+123: (25) if r3 > 0xf goto pc+1       ; frame1: R3=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf))
+124: (b7) r5 = 0                      ; frame1: R5_w=0
+; shift = (v > 0xF) << 2; v >>= shift; r |= shift; @ bits.bpf.h:14
+125: (67) r5 <<= 2                    ; frame1: R5_w=0
+126: (7f) r3 >>= r5                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R5_w=0
+127: (b7) r6 = 1                      ; frame1: R6_w=1
+128: (25) if r3 > 0x3 goto pc+1       ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3))
+129: (b7) r6 = 0                      ; frame1: R6_w=0
+; shift = (v > 0x3) << 1; v >>= shift; r |= shift; @ bits.bpf.h:15
+130: (67) r6 <<= 1                    ; frame1: R6_w=0
+131: (7f) r3 >>= r6                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R6_w=0
+; r |= (v >> 1); @ bits.bpf.h:16
+132: (77) r3 >>= 1                    ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+133: (4f) r2 |= r3                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+134: (4f) r2 |= r4                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=9,var_off=(0x8; 0x1)) R4=8
+135: (4f) r2 |= r5                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=9,var_off=(0x8; 0x1)) R5_w=0
+136: (4f) r2 |= r6                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=9,var_off=(0x8; 0x1)) R6_w=0
+137: (b7) r3 = 19                     ; frame1: R3=19
+; if (slot >= MAX_SLOTS) @ buggy.c:64
+138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx -1 
+mark_precise: frame1: parent state regs=r3 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=9,var_off=(0x8; 0x1)) R3_rw=P19 R4=8 R5_w=0 R6_w=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 123 subseq_idx 138 
+mark_precise: frame1: regs=r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx -1 
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=9,var_off=(0x8; 0x1)) R3_rw=P19 R4=8 R5_w=0 R6_w=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 123 subseq_idx 138 
+mark_precise: frame1: regs=r2 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 129: (b7) r6 = 0
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 127: (b7) r6 = 1
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 126: (7f) r3 >>= r5
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 125: (67) r5 <<= 2
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 124: (b7) r5 = 0
+mark_precise: frame1: regs=r2,r3,r4 stack= before 123: (25) if r3 > 0xf goto pc+1
+mark_precise: frame1: parent state regs=r2,r3,r4 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=P0 R3_rw=Pscalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=16383,var_off=(0x0; 0x3fff)) R4_rw=P8 R5_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 122 first_idx 113 subseq_idx 123 
+mark_precise: frame1: regs=r2,r3,r4 stack= before 122: (b7) r5 = 1
+mark_precise: frame1: regs=r2,r3,r4 stack= before 121: (7f) r3 >>= r4
+mark_precise: frame1: regs=r2,r3,r4 stack= before 120: (67) r4 <<= 3
+mark_precise: frame1: regs=r2,r3,r4 stack= before 118: (25) if r3 > 0xff goto pc+1
+mark_precise: frame1: regs=r2,r3,r4 stack= before 117: (b7) r4 = 1
+mark_precise: frame1: regs=r2,r3 stack= before 116: (7f) r3 >>= r2
+mark_precise: frame1: regs=r2,r3 stack= before 115: (67) r2 <<= 4
+mark_precise: frame1: regs=r2,r3 stack= before 114: (b7) r2 = 0
+mark_precise: frame1: regs=r3 stack= before 113: (25) if r4 > 0x3ffffff goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_rw=map_value(map=hists,ks=16,vs=80) R1_rw=1 R2_w=1 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0x3fffff,var_off=(0x0; 0x3fffff)) R4_rw=scalar(id=3,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+138: frame1: R2=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=9,var_off=(0x8; 0x1)) R3=19
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=32,smax=umax=smax32=umax32=36,var_off=(0x20; 0x4))
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 138 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: regs=r2 stack= before 138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=9,var_off=(0x8; 0x1)) R3_rw=P19 R4=8 R5_w=0 R6_w=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=32,smax=umax=smax32=umax32=36,var_off=(0x20; 0x4)) R2_w=scalar(smin=umin=smin32=umin32=32,smax=umax=smax32=umax32=36,var_off=(0x20; 0x4))
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=32,smax=umax=smax32=umax32=36,var_off=(0x20; 0x4)) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=32,smax=umax=smax32=umax32=36,var_off=(0x20; 0x4)) R1=1 R2_w=scalar(smin=umin=smin32=umin32=32,smax=umax=smax32=umax32=36,var_off=(0x20; 0x4)) R3=19 R4=8 R5=0 R6=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=32,smax=umax=smax32=umax32=36,var_off=(0x20; 0x4)) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=32,smax=umax=smax32=umax32=36,var_off=(0x20; 0x4)) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 128 to 130: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3_w=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4=8 R5_w=0 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+130: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3_w=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4=8 R5_w=0 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; shift = (v > 0x3) << 1; v >>= shift; r |= shift; @ bits.bpf.h:15
+130: (67) r6 <<= 1                    ; frame1: R6_w=2
+131: (7f) r3 >>= r6                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R6_w=2
+; r |= (v >> 1); @ bits.bpf.h:16
+132: (77) r3 >>= 1                    ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+133: (4f) r2 |= r3                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+134: (4f) r2 |= r4                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=9,var_off=(0x8; 0x1)) R4=8
+135: (4f) r2 |= r5                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=9,var_off=(0x8; 0x1)) R5_w=0
+136: (4f) r2 |= r6                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=10,smax=umax=smax32=umax32=11,var_off=(0xa; 0x1)) R6_w=2
+137: (b7) r3 = 19                     ; frame1: R3=19
+; if (slot >= MAX_SLOTS) @ buggy.c:64
+138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx -1 
+mark_precise: frame1: parent state regs=r3 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=scalar(smin=umin=smin32=umin32=10,smax=umax=smax32=umax32=11,var_off=(0xa; 0x1)) R3_rw=P19 R4=8 R5_w=0 R6_w=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 123 subseq_idx 138 
+mark_precise: frame1: regs=r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx -1 
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=umin=smin32=umin32=10,smax=umax=smax32=umax32=11,var_off=(0xa; 0x1)) R3_rw=P19 R4=8 R5_w=0 R6_w=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 123 subseq_idx 138 
+mark_precise: frame1: regs=r2 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 127: (b7) r6 = 1
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 126: (7f) r3 >>= r5
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 125: (67) r5 <<= 2
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 124: (b7) r5 = 0
+mark_precise: frame1: regs=r2,r3,r4 stack= before 123: (25) if r3 > 0xf goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1_r=1 R2_rw=P0 R3_rw=Pscalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=16383,var_off=(0x0; 0x3fff)) R4_rw=P8 R5_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+138: frame1: R2=scalar(smin=umin=smin32=umin32=10,smax=umax=smax32=umax32=11,var_off=(0xa; 0x1)) R3=19
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=40,smax=umax=smax32=umax32=44,var_off=(0x28; 0x4))
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 138 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: regs=r2 stack= before 138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=umin=smin32=umin32=10,smax=umax=smax32=umax32=11,var_off=(0xa; 0x1)) R3_rw=P19 R4=8 R5_w=0 R6_w=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=40,smax=umax=smax32=umax32=44,var_off=(0x28; 0x4)) R2_w=scalar(smin=umin=smin32=umin32=40,smax=umax=smax32=umax32=44,var_off=(0x28; 0x4))
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=40,smax=umax=smax32=umax32=44,var_off=(0x28; 0x4)) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=40,smax=umax=smax32=umax32=44,var_off=(0x28; 0x4)) R1=1 R2_w=scalar(smin=umin=smin32=umin32=40,smax=umax=smax32=umax32=44,var_off=(0x28; 0x4)) R3=19 R4=8 R5=0 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=40,smax=umax=smax32=umax32=44,var_off=(0x28; 0x4)) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=40,smax=umax=smax32=umax32=44,var_off=(0x28; 0x4)) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 123 to 125: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=16383,var_off=(0x0; 0x3fff)) R4=8 R5=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+125: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=16383,var_off=(0x0; 0x3fff)) R4=8 R5=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; shift = (v > 0xF) << 2; v >>= shift; r |= shift; @ bits.bpf.h:14
+125: (67) r5 <<= 2                    ; frame1: R5_w=4
+126: (7f) r3 >>= r5                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=1023,var_off=(0x0; 0x3ff)) R5_w=4
+127: (b7) r6 = 1                      ; frame1: R6=1
+128: (25) if r3 > 0x3 goto pc+1       ; frame1: R3=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3))
+129: (b7) r6 = 0                      ; frame1: R6_w=0
+; shift = (v > 0x3) << 1; v >>= shift; r |= shift; @ bits.bpf.h:15
+130: (67) r6 <<= 1                    ; frame1: R6_w=0
+131: (7f) r3 >>= r6                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R6_w=0
+; r |= (v >> 1); @ bits.bpf.h:16
+132: (77) r3 >>= 1                    ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+133: (4f) r2 |= r3                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+134: (4f) r2 |= r4                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=9,var_off=(0x8; 0x1)) R4=8
+135: (4f) r2 |= r5                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=12,smax=umax=smax32=umax32=13,var_off=(0xc; 0x1)) R5=4
+136: (4f) r2 |= r6                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=12,smax=umax=smax32=umax32=13,var_off=(0xc; 0x1)) R6_w=0
+137: (b7) r3 = 19                     ; frame1: R3_w=19
+; if (slot >= MAX_SLOTS) @ buggy.c:64
+138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: last_idx 138 first_idx 128 subseq_idx -1 
+mark_precise: frame1: regs=r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: last_idx 138 first_idx 128 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 129: (b7) r6 = 0
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: parent state regs=r2,r3,r4,r5 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_r=P0 R3_rw=Pscalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=1023,var_off=(0x0; 0x3ff)) R4_r=P8 R5_rw=P4 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 127 first_idx 123 subseq_idx 128 
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 127: (b7) r6 = 1
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 126: (7f) r3 >>= r5
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 125: (67) r5 <<= 2
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 123: (25) if r3 > 0xf goto pc+1
+mark_precise: frame1: parent state regs=r5 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1_r=1 R2_rw=P0 R3_rw=Pscalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=16383,var_off=(0x0; 0x3fff)) R4_rw=P8 R5_rw=P1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 122 first_idx 113 subseq_idx 123 
+mark_precise: frame1: regs=r5 stack= before 122: (b7) r5 = 1
+138: frame1: R2_w=scalar(smin=umin=smin32=umin32=12,smax=umax=smax32=umax32=13,var_off=(0xc; 0x1)) R3_w=19
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=48,smax=umax=smax32=umax32=52,var_off=(0x30; 0x4))
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 140 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=umin=smin32=umin32=12,smax=umax=smax32=umax32=13,var_off=(0xc; 0x1)) R3_w=19 R4=8 R5=4 R6_w=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 138 first_idx 128 subseq_idx 140 
+mark_precise: frame1: regs=r2 stack= before 138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: regs=r2,r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 129: (b7) r6 = 0
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_r=P0 R3_rw=Pscalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=1023,var_off=(0x0; 0x3ff)) R4_r=P8 R5_rw=P4 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=48,smax=umax=smax32=umax32=52,var_off=(0x30; 0x4)) R2_w=scalar(smin=umin=smin32=umin32=48,smax=umax=smax32=umax32=52,var_off=(0x30; 0x4))
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=48,smax=umax=smax32=umax32=52,var_off=(0x30; 0x4)) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=48,smax=umax=smax32=umax32=52,var_off=(0x30; 0x4)) R1=1 R2_w=scalar(smin=umin=smin32=umin32=48,smax=umax=smax32=umax32=52,var_off=(0x30; 0x4)) R3=19 R4=8 R5=4 R6=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=48,smax=umax=smax32=umax32=52,var_off=(0x30; 0x4)) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=48,smax=umax=smax32=umax32=52,var_off=(0x30; 0x4)) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 128 to 130: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=1023,var_off=(0x0; 0x3ff)) R4=8 R5=4 R6=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+130: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=0 R3=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=1023,var_off=(0x0; 0x3ff)) R4=8 R5=4 R6=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; shift = (v > 0x3) << 1; v >>= shift; r |= shift; @ bits.bpf.h:15
+130: (67) r6 <<= 1                    ; frame1: R6_w=2
+131: (7f) r3 >>= r6                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R6_w=2
+; r |= (v >> 1); @ bits.bpf.h:16
+132: (77) r3 >>= 1                    ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=127,var_off=(0x0; 0x7f))
+133: (4f) r2 |= r3                    ; frame1: R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=127,var_off=(0x0; 0x7f)) R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=127,var_off=(0x0; 0x7f))
+134: (4f) r2 |= r4                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=8,smax=umax=smax32=umax32=127,var_off=(0x8; 0x77)) R4=8
+135: (4f) r2 |= r5                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=12,smax=umax=smax32=umax32=127,var_off=(0xc; 0x73)) R5=4
+136: (4f) r2 |= r6                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=14,smax=umax=smax32=umax32=127,var_off=(0xe; 0x71)) R6_w=2
+137: (b7) r3 = 19                     ; frame1: R3=19
+; if (slot >= MAX_SLOTS) @ buggy.c:64
+138: (2d) if r3 > r2 goto pc+1        ; frame1: R2=scalar(smin=umin=smin32=umin32=19,smax=umax=smax32=umax32=127,var_off=(0xe; 0x71)) R3=19
+139: (b7) r2 = 19                     ; frame1: R2_w=19
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=76
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 138 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: regs=r2 stack= before 139: (b7) r2 = 19
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R2_w=76
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R1=1 R2_w=76 R3=19 R4=8 R5=4 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,off=76) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 138 to 140: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=scalar(smin=umin=smin32=umin32=14,smax=umax=smax32=umax32=18,var_off=(0xe; 0x11)) R3=19 R4=8 R5=4 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+140: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=scalar(smin=umin=smin32=umin32=14,smax=umax=smax32=umax32=18,var_off=(0xe; 0x11)) R3=19 R4=8 R5=4 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=56,smax=umax=smax32=umax32=72,var_off=(0x38; 0x44))
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 140 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_r=Pscalar(smin=umin=smin32=umin32=14,smax=umax=smax32=umax32=18,var_off=(0xe; 0x11)) R3=19 R4=8 R5=4 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx 140 
+mark_precise: frame1: regs=r2 stack= before 138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: parent state regs=r2,r3 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1_r=1 R2_rw=Pscalar(smin=umin=smin32=umin32=14,smax=umax=smax32=umax32=127,var_off=(0xe; 0x71)) R3_rw=P19 R4=8 R5=4 R6_w=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 128 subseq_idx 138 
+mark_precise: frame1: regs=r2,r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: parent state regs=r6 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1_r=1 R2_r=P0 R3_rw=Pscalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=1023,var_off=(0x0; 0x3ff)) R4_r=P8 R5_rw=P4 R6_rw=P1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 127 first_idx 123 subseq_idx 128 
+mark_precise: frame1: regs=r6 stack= before 127: (b7) r6 = 1
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=56,smax=umax=smax32=umax32=72,var_off=(0x38; 0x44)) R2_w=scalar(smin=umin=smin32=umin32=56,smax=umax=smax32=umax32=72,var_off=(0x38; 0x44))
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=56,smax=umax=smax32=umax32=72,var_off=(0x38; 0x44)) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=56,smax=umax=smax32=umax32=72,var_off=(0x38; 0x44)) R1=1 R2_w=scalar(smin=umin=smin32=umin32=56,smax=umax=smax32=umax32=72,var_off=(0x38; 0x44)) R3=19 R4=8 R5=4 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=56,smax=umax=smax32=umax32=72,var_off=(0x38; 0x44)) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=56,smax=umax=smax32=umax32=72,var_off=(0x38; 0x44)) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 113 to 115: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=1 R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=0x3fffff,var_off=(0x0; 0x3fffff)) R4=scalar(id=3,smin=umin=umin32=0x4000000,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+115: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=1 R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=0x3fffff,var_off=(0x0; 0x3fffff)) R4=scalar(id=3,smin=umin=umin32=0x4000000,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; r = (v > 0xFFFF) << 4; v >>= r; @ bits.bpf.h:12
+115: (67) r2 <<= 4                    ; frame1: R2_w=16
+116: (7f) r3 >>= r2                   ; frame1: R2_w=16 R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=63,var_off=(0x0; 0x3f))
+117: (b7) r4 = 1                      ; frame1: R4=1
+118: (25) if r3 > 0xff goto pc+1
+mark_precise: frame1: last_idx 118 first_idx 118 subseq_idx -1 
+mark_precise: frame1: parent state regs=r3 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_w=16 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=63,var_off=(0x0; 0x3f)) R4_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 117 first_idx 113 subseq_idx 118 
+mark_precise: frame1: regs=r3 stack= before 117: (b7) r4 = 1
+mark_precise: frame1: regs=r3 stack= before 116: (7f) r3 >>= r2
+mark_precise: frame1: regs=r2,r3 stack= before 115: (67) r2 <<= 4
+mark_precise: frame1: regs=r2,r3 stack= before 113: (25) if r4 > 0x3ffffff goto pc+1
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0_rw=map_value(map=hists,ks=16,vs=80) R1_rw=1 R2_rw=P1 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0x3fffff,var_off=(0x0; 0x3fffff)) R4_rw=scalar(id=3,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 112 first_idx 103 subseq_idx 113 
+mark_precise: frame1: regs=r2 stack= before 112: (b7) r2 = 1
+118: frame1: R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=63,var_off=(0x0; 0x3f))
+119: (b7) r4 = 0                      ; frame1: R4_w=0
+; shift = (v > 0xFF) << 3; v >>= shift; r |= shift; @ bits.bpf.h:13
+120: (67) r4 <<= 3                    ; frame1: R4_w=0
+121: (7f) r3 >>= r4                   ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=63,var_off=(0x0; 0x3f)) R4_w=0
+122: (b7) r5 = 1                      ; frame1: R5_w=1
+123: (25) if r3 > 0xf goto pc+1       ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf))
+124: (b7) r5 = 0                      ; frame1: R5_w=0
+; shift = (v > 0xF) << 2; v >>= shift; r |= shift; @ bits.bpf.h:14
+125: (67) r5 <<= 2                    ; frame1: R5_w=0
+126: (7f) r3 >>= r5                   ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R5_w=0
+127: (b7) r6 = 1                      ; frame1: R6=1
+128: (25) if r3 > 0x3 goto pc+1       ; frame1: R3=scalar(smin=smin32=0,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3))
+129: (b7) r6 = 0                      ; frame1: R6_w=0
+; shift = (v > 0x3) << 1; v >>= shift; r |= shift; @ bits.bpf.h:15
+130: (67) r6 <<= 1                    ; frame1: R6_w=0
+131: (7f) r3 >>= r6                   ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R6_w=0
+; r |= (v >> 1); @ bits.bpf.h:16
+132: (77) r3 >>= 1                    ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+133: (4f) r2 |= r3                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=17,var_off=(0x10; 0x1)) R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+134: (4f) r2 |= r4                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=17,var_off=(0x10; 0x1)) R4=0
+135: (4f) r2 |= r5                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=17,var_off=(0x10; 0x1)) R5=0
+136: (4f) r2 |= r6                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=17,var_off=(0x10; 0x1)) R6_w=0
+137: (b7) r3 = 19                     ; frame1: R3_w=19
+; if (slot >= MAX_SLOTS) @ buggy.c:64
+138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: last_idx 138 first_idx 128 subseq_idx -1 
+mark_precise: frame1: regs=r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: last_idx 138 first_idx 128 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 129: (b7) r6 = 0
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: parent state regs=r2,r3,r4,r5 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_r=P16 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4_rw=P0 R5_rw=P0 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 127 first_idx 118 subseq_idx 128 
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 127: (b7) r6 = 1
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 126: (7f) r3 >>= r5
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 125: (67) r5 <<= 2
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 124: (b7) r5 = 0
+mark_precise: frame1: regs=r2,r3,r4 stack= before 123: (25) if r3 > 0xf goto pc+1
+mark_precise: frame1: regs=r2,r3,r4 stack= before 122: (b7) r5 = 1
+mark_precise: frame1: regs=r2,r3,r4 stack= before 121: (7f) r3 >>= r4
+mark_precise: frame1: regs=r2,r3,r4 stack= before 120: (67) r4 <<= 3
+mark_precise: frame1: regs=r2,r3,r4 stack= before 119: (b7) r4 = 0
+mark_precise: frame1: regs=r2,r3 stack= before 118: (25) if r3 > 0xff goto pc+1
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=P16 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=63,var_off=(0x0; 0x3f)) R4_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 117 first_idx 113 subseq_idx 118 
+mark_precise: frame1: regs=r2 stack= before 117: (b7) r4 = 1
+mark_precise: frame1: regs=r2 stack= before 116: (7f) r3 >>= r2
+mark_precise: frame1: regs=r2 stack= before 115: (67) r2 <<= 4
+mark_precise: frame1: regs=r2 stack= before 113: (25) if r4 > 0x3ffffff goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_rw=map_value(map=hists,ks=16,vs=80) R1_rw=1 R2_rw=P1 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=0x3fffff,var_off=(0x0; 0x3fffff)) R4_rw=scalar(id=3,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+138: frame1: R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=17,var_off=(0x10; 0x1)) R3_w=19
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=64,smax=umax=smax32=umax32=68,var_off=(0x40; 0x4))
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 140 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=Pscalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=17,var_off=(0x10; 0x1)) R3_w=19 R4=0 R5=0 R6_w=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 138 first_idx 128 subseq_idx 140 
+mark_precise: frame1: regs=r2 stack= before 138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: regs=r2,r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 129: (b7) r6 = 0
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_r=P16 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4_rw=P0 R5_rw=P0 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=64,smax=umax=smax32=umax32=68,var_off=(0x40; 0x4)) R2_w=scalar(smin=umin=smin32=umin32=64,smax=umax=smax32=umax32=68,var_off=(0x40; 0x4))
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=64,smax=umax=smax32=umax32=68,var_off=(0x40; 0x4)) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=64,smax=umax=smax32=umax32=68,var_off=(0x40; 0x4)) R1=1 R2_w=scalar(smin=umin=smin32=umin32=64,smax=umax=smax32=umax32=68,var_off=(0x40; 0x4)) R3=19 R4=0 R5=0 R6=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=64,smax=umax=smax32=umax32=68,var_off=(0x40; 0x4)) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,smin=umin=smin32=umin32=64,smax=umax=smax32=umax32=68,var_off=(0x40; 0x4)) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 128 to 130: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=16 R3=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4=0 R5=0 R6=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+130: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=16 R3=scalar(smin=umin=smin32=umin32=4,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4=0 R5=0 R6=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; shift = (v > 0x3) << 1; v >>= shift; r |= shift; @ bits.bpf.h:15
+130: (67) r6 <<= 1                    ; frame1: R6_w=2
+131: (7f) r3 >>= r6                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R6_w=2
+; r |= (v >> 1); @ bits.bpf.h:16
+132: (77) r3 >>= 1                    ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+133: (4f) r2 |= r3                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=17,var_off=(0x10; 0x1)) R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+134: (4f) r2 |= r4                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=17,var_off=(0x10; 0x1)) R4=0
+135: (4f) r2 |= r5                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=17,var_off=(0x10; 0x1)) R5=0
+136: (4f) r2 |= r6                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=18,smax=umax=smax32=umax32=19,var_off=(0x12; 0x1)) R6_w=2
+137: (b7) r3 = 19                     ; frame1: R3=19
+; if (slot >= MAX_SLOTS) @ buggy.c:64
+138: (2d) if r3 > r2 goto pc+1        ; frame1: R2=19 R3=19
+139: (b7) r2 = 19                     ; frame1: R2_w=19
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=76
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 138 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: regs=r2 stack= before 139: (b7) r2 = 19
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R2_w=76
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R1=1 R2_w=76 R3=19 R4=0 R5=0 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,off=76) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 138 to 140: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=18 R3=19 R4=0 R5=0 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+140: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=18 R3=19 R4=0 R5=0 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=72
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 140 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_r=P18 R3=19 R4=0 R5=0 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 138 first_idx 138 subseq_idx 140 
+mark_precise: frame1: regs=r2 stack= before 138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: parent state regs=r2,r3 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1_r=1 R2_rw=Pscalar(smin=umin=smin32=umin32=18,smax=umax=smax32=umax32=19,var_off=(0x12; 0x1)) R3_rw=P19 R4=0 R5=0 R6_w=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 137 first_idx 128 subseq_idx 138 
+mark_precise: frame1: regs=r2,r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: parent state regs=r6 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1_r=1 R2_r=P16 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=15,var_off=(0x0; 0xf)) R4_rw=P0 R5_rw=P0 R6_rw=P1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 127 first_idx 118 subseq_idx 128 
+mark_precise: frame1: regs=r6 stack= before 127: (b7) r6 = 1
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=72) R2_w=72
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=72) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=72) R1=1 R2_w=72 R3=19 R4=0 R5=0 R6=2 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,off=72) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,off=72) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 123 to 125: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=16 R3_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=63,var_off=(0x0; 0x3f)) R4_w=0 R5_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+125: frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=16 R3_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=63,var_off=(0x0; 0x3f)) R4_w=0 R5_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; shift = (v > 0xF) << 2; v >>= shift; r |= shift; @ bits.bpf.h:14
+125: (67) r5 <<= 2                    ; frame1: R5_w=4
+126: (7f) r3 >>= r5                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R5_w=4
+127: (b7) r6 = 1                      ; frame1: R6=1
+128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: last_idx 128 first_idx 128 subseq_idx -1 
+mark_precise: frame1: parent state regs=r3 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2=16 R3_rw=Pscalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R4_w=0 R5_w=4 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 127 first_idx 118 subseq_idx 128 
+mark_precise: frame1: regs=r3 stack= before 127: (b7) r6 = 1
+mark_precise: frame1: regs=r3 stack= before 126: (7f) r3 >>= r5
+mark_precise: frame1: regs=r3,r5 stack= before 125: (67) r5 <<= 2
+mark_precise: frame1: regs=r3,r5 stack= before 123: (25) if r3 > 0xf goto pc+1
+mark_precise: frame1: regs=r3,r5 stack= before 122: (b7) r5 = 1
+mark_precise: frame1: regs=r3 stack= before 121: (7f) r3 >>= r4
+mark_precise: frame1: regs=r3,r4 stack= before 120: (67) r4 <<= 3
+mark_precise: frame1: regs=r3,r4 stack= before 119: (b7) r4 = 0
+mark_precise: frame1: regs=r3 stack= before 118: (25) if r3 > 0xff goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1_r=1 R2_rw=P16 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=63,var_off=(0x0; 0x3f)) R4_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+128: frame1: R3=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3))
+129: (b7) r6 = 0                      ; frame1: R6_w=0
+; shift = (v > 0x3) << 1; v >>= shift; r |= shift; @ bits.bpf.h:15
+130: (67) r6 <<= 1                    ; frame1: R6_w=0
+131: (7f) r3 >>= r6                   ; frame1: R3_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R6_w=0
+; r |= (v >> 1); @ bits.bpf.h:16
+132: (77) r3 >>= 1                    ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+133: (4f) r2 |= r3                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=17,var_off=(0x10; 0x1)) R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1))
+134: (4f) r2 |= r4                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=16,smax=umax=smax32=umax32=17,var_off=(0x10; 0x1)) R4=0
+135: (4f) r2 |= r5                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=21,var_off=(0x14; 0x1)) R5=4
+136: (4f) r2 |= r6                    ; frame1: R2_w=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=21,var_off=(0x14; 0x1)) R6_w=0
+137: (b7) r3 = 19                     ; frame1: R3_w=19
+; if (slot >= MAX_SLOTS) @ buggy.c:64
+138: (2d) if r3 > r2 goto pc+1
+mark_precise: frame1: last_idx 138 first_idx 128 subseq_idx -1 
+mark_precise: frame1: regs=r3 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: last_idx 138 first_idx 128 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 137: (b7) r3 = 19
+mark_precise: frame1: regs=r2 stack= before 136: (4f) r2 |= r6
+mark_precise: frame1: regs=r2,r6 stack= before 135: (4f) r2 |= r5
+mark_precise: frame1: regs=r2,r5,r6 stack= before 134: (4f) r2 |= r4
+mark_precise: frame1: regs=r2,r4,r5,r6 stack= before 133: (4f) r2 |= r3
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 132: (77) r3 >>= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 131: (7f) r3 >>= r6
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 130: (67) r6 <<= 1
+mark_precise: frame1: regs=r2,r3,r4,r5,r6 stack= before 129: (b7) r6 = 0
+mark_precise: frame1: regs=r2,r3,r4,r5 stack= before 128: (25) if r3 > 0x3 goto pc+1
+mark_precise: frame1: parent state regs=r2,r4,r5 stack=:  frame1: R0=map_value(map=hists,ks=16,vs=80) R1=1 R2_r=P16 R3_rw=Pscalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=3,var_off=(0x0; 0x3)) R4_rw=P0 R5_rw=P4 R6_w=1 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 127 first_idx 118 subseq_idx 128 
+mark_precise: frame1: regs=r2,r4,r5 stack= before 127: (b7) r6 = 1
+mark_precise: frame1: regs=r2,r4,r5 stack= before 126: (7f) r3 >>= r5
+mark_precise: frame1: regs=r2,r4,r5 stack= before 125: (67) r5 <<= 2
+mark_precise: frame1: regs=r2,r4,r5 stack= before 123: (25) if r3 > 0xf goto pc+1
+mark_precise: frame1: regs=r2,r4,r5 stack= before 122: (b7) r5 = 1
+mark_precise: frame1: regs=r2,r4 stack= before 121: (7f) r3 >>= r4
+mark_precise: frame1: regs=r2,r4 stack= before 120: (67) r4 <<= 3
+mark_precise: frame1: regs=r2,r4 stack= before 119: (b7) r4 = 0
+mark_precise: frame1: regs=r2 stack= before 118: (25) if r3 > 0xff goto pc+1
+mark_precise: frame1: parent state regs= stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1_r=1 R2_rw=P16 R3_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=63,var_off=(0x0; 0x3f)) R4_w=1 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+138: frame1: R2_w=scalar(smin=umin=smin32=umin32=20,smax=umax=smax32=umax32=21,var_off=(0x14; 0x1)) R3_w=19
+139: (b7) r2 = 19                     ; frame1: R2=19
+; __sync_fetch_and_add(&histp->slots[slot], 1); @ buggy.c:66
+140: (67) r2 <<= 2                    ; frame1: R2_w=76
+141: (0f) r0 += r2
+mark_precise: frame1: last_idx 141 first_idx 140 subseq_idx -1 
+mark_precise: frame1: regs=r2 stack= before 140: (67) r2 <<= 2
+mark_precise: frame1: parent state regs=r2 stack=:  frame1: R0_r=map_value(map=hists,ks=16,vs=80) R1=1 R2_rw=P19 R3_w=19 R4=0 R5=4 R6_w=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+mark_precise: frame0: parent state regs= stack=:  R10=fp0
+mark_precise: frame1: last_idx 139 first_idx 128 subseq_idx 140 
+mark_precise: frame1: regs=r2 stack= before 139: (b7) r2 = 19
+142: frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R2_w=76
+142: (c3) lock *(u32 *)(r0 +0) += r1          ; frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R1=1
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R1=1 R2_w=76 R3=19 R4=0 R5=4 R6=0 R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=map_value(map=hists,ks=16,vs=80,off=76) R10=fp0
+
+from 143 to 11: R0_w=map_value(map=hists,ks=16,vs=80,off=76) R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 107 to 143: frame1: R0_w=0 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+143: frame1: R0_w=0 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; } @ buggy.c:69
+143: (95) exit
+returning from callee:
+ frame1: R0_w=0 R6=trusted_ptr_request() R7=fp-24 R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+to caller at 11:
+ R0_w=0 R10=fp0
+
+from 143 to 11: R0_w=0 R10=fp0
+; int BPF_PROG(block_rq_issue) @ buggy.c:72
+11: (b7) r0 = 0                       ; R0_w=0
+12: (95) exit
+
+from 93 to 108: frame1: R0=map_value(map=hists,ks=16,vs=80) R6=trusted_ptr_request() R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+108: frame1: R0=map_value(map=hists,ks=16,vs=80) R6=trusted_ptr_request() R10=fp0 fp-16=mmmmmmmm fp-24=mmmmmmmm
+; slot = log2l(rq->__data_len / 1024); @ buggy.c:63
+108: (61) r4 = *(u32 *)(r6 +44)       ; frame1: R4_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=trusted_ptr_request()
+109: (bf) r3 = r4                     ; frame1: R3_w=scalar(id=4,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R4_w=scalar(id=4,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+110: (77) r3 >>= 10                   ; frame1: R3_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0x3fffff,var_off=(0x0; 0x3fffff))
+111: (b7) r1 = 1                      ; frame1: R1_w=1
+112: (b7) r2 = 1
+frame 1: propagating r2,r3
+mark_precise: frame1: last_idx 113 first_idx 108 subseq_idx -1 
+mark_precise: frame1: regs=r2,r3 stack= before 112: (b7) r2 = 1
+mark_precise: frame1: regs=r3 stack= before 111: (b7) r1 = 1
+mark_precise: frame1: regs=r3 stack= before 110: (77) r3 >>= 10
+mark_precise: frame1: regs=r3 stack= before 109: (bf) r3 = r4
+mark_precise: frame1: regs=r4 stack= before 108: (61) r4 = *(u32 *)(r6 +44)
+113: safe
+verification time 1366 usec
+stack depth 0+24
+processed 288 insns (limit 1000000) max_states_per_insn 4 total_states 25 peak_states 20 mark_read 3
+-- END PROG LOAD LOG --
+libbpf: prog 'block_rq_issue': pinned at '/sys/fs/bpf/eval-bcc-d4e505c1e4ed_buggy/block_rq_issue'

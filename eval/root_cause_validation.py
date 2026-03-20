@@ -13,8 +13,8 @@ import difflib
 import json
 import re
 import sys
-from collections import Counter, defaultdict
-from dataclasses import asdict, dataclass, field
+from collections import Counter
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -220,30 +220,16 @@ def span_insn_idx(span: dict[str, Any]) -> int | None:
 
 
 def span_source_line(span: dict[str, Any]) -> int | None:
-    # New format: top-level 'line'
     line = span.get("line")
     if isinstance(line, int):
         return line
-    # Old format: source.line
-    source = span.get("source")
-    if isinstance(source, dict):
-        line = source.get("line")
-        if isinstance(line, int):
-            return line
     return None
 
 
 def span_source_file(span: dict[str, Any]) -> str | None:
-    # New format: 'path'
     path = span.get("path")
     if isinstance(path, str) and path.strip():
         return path.strip()
-    # Old format: source.file
-    source = span.get("source")
-    if isinstance(source, dict):
-        f = source.get("file")
-        if isinstance(f, str) and f.strip():
-            return f.strip()
     return None
 
 

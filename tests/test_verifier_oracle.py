@@ -8,7 +8,6 @@ These tests run in two tiers:
 
 from __future__ import annotations
 
-import os
 import subprocess
 import sys
 from pathlib import Path

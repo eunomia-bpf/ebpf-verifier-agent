@@ -1,0 +1,362 @@
+libbpf: loading object from case_study/cases/so_gh_verified/stackoverflow-53136145/fixed.o
+libbpf: elf: section(3) xdp, size 376, link 0, flags 6, type=1
+libbpf: sec 'xdp': found program 'entry_point' at insn offset 0 (0 bytes), code size 47 insns (376 bytes)
+libbpf: elf: section(4) .relxdp, size 32, link 26, flags 40, type=9
+libbpf: elf: section(5) .maps, size 64, link 0, flags 3, type=1
+libbpf: elf: section(6) license, size 4, link 0, flags 3, type=1
+libbpf: license of case_study/cases/so_gh_verified/stackoverflow-53136145/fixed.o is GPL
+libbpf: elf: section(16) .BTF, size 2448, link 0, flags 0, type=1
+libbpf: elf: section(18) .BTF.ext, size 572, link 0, flags 0, type=1
+libbpf: elf: section(26) .symtab, size 480, link 1, flags 0, type=2
+libbpf: looking for externs among 20 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'globals_map': at sec_idx 5, offset 0.
+libbpf: map 'globals_map': found type = 2.
+libbpf: map 'globals_map': found key [2], sz = 4.
+libbpf: map 'globals_map': found value [9], sz = 4.
+libbpf: map 'globals_map': found max_entries = 1.
+libbpf: map 'some_map': at sec_idx 5, offset 32.
+libbpf: map 'some_map': found type = 1.
+libbpf: map 'some_map': found key [17], sz = 4.
+libbpf: map 'some_map': found value [19], sz = 1.
+libbpf: map 'some_map': found max_entries = 1024.
+libbpf: sec '.relxdp': collecting relocation for section(3) 'xdp'
+libbpf: sec '.relxdp': relo #0: insn #5 against 'globals_map'
+libbpf: prog 'entry_point': found map 0 (globals_map, sec 5, off 0) for insn #5
+libbpf: sec '.relxdp': relo #1: insn #37 against 'some_map'
+libbpf: prog 'entry_point': found map 1 (some_map, sec 5, off 32) for insn #37
+libbpf: object 'fixed': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: loaded kernel BTF from '/sys/kernel/btf/vmlinux'
+libbpf: sec 'xdp': found 5 CO-RE relocations
+libbpf: CO-RE relocating [24] struct xdp_md: found target candidate [14922] struct xdp_md in [vmlinux]
+libbpf: prog 'entry_point': relo #0: <byte_off> [24] struct xdp_md.data_end (0:1 @ offset 4)
+libbpf: prog 'entry_point': relo #0: matching candidate #0 <byte_off> [14922] struct xdp_md.data_end (0:1 @ offset 4)
+libbpf: prog 'entry_point': relo #0: patched insn #11 (LDX/ST/STX) off 4 -> 4
+libbpf: prog 'entry_point': relo #1: <byte_off> [24] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'entry_point': relo #1: matching candidate #0 <byte_off> [14922] struct xdp_md.data (0:0 @ offset 0)
+libbpf: prog 'entry_point': relo #1: patched insn #12 (LDX/ST/STX) off 0 -> 0
+libbpf: CO-RE relocating [27] struct ethhdr: found target candidate [23410] struct ethhdr in [vmlinux]
+libbpf: prog 'entry_point': relo #2: <byte_off> [27] struct ethhdr.h_proto (0:2 @ offset 12)
+libbpf: prog 'entry_point': relo #2: matching candidate #0 <byte_off> [23410] struct ethhdr.h_proto (0:2 @ offset 12)
+libbpf: prog 'entry_point': relo #2: patched insn #18 (LDX/ST/STX) off 12 -> 12
+libbpf: CO-RE relocating [32] struct iphdr: found target candidate [23765] struct iphdr in [vmlinux]
+libbpf: prog 'entry_point': relo #3: <byte_off> [32] struct iphdr.daddr (0:9:0:1 @ offset 16)
+libbpf: prog 'entry_point': relo #3: matching candidate #0 <byte_off> [23765] struct iphdr.daddr (0:9:0:1 @ offset 16)
+libbpf: prog 'entry_point': relo #3: patched insn #23 (LDX/ST/STX) off 16 -> 16
+libbpf: CO-RE relocating [38] struct udphdr: found target candidate [23773] struct udphdr in [vmlinux]
+libbpf: prog 'entry_point': relo #4: <byte_off> [38] struct udphdr.dest (0:1 @ offset 2)
+libbpf: prog 'entry_point': relo #4: matching candidate #0 <byte_off> [23773] struct udphdr.dest (0:1 @ offset 2)
+libbpf: prog 'entry_point': relo #4: patched insn #30 (LDX/ST/STX) off 2 -> 2
+libbpf: map 'globals_map': created successfully, fd=4
+libbpf: map 'some_map': created successfully, fd=5
+libbpf: prog 'entry_point': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (bf) r7 = r1
+  1: .......7.. (b7) r6 = 0
+  2: ......67.. (63) *(u32 *)(r10 -4) = r6
+  3: ......67.. (bf) r2 = r10
+  4: ..2...67.. (07) r2 += -4
+  5: ..2...67.. (18) r1 = 0xffff8f2c5277a600
+  7: .12...67.. (85) call bpf_map_lookup_elem#1
+  8: 0.....67.. (15) if r0 == 0x0 goto pc+36
+  9: .......7.. (b7) r6 = 1
+ 10: ......67.. (b7) r1 = 0
+ 11: .1....67.. (61) r3 = *(u32 *)(r7 +4)
+ 12: .1.3..67.. (61) r2 = *(u32 *)(r7 +0)
+ 13: .123..67.. (b7) r8 = 1
+ 14: .123..678. (15) if r7 == 0x0 goto pc+19
+ 15: .123..6.8. (bf) r4 = r2
+ 16: .1234.6.8. (07) r4 += 14
+ 17: .1234.6.8. (2d) if r4 > r3 goto pc+16
+ 18: .1234.6.8. (69) r5 = *(u16 *)(r2 +12)
+ 19: .123456.8. (15) if r5 == 0xdd86 goto pc+5
+ 20: .123456.8. (55) if r5 != 0x8 goto pc+13
+ 21: .1234.6.8. (07) r2 += 34
+ 22: .1234.6.8. (2d) if r2 > r3 goto pc+11
+ 23: ..234.6.8. (61) r1 = *(u32 *)(r4 +16)
+ 24: .123..6.8. (05) goto pc+2
+ 25: .123..6.8. (07) r2 += 54
+ 26: .123..6.8. (2d) if r2 > r3 goto pc+7
+ 27: .123..6.8. (bf) r4 = r2
+ 28: .1234.6.8. (07) r4 += 8
+ 29: .1234.6.8. (2d) if r4 > r3 goto pc+4
+ 30: .12...6... (69) r2 = *(u16 *)(r2 +2)
+ 31: .12...6... (dc) r2 = be16 r2
+ 32: .12...6... (af) r1 ^= r2
+ 33: .1....6... (b7) r8 = 0
+ 34: .1....6.8. (63) *(u32 *)(r10 -8) = r1
+ 35: ......6.8. (bf) r2 = r10
+ 36: ..2...6.8. (07) r2 += -8
+ 37: ..2...6.8. (18) r1 = 0xffff8f28c25f0c00
+ 39: .12...6.8. (85) call bpf_map_lookup_elem#1
+ 40: 0.....6.8. (b7) r1 = 1
+ 41: 01....6.8. (55) if r0 != 0x0 goto pc+1
+ 42: ......6.8. (b7) r1 = 2
+ 43: .1....6.8. (55) if r8 != 0x0 goto pc+1
+ 44: .1........ (bf) r6 = r1
+ 45: ......6... (bf) r0 = r6
+ 46: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int entry_point(struct xdp_md *ctx) @ fixed.c:278
+0: (bf) r7 = r1                       ; R1=ctx() R7_w=ctx()
+1: (b7) r6 = 0                        ; R6_w=0
+; int rc, i = 0; @ fixed.c:281
+2: (63) *(u32 *)(r10 -4) = r6
+mark_precise: frame0: last_idx 2 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r6 stack= before 1: (b7) r6 = 0
+3: R6_w=0 R10=fp0 fp-8=0000????
+3: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+;  @ fixed.c:0
+4: (07) r2 += -4                      ; R2_w=fp-4
+; globals = bpf_map_lookup_elem(&globals_map, &i); @ fixed.c:287
+5: (18) r1 = 0xffff8f2c5277a600       ; R1_w=map_ptr(map=globals_map,ks=4,vs=4)
+7: (85) call bpf_map_lookup_elem#1    ; R0_w=map_value(map=globals_map,ks=4,vs=4)
+; if (!globals) @ fixed.c:288
+8: (15) if r0 == 0x0 goto pc+36       ; R0_w=map_value(map=globals_map,ks=4,vs=4)
+9: (b7) r6 = 1                        ; R6_w=1
+10: (b7) r1 = 0                       ; R1_w=0
+; void *data_end = (void *)(long)ctx->data_end; @ fixed.c:235
+11: (61) r3 = *(u32 *)(r7 +4)         ; R3_w=pkt_end() R7_w=ctx()
+; void *data = (void *)(long)ctx->data; @ fixed.c:234
+12: (61) r2 = *(u32 *)(r7 +0)         ; R2_w=pkt(r=0) R7_w=ctx()
+13: (b7) r8 = 1                       ; R8=1
+; if (!ctx) @ fixed.c:243
+14: (15) if r7 == 0x0 goto pc+19      ; R7=ctx()
+; if ((void *)(eth + 1) > data_end) @ fixed.c:245
+15: (bf) r4 = r2                      ; R2=pkt(r=0) R4_w=pkt(r=0)
+16: (07) r4 += 14                     ; R4_w=pkt(off=14,r=0)
+17: (2d) if r4 > r3 goto pc+16        ; R3=pkt_end() R4_w=pkt(off=14,r=14)
+; ethertype = __constant_ntohs(eth->h_proto); @ fixed.c:248
+18: (69) r5 = *(u16 *)(r2 +12)        ; R2=pkt(r=14) R5_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+; if (ethertype == ETH_P_IP) { @ fixed.c:249
+19: (15) if r5 == 0xdd86 goto pc+5    ; R5_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+20: (55) if r5 != 0x8 goto pc+13      ; R5_w=8
+; if ((void *)(ipv4_hdr + 1) > data_end) @ fixed.c:251
+21: (07) r2 += 34                     ; R2=pkt(off=34,r=14)
+22: (2d) if r2 > r3 goto pc+11        ; R2=pkt(off=34,r=34) R3=pkt_end()
+; key->dst_ip.addr = ipv4_hdr->daddr; @ fixed.c:253
+23: (61) r1 = *(u32 *)(r4 +16)        ; R1_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R4=pkt(off=14,r=34)
+24: (05) goto pc+2
+; if (udph + sizeof(struct udphdr) > data_end) @ fixed.c:269
+27: (bf) r4 = r2                      ; R2=pkt(off=34,r=34) R4_w=pkt(off=34,r=34)
+28: (07) r4 += 8                      ; R4_w=pkt(off=42,r=34)
+29: (2d) if r4 > r3 goto pc+4         ; R3=pkt_end() R4_w=pkt(off=42,r=42)
+; dst_port = __constant_ntohs(((struct udphdr *)udph)->dest); @ fixed.c:272
+30: (69) r2 = *(u16 *)(r2 +2)         ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+31: (dc) r2 = be16 r2                 ; R2_w=scalar()
+; key->dst_ip.addr ^= dst_port; @ fixed.c:273
+32: (af) r1 ^= r2                     ; R1_w=scalar() R2_w=scalar()
+33: (b7) r8 = 0                       ; R8=0
+; addr = key.dst_ip; @ fixed.c:292
+34: (63) *(u32 *)(r10 -8) = r1        ; R1=scalar() R10=fp0 fp-8=0000scalar()
+35: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+;  @ fixed.c:0
+36: (07) r2 += -8                     ; R2_w=fp-8
+; temp = bpf_map_lookup_elem(&some_map, &addr); @ fixed.c:293
+37: (18) r1 = 0xffff8f28c25f0c00      ; R1_w=map_ptr(map=some_map,ks=4,vs=1)
+39: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value_or_null(id=1,map=some_map,ks=4,vs=1)
+40: (b7) r1 = 1                       ; R1_w=1
+; switch (rc) { @ fixed.c:295
+41: (55) if r0 != 0x0 goto pc+1       ; R0_w=0
+42: (b7) r1 = 2                       ; R1=2
+43: (55) if r8 != 0x0 goto pc+1
+mark_precise: frame0: last_idx 43 first_idx 43 subseq_idx -1 
+mark_precise: frame0: parent state regs=r8 stack=:  R0_w=0 R1_w=2 R6=1 R7=ctx() R8_r=P0 R10=fp0 fp-8=0000scalar()
+mark_precise: frame0: last_idx 42 first_idx 34 subseq_idx 43 
+mark_precise: frame0: regs=r8 stack= before 42: (b7) r1 = 2
+mark_precise: frame0: regs=r8 stack= before 41: (55) if r0 != 0x0 goto pc+1
+mark_precise: frame0: regs=r8 stack= before 40: (b7) r1 = 1
+mark_precise: frame0: regs=r8 stack= before 39: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r8 stack= before 37: (18) r1 = 0xffff8f28c25f0c00
+mark_precise: frame0: regs=r8 stack= before 36: (07) r2 += -8
+mark_precise: frame0: regs=r8 stack= before 35: (bf) r2 = r10
+mark_precise: frame0: regs=r8 stack= before 34: (63) *(u32 *)(r10 -8) = r1
+mark_precise: frame0: parent state regs=r8 stack=:  R0=map_value(map=globals_map,ks=4,vs=4) R1_rw=scalar() R2_w=scalar() R3=pkt_end() R4_w=pkt(off=42,r=42) R5=8 R6=1 R7=ctx() R8_rw=P0 R10=fp0 fp-8_r=0000????
+mark_precise: frame0: last_idx 33 first_idx 22 subseq_idx 34 
+mark_precise: frame0: regs=r8 stack= before 33: (b7) r8 = 0
+43: R8=0
+44: (bf) r6 = r1                      ; R1=2 R6_w=2
+; } @ fixed.c:305
+45: (bf) r0 = r6                      ; R0_w=2 R6_w=2
+46: (95) exit
+frame 0: propagating r8
+mark_precise: frame0: last_idx 43 first_idx 34 subseq_idx -1 
+mark_precise: frame0: regs=r8 stack= before 41: (55) if r0 != 0x0 goto pc+1
+mark_precise: frame0: regs=r8 stack= before 40: (b7) r1 = 1
+mark_precise: frame0: regs=r8 stack= before 39: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r8 stack= before 37: (18) r1 = 0xffff8f28c25f0c00
+mark_precise: frame0: regs=r8 stack= before 36: (07) r2 += -8
+mark_precise: frame0: regs=r8 stack= before 35: (bf) r2 = r10
+mark_precise: frame0: regs=r8 stack= before 34: (63) *(u32 *)(r10 -8) = r1
+mark_precise: frame0: parent state regs= stack=:  R0=map_value(map=globals_map,ks=4,vs=4) R1_rw=scalar() R2_w=scalar() R3=pkt_end() R4_w=pkt(off=42,r=42) R5=8 R6=1 R7=ctx() R8_rw=P0 R10=fp0 fp-8_r=0000????
+
+from 41 to 43: safe
+
+from 29 to 34: R0=map_value(map=globals_map,ks=4,vs=4) R1_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R2=pkt(off=34,r=34) R3=pkt_end() R4_w=pkt(off=42,r=0xfffffffffffffffe) R5=8 R6=1 R7=ctx() R8=1 R10=fp0 fp-8=0000????
+34: R0=map_value(map=globals_map,ks=4,vs=4) R1_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R2=pkt(off=34,r=34) R3=pkt_end() R4_w=pkt(off=42,r=0xfffffffffffffffe) R5=8 R6=1 R7=ctx() R8=1 R10=fp0 fp-8=0000????
+; addr = key.dst_ip; @ fixed.c:292
+34: (63) *(u32 *)(r10 -8) = r1        ; R1_w=scalar(id=2,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R10=fp0 fp-8=0000scalar(id=2,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+35: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+;  @ fixed.c:0
+36: (07) r2 += -8                     ; R2_w=fp-8
+; temp = bpf_map_lookup_elem(&some_map, &addr); @ fixed.c:293
+37: (18) r1 = 0xffff8f28c25f0c00      ; R1_w=map_ptr(map=some_map,ks=4,vs=1)
+39: (85) call bpf_map_lookup_elem#1   ; R0=map_value_or_null(id=3,map=some_map,ks=4,vs=1)
+40: (b7) r1 = 1                       ; R1_w=1
+; switch (rc) { @ fixed.c:295
+41: (55) if r0 != 0x0 goto pc+1       ; R0=0
+42: (b7) r1 = 2                       ; R1_w=2
+43: (55) if r8 != 0x0 goto pc+1
+mark_precise: frame0: last_idx 43 first_idx 40 subseq_idx -1 
+mark_precise: frame0: regs=r8 stack= before 42: (b7) r1 = 2
+mark_precise: frame0: regs=r8 stack= before 41: (55) if r0 != 0x0 goto pc+1
+mark_precise: frame0: regs=r8 stack= before 40: (b7) r1 = 1
+mark_precise: frame0: parent state regs=r8 stack=:  R0_rw=map_value_or_null(id=3,map=some_map,ks=4,vs=1) R6=1 R7=ctx() R8_r=P1 R10=fp0 fp-8=0000scalar(id=2,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+mark_precise: frame0: last_idx 39 first_idx 22 subseq_idx 40 
+mark_precise: frame0: regs=r8 stack= before 39: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r8 stack= before 37: (18) r1 = 0xffff8f28c25f0c00
+mark_precise: frame0: regs=r8 stack= before 36: (07) r2 += -8
+mark_precise: frame0: regs=r8 stack= before 35: (bf) r2 = r10
+mark_precise: frame0: regs=r8 stack= before 34: (63) *(u32 *)(r10 -8) = r1
+mark_precise: frame0: regs=r8 stack= before 29: (2d) if r4 > r3 goto pc+4
+mark_precise: frame0: regs=r8 stack= before 28: (07) r4 += 8
+mark_precise: frame0: regs=r8 stack= before 27: (bf) r4 = r2
+mark_precise: frame0: regs=r8 stack= before 24: (05) goto pc+2
+mark_precise: frame0: regs=r8 stack= before 23: (61) r1 = *(u32 *)(r4 +16)
+mark_precise: frame0: regs=r8 stack= before 22: (2d) if r2 > r3 goto pc+11
+mark_precise: frame0: parent state regs=r8 stack=:  R0=map_value(map=globals_map,ks=4,vs=4) R1=0 R2_rw=pkt(off=34,r=14) R3_r=pkt_end() R4_rw=pkt(off=14,r=14) R5_w=8 R6=1 R7=ctx() R8_r=P1 R10=fp0 fp-8_r=0000????
+mark_precise: frame0: last_idx 21 first_idx 14 subseq_idx 22 
+mark_precise: frame0: regs=r8 stack= before 21: (07) r2 += 34
+mark_precise: frame0: regs=r8 stack= before 20: (55) if r5 != 0x8 goto pc+13
+mark_precise: frame0: regs=r8 stack= before 19: (15) if r5 == 0xdd86 goto pc+5
+mark_precise: frame0: regs=r8 stack= before 18: (69) r5 = *(u16 *)(r2 +12)
+mark_precise: frame0: regs=r8 stack= before 17: (2d) if r4 > r3 goto pc+16
+mark_precise: frame0: regs=r8 stack= before 16: (07) r4 += 14
+mark_precise: frame0: regs=r8 stack= before 15: (bf) r4 = r2
+mark_precise: frame0: regs=r8 stack= before 14: (15) if r7 == 0x0 goto pc+19
+mark_precise: frame0: parent state regs=r8 stack=:  R0_w=map_value(map=globals_map,ks=4,vs=4) R1_w=0 R2_rw=pkt(r=0) R3_rw=pkt_end() R6_w=1 R7_rw=ctx() R8_rw=P1 R10=fp0 fp-8_r=0000????
+mark_precise: frame0: last_idx 13 first_idx 0 subseq_idx 14 
+mark_precise: frame0: regs=r8 stack= before 13: (b7) r8 = 1
+43: R8=1
+; } @ fixed.c:305
+45: (bf) r0 = r6                      ; R0_w=1 R6=1
+46: (95) exit
+
+from 41 to 43: R0=map_value(map=some_map,ks=4,vs=1) R1_w=1 R6=1 R7=ctx() R8=1 R10=fp0 fp-8=0000scalar(id=2,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+43: R0=map_value(map=some_map,ks=4,vs=1) R1_w=1 R6=1 R7=ctx() R8=1 R10=fp0 fp-8=0000scalar(id=2,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+; switch (rc) { @ fixed.c:295
+43: (55) if r8 != 0x0 goto pc+1
+mark_precise: frame0: last_idx 43 first_idx 40 subseq_idx -1 
+mark_precise: frame0: regs=r8 stack= before 41: (55) if r0 != 0x0 goto pc+1
+mark_precise: frame0: regs=r8 stack= before 40: (b7) r1 = 1
+mark_precise: frame0: parent state regs= stack=:  R0_rw=map_value_or_null(id=3,map=some_map,ks=4,vs=1) R6_r=1 R7=ctx() R8_r=P1 R10=fp0 fp-8=0000scalar(id=2,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+43: R8=1
+; } @ fixed.c:305
+45: (bf) r0 = r6                      ; R0_w=1 R6=1
+46: (95) exit
+
+from 22 to 34: R0=map_value(map=globals_map,ks=4,vs=4) R1=0 R2=pkt(off=34,r=0xfffffffffffffffe) R3=pkt_end() R4=pkt(off=14,r=14) R5=8 R6=1 R7=ctx() R8=1 R10=fp0 fp-8=0000????
+34: R0=map_value(map=globals_map,ks=4,vs=4) R1=0 R2=pkt(off=34,r=0xfffffffffffffffe) R3=pkt_end() R4=pkt(off=14,r=14) R5=8 R6=1 R7=ctx() R8=1 R10=fp0 fp-8=0000????
+; addr = key.dst_ip; @ fixed.c:292
+34: (63) *(u32 *)(r10 -8) = r1        ; R1=0 R10=fp0 fp-8=00000
+35: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+;  @ fixed.c:0
+36: (07) r2 += -8                     ; R2_w=fp-8
+; temp = bpf_map_lookup_elem(&some_map, &addr); @ fixed.c:293
+37: (18) r1 = 0xffff8f28c25f0c00      ; R1_w=map_ptr(map=some_map,ks=4,vs=1)
+39: (85) call bpf_map_lookup_elem#1
+frame 0: propagating r8
+mark_precise: frame0: last_idx 40 first_idx 34 subseq_idx -1 
+mark_precise: frame0: regs=r8 stack= before 39: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r8 stack= before 37: (18) r1 = 0xffff8f28c25f0c00
+mark_precise: frame0: regs=r8 stack= before 36: (07) r2 += -8
+mark_precise: frame0: regs=r8 stack= before 35: (bf) r2 = r10
+mark_precise: frame0: regs=r8 stack= before 34: (63) *(u32 *)(r10 -8) = r1
+mark_precise: frame0: parent state regs=r8 stack=:  R0=map_value(map=globals_map,ks=4,vs=4) R1_r=0 R2=pkt(off=34,r=0xfffffffffffffffe) R3=pkt_end() R4=pkt(off=14,r=14) R5=8 R6_r=1 R7=ctx() R8_r=P1 R10=fp0 fp-8_r=0000????
+mark_precise: frame0: last_idx 22 first_idx 22 subseq_idx 34 
+mark_precise: frame0: regs=r8 stack= before 22: (2d) if r2 > r3 goto pc+11
+mark_precise: frame0: parent state regs= stack=:  R0=map_value(map=globals_map,ks=4,vs=4) R1_r=0 R2_rw=pkt(off=34,r=14) R3_r=pkt_end() R4_rw=pkt(off=14,r=14) R5_w=8 R6_r=1 R7=ctx() R8_r=P1 R10=fp0 fp-8_r=0000????
+40: safe
+frame 0: propagating r8
+mark_precise: frame0: last_idx 34 first_idx 14 subseq_idx -1 
+mark_precise: frame0: regs=r8 stack= before 20: (55) if r5 != 0x8 goto pc+13
+mark_precise: frame0: regs=r8 stack= before 19: (15) if r5 == 0xdd86 goto pc+5
+mark_precise: frame0: regs=r8 stack= before 18: (69) r5 = *(u16 *)(r2 +12)
+mark_precise: frame0: regs=r8 stack= before 17: (2d) if r4 > r3 goto pc+16
+mark_precise: frame0: regs=r8 stack= before 16: (07) r4 += 14
+mark_precise: frame0: regs=r8 stack= before 15: (bf) r4 = r2
+mark_precise: frame0: regs=r8 stack= before 14: (15) if r7 == 0x0 goto pc+19
+mark_precise: frame0: parent state regs= stack=:  R0_w=map_value(map=globals_map,ks=4,vs=4) R1_rw=0 R2_rw=pkt(r=0) R3_rw=pkt_end() R6_rw=1 R7_rw=ctx() R8_rw=P1 R10=fp0 fp-8_r=0000????
+
+from 20 to 34: safe
+
+from 19 to 25: R0=map_value(map=globals_map,ks=4,vs=4) R1=0 R2=pkt(r=14) R3=pkt_end() R4_w=pkt(off=14,r=14) R5_w=0xdd86 R6=1 R7=ctx() R8=1 R10=fp0 fp-8=0000????
+25: R0=map_value(map=globals_map,ks=4,vs=4) R1=0 R2=pkt(r=14) R3=pkt_end() R4_w=pkt(off=14,r=14) R5_w=0xdd86 R6=1 R7=ctx() R8=1 R10=fp0 fp-8=0000????
+; if ((void *)(ipv6_hdr + 1) > data_end) @ fixed.c:256
+25: (07) r2 += 54                     ; R2_w=pkt(off=54,r=14)
+26: (2d) if r2 > r3 goto pc+7         ; R2_w=pkt(off=54,r=54) R3=pkt_end()
+; if (udph + sizeof(struct udphdr) > data_end) @ fixed.c:269
+27: (bf) r4 = r2                      ; R2=pkt(off=54,r=54) R4_w=pkt(off=54,r=54)
+28: (07) r4 += 8                      ; R4_w=pkt(off=62,r=54)
+29: (2d) if r4 > r3 goto pc+4         ; R3=pkt_end() R4_w=pkt(off=62,r=62)
+; dst_port = __constant_ntohs(((struct udphdr *)udph)->dest); @ fixed.c:272
+30: (69) r2 = *(u16 *)(r2 +2)         ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+31: (dc) r2 = be16 r2                 ; R2_w=scalar()
+; key->dst_ip.addr ^= dst_port; @ fixed.c:273
+32: (af) r1 ^= r2                     ; R1_w=scalar() R2_w=scalar()
+33: (b7) r8 = 0
+frame 0: propagating r8
+mark_precise: frame0: last_idx 34 first_idx 27 subseq_idx -1 
+mark_precise: frame0: regs=r8 stack= before 33: (b7) r8 = 0
+34: safe
+frame 0: propagating r8
+mark_precise: frame0: last_idx 34 first_idx 27 subseq_idx -1 
+mark_precise: frame0: regs=r8 stack= before 29: (2d) if r4 > r3 goto pc+4
+mark_precise: frame0: regs=r8 stack= before 28: (07) r4 += 8
+mark_precise: frame0: regs=r8 stack= before 27: (bf) r4 = r2
+mark_precise: frame0: parent state regs=r8 stack=:  R0=map_value(map=globals_map,ks=4,vs=4) R1_r=0 R2_rw=pkt(off=54,r=54) R3_r=pkt_end() R4_w=pkt(off=14,r=54) R5_w=0xdd86 R6_r=1 R7=ctx() R8_r=P1 R10=fp0 fp-8_r=0000????
+mark_precise: frame0: last_idx 26 first_idx 14 subseq_idx 27 
+mark_precise: frame0: regs=r8 stack= before 26: (2d) if r2 > r3 goto pc+7
+mark_precise: frame0: regs=r8 stack= before 25: (07) r2 += 54
+mark_precise: frame0: regs=r8 stack= before 19: (15) if r5 == 0xdd86 goto pc+5
+mark_precise: frame0: regs=r8 stack= before 18: (69) r5 = *(u16 *)(r2 +12)
+mark_precise: frame0: regs=r8 stack= before 17: (2d) if r4 > r3 goto pc+16
+mark_precise: frame0: regs=r8 stack= before 16: (07) r4 += 14
+mark_precise: frame0: regs=r8 stack= before 15: (bf) r4 = r2
+mark_precise: frame0: regs=r8 stack= before 14: (15) if r7 == 0x0 goto pc+19
+mark_precise: frame0: parent state regs= stack=:  R0_w=map_value(map=globals_map,ks=4,vs=4) R1_rw=0 R2_rw=pkt(r=0) R3_rw=pkt_end() R6_rw=1 R7_rw=ctx() R8_rw=P1 R10=fp0 fp-8_r=0000????
+
+from 29 to 34: safe
+frame 0: propagating r8
+mark_precise: frame0: last_idx 34 first_idx 14 subseq_idx -1 
+mark_precise: frame0: regs=r8 stack= before 26: (2d) if r2 > r3 goto pc+7
+mark_precise: frame0: regs=r8 stack= before 25: (07) r2 += 54
+mark_precise: frame0: regs=r8 stack= before 19: (15) if r5 == 0xdd86 goto pc+5
+mark_precise: frame0: regs=r8 stack= before 18: (69) r5 = *(u16 *)(r2 +12)
+mark_precise: frame0: regs=r8 stack= before 17: (2d) if r4 > r3 goto pc+16
+mark_precise: frame0: regs=r8 stack= before 16: (07) r4 += 14
+mark_precise: frame0: regs=r8 stack= before 15: (bf) r4 = r2
+mark_precise: frame0: regs=r8 stack= before 14: (15) if r7 == 0x0 goto pc+19
+mark_precise: frame0: parent state regs= stack=:  R0_w=map_value(map=globals_map,ks=4,vs=4) R1_rw=0 R2_rw=pkt(r=0) R3_rw=pkt_end() R6_rw=1 R7_rw=ctx() R8_rw=P1 R10=fp0 fp-8_r=0000????
+
+from 26 to 34: safe
+frame 0: propagating r8
+mark_precise: frame0: last_idx 34 first_idx 14 subseq_idx -1 
+mark_precise: frame0: regs=r8 stack= before 17: (2d) if r4 > r3 goto pc+16
+mark_precise: frame0: regs=r8 stack= before 16: (07) r4 += 14
+mark_precise: frame0: regs=r8 stack= before 15: (bf) r4 = r2
+mark_precise: frame0: regs=r8 stack= before 14: (15) if r7 == 0x0 goto pc+19
+mark_precise: frame0: parent state regs= stack=:  R0_w=map_value(map=globals_map,ks=4,vs=4) R1_rw=0 R2_rw=pkt(r=0) R3_rw=pkt_end() R6_rw=1 R7_rw=ctx() R8_rw=P1 R10=fp0 fp-8_r=0000????
+
+from 17 to 34: safe
+frame 0: propagating r8
+mark_precise: frame0: last_idx 34 first_idx 14 subseq_idx -1 
+mark_precise: frame0: regs=r8 stack= before 14: (15) if r7 == 0x0 goto pc+19
+mark_precise: frame0: parent state regs= stack=:  R0_w=map_value(map=globals_map,ks=4,vs=4) R1_rw=0 R2_rw=pkt(r=0) R3_rw=pkt_end() R6_rw=1 R7_rw=ctx() R8_rw=P1 R10=fp0 fp-8_r=0000????
+
+from 14 to 34: safe
+verification time 302 usec
+stack depth 8
+processed 79 insns (limit 1000000) max_states_per_insn 1 total_states 7 peak_states 7 mark_read 3
+-- END PROG LOAD LOG --

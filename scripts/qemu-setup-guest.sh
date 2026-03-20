@@ -145,7 +145,7 @@ mount_host_share() {
     mkdir -p "${HOST_SHARE_MOUNT}"
 
     if ! grep -qE "^[^#]+[[:space:]]+${HOST_SHARE_MOUNT}[[:space:]]+9p" /etc/fstab; then
-        printf '%s %s 9p trans=virtio,version=9p2000.L,msize=262144,cache=loose 0 0\n' \
+        printf '%s %s 9p trans=virtio,version=9p2000.L,msize=262144,cache=loose,nofail,x-systemd.automount 0 0\n' \
             "${HOST_SHARE_TAG}" "${HOST_SHARE_MOUNT}" >>/etc/fstab
     fi
 

@@ -1,0 +1,4 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-31a01b994f8b/fixed.c:6:10: fatal error: 'tc_nodeport_icmp4_snat.h' file not found
+    6 | #include "tc_nodeport_icmp4_snat.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

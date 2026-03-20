@@ -8,7 +8,7 @@ import difflib
 import json
 import re
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -1352,9 +1352,9 @@ def build_report(
             "## Key Findings",
             "",
             f"- Overall span coverage is `{covered}/{summary['total_cases']}` cases marked `yes`, `{not_covered}` marked `no`, and `{unknown}` marked `unknown`. The `unknown` bucket is dominated by fixes that are not source-localizable from the available artifacts, such as verifier-limit, BTF/toolchain, or kernel-upgrade remedies.",
-            f"- Rejected-span/error semantic agreement is strongest where the ground truth is an expected verifier message, especially kernel selftests. Coverage is stricter than error agreement because some fixes are diffuse even when the reject site is correctly identified.",
-            f"- Taxonomy agreement is computed only when a usable ground-truth taxonomy can be inferred or is explicitly labeled in `ground_truth.yaml`.",
-            f"- The synthetic corpus is heavily skewed toward `inline_hint`, `other`, and `loop_rewrite` patterns, so future span coverage work should expect many lowering-artifact and verifier-limit style fixes even when no verifier log is available yet.",
+            "- Rejected-span/error semantic agreement is strongest where the ground truth is an expected verifier message, especially kernel selftests. Coverage is stricter than error agreement because some fixes are diffuse even when the reject site is correctly identified.",
+            "- Taxonomy agreement is computed only when a usable ground-truth taxonomy can be inferred or is explicitly labeled in `ground_truth.yaml`.",
+            "- The synthetic corpus is heavily skewed toward `inline_hint`, `other`, and `loop_rewrite` patterns, so future span coverage work should expect many lowering-artifact and verifier-limit style fixes even when no verifier log is available yet.",
         ]
     )
 

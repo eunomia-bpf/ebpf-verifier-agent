@@ -41,13 +41,3 @@ def real_world_case_ids(case_ids: list[str]) -> list[str]:
         for case_id in case_ids
         if case_source(case_id) in {"stackoverflow", "github_issues"}
     ]
-
-
-def stratum_case_ids(case_ids: list[str], stratum: str) -> list[str]:
-    if stratum == "selftest_cases":
-        return selftest_case_ids(case_ids)
-    if stratum == "real_world_cases":
-        return real_world_case_ids(case_ids)
-    if stratum == "all_cases":
-        return list(case_ids)
-    raise KeyError(f"Unknown source stratum: {stratum}")

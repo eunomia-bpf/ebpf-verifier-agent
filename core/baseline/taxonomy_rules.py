@@ -21,7 +21,9 @@ ENV_MISMATCH_RE = re.compile(
     r"unknown func|program of this type cannot use helper|helper call is not allowed|"
     r"attach_btf_id is not a function|invalid btf|missing btf func_info|"
     r"failed to find kernel BTF type ID|only read from bpf_array is supported|"
-    r"cannot be called from callback|sleepable",
+    r"cannot be called from callback|sleepable|"
+    r"jit does not support calling kfunc|btf_vmlinux is malformed|"
+    r"unrecognized arg#\d+ type",
     flags=re.IGNORECASE,
 )
 VERIFIER_BUG_RE = re.compile(
@@ -45,4 +47,3 @@ def classify_failure_class(
     if LOWERING_ARTIFACT_RE.search(error_message):
         return "lowering_artifact"
     return "source_bug"
-

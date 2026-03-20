@@ -8,4 +8,4 @@ verifier_error_match: exact
 fixed_status: rejected:fixed[0]/wrapped
 original_error: invalid access to packet, off=0 size=1, R0(id=3,off=0,r=0)
 captured_error: invalid access to packet, off=0 size=1, R0(id=2,off=0,r=0)
-notes: <none>
+notes: Preserved the original loop/body shape; the fresh host run still reproduces the packet-access failure.

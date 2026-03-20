@@ -203,7 +203,52 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-; if (data[pkt_ctx->pkt_offset + j] == '\r') {
+struct packet_context {
+    __u16 pkt_offset;
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, __u32);
+    __type(value, struct packet_context);
+} context_table SEC(".maps");
+
+SEC("xdp")
+int collect_ips_prog(struct xdp_md *ctx) {
+    char *data_end = (char *)(long)ctx->data_end;
+    char *data = (char *)(long)ctx->data;
+    __u32 index = 0;
+    struct packet_context *pkt_ctx = (struct packet_context *) bpf_map_lookup_elem(&context_table, &index);
+
+    if (pkt_ctx == NULL) {
+        goto end;
+    }
+
+    __u32 pkt_offset = pkt_ctx->pkt_offset;
+    if (pkt_offset > 0xffff - 253) {
+        goto end;
+    }
+
+    __u32 length = 0;
+
+    for (__u16 j = 0; j < 253; j++) {
+        if (data_end < data + pkt_offset + j + 1) {
+            goto end;
+        }
+
+        if (data[pkt_offset + j] == '\r') {
+            break;
+        }
+
+        length++;
+    }
+
+    bpf_printk("%d", length);
+
+end:
+    return XDP_PASS;
+}
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

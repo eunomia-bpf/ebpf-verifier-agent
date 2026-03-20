@@ -203,7 +203,95 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-TL;DR. The verifier is not yet smart enough to use event->len + read < MAX_READ_CONTENT_LENGTH.
+#define MAX_READ_CONTENT_LENGTH 4096
+#define DEBUG(fmt, ...) do { } while (0)
+
+struct read_exit_ctx {
+    unsigned long long unused;
+    int __syscall_nr;
+    long ret;
+};
+
+struct ReadArgs {
+    int fd;
+    uintptr_t buf;
+};
+
+struct ReadEvent {
+    int eventType;
+    int fd;
+    int len;
+    u8 content[MAX_READ_CONTENT_LENGTH];
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, int);
+    __type(value, struct ReadArgs);
+} read_args_map SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, int);
+    __type(value, struct ReadEvent);
+} read_event_map SEC(".maps");
+
+static __always_inline int readData(struct ReadArgs *args, struct ReadEvent *event, int read)
+{
+    __u32 off;
+    __u32 read_len;
+    __u32 remaining;
+    void *dst;
+    void *end;
+
+    if ((void *)args->buf == NULL)
+        return -1;
+    event->fd = args->fd;
+    if (event->len > MAX_READ_CONTENT_LENGTH)
+        return -1;
+    off = event->len & (MAX_READ_CONTENT_LENGTH - 1);
+
+    if (read < 0)
+        return -1;
+    if ((__u32)read > MAX_READ_CONTENT_LENGTH)
+        read_len = MAX_READ_CONTENT_LENGTH - 1;
+    else
+        read_len = (__u32)read;
+
+    dst = &event->content[off];
+    end = &event->content[MAX_READ_CONTENT_LENGTH];
+    remaining = (__u32)((char *)end - (char *)dst);
+    if (read_len >= remaining)
+        read_len = remaining - 1;
+    if (read_len == 0)
+        return 0;
+
+    {
+        long res = bpf_probe_read_user(dst, read_len, (const void *)args->buf);
+        if (res < 0) {
+            DEBUG("readData: bpf_probe_read_user return %d", res);
+            return -1;
+        }
+    }
+    event->len = off + read_len;
+    return 0;
+}
+
+SEC("tracepoint/syscalls/sys_exit_read")
+int read_data_probe(struct read_exit_ctx *ctx)
+{
+    int zero = 0;
+    struct ReadArgs *args = bpf_map_lookup_elem(&read_args_map, &zero);
+    struct ReadEvent *event = bpf_map_lookup_elem(&read_event_map, &zero);
+
+    if (!args || !event)
+        return 0;
+
+    readData(args, event, ctx->ret);
+    return 0;
+}
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

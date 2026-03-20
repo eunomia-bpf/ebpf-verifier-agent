@@ -207,12 +207,12 @@ struct packet_context {
     __u16 pkt_offset;
 };
 
-struct bpf_map_def SEC("maps") context_table = {
-   .type = BPF_MAP_TYPE_ARRAY,
-   .key_size = sizeof(__u32),
-   .value_size = sizeof(struct packet_context),
-   .max_entries = 1,
-};
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, __u32);
+    __type(value, struct packet_context);
+} context_table SEC(".maps");
 
 SEC("xdp")
 int collect_ips_prog(struct xdp_md *ctx) {

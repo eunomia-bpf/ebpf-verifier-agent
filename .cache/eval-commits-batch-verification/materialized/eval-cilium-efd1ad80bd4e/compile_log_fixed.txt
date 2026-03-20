@@ -1,0 +1,4 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-efd1ad80bd4e/fixed.c:10:10: fatal error: 'bpf/ctx/unspec.h' file not found
+   10 | #include <bpf/ctx/unspec.h>
+      |          ^~~~~~~~~~~~~~~~~~
+1 error generated.

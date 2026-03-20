@@ -1,0 +1,4 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-412fc8437c4f/fixed.c:6:10: fatal error: 'ipsec_redirect_generic.h' file not found
+    6 | #include "ipsec_redirect_generic.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

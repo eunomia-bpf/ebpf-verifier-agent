@@ -47,14 +47,21 @@ help:
 	@echo "  make test-quick        Run tests, skip slow ones (no slow marker yet — same as test)"
 	@echo ""
 	@echo "Batch evaluations (no LLM needed)"
+	@echo "  make eval-baseline     Regex baseline on labeled comparison cases → results/baseline_results.json"
 	@echo "  make eval-batch        Batch diagnostic eval on 302 cases → results/batch_diagnostic_results.json"
 	@echo "  make eval-localization Localization eval against ground-truth insn indices → results/localization_eval.json"
 	@echo "  make eval-fix-type     Fix-type eval against ground-truth repair labels → results/fix_type_eval.json"
 	@echo "  make eval-latency      Latency benchmark → results/latency_benchmark.json"
-	@echo "  make eval-pv           PV vs BPFix comparison → results/pv_comparison_expanded.json"
 	@echo "  make eval-language     Per-language breakdown → results/per_language_eval.json"
+	@echo "  make eval-ablation     Run BPFix/baseline/ablation comparison corpus → results/ablation_results.json"
+	@echo "  make eval-comparison   Build comparison report from ablation results → docs/tmp/comparison-report.md"
+	@echo "  make eval-proof-engine Proof-engine batch eval → results/batch_proof_engine_round3.json"
+	@echo "  make eval-span-coverage Span coverage against ground-truth fixes → results/span_coverage_results.json"
+	@echo "  make eval-root-cause   Root-cause validation against known fixes → results/root_cause_validation.json"
+	@echo "  make eval-taxonomy-coverage Catalog coverage analysis → results/taxonomy_coverage.json"
+	@echo "  make eval-refresh      Consolidated refresh report → docs/tmp/eval-refresh.md"
 	@# eval-formal removed (formal_engine_comparison.py script deleted)
-	@echo "  make eval-all          Run all non-LLM evaluations above"
+	@echo "  make eval-all          Run the core non-LLM evaluation pipeline"
 	@echo ""
 	@echo "A/B Repair experiment (requires local LLM server)"
 	@echo "  make eval-repair       Run A/B repair experiment with GPT-OSS 20B (starts server automatically)"
@@ -92,6 +99,12 @@ test-quick:
 # ──────────────────────────────────────────────────────────────────────────────
 # Batch diagnostic evaluation (no LLM)
 # ──────────────────────────────────────────────────────────────────────────────
+.PHONY: eval-baseline
+eval-baseline:
+	@echo "[eval-baseline] Running regex baseline on labeled comparison cases…"
+	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/baseline_eval.py \
+		--results-path $(RESULTS_DIR)/baseline_results.json
+
 .PHONY: eval-batch
 eval-batch:
 	@echo "[eval-batch] Running batch diagnostic evaluation on 302 cases…"
@@ -120,28 +133,69 @@ eval-latency:
 	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/latency_benchmark.py \
 		--results-path $(RESULTS_DIR)/latency_benchmark.json
 
-.PHONY: eval-pv
-eval-pv:
-	@echo "[eval-pv] Running Pretty Verifier vs BPFix comparison…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/pv_comparison_expanded.py \
-		--output-json $(RESULTS_DIR)/pv_comparison_expanded.json \
-		--output-md $(TMP_DIR)/pv-comparison-expanded.md
-
 .PHONY: eval-language
 eval-language:
 	@echo "[eval-language] Running per-language breakdown evaluation…"
 	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/per_language_eval.py
 
+.PHONY: eval-ablation
+eval-ablation:
+	@echo "[eval-ablation] Running BPFix, baseline, and ablation variants…"
+	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/ablation_eval.py \
+		--results-path $(RESULTS_DIR)/ablation_results.json
+
+.PHONY: eval-comparison
+eval-comparison: eval-ablation
+	@echo "[eval-comparison] Building comparison report from ablation results…"
+	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/comparison_report.py \
+		--results-path $(RESULTS_DIR)/ablation_results.json \
+		--report-path $(TMP_DIR)/comparison-report.md
+
+.PHONY: eval-proof-engine
+eval-proof-engine:
+	@echo "[eval-proof-engine] Running batch proof-engine evaluation…"
+	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/batch_proof_engine_eval.py \
+		--results-path $(RESULTS_DIR)/batch_proof_engine_round3.json
+
+.PHONY: eval-span-coverage
+eval-span-coverage:
+	@echo "[eval-span-coverage] Evaluating BPFix span coverage…"
+	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/span_coverage_eval.py \
+		--results-path $(RESULTS_DIR)/span_coverage_results.json \
+		--report-path $(TMP_DIR)/span-coverage-eval.md
+
+.PHONY: eval-root-cause
+eval-root-cause:
+	@echo "[eval-root-cause] Running root-cause validation…"
+	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/root_cause_validation.py \
+		--results-path $(RESULTS_DIR)/root_cause_validation.json \
+		--report-path $(TMP_DIR)/root-cause-validation-results.md
+
+.PHONY: eval-taxonomy-coverage
+eval-taxonomy-coverage:
+	@echo "[eval-taxonomy-coverage] Running taxonomy coverage analysis…"
+	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/taxonomy_coverage.py \
+		--json-path $(RESULTS_DIR)/taxonomy_coverage.json \
+		--report-path $(TMP_DIR)/taxonomy-coverage-report.md
+
+.PHONY: eval-refresh
+eval-refresh:
+	@echo "[eval-refresh] Building consolidated evaluation refresh report…"
+	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/summarize_eval_refresh.py \
+		--report-path $(TMP_DIR)/eval-refresh.md
+
 # eval-formal target removed: formal_engine_comparison.py no longer exists.
 # To add back: create eval/formal_engine_comparison.py and re-add the target.
 
 .PHONY: eval-all
-eval-all: eval-batch eval-latency eval-pv eval-language
+eval-all: eval-baseline eval-batch eval-localization eval-fix-type eval-latency eval-language
 	@echo ""
 	@echo "[eval-all] All non-LLM evaluations complete."
+	@echo "  Baseline results: $(RESULTS_DIR)/baseline_results.json"
 	@echo "  Batch results:    $(RESULTS_DIR)/batch_diagnostic_results.json"
+	@echo "  Localization:     $(RESULTS_DIR)/localization_eval.json"
+	@echo "  Fix type:         $(RESULTS_DIR)/fix_type_eval.json"
 	@echo "  Latency results:  $(RESULTS_DIR)/latency_benchmark.json"
-	@echo "  PV comparison:    $(RESULTS_DIR)/pv_comparison_expanded.json"
 	@echo "  Language eval:    $(RESULTS_DIR)/per_language_eval.json"
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -249,10 +303,23 @@ loc:
 .PHONY: clean
 clean: paper-clean
 	@echo "[clean] Removing generated result files…"
+	@rm -f $(RESULTS_DIR)/baseline_results.json
 	@rm -f $(RESULTS_DIR)/batch_diagnostic_results.json
+	@rm -f $(RESULTS_DIR)/localization_eval.json
+	@rm -f $(RESULTS_DIR)/fix_type_eval.json
 	@rm -f $(RESULTS_DIR)/latency_benchmark.json
-	@rm -f $(RESULTS_DIR)/pv_comparison_expanded.json
 	@rm -f $(RESULTS_DIR)/per_language_eval.json
-	@rm -f $(TMP_DIR)/pv-comparison-expanded.md
+	@rm -f $(RESULTS_DIR)/ablation_results.json
+	@rm -f $(RESULTS_DIR)/batch_proof_engine_round3.json
+	@rm -f $(RESULTS_DIR)/span_coverage_results.json
+	@rm -f $(RESULTS_DIR)/root_cause_validation.json
+	@rm -f $(RESULTS_DIR)/taxonomy_coverage.json
 	@rm -f $(TMP_DIR)/batch-diagnostic-eval.md
+	@rm -f $(TMP_DIR)/comparison-report.md
+	@rm -f $(TMP_DIR)/eval-refresh.md
+	@rm -f $(TMP_DIR)/fix-type-eval-report.md
+	@rm -f $(TMP_DIR)/localization-eval-report.md
+	@rm -f $(TMP_DIR)/root-cause-validation-results.md
+	@rm -f $(TMP_DIR)/span-coverage-eval.md
+	@rm -f $(TMP_DIR)/taxonomy-coverage-report.md
 	@echo "[clean] Done."

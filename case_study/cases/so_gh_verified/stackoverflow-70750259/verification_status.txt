@@ -4,8 +4,8 @@ language: c
 source_origin: source_snippets[0] -> wrapped
 compile_ok: True
 verifier_status: rejected
-verifier_error_match: mismatch
+verifier_error_match: exact
 fixed_status: not_attempted
-original_error: math between pkt pointer and register with unbounded min value is not allowed
-captured_error: Error: failed to load object file
-notes: <none>
+original_error: value -2147483648 makes pkt pointer be out of bounds
+captured_error: value -2147483648 makes pkt pointer be out of bounds
+notes: Preserved the original signed spill/reload pattern around ext_len; the fresh host run matches the stronger verifier headline from the SO logs.

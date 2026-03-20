@@ -1,0 +1,65 @@
+case_id: eval-bcc-118bf168f9f6
+source: eval_commits
+repository: https://github.com/iovisor/bcc
+repo_name: bcc
+commit_hash: 118bf168f9f66f757684e653c080d034b34db2ff
+parent_commit: c0995ce2c830bb1400278f1be9227c60ac3c70a7
+case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits/eval-bcc-118bf168f9f6.yaml
+score: 6
+changed_files:
+- libbpf-tools/tcpconnect.bpf.c
+selected_source_file: libbpf-tools/tcpconnect.bpf.c
+buggy_include_closure:
+- libbpf-tools/maps.bpf.h
+- libbpf-tools/tcpconnect.bpf.c
+- libbpf-tools/tcpconnect.h
+fixed_include_closure:
+- libbpf-tools/maps.bpf.h
+- libbpf-tools/tcpconnect.bpf.c
+- libbpf-tools/tcpconnect.h
+unresolved_buggy_includes: []
+unresolved_fixed_includes: []
+compile_command_buggy:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-118bf168f9f6/headers/buggy/libbpf-tools/x86
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-118bf168f9f6/headers/buggy/libbpf-tools
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-118bf168f9f6/buggy.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-118bf168f9f6/buggy.o
+compile_command_fixed:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-118bf168f9f6/headers/fixed/libbpf-tools/x86
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-118bf168f9f6/headers/fixed/libbpf-tools
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-118bf168f9f6/fixed.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-118bf168f9f6/fixed.o
+load_command_buggy:
+- sudo
+- bpftool
+- -d
+- prog
+- loadall
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-118bf168f9f6/buggy.o
+- /sys/fs/bpf/eval-bcc-118bf168f9f6_buggy
+load_command_fixed:
+- sudo
+- bpftool
+- -d
+- prog
+- loadall
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-118bf168f9f6/fixed.o
+- /sys/fs/bpf/eval-bcc-118bf168f9f6_fixed

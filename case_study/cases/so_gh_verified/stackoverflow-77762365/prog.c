@@ -206,6 +206,12 @@ struct bpf_elf_map {
 #define MAX_READ_CONTENT_LENGTH 4096
 #define DEBUG(fmt, ...) do { } while (0)
 
+struct read_exit_ctx {
+    unsigned long long unused;
+    int __syscall_nr;
+    long ret;
+};
+
 struct ReadArgs {
     int fd;
     uintptr_t buf;
@@ -217,6 +223,20 @@ struct ReadEvent {
     int len;
     u8 content[MAX_READ_CONTENT_LENGTH];
 };
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, int);
+    __type(value, struct ReadArgs);
+} read_args_map SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, int);
+    __type(value, struct ReadEvent);
+} read_event_map SEC(".maps");
 
 static __always_inline int readData(struct ReadArgs *args, struct ReadEvent *event, int read)
 {
@@ -237,16 +257,22 @@ static __always_inline int readData(struct ReadArgs *args, struct ReadEvent *eve
             DEBUG("readData: bpf_probe_read_user return %d", res);
             return -1;
         }
+        event->len += read;
     }
     return 0;
 }
 
-SEC("tracepoint/syscalls/sys_enter_execve")
-int read_data_probe(void *ctx)
+SEC("tracepoint/syscalls/sys_exit_read")
+int read_data_probe(struct read_exit_ctx *ctx)
 {
-    struct ReadArgs args = {};
-    struct ReadEvent event = {};
-    readData(&args, &event, 0);
+    int zero = 0;
+    struct ReadArgs *args = bpf_map_lookup_elem(&read_args_map, &zero);
+    struct ReadEvent *event = bpf_map_lookup_elem(&read_event_map, &zero);
+
+    if (!args || !event)
+        return 0;
+
+    readData(args, event, ctx->ret);
     return 0;
 }
 

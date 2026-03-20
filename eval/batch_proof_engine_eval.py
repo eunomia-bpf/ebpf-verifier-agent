@@ -83,7 +83,6 @@ def evaluate_case(
     case_id = str(case_data.get("case_id") or path.stem)
     parsed_trace = parse_trace(verifier_log)
     parsed_log = parse_log(verifier_log)
-    error_line = parsed_trace.error_line or parsed_log.error_line or ""
     error_insn = _select_error_insn(parsed_trace)
 
     proof_success = False

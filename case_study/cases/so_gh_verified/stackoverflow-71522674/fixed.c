@@ -203,7 +203,35 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-__u16 tcp_len = tcph->doff * 4;
+SEC("xdp")
+int checksum_probe(struct xdp_md *ctx)
+{
+    void *data = (void *)(long)ctx->data;
+    void *data_end = (void *)(long)ctx->data_end;
+    struct ethhdr *eth = data;
+    struct tcphdr *tcph;
+    __u32 tcp_len = 0;
+    __s64 value = 0;
+
+    if ((void *)(eth + 1) > data_end)
+        return XDP_DROP;
+
+    tcph = data + sizeof(*eth);
+    if ((void *)tcph + 60 > data_end)
+        return XDP_DROP;
+
+    tcp_len = tcph->doff * 4;
+    if (tcp_len < sizeof(*tcph))
+        return XDP_DROP;
+    if (tcp_len > 60)
+        return XDP_DROP;
+
+    value = bpf_csum_diff(0, 0, (void *)tcph, tcp_len, 0);
+    if (value == 0)
+        return XDP_DROP;
+
+    return XDP_PASS;
+}
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

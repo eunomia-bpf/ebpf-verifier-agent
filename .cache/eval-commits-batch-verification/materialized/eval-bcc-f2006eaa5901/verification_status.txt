@@ -1,0 +1,6 @@
+status: partial
+reason: buggy=pass, fixed=pass
+buggy_compile: True
+buggy_verifier_pass: True
+fixed_compile: True
+fixed_verifier_pass: True

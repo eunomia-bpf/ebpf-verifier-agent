@@ -203,9 +203,9 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-#define MAX_ACTION_LIST 8
-#define MAX_PAYLOAD_OFFSET 128
-#define MAX_IDS 4
+#define MAX_ACTION_LIST 32
+#define MAX_PAYLOAD_OFFSET 960
+#define MAX_IDS 5
 #define CONTEXT_KEY 0
 #define GRPC_ID_MASK 0xffe0
 #define GRPC_ID_SHIFT 5
@@ -215,8 +215,10 @@ typedef __u32 context_key_t;
 
 typedef struct {
     __u16 offset;
-    __u16 field_index;
+    __u16 reserved;
     __u16 field_id[MAX_IDS];
+    __u16 field_index;
+    __u8 padding[568];
 } find_grpc_t;
 
 typedef struct {
@@ -224,11 +226,13 @@ typedef struct {
 } action_arg_t;
 
 typedef struct {
-    __u16 action_index;
+    __u16 reserved0;
     __u16 payload_offset;
-    struct {
-        find_grpc_t find_grpc_args;
-    } action_argument[MAX_ACTION_LIST];
+    __u16 reserved1;
+    __u16 action_index;
+    __u8 pre_action_padding[264];
+    action_arg_t action_argument[MAX_ACTION_LIST];
+    __u8 tail_padding[136];
 } context_data_t;
 
 struct {
@@ -246,18 +250,25 @@ int find_grpc(struct __sk_buff *skb)
     void *data_end = (void *)(__u64)skb->data_end;
     void *data = (void *)(__u64)skb->data;
     unsigned short field_offset;
+    unsigned int flag = 0;
     char len = 0;
     uint16_t x;
     find_grpc_t *args;
     unsigned short toBeFound;
 
-    if (skb == NULL || ctx == NULL)
+    if (skb == NULL)
+        goto EXIT;
+    if (ctx == NULL)
         goto EXIT;
     if (ctx->action_index >= MAX_ACTION_LIST || ctx->payload_offset > MAX_PAYLOAD_OFFSET)
         goto EXIT;
 
     args = (find_grpc_t *)&ctx->action_argument[ctx->action_index].find_grpc_args;
-    if (args->offset > 100 || args->field_index > MAX_IDS)
+    if (args == NULL)
+        goto EXIT;
+    if (args->offset > 100)
+        goto EXIT;
+    if (args->field_index > MAX_IDS)
         goto EXIT;
 
     field_offset = ctx->payload_offset + args->offset;
@@ -275,7 +286,9 @@ LOOK:
     field_offset += len;
     goto LOOK;
 FOUND:
+    flag = 1;
 EXIT:
+    (void)flag;
     return TC_ACT_OK;
 }
 

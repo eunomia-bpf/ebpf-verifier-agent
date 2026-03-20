@@ -231,7 +231,44 @@ struct {
 
 static __always_inline int some_inlined_func(struct xdp_md *ctx, struct some_key *key)
 {
-    __builtin_memset(key, 0, sizeof(*key));
+    void *data = (void *)(long)ctx->data;
+    void *data_end = (void *)(long)ctx->data_end;
+    struct ethhdr *eth = data;
+    struct iphdr *ipv4_hdr = 0;
+    struct ipv6hdr *ipv6_hdr = 0;
+    void *udph;
+    __u16 ethertype;
+    __u16 dst_port;
+
+    if (!ctx)
+        return 1;
+    if ((void *)(eth + 1) > data_end)
+        return 1;
+
+    ethertype = __constant_ntohs(eth->h_proto);
+    if (ethertype == ETH_P_IP) {
+        ipv4_hdr = (void *)eth + ETH_HLEN;
+        if ((void *)(ipv4_hdr + 1) > data_end)
+            return 1;
+        key->dst_ip.addr = ipv4_hdr->daddr;
+    } else if (ethertype == ETH_P_IPV6) {
+        ipv6_hdr = (void *)eth + ETH_HLEN;
+        if ((void *)(ipv6_hdr + 1) > data_end)
+            return 1;
+        key->dst_ip.addr = 0;
+    } else {
+        return 2;
+    }
+
+    if (ipv4_hdr)
+        udph = (void *)ipv4_hdr + sizeof(*ipv4_hdr);
+    else
+        udph = (void *)ipv6_hdr + sizeof(*ipv6_hdr);
+    if (udph + sizeof(struct udphdr) > data_end)
+        return 1;
+
+    dst_port = __constant_ntohs(((struct udphdr *)udph)->dest);
+    key->dst_ip.addr ^= dst_port;
     return 0;
 }
 

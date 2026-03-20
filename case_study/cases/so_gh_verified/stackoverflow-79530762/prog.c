@@ -241,9 +241,12 @@ int inter_op_ebpf(struct xdp_md *ctx)
 
     int options_len = (ip->ihl * 4) - sizeof(struct iphdr);
     __u8 *options = (__u8 *)(ip + 1);
+    __u8 is_register = 1;
+    __u8 is_exist_custom_option = 0;
     if (options_len > 0 && (void *)(options + 4) < data_end) {
         __u8 option_type = options[0];
         if (option_type == MY_OPTION_TYPE) {
+            is_exist_custom_option = 1;
             __u8 option_length = options[1];
             __u8 *data_bytes = (__u8 *)data;
             int shift_data_length = sizeof(*eth) + sizeof(struct iphdr);
@@ -255,7 +258,30 @@ int inter_op_ebpf(struct xdp_md *ctx)
                     data_bytes[i + option_length] = data_bytes[i];
                 }
             }
+
+            int ret = bpf_xdp_adjust_head(ctx, option_length);
+            if (ret < 0)
+                return XDP_PASS;
+
+            data = (void *)(long)ctx->data;
+            data_end = (void *)(long)ctx->data_end;
+            eth = data;
+            if ((void *)eth + sizeof(*eth) > data_end)
+                return XDP_DROP;
+
+            ip = data + sizeof(*eth);
+            if ((void *)ip + sizeof(*ip) > data_end)
+                return XDP_DROP;
+            if (ip->version != 4)
+                return XDP_DROP;
+
+            int new_header_size = sizeof(struct iphdr);
+            ip->ihl = new_header_size / 4;
+            ip->tot_len = bpf_htons(bpf_ntohs(ip->tot_len) - option_length);
         }
+
+        if (is_register && is_exist_custom_option)
+            ip->check = iph_csum(ip, data_end);
     }
     return XDP_PASS;
 }

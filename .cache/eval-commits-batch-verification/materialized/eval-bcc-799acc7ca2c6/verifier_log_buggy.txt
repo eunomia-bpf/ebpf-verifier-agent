@@ -1,0 +1,527 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-799acc7ca2c6/buggy.o
+libbpf: elf: section(3) tp_btf/softirq_entry, size 112, link 0, flags 6, type=1
+libbpf: sec 'tp_btf/softirq_entry': found program 'softirq_entry_btf' at insn offset 0 (0 bytes), code size 14 insns (112 bytes)
+libbpf: elf: section(4) .reltp_btf/softirq_entry, size 16, link 35, flags 40, type=9
+libbpf: elf: section(5) tp_btf/softirq_exit, size 624, link 0, flags 6, type=1
+libbpf: sec 'tp_btf/softirq_exit': found program 'softirq_exit_btf' at insn offset 0 (0 bytes), code size 78 insns (624 bytes)
+libbpf: elf: section(6) .reltp_btf/softirq_exit, size 96, link 35, flags 40, type=9
+libbpf: elf: section(7) raw_tp/softirq_entry, size 112, link 0, flags 6, type=1
+libbpf: sec 'raw_tp/softirq_entry': found program 'softirq_entry' at insn offset 0 (0 bytes), code size 14 insns (112 bytes)
+libbpf: elf: section(8) .relraw_tp/softirq_entry, size 16, link 35, flags 40, type=9
+libbpf: elf: section(9) raw_tp/softirq_exit, size 624, link 0, flags 6, type=1
+libbpf: sec 'raw_tp/softirq_exit': found program 'softirq_exit' at insn offset 0 (0 bytes), code size 78 insns (624 bytes)
+libbpf: elf: section(10) .relraw_tp/softirq_exit, size 96, link 35, flags 40, type=9
+libbpf: elf: section(11) .rodata, size 2, link 0, flags 2, type=1
+libbpf: elf: section(12) .bss, size 960, link 0, flags 3, type=8
+libbpf: elf: section(13) license, size 4, link 0, flags 3, type=1
+libbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-bcc-799acc7ca2c6/buggy.o is GPL
+libbpf: elf: section(14) .maps, size 32, link 0, flags 3, type=1
+libbpf: elf: section(25) .BTF, size 2335, link 0, flags 0, type=1
+libbpf: elf: section(27) .BTF.ext, size 1416, link 0, flags 0, type=1
+libbpf: elf: section(35) .symtab, size 1008, link 1, flags 0, type=2
+libbpf: looking for externs among 42 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'start': at sec_idx 14, offset 0.
+libbpf: map 'start': found type = 6.
+libbpf: map 'start': found key [8], sz = 4.
+libbpf: map 'start': found value [12], sz = 8.
+libbpf: map 'start': found max_entries = 1.
+libbpf: map 'buggy.rodata' (global data): at sec_idx 11, offset 0, flags 480.
+libbpf: map 1 is "buggy.rodata"
+libbpf: map 'buggy.bss' (global data): at sec_idx 12, offset 0, flags 400.
+libbpf: map 2 is "buggy.bss"
+libbpf: sec '.reltp_btf/softirq_entry': collecting relocation for section(3) 'tp_btf/softirq_entry'
+libbpf: sec '.reltp_btf/softirq_entry': relo #0: insn #8 against 'start'
+libbpf: prog 'softirq_entry_btf': found map 0 (start, sec 14, off 0) for insn #8
+libbpf: sec '.reltp_btf/softirq_exit': collecting relocation for section(5) 'tp_btf/softirq_exit'
+libbpf: sec '.reltp_btf/softirq_exit': relo #0: insn #8 against 'start'
+libbpf: prog 'softirq_exit_btf': found map 0 (start, sec 14, off 0) for insn #8
+libbpf: sec '.reltp_btf/softirq_exit': relo #1: insn #16 against 'targ_ns'
+libbpf: prog 'softirq_exit_btf': found data map 1 (buggy.rodata, sec 11, off 0) for insn 16
+libbpf: sec '.reltp_btf/softirq_exit': relo #2: insn #23 against 'targ_dist'
+libbpf: prog 'softirq_exit_btf': found data map 1 (buggy.rodata, sec 11, off 0) for insn 23
+libbpf: sec '.reltp_btf/softirq_exit': relo #3: insn #28 against 'counts'
+libbpf: prog 'softirq_exit_btf': found data map 2 (buggy.bss, sec 12, off 0) for insn 28
+libbpf: sec '.reltp_btf/softirq_exit': relo #4: insn #33 against 'time'
+libbpf: prog 'softirq_exit_btf': found data map 2 (buggy.bss, sec 12, off 0) for insn 33
+libbpf: sec '.reltp_btf/softirq_exit': relo #5: insn #55 against 'hists'
+libbpf: prog 'softirq_exit_btf': found data map 2 (buggy.bss, sec 12, off 0) for insn 55
+libbpf: sec '.relraw_tp/softirq_entry': collecting relocation for section(7) 'raw_tp/softirq_entry'
+libbpf: sec '.relraw_tp/softirq_entry': relo #0: insn #8 against 'start'
+libbpf: prog 'softirq_entry': found map 0 (start, sec 14, off 0) for insn #8
+libbpf: sec '.relraw_tp/softirq_exit': collecting relocation for section(9) 'raw_tp/softirq_exit'
+libbpf: sec '.relraw_tp/softirq_exit': relo #0: insn #8 against 'start'
+libbpf: prog 'softirq_exit': found map 0 (start, sec 14, off 0) for insn #8
+libbpf: sec '.relraw_tp/softirq_exit': relo #1: insn #16 against 'targ_ns'
+libbpf: prog 'softirq_exit': found data map 1 (buggy.rodata, sec 11, off 0) for insn 16
+libbpf: sec '.relraw_tp/softirq_exit': relo #2: insn #23 against 'targ_dist'
+libbpf: prog 'softirq_exit': found data map 1 (buggy.rodata, sec 11, off 0) for insn 23
+libbpf: sec '.relraw_tp/softirq_exit': relo #3: insn #28 against 'counts'
+libbpf: prog 'softirq_exit': found data map 2 (buggy.bss, sec 12, off 0) for insn 28
+libbpf: sec '.relraw_tp/softirq_exit': relo #4: insn #33 against 'time'
+libbpf: prog 'softirq_exit': found data map 2 (buggy.bss, sec 12, off 0) for insn 33
+libbpf: sec '.relraw_tp/softirq_exit': relo #5: insn #55 against 'hists'
+libbpf: prog 'softirq_exit': found data map 2 (buggy.bss, sec 12, off 0) for insn 55
+libbpf: object 'buggy': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: loaded kernel BTF from '/sys/kernel/btf/vmlinux'
+libbpf: map 'start': created successfully, fd=4
+libbpf: map 'buggy.rodata': created successfully, fd=5
+libbpf: map 'buggy.bss': created successfully, fd=6
+libbpf: prog 'softirq_entry_btf': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .......... (85) call bpf_ktime_get_ns#5
+  1: 0......... (7b) *(u64 *)(r10 -8) = r0
+  2: .......... (b7) r1 = 0
+  3: .1........ (63) *(u32 *)(r10 -12) = r1
+  4: .......... (bf) r2 = r10
+  5: ..2....... (07) r2 += -12
+  6: ..2....... (bf) r3 = r10
+  7: ..23...... (07) r3 += -8
+  8: ..23...... (18) r1 = 0xffff8f28f75ac000
+ 10: .123...... (b7) r4 = 0
+ 11: .1234..... (85) call bpf_map_update_elem#2
+ 12: .......... (b7) r0 = 0
+ 13: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; u64 ts = bpf_ktime_get_ns(); @ buggy.c:26
+0: (85) call bpf_ktime_get_ns#5       ; R0_w=scalar()
+1: (7b) *(u64 *)(r10 -8) = r0         ; R0_w=scalar(id=1) R10=fp0 fp-8_w=scalar(id=1)
+2: (b7) r1 = 0                        ; R1_w=0
+; u32 key = 0; @ buggy.c:27
+3: (63) *(u32 *)(r10 -12) = r1
+mark_precise: frame0: last_idx 3 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 2: (b7) r1 = 0
+4: R1_w=0 R10=fp0 fp-16=0000????
+4: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+;  @ buggy.c:0
+5: (07) r2 += -12                     ; R2_w=fp-12
+6: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+7: (07) r3 += -8                      ; R3_w=fp-8
+; bpf_map_update_elem(&start, &key, &ts, BPF_ANY); @ buggy.c:29
+8: (18) r1 = 0xffff8f28f75ac000       ; R1_w=map_ptr(map=start,ks=4,vs=8)
+10: (b7) r4 = 0                       ; R4_w=0
+11: (85) call bpf_map_update_elem#2   ; R0=scalar()
+; int BPF_PROG(softirq_entry_btf, unsigned int vec_nr) @ buggy.c:65
+12: (b7) r0 = 0                       ; R0_w=0
+13: (95) exit
+verification time 186 usec
+stack depth 16
+processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 0
+-- END PROG LOAD LOG --
+libbpf: prog 'softirq_exit_btf': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (79) r7 = *(u64 *)(r1 +0)
+  1: .......7.. (b7) r1 = 0
+  2: .1.....7.. (63) *(u32 *)(r10 -4) = r1
+  3: .......7.. (67) r7 <<= 32
+  4: .......7.. (77) r7 >>= 32
+  5: .......7.. (25) if r7 > 0x9 goto pc+70
+  6: .......7.. (bf) r2 = r10
+  7: ..2....7.. (07) r2 += -4
+  8: ..2....7.. (18) r1 = 0xffff8f28f75ac000
+ 10: .12....7.. (85) call bpf_map_lookup_elem#1
+ 11: 0......7.. (bf) r6 = r0
+ 12: ......67.. (15) if r6 == 0x0 goto pc+63
+ 13: ......67.. (85) call bpf_ktime_get_ns#5
+ 14: 0.....67.. (79) r1 = *(u64 *)(r6 +0)
+ 15: 01.....7.. (1f) r0 -= r1
+ 16: 0......7.. (18) r1 = 0xffffd00e8d55a001
+ 18: 01.....7.. (71) r2 = *(u8 *)(r1 +0)
+ 19: 0.2....7.. (bf) r1 = r0
+ 20: 012....7.. (37) r1 /= 1000
+ 21: 012....7.. (15) if r2 == 0x0 goto pc+1
+ 22: 0......7.. (bf) r1 = r0
+ 23: .1.....7.. (18) r2 = 0xffffd00e8d55a000
+ 25: .12....7.. (71) r2 = *(u8 *)(r2 +0)
+ 26: .12....7.. (55) if r2 != 0x0 goto pc+11
+ 27: .1.....7.. (67) r7 <<= 3
+ 28: .1.....7.. (18) r2 = 0xffffd00e8d562000
+ 30: .12....7.. (0f) r2 += r7
+ 31: .12....7.. (b7) r3 = 1
+ 32: .123...7.. (db) lock *(u64 *)(r2 +0) += r3
+ 33: .1.....7.. (18) r2 = 0xffffd00e8d562050
+ 35: .12....7.. (0f) r2 += r7
+ 36: .12....... (db) lock *(u64 *)(r2 +0) += r1
+ 37: .......... (05) goto pc+38
+ 38: .1.....7.. (67) r1 <<= 32
+ 39: .1.....7.. (77) r1 >>= 32
+ 40: .1.....7.. (b7) r2 = 1
+ 41: .12....7.. (b7) r3 = 1
+ 42: .123...7.. (25) if r1 > 0xffff goto pc+1
+ 43: .12....7.. (b7) r3 = 0
+ 44: .123...7.. (67) r3 <<= 4
+ 45: .123...7.. (7f) r1 >>= r3
+ 46: .123...7.. (b7) r5 = 1
+ 47: .123.5.7.. (25) if r1 > 0xff goto pc+1
+ 48: .123...7.. (b7) r5 = 0
+ 49: .123.5.7.. (67) r5 <<= 3
+ 50: .123.5.7.. (7f) r1 >>= r5
+ 51: .123.5.7.. (b7) r0 = 1
+ 52: 0123.5.7.. (25) if r1 > 0xf goto pc+1
+ 53: .123.5.7.. (b7) r0 = 0
+ 54: 0123.5.7.. (27) r7 *= 80
+ 55: 0123.5.7.. (18) r4 = 0xffffd00e8d5620a0
+ 57: 012345.7.. (67) r0 <<= 2
+ 58: 012345.7.. (7f) r1 >>= r0
+ 59: 012345.7.. (b7) r6 = 1
+ 60: 01234567.. (25) if r1 > 0x3 goto pc+1
+ 61: 012345.7.. (b7) r6 = 0
+ 62: 01234567.. (0f) r4 += r7
+ 63: 0123456... (67) r6 <<= 1
+ 64: 0123456... (7f) r1 >>= r6
+ 65: 0123456... (77) r1 >>= 1
+ 66: 0123456... (4f) r3 |= r1
+ 67: 0.23456... (4f) r3 |= r5
+ 68: 0.234.6... (4f) r3 |= r0
+ 69: ..234.6... (4f) r3 |= r6
+ 70: ..234..... (b7) r1 = 19
+ 71: .1234..... (2d) if r1 > r3 goto pc+1
+ 72: ..2.4..... (b7) r3 = 19
+ 73: ..234..... (67) r3 <<= 2
+ 74: ..234..... (0f) r4 += r3
+ 75: ..2.4..... (c3) lock *(u32 *)(r4 +0) += r2
+ 76: .......... (b7) r0 = 0
+ 77: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int BPF_PROG(softirq_exit_btf, unsigned int vec_nr) @ buggy.c:71
+0: (79) r7 = *(u64 *)(r1 +0)          ; R1=ctx() R7_w=scalar()
+1: (b7) r1 = 0                        ; R1_w=0
+; u32 key = 0; @ buggy.c:36
+2: (63) *(u32 *)(r10 -4) = r1
+mark_precise: frame0: last_idx 2 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 1: (b7) r1 = 0
+3: R1_w=0 R10=fp0 fp-8=0000????
+; int BPF_PROG(softirq_exit_btf, unsigned int vec_nr) @ buggy.c:71
+3: (67) r7 <<= 32                     ; R7_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+4: (77) r7 >>= 32                     ; R7_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+; if (vec_nr >= NR_SOFTIRQS) @ buggy.c:38
+5: (25) if r7 > 0x9 goto pc+70        ; R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=9,var_off=(0x0; 0xf))
+6: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+; tsp = bpf_map_lookup_elem(&start, &key); @ buggy.c:40
+7: (07) r2 += -4                      ; R2_w=fp-4
+8: (18) r1 = 0xffff8f28f75ac000       ; R1_w=map_ptr(map=start,ks=4,vs=8)
+10: (85) call bpf_map_lookup_elem#1   ; R0=map_value(map=start,ks=4,vs=8)
+11: (bf) r6 = r0                      ; R0=map_value(map=start,ks=4,vs=8) R6_w=map_value(map=start,ks=4,vs=8)
+; if (!tsp) @ buggy.c:41
+12: (15) if r6 == 0x0 goto pc+63      ; R6_w=map_value(map=start,ks=4,vs=8)
+; delta = bpf_ktime_get_ns() - *tsp; @ buggy.c:43
+13: (85) call bpf_ktime_get_ns#5      ; R0_w=scalar()
+14: (79) r1 = *(u64 *)(r6 +0)         ; R1_w=scalar() R6_w=map_value(map=start,ks=4,vs=8)
+15: (1f) r0 -= r1                     ; R0_w=scalar() R1_w=scalar()
+; if (!targ_ns) @ buggy.c:44
+16: (18) r1 = 0xffffd00e8d55a001      ; R1_w=map_value(map=buggy.rodata,ks=4,vs=2,off=1)
+18: (71) r2 = *(u8 *)(r1 +0)          ; R1_w=map_value(map=buggy.rodata,ks=4,vs=2,off=1) R2_w=0
+19: (bf) r1 = r0                      ; R0_w=scalar(id=1) R1_w=scalar(id=1)
+20: (37) r1 /= 1000                   ; R1=scalar()
+21: (15) if r2 == 0x0 goto pc+1
+mark_precise: frame0: last_idx 21 first_idx 21 subseq_idx -1 
+mark_precise: frame0: parent state regs=r2 stack=:  R0_w=scalar(id=1) R1_w=scalar() R2_rw=P0 R6_w=map_value(map=start,ks=4,vs=8) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=9,var_off=(0x0; 0xf)) R10=fp0 fp-8=0000????
+mark_precise: frame0: last_idx 20 first_idx 11 subseq_idx 21 
+mark_precise: frame0: regs=r2 stack= before 20: (37) r1 /= 1000
+mark_precise: frame0: regs=r2 stack= before 19: (bf) r1 = r0
+mark_precise: frame0: regs=r2 stack= before 18: (71) r2 = *(u8 *)(r1 +0)
+21: R2=0
+; if (!targ_dist) { @ buggy.c:47
+23: (18) r2 = 0xffffd00e8d55a000      ; R2_w=map_value(map=buggy.rodata,ks=4,vs=2)
+25: (71) r2 = *(u8 *)(r2 +0)          ; R2_w=0
+26: (55) if r2 != 0x0 goto pc+11
+mark_precise: frame0: last_idx 26 first_idx 21 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 25: (71) r2 = *(u8 *)(r2 +0)
+26: R2_w=0
+; __sync_fetch_and_add(&counts[vec_nr], 1); @ buggy.c:48
+27: (67) r7 <<= 3                     ; R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78))
+28: (18) r2 = 0xffffd00e8d562000      ; R2_w=map_value(map=buggy.bss,ks=4,vs=960)
+30: (0f) r2 += r7
+mark_precise: frame0: last_idx 30 first_idx 21 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 28: (18) r2 = 0xffffd00e8d562000
+mark_precise: frame0: regs=r7 stack= before 27: (67) r7 <<= 3
+mark_precise: frame0: regs=r7 stack= before 26: (55) if r2 != 0x0 goto pc+11
+mark_precise: frame0: regs=r7 stack= before 25: (71) r2 = *(u8 *)(r2 +0)
+mark_precise: frame0: regs=r7 stack= before 23: (18) r2 = 0xffffd00e8d55a000
+mark_precise: frame0: regs=r7 stack= before 21: (15) if r2 == 0x0 goto pc+1
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=scalar(id=1) R1_w=scalar() R2_rw=P0 R6_w=map_value(map=start,ks=4,vs=8) R7_r=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=9,var_off=(0x0; 0xf)) R10=fp0 fp-8=0000????
+mark_precise: frame0: last_idx 20 first_idx 11 subseq_idx 21 
+mark_precise: frame0: regs=r7 stack= before 20: (37) r1 /= 1000
+mark_precise: frame0: regs=r7 stack= before 19: (bf) r1 = r0
+mark_precise: frame0: regs=r7 stack= before 18: (71) r2 = *(u8 *)(r1 +0)
+mark_precise: frame0: regs=r7 stack= before 16: (18) r1 = 0xffffd00e8d55a001
+mark_precise: frame0: regs=r7 stack= before 15: (1f) r0 -= r1
+mark_precise: frame0: regs=r7 stack= before 14: (79) r1 = *(u64 *)(r6 +0)
+mark_precise: frame0: regs=r7 stack= before 13: (85) call bpf_ktime_get_ns#5
+mark_precise: frame0: regs=r7 stack= before 12: (15) if r6 == 0x0 goto pc+63
+mark_precise: frame0: regs=r7 stack= before 11: (bf) r6 = r0
+mark_precise: frame0: parent state regs=r7 stack=:  R0_rw=map_value(map=start,ks=4,vs=8) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=9,var_off=(0x0; 0xf)) R10=fp0 fp-8=0000????
+mark_precise: frame0: last_idx 10 first_idx 0 subseq_idx 11 
+mark_precise: frame0: regs=r7 stack= before 10: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r7 stack= before 8: (18) r1 = 0xffff8f28f75ac000
+mark_precise: frame0: regs=r7 stack= before 7: (07) r2 += -4
+mark_precise: frame0: regs=r7 stack= before 6: (bf) r2 = r10
+mark_precise: frame0: regs=r7 stack= before 5: (25) if r7 > 0x9 goto pc+70
+mark_precise: frame0: regs=r7 stack= before 4: (77) r7 >>= 32
+mark_precise: frame0: regs=r7 stack= before 3: (67) r7 <<= 32
+mark_precise: frame0: regs=r7 stack= before 2: (63) *(u32 *)(r10 -4) = r1
+mark_precise: frame0: regs=r7 stack= before 1: (b7) r1 = 0
+mark_precise: frame0: regs=r7 stack= before 0: (79) r7 = *(u64 *)(r1 +0)
+31: R2_w=map_value(map=buggy.bss,ks=4,vs=960,smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78)) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78))
+31: (b7) r3 = 1                       ; R3_w=1
+32: (db) lock *(u64 *)(r2 +0) += r3   ; R2_w=map_value(map=buggy.bss,ks=4,vs=960,smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78)) R3_w=1
+; __sync_fetch_and_add(&time[vec_nr], delta); @ buggy.c:49
+33: (18) r2 = 0xffffd00e8d562050      ; R2_w=map_value(map=buggy.bss,ks=4,vs=960,off=80)
+35: (0f) r2 += r7
+mark_precise: frame0: last_idx 35 first_idx 21 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 33: (18) r2 = 0xffffd00e8d562050
+mark_precise: frame0: regs=r7 stack= before 32: (db) lock *(u64 *)(r2 +0) += r3
+mark_precise: frame0: regs=r7 stack= before 31: (b7) r3 = 1
+mark_precise: frame0: regs=r7 stack= before 30: (0f) r2 += r7
+mark_precise: frame0: regs=r7 stack= before 28: (18) r2 = 0xffffd00e8d562000
+mark_precise: frame0: regs=r7 stack= before 27: (67) r7 <<= 3
+mark_precise: frame0: regs=r7 stack= before 26: (55) if r2 != 0x0 goto pc+11
+mark_precise: frame0: regs=r7 stack= before 25: (71) r2 = *(u8 *)(r2 +0)
+mark_precise: frame0: regs=r7 stack= before 23: (18) r2 = 0xffffd00e8d55a000
+mark_precise: frame0: regs=r7 stack= before 21: (15) if r2 == 0x0 goto pc+1
+mark_precise: frame0: parent state regs= stack=:  R0_w=scalar(id=1) R1_w=scalar() R2_rw=P0 R6_w=map_value(map=start,ks=4,vs=8) R7_r=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=9,var_off=(0x0; 0xf)) R10=fp0 fp-8=0000????
+36: R2_w=map_value(map=buggy.bss,ks=4,vs=960,off=80,smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78)) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78))
+36: (db) lock *(u64 *)(r2 +0) += r1   ; R1=scalar() R2_w=map_value(map=buggy.bss,ks=4,vs=960,off=80,smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78))
+37: (05) goto pc+38
+; int BPF_PROG(softirq_exit_btf, unsigned int vec_nr) @ buggy.c:71
+76: (b7) r0 = 0                       ; R0_w=0
+77: (95) exit
+
+from 5 to 76: safe
+verification time 243 usec
+stack depth 8
+processed 35 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2
+-- END PROG LOAD LOG --
+libbpf: prog 'softirq_entry': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .......... (85) call bpf_ktime_get_ns#5
+  1: 0......... (7b) *(u64 *)(r10 -8) = r0
+  2: .......... (b7) r1 = 0
+  3: .1........ (63) *(u32 *)(r10 -12) = r1
+  4: .......... (bf) r2 = r10
+  5: ..2....... (07) r2 += -12
+  6: ..2....... (bf) r3 = r10
+  7: ..23...... (07) r3 += -8
+  8: ..23...... (18) r1 = 0xffff8f28f75ac000
+ 10: .123...... (b7) r4 = 0
+ 11: .1234..... (85) call bpf_map_update_elem#2
+ 12: .......... (b7) r0 = 0
+ 13: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; u64 ts = bpf_ktime_get_ns(); @ buggy.c:26
+0: (85) call bpf_ktime_get_ns#5       ; R0_w=scalar()
+1: (7b) *(u64 *)(r10 -8) = r0         ; R0_w=scalar(id=1) R10=fp0 fp-8_w=scalar(id=1)
+2: (b7) r1 = 0                        ; R1_w=0
+; u32 key = 0; @ buggy.c:27
+3: (63) *(u32 *)(r10 -12) = r1
+mark_precise: frame0: last_idx 3 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 2: (b7) r1 = 0
+4: R1_w=0 R10=fp0 fp-16=0000????
+4: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+;  @ buggy.c:0
+5: (07) r2 += -12                     ; R2_w=fp-12
+6: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+7: (07) r3 += -8                      ; R3_w=fp-8
+; bpf_map_update_elem(&start, &key, &ts, BPF_ANY); @ buggy.c:29
+8: (18) r1 = 0xffff8f28f75ac000       ; R1_w=map_ptr(map=start,ks=4,vs=8)
+10: (b7) r4 = 0                       ; R4_w=0
+11: (85) call bpf_map_update_elem#2   ; R0=scalar()
+; int BPF_PROG(softirq_entry, unsigned int vec_nr) @ buggy.c:77
+12: (b7) r0 = 0                       ; R0_w=0
+13: (95) exit
+verification time 35 usec
+stack depth 16
+processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 0
+-- END PROG LOAD LOG --
+libbpf: prog 'softirq_exit': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (79) r7 = *(u64 *)(r1 +0)
+  1: .......7.. (b7) r1 = 0
+  2: .1.....7.. (63) *(u32 *)(r10 -4) = r1
+  3: .......7.. (67) r7 <<= 32
+  4: .......7.. (77) r7 >>= 32
+  5: .......7.. (25) if r7 > 0x9 goto pc+70
+  6: .......7.. (bf) r2 = r10
+  7: ..2....7.. (07) r2 += -4
+  8: ..2....7.. (18) r1 = 0xffff8f28f75ac000
+ 10: .12....7.. (85) call bpf_map_lookup_elem#1
+ 11: 0......7.. (bf) r6 = r0
+ 12: ......67.. (15) if r6 == 0x0 goto pc+63
+ 13: ......67.. (85) call bpf_ktime_get_ns#5
+ 14: 0.....67.. (79) r1 = *(u64 *)(r6 +0)
+ 15: 01.....7.. (1f) r0 -= r1
+ 16: 0......7.. (18) r1 = 0xffffd00e8d55a001
+ 18: 01.....7.. (71) r2 = *(u8 *)(r1 +0)
+ 19: 0.2....7.. (bf) r1 = r0
+ 20: 012....7.. (37) r1 /= 1000
+ 21: 012....7.. (15) if r2 == 0x0 goto pc+1
+ 22: 0......7.. (bf) r1 = r0
+ 23: .1.....7.. (18) r2 = 0xffffd00e8d55a000
+ 25: .12....7.. (71) r2 = *(u8 *)(r2 +0)
+ 26: .12....7.. (55) if r2 != 0x0 goto pc+11
+ 27: .1.....7.. (67) r7 <<= 3
+ 28: .1.....7.. (18) r2 = 0xffffd00e8d562000
+ 30: .12....7.. (0f) r2 += r7
+ 31: .12....7.. (b7) r3 = 1
+ 32: .123...7.. (db) lock *(u64 *)(r2 +0) += r3
+ 33: .1.....7.. (18) r2 = 0xffffd00e8d562050
+ 35: .12....7.. (0f) r2 += r7
+ 36: .12....... (db) lock *(u64 *)(r2 +0) += r1
+ 37: .......... (05) goto pc+38
+ 38: .1.....7.. (67) r1 <<= 32
+ 39: .1.....7.. (77) r1 >>= 32
+ 40: .1.....7.. (b7) r2 = 1
+ 41: .12....7.. (b7) r3 = 1
+ 42: .123...7.. (25) if r1 > 0xffff goto pc+1
+ 43: .12....7.. (b7) r3 = 0
+ 44: .123...7.. (67) r3 <<= 4
+ 45: .123...7.. (7f) r1 >>= r3
+ 46: .123...7.. (b7) r5 = 1
+ 47: .123.5.7.. (25) if r1 > 0xff goto pc+1
+ 48: .123...7.. (b7) r5 = 0
+ 49: .123.5.7.. (67) r5 <<= 3
+ 50: .123.5.7.. (7f) r1 >>= r5
+ 51: .123.5.7.. (b7) r0 = 1
+ 52: 0123.5.7.. (25) if r1 > 0xf goto pc+1
+ 53: .123.5.7.. (b7) r0 = 0
+ 54: 0123.5.7.. (27) r7 *= 80
+ 55: 0123.5.7.. (18) r4 = 0xffffd00e8d5620a0
+ 57: 012345.7.. (67) r0 <<= 2
+ 58: 012345.7.. (7f) r1 >>= r0
+ 59: 012345.7.. (b7) r6 = 1
+ 60: 01234567.. (25) if r1 > 0x3 goto pc+1
+ 61: 012345.7.. (b7) r6 = 0
+ 62: 01234567.. (0f) r4 += r7
+ 63: 0123456... (67) r6 <<= 1
+ 64: 0123456... (7f) r1 >>= r6
+ 65: 0123456... (77) r1 >>= 1
+ 66: 0123456... (4f) r3 |= r1
+ 67: 0.23456... (4f) r3 |= r5
+ 68: 0.234.6... (4f) r3 |= r0
+ 69: ..234.6... (4f) r3 |= r6
+ 70: ..234..... (b7) r1 = 19
+ 71: .1234..... (2d) if r1 > r3 goto pc+1
+ 72: ..2.4..... (b7) r3 = 19
+ 73: ..234..... (67) r3 <<= 2
+ 74: ..234..... (0f) r4 += r3
+ 75: ..2.4..... (c3) lock *(u32 *)(r4 +0) += r2
+ 76: .......... (b7) r0 = 0
+ 77: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int BPF_PROG(softirq_exit, unsigned int vec_nr) @ buggy.c:83
+0: (79) r7 = *(u64 *)(r1 +0)          ; R1=ctx() R7_w=scalar()
+1: (b7) r1 = 0                        ; R1_w=0
+; u32 key = 0; @ buggy.c:36
+2: (63) *(u32 *)(r10 -4) = r1
+mark_precise: frame0: last_idx 2 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 1: (b7) r1 = 0
+3: R1_w=0 R10=fp0 fp-8=0000????
+; int BPF_PROG(softirq_exit, unsigned int vec_nr) @ buggy.c:83
+3: (67) r7 <<= 32                     ; R7_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+4: (77) r7 >>= 32                     ; R7_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+; if (vec_nr >= NR_SOFTIRQS) @ buggy.c:38
+5: (25) if r7 > 0x9 goto pc+70        ; R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=9,var_off=(0x0; 0xf))
+6: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+; tsp = bpf_map_lookup_elem(&start, &key); @ buggy.c:40
+7: (07) r2 += -4                      ; R2_w=fp-4
+8: (18) r1 = 0xffff8f28f75ac000       ; R1_w=map_ptr(map=start,ks=4,vs=8)
+10: (85) call bpf_map_lookup_elem#1   ; R0=map_value(map=start,ks=4,vs=8)
+11: (bf) r6 = r0                      ; R0=map_value(map=start,ks=4,vs=8) R6_w=map_value(map=start,ks=4,vs=8)
+; if (!tsp) @ buggy.c:41
+12: (15) if r6 == 0x0 goto pc+63      ; R6_w=map_value(map=start,ks=4,vs=8)
+; delta = bpf_ktime_get_ns() - *tsp; @ buggy.c:43
+13: (85) call bpf_ktime_get_ns#5      ; R0_w=scalar()
+14: (79) r1 = *(u64 *)(r6 +0)         ; R1_w=scalar() R6_w=map_value(map=start,ks=4,vs=8)
+15: (1f) r0 -= r1                     ; R0_w=scalar() R1_w=scalar()
+; if (!targ_ns) @ buggy.c:44
+16: (18) r1 = 0xffffd00e8d55a001      ; R1_w=map_value(map=buggy.rodata,ks=4,vs=2,off=1)
+18: (71) r2 = *(u8 *)(r1 +0)          ; R1_w=map_value(map=buggy.rodata,ks=4,vs=2,off=1) R2_w=0
+19: (bf) r1 = r0                      ; R0_w=scalar(id=1) R1_w=scalar(id=1)
+20: (37) r1 /= 1000                   ; R1=scalar()
+21: (15) if r2 == 0x0 goto pc+1
+mark_precise: frame0: last_idx 21 first_idx 21 subseq_idx -1 
+mark_precise: frame0: parent state regs=r2 stack=:  R0_w=scalar(id=1) R1_w=scalar() R2_rw=P0 R6_w=map_value(map=start,ks=4,vs=8) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=9,var_off=(0x0; 0xf)) R10=fp0 fp-8=0000????
+mark_precise: frame0: last_idx 20 first_idx 11 subseq_idx 21 
+mark_precise: frame0: regs=r2 stack= before 20: (37) r1 /= 1000
+mark_precise: frame0: regs=r2 stack= before 19: (bf) r1 = r0
+mark_precise: frame0: regs=r2 stack= before 18: (71) r2 = *(u8 *)(r1 +0)
+21: R2=0
+; if (!targ_dist) { @ buggy.c:47
+23: (18) r2 = 0xffffd00e8d55a000      ; R2_w=map_value(map=buggy.rodata,ks=4,vs=2)
+25: (71) r2 = *(u8 *)(r2 +0)          ; R2_w=0
+26: (55) if r2 != 0x0 goto pc+11
+mark_precise: frame0: last_idx 26 first_idx 21 subseq_idx -1 
+mark_precise: frame0: regs=r2 stack= before 25: (71) r2 = *(u8 *)(r2 +0)
+26: R2_w=0
+; __sync_fetch_and_add(&counts[vec_nr], 1); @ buggy.c:48
+27: (67) r7 <<= 3                     ; R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78))
+28: (18) r2 = 0xffffd00e8d562000      ; R2_w=map_value(map=buggy.bss,ks=4,vs=960)
+30: (0f) r2 += r7
+mark_precise: frame0: last_idx 30 first_idx 21 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 28: (18) r2 = 0xffffd00e8d562000
+mark_precise: frame0: regs=r7 stack= before 27: (67) r7 <<= 3
+mark_precise: frame0: regs=r7 stack= before 26: (55) if r2 != 0x0 goto pc+11
+mark_precise: frame0: regs=r7 stack= before 25: (71) r2 = *(u8 *)(r2 +0)
+mark_precise: frame0: regs=r7 stack= before 23: (18) r2 = 0xffffd00e8d55a000
+mark_precise: frame0: regs=r7 stack= before 21: (15) if r2 == 0x0 goto pc+1
+mark_precise: frame0: parent state regs=r7 stack=:  R0_w=scalar(id=1) R1_w=scalar() R2_rw=P0 R6_w=map_value(map=start,ks=4,vs=8) R7_r=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=9,var_off=(0x0; 0xf)) R10=fp0 fp-8=0000????
+mark_precise: frame0: last_idx 20 first_idx 11 subseq_idx 21 
+mark_precise: frame0: regs=r7 stack= before 20: (37) r1 /= 1000
+mark_precise: frame0: regs=r7 stack= before 19: (bf) r1 = r0
+mark_precise: frame0: regs=r7 stack= before 18: (71) r2 = *(u8 *)(r1 +0)
+mark_precise: frame0: regs=r7 stack= before 16: (18) r1 = 0xffffd00e8d55a001
+mark_precise: frame0: regs=r7 stack= before 15: (1f) r0 -= r1
+mark_precise: frame0: regs=r7 stack= before 14: (79) r1 = *(u64 *)(r6 +0)
+mark_precise: frame0: regs=r7 stack= before 13: (85) call bpf_ktime_get_ns#5
+mark_precise: frame0: regs=r7 stack= before 12: (15) if r6 == 0x0 goto pc+63
+mark_precise: frame0: regs=r7 stack= before 11: (bf) r6 = r0
+mark_precise: frame0: parent state regs=r7 stack=:  R0_rw=map_value(map=start,ks=4,vs=8) R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=9,var_off=(0x0; 0xf)) R10=fp0 fp-8=0000????
+mark_precise: frame0: last_idx 10 first_idx 0 subseq_idx 11 
+mark_precise: frame0: regs=r7 stack= before 10: (85) call bpf_map_lookup_elem#1
+mark_precise: frame0: regs=r7 stack= before 8: (18) r1 = 0xffff8f28f75ac000
+mark_precise: frame0: regs=r7 stack= before 7: (07) r2 += -4
+mark_precise: frame0: regs=r7 stack= before 6: (bf) r2 = r10
+mark_precise: frame0: regs=r7 stack= before 5: (25) if r7 > 0x9 goto pc+70
+mark_precise: frame0: regs=r7 stack= before 4: (77) r7 >>= 32
+mark_precise: frame0: regs=r7 stack= before 3: (67) r7 <<= 32
+mark_precise: frame0: regs=r7 stack= before 2: (63) *(u32 *)(r10 -4) = r1
+mark_precise: frame0: regs=r7 stack= before 1: (b7) r1 = 0
+mark_precise: frame0: regs=r7 stack= before 0: (79) r7 = *(u64 *)(r1 +0)
+31: R2_w=map_value(map=buggy.bss,ks=4,vs=960,smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78)) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78))
+31: (b7) r3 = 1                       ; R3_w=1
+32: (db) lock *(u64 *)(r2 +0) += r3   ; R2_w=map_value(map=buggy.bss,ks=4,vs=960,smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78)) R3_w=1
+; __sync_fetch_and_add(&time[vec_nr], delta); @ buggy.c:49
+33: (18) r2 = 0xffffd00e8d562050      ; R2_w=map_value(map=buggy.bss,ks=4,vs=960,off=80)
+35: (0f) r2 += r7
+mark_precise: frame0: last_idx 35 first_idx 21 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 33: (18) r2 = 0xffffd00e8d562050
+mark_precise: frame0: regs=r7 stack= before 32: (db) lock *(u64 *)(r2 +0) += r3
+mark_precise: frame0: regs=r7 stack= before 31: (b7) r3 = 1
+mark_precise: frame0: regs=r7 stack= before 30: (0f) r2 += r7
+mark_precise: frame0: regs=r7 stack= before 28: (18) r2 = 0xffffd00e8d562000
+mark_precise: frame0: regs=r7 stack= before 27: (67) r7 <<= 3
+mark_precise: frame0: regs=r7 stack= before 26: (55) if r2 != 0x0 goto pc+11
+mark_precise: frame0: regs=r7 stack= before 25: (71) r2 = *(u8 *)(r2 +0)
+mark_precise: frame0: regs=r7 stack= before 23: (18) r2 = 0xffffd00e8d55a000
+mark_precise: frame0: regs=r7 stack= before 21: (15) if r2 == 0x0 goto pc+1
+mark_precise: frame0: parent state regs= stack=:  R0_w=scalar(id=1) R1_w=scalar() R2_rw=P0 R6_w=map_value(map=start,ks=4,vs=8) R7_r=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=9,var_off=(0x0; 0xf)) R10=fp0 fp-8=0000????
+36: R2_w=map_value(map=buggy.bss,ks=4,vs=960,off=80,smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78)) R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78))
+36: (db) lock *(u64 *)(r2 +0) += r1   ; R1=scalar() R2_w=map_value(map=buggy.bss,ks=4,vs=960,off=80,smin=smin32=0,smax=umax=smax32=umax32=72,var_off=(0x0; 0x78))
+37: (05) goto pc+38
+; int BPF_PROG(softirq_exit, unsigned int vec_nr) @ buggy.c:83
+76: (b7) r0 = 0                       ; R0_w=0
+77: (95) exit
+
+from 5 to 76: safe
+verification time 146 usec
+stack depth 8
+processed 35 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2
+-- END PROG LOAD LOG --
+libbpf: prog 'softirq_entry_btf': pinned at '/sys/fs/bpf/eval-bcc-799acc7ca2c6_buggy/softirq_entry_btf'
+libbpf: prog 'softirq_exit_btf': pinned at '/sys/fs/bpf/eval-bcc-799acc7ca2c6_buggy/softirq_exit_btf'
+libbpf: prog 'softirq_entry': pinned at '/sys/fs/bpf/eval-bcc-799acc7ca2c6_buggy/softirq_entry'
+libbpf: prog 'softirq_exit': pinned at '/sys/fs/bpf/eval-bcc-799acc7ca2c6_buggy/softirq_exit'

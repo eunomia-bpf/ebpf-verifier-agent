@@ -3,7 +3,7 @@ from __future__ import annotations
 from interface.extractor.bpftool_parser import parse_bpftool_xlated_linum
 from interface.extractor.source_correlator import ProofEvent
 from interface.extractor.source_correlator import correlate_to_source
-from interface.extractor.trace_parser import ParsedTrace, RegisterState, TracedInstruction
+from interface.extractor.trace_parser import ParsedTrace, TracedInstruction
 
 
 def _instruction(

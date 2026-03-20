@@ -203,8 +203,106 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-} else
-return A_RET_CODE_1;
+struct ip_addr {
+    __u32 addr;
+};
+
+struct some_key {
+    struct ip_addr dst_ip;
+};
+
+struct global_vars {
+    __u32 dummy;
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, int);
+    __type(value, struct global_vars);
+} globals_map SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, 1024);
+    __type(key, struct ip_addr);
+    __type(value, __u8);
+} some_map SEC(".maps");
+
+static __always_inline int some_inlined_func(struct xdp_md *ctx, struct some_key *key)
+{
+    void *data = (void *)(long)ctx->data;
+    void *data_end = (void *)(long)ctx->data_end;
+    struct ethhdr *eth = data;
+    struct iphdr *ipv4_hdr = 0;
+    struct ipv6hdr *ipv6_hdr = 0;
+    void *udph;
+    __u16 ethertype;
+    __u16 dst_port;
+
+    if (!ctx)
+        return 1;
+    if ((void *)(eth + 1) > data_end)
+        return 1;
+
+    ethertype = __constant_ntohs(eth->h_proto);
+    if (ethertype == ETH_P_IP) {
+        ipv4_hdr = (void *)eth + ETH_HLEN;
+        if ((void *)(ipv4_hdr + 1) > data_end)
+            return 1;
+        key->dst_ip.addr = ipv4_hdr->daddr;
+    } else if (ethertype == ETH_P_IPV6) {
+        ipv6_hdr = (void *)eth + ETH_HLEN;
+        if ((void *)(ipv6_hdr + 1) > data_end)
+            return 1;
+        key->dst_ip.addr = 0;
+    } else {
+        return 2;
+    }
+
+    if (ethertype == ETH_P_IP)
+        udph = (void *)ipv4_hdr + sizeof(*ipv4_hdr);
+    else if (ethertype == ETH_P_IPV6)
+        udph = (void *)ipv6_hdr + sizeof(*ipv6_hdr);
+    else
+        return 2;
+    if (udph + sizeof(struct udphdr) > data_end)
+        return 1;
+
+    dst_port = __constant_ntohs(((struct udphdr *)udph)->dest);
+    key->dst_ip.addr ^= dst_port;
+    return 0;
+}
+
+SEC("xdp")
+int entry_point(struct xdp_md *ctx)
+{
+    int act = XDP_DROP;
+    int rc, i = 0;
+    struct global_vars *globals;
+    struct ip_addr addr = {};
+    struct some_key key = {};
+    void *temp;
+
+    globals = bpf_map_lookup_elem(&globals_map, &i);
+    if (!globals)
+        return XDP_ABORTED;
+
+    rc = some_inlined_func(ctx, &key);
+    addr = key.dst_ip;
+    temp = bpf_map_lookup_elem(&some_map, &addr);
+
+    switch (rc) {
+    case 0:
+        if (!temp)
+            act = XDP_PASS;
+        break;
+    default:
+        break;
+    }
+
+    return act;
+}
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

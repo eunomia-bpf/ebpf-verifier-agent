@@ -277,7 +277,7 @@ int trace_read_exit(struct read_exit_ctx *ctx)
 #if 1
 
         // this is where things go bad
-        if (bpf_probe_read_user(map_buf, min, *ubuf)) {
+        if (bpf_probe_read(map_buf, min, *ubuf)) {
                 return 0;
         }
 #endif

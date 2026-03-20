@@ -1,0 +1,56 @@
+case_id: eval-cilium-ff65a2bd28f2
+source: eval_commits
+repository: https://github.com/cilium/cilium
+repo_name: cilium
+commit_hash: ff65a2bd28f21cb789130640ee92224c487dcbcd
+parent_commit: b3cf147d03d6660ec50fee953cc275146b6c1962
+case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits/eval-cilium-ff65a2bd28f2.yaml
+score: 6
+changed_files:
+- bpf/include/bpf/section.h
+- bpf/lib/local_delivery.h
+selected_source_file: bpf/tests/xdp_nodeport_lb4_nat_lb.c
+buggy_include_closure:
+- bpf/tests/common.h
+- bpf/tests/lib/endpoint.h
+- bpf/tests/lib/ipcache.h
+- bpf/tests/lib/lb.h
+- bpf/tests/pktgen.h
+- bpf/tests/xdp_nodeport_lb4_nat_lb.c
+fixed_include_closure:
+- bpf/tests/common.h
+- bpf/tests/lib/endpoint.h
+- bpf/tests/lib/ipcache.h
+- bpf/tests/lib/lb.h
+- bpf/tests/pktgen.h
+- bpf/tests/xdp_nodeport_lb4_nat_lb.c
+unresolved_buggy_includes: []
+unresolved_fixed_includes: []
+compile_command_buggy:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-ff65a2bd28f2/headers/buggy
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-ff65a2bd28f2/buggy.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-ff65a2bd28f2/buggy.o
+compile_command_fixed:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-ff65a2bd28f2/headers/fixed
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-ff65a2bd28f2/fixed.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-ff65a2bd28f2/fixed.o
+load_command_buggy: []
+load_command_fixed: []

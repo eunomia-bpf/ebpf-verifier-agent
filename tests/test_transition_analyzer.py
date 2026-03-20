@@ -21,8 +21,6 @@ ROOT = Path(__file__).resolve().parents[1]
 from interface.extractor.trace_parser import RegisterState, TracedInstruction, parse_trace
 from interface.extractor.engine.transition_analyzer import (
     TransitionAnalyzer,
-    TransitionChain,
-    TransitionDetail,
     TransitionEffect,
     analyze_transitions,
     _describe_state,

@@ -7,5 +7,5 @@ verifier_status: rejected
 verifier_error_match: exact
 fixed_status: not_attempted
 original_error: invalid access to packet, off=14 size=60, R3(id=1,off=14,r=34)
-captured_error: invalid access to packet, off=0 size=60, R3(id=0,off=0,r=20)
-notes: <none>
+captured_error: invalid access to packet, off=14 size=60, R3(id=0,off=14,r=34)
+notes: Reintroduced the Ethernet-header offset so tcph starts at packet offset 14, matching the original verifier state instead of the earlier offset-0 simplification.

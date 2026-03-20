@@ -38,7 +38,7 @@ def test_comparison_report_source_filters_and_macro_f1_rows() -> None:
     rows = build_per_class_rows(results, truth, case_ids)
     assert rows[-len(METHOD_ORDER):] == [
         ["Macro-F1", "BPFix", "n/a", "n/a", "75.0%", "n/a", "n/a", "n/a"],
-        ["Macro-F1", "Baseline", "n/a", "n/a", "75.0%", "n/a", "n/a", "n/a"],
+        ["Macro-F1", "Regex Baseline", "n/a", "n/a", "75.0%", "n/a", "n/a", "n/a"],
         ["Macro-F1", "Ablation A", "n/a", "n/a", "75.0%", "n/a", "n/a", "n/a"],
         ["Macro-F1", "Ablation B", "n/a", "n/a", "75.0%", "n/a", "n/a", "n/a"],
         ["Macro-F1", "Ablation C", "n/a", "n/a", "75.0%", "n/a", "n/a", "n/a"],

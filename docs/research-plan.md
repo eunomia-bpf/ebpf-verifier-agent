@@ -11,26 +11,25 @@
 > - 任何 TODO/实验/文档引用条目被取代时，必须至少保留一行并标注状态，不得直接删除。
 > - 每个任务做完 → 立即更新本文档（任务条目状态 + 关键数据 + 文档路径）。
 > - 每次 context 压缩后 → 完整读取本文档恢复全局状态。
-> - 用 sonnet agent 跑实现/分析任务。codex 额度已尽（至 2026-03-18）。
-> 上次更新：2026-03-13 evening（critical review done; claims audit done; implementation gap plan added; target OSDI/ATC confirmed）
+> - 用 codex CLI 跑所有实现/分析任务。
+> 上次更新：2026-03-20（eval set 大规模改进：独立标注、编译验证、stratified reporting、baseline 重建）
 
 ---
 
-## 0. 当前快照（2026-03-13）
+## 0. 当前快照（2026-03-20）
 
-- Batch v5：**262/262 成功**（formal engine only），proof_established 115 (43.9%), proof_lost 99 (37.8%), rejected 262 (100%), BTF 172 (65.6%), causal_chain 24
-- Obligation coverage：**100%**（262/262 have `missing_obligation`）
-- Tests：**268 passing**（heuristic 已清理，formal engine only）
-- Latency v3：**median 25.3ms, P95 41.2ms, max 89.3ms**，Pearson r=0.802
-- A/B repair v3：**56 cases**（本地 GPT-OSS 20B）；B consistently > A +7.1pp（21.4%→28.6%），lowering +9.1pp。绝对准确率低（20B 太弱），McNemar p=0.22
-- A/B repair v4：**❌ 待运行**（Qwen3.5-122B-A10B，56 cases）
-- Formal engine comparison：v3→v4 +21 eligible cases, +21 causal chains, obligation 94.19%→94.27%
-- Per-language：C 274 / Rust 21 / Go 7，全部成功
-- Paper：**9 pages**, **ACM SIGPLAN format**, **compiled**（`docs/paper/main.tex`）。6 个数字不一致待修
-- Title：`BPFix: Fast, Precise Root-Cause Diagnosis of eBPF Verification Failures`
-- Framing：**abstract state transition analysis**（第四次调整）
-- 文件清理完成：deprecated files → `eval/results/deprecated/`, `eval/deprecated/`, `docs/tmp/deprecated/`
-- 新增：`value_lineage.py`, `Makefile`（根目录一键操作）
+- **Ground truth**: `case_study/ground_truth.yaml` — 138 cases（136 non-quarantined），独立双 LLM 标注 + adjudication（κ=0.737，18/18 manual calibration match）
+- **分布**: source_bug 100, lowering_artifact 19, env_mismatch 15, verifier_limit 4, quarantined 2
+- **编译验证**: selftest 85/85 compiled+rejected; SO/GH 37/51 compiled, 30 rejected; cilium 43/50 compiled (0 loaded, libbpf legacy map issue); eval_commits bcc 1 confirmed cross-kernel on 5.10
+- **Taxonomy (rebuilt baseline)**: BPFix 80.1% vs Regex Baseline 80.9%（all 136）; selftest BPFix 领先; external BPFix 54.9% vs Baseline 62.7%
+- **Localization**: proof_lost coverage 8.8% (12/136); accuracy when present within-5 66.7%
+- **Fix-type**: 72.8% overall
+- **Baseline**: regex baseline 已吸收 PV 做法，PV 不再作为独立 baseline
+- Tests：**406 passing**（2 skipped）
+- Latency：median ~32ms, P95 ~42ms
+- QEMU 5.10 环境可用（Debian 11 nocloud, `scripts/qemu-*.sh`）
+- Eval 脚本统一用 `ground_truth.yaml`，stratified reporting（selftest vs real-world vs all）
+- Cross-log 诊断稳定性：38/51 taxonomy match between original and fresh verifier logs
 
 ---
 
@@ -475,7 +474,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 ### 5.3 Eval Baselines
 
 - **B1**: `raw_verbose_log` — 原始 verifier LOG_LEVEL2 verbose output（500-1000+ 行）
-- **B2**: `pretty_verifier` — PV 的 1 行 error + 1 条 suggestion（existing tool baseline）
+- **B2**: `regex_baseline` — 综合 error message regex（吸收了 PV 做法），1 行 error + taxonomy + suggestion
 - **B3**: `bpfix_diagnostic` — BPFix Rust-style multi-span output
 
 ### 5.4 Eval 脚本使用方式
@@ -569,7 +568,7 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | 52 | Paper claims analysis | ✅ | 70 claims, many overclaimed. `docs/tmp/paper-claims-analysis-2026-03-18.md` |
 | 53 | Project review | ✅ | `docs/tmp/project-review-2026-03-18.md` |
 | 54 | Cross-kernel stability eval | ❌ 暂缓 | QEMU/KVM, ≥3 kernel versions. `docs/tmp/cross-kernel-feasibility-report.md` |
-| 55 | PV comparison on full corpus | ❌ | 扩展到 50-100 cases |
+| 55 | PV comparison on full corpus | ✅→已合并 | PV 做法已吸收进 regex baseline，不再单独比较 |
 | 56 | Motivating example figure | ❌ | stackoverflow-70750259 |
 | 57 | Pipeline figures | ❌ | pipeline 图 + Rust-style 输出示例 |
 | 58 | **重跑全部 eval（新引擎）** | ❌ | 冻结引擎 → batch + span + latency + PV comparison |
@@ -590,9 +589,9 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | 72 | Strategic review | ✅ | `docs/tmp/strategic-review-2026-03-12.md` |
 | 73 | Eval infrastructure audit | ✅ | `docs/tmp/eval-infrastructure-audit-2026-03-18.md` |
 | 74 | **修 broken Makefile targets** | ✅ | v4/v5→current。`make eval-all` 通过。commit `135e50a` |
-| 75 | **统一 corpus manifest** | ❌ | 当前 262 vs 263 vs 302 不一致。建 `case_study/eval_manifest.yaml` 统一定义 eligible cases |
-| 76 | **合并 ground truth 到一个文件** | ❌ | 当前分散在 `ground_truth_labels.yaml`（taxonomy only）+ `docs/tmp/manual-labeling-30cases.md`（markdown）。合并为一个 versioned YAML，含 taxonomy + error_id + fix_text |
-| 77 | **补 7 个缺 label 的 eligible cases** | ❌ | `stackoverflow-68815540`, `69413427`, `79812509`, `github-aya-*-1104/1324/546`, `katran-149` |
+| 75 | **统一 corpus manifest** | ✅ | `case_study/eval_manifest.yaml` 统一定义 eligible cases。commit `d41e162` |
+| 76 | **合并 ground truth 到一个文件** | ✅ | `case_study/ground_truth.yaml` — 138 cases，含 taxonomy + localization + fix_type + quality metadata。旧文件在 `case_study/archive/`。commit `02deced` |
+| 77 | **补 7 个缺 label 的 eligible cases** | ✅→已被 v3 标注覆盖 | 独立双 LLM 标注覆盖了 139→138 core cases |
 | 78 | **Cross-analysis classification（proof-carrier-aware）** | ❌ | register-parametric schema + proof-compatible carriers + establish+loss witness + ambiguous bucket。Design review 发现原始 E∩S 规则有 5 个反例 |
 | 79 | **更新 §1/§2** | ✅ | thesis v5 + 4-layer v2 已更新（2026-03-18 design review 后） |
 | 80 | Design review | ✅ | cross-analysis 不 sound as stated，需 proof-carrier + loss witness + ambiguous。`docs/tmp/design-review-2026-03-18.md` |
@@ -600,10 +599,21 @@ regs=41 stack=0 before 21: (67) r0 <<= 8       ← R0+R6 (bits 0,6)
 | 82 | Repair pilot (stackoverflow-70760516) | ✅ | buggy rejected, fixed passes on local kernel. `docs/tmp/repair-pilot-case-2026-03-18.md` |
 | 83 | **SafetyCondition → register-parametric schema** | ❌ | 当前 SafetyCondition 绑定具体 register，需改为 PacketBounds(size, ptr_kind) 等 schema |
 | 84 | **Monitor → per-carrier lifecycle** | ❌ | 当前 TraceMonitor 只记一个 establish/loss，需改为 per-carrier map |
-| 85 | **Corpus 分层：core_trace_rich / partial / message_only** | ❌ | ~219 trace-rich 做 core accuracy benchmark，44 partial/message-only 做 robustness |
-| 86 | **Selftest 去重** | ❌ | 130/171 重复 terminal-message family，core set 每 family 保留 1-2 个 |
-| 87 | **手动标注扩展到 60-80 trace-rich cases** | ❌ | 当前 30 manual，lowering 仅 6。需加 root-cause insn/line + fix_type 字段 |
-| 88 | **加 trivial regex baseline** | ❌ | eval 需要除 PV 外的更多 baseline：trivial message extraction + BPFix ablations |
+| 85 | **Corpus 分层：core_trace_rich / partial / message_only** | ✅ | eval_manifest.yaml 分层；报告 selftest vs external 分开。commit `37bb7e3` |
+| 86 | **Selftest 去重** | ✅ | 85 core representative from 171 eligible。eval_manifest.yaml |
+| 87 | **独立标注 138 trace-rich cases** | ✅ | 双 LLM 标注 + adjudication，κ=0.737，18/18 manual match。`ground_truth.yaml`。commit `84747e3` |
+| 88 | **加 regex baseline + ablations** | ✅ | `core/baseline/regex_diagnostic.py` + 3 ablations。`eval/comparison_report.py`。commit `2d74c6f` |
 | 89 | **Layer 4 Phase 1 local repairs** | ❌ | clamp/mask, null-check, redundant bounds, __always_inline, expression reuse |
 | 90 | **Layer 4 Phase 2 structural repairs** | ❌ | loop rewrite, bounded-cursor, multi-location edits（pilot case 类型） |
+| 91 | **Selftest 编译验证** | ✅ | 85/85 compiled + rejected。`case_study/cases/kernel_selftests_verified/`。commit `c5f4881` |
+| 92 | **SO/GH 编译验证** | 进行中 | 37/51 compiled, 28 rejected, 4 confirmed。改进 wrapper 质量中 |
+| 93 | **eval_commits lowering_artifact 扫描** | 进行中 | 312 candidates, 1 confirmed on 5.10 (eval-bcc-89c7f409b4a6)。批量 5.10 验证中 |
+| 94 | **QEMU 5.10 cross-kernel 环境** | ✅ | Debian 11 nocloud, bpftool installed, scripts/qemu-*.sh。commit `50fafdc` |
+| 95 | **Localization eval** | ✅ | `eval/localization_eval.py`。proof_lost coverage 8.8%, accuracy when present 66.7% within-5。commit `587bc66` |
+| 96 | **Fix-type eval** | ✅ | `eval/fix_type_eval.py`。72.8% overall。commit `1ec1fca` |
+| 97 | **Stratified reporting** | ✅ | selftest vs external vs all in comparison_report.py。commit `37bb7e3` |
+| 98 | **死代码清理** | ✅ | 删 build_ground_truth_labels.py, 迁移 manual-labeling 依赖到 ground_truth.yaml。commit `587bc66` |
+| 99 | **PV 做法合并进 regex baseline** | ✅ | regex baseline 已吸收 PV 的 error pattern 覆盖。PV 不再作为独立 baseline |
+| 100 | **fix_type eval 去除 taxonomy leakage** | ❌ | 当前用 predicted_taxonomy 推断 fix_type，需要改为纯文本推断 |
+| 101 | **end-to-end reproducibility 文档** | ❌ | 需要 README/artifact 说明 clone → eval → numbers |
 

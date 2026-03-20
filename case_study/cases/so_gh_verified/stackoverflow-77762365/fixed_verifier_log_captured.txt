@@ -1,0 +1,212 @@
+libbpf: loading object from case_study/cases/so_gh_verified/stackoverflow-77762365/fixed.o
+libbpf: elf: section(3) tracepoint/syscalls/sys_exit_read, size 488, link 0, flags 6, type=1
+libbpf: sec 'tracepoint/syscalls/sys_exit_read': found program 'read_data_probe' at insn offset 0 (0 bytes), code size 61 insns (488 bytes)
+libbpf: elf: section(4) .reltracepoint/syscalls/sys_exit_read, size 32, link 27, flags 40, type=9
+libbpf: elf: section(5) .maps, size 64, link 0, flags 3, type=1
+libbpf: elf: section(6) license, size 4, link 0, flags 3, type=1
+libbpf: license of case_study/cases/so_gh_verified/stackoverflow-77762365/fixed.o is GPL
+libbpf: elf: section(17) .BTF, size 1823, link 0, flags 0, type=1
+libbpf: elf: section(19) .BTF.ext, size 464, link 0, flags 0, type=1
+libbpf: elf: section(27) .symtab, size 456, link 1, flags 0, type=2
+libbpf: looking for externs among 19 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'read_args_map': at sec_idx 5, offset 0.
+libbpf: map 'read_args_map': found type = 2.
+libbpf: map 'read_args_map': found key [2], sz = 4.
+libbpf: map 'read_args_map': found value [9], sz = 16.
+libbpf: map 'read_args_map': found max_entries = 1.
+libbpf: map 'read_event_map': at sec_idx 5, offset 32.
+libbpf: map 'read_event_map': found type = 2.
+libbpf: map 'read_event_map': found key [2], sz = 4.
+libbpf: map 'read_event_map': found value [15], sz = 4108.
+libbpf: map 'read_event_map': found max_entries = 1.
+libbpf: sec '.reltracepoint/syscalls/sys_exit_read': collecting relocation for section(3) 'tracepoint/syscalls/sys_exit_read'
+libbpf: sec '.reltracepoint/syscalls/sys_exit_read': relo #0: insn #5 against 'read_args_map'
+libbpf: prog 'read_data_probe': found map 0 (read_args_map, sec 5, off 0) for insn #5
+libbpf: sec '.reltracepoint/syscalls/sys_exit_read': relo #1: insn #10 against 'read_event_map'
+libbpf: prog 'read_data_probe': found map 1 (read_event_map, sec 5, off 32) for insn #10
+libbpf: object 'fixed': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+libbpf: map 'read_args_map': created successfully, fd=4
+libbpf: map 'read_event_map': created successfully, fd=5
+libbpf: prog 'read_data_probe': BPF program load failed: -EACCES
+libbpf: prog 'read_data_probe': -- BEGIN PROG LOAD LOG --
+func#0 @0
+Live regs before insn:
+  0: .1........ (bf) r6 = r1
+  1: ......6... (b7) r1 = 0
+  2: .1....6... (63) *(u32 *)(r10 -4) = r1
+  3: ......6... (bf) r8 = r10
+  4: ......6.8. (07) r8 += -4
+  5: ......6.8. (18) r1 = 0xffff8f27106f4000
+  7: .1....6.8. (bf) r2 = r8
+  8: .12...6.8. (85) call bpf_map_lookup_elem#1
+  9: 0.....6.8. (bf) r7 = r0
+ 10: ......678. (18) r1 = 0xffff8f2904bd8000
+ 12: .1....678. (bf) r2 = r8
+ 13: .12...67.. (85) call bpf_map_lookup_elem#1
+ 14: 0.....67.. (15) if r7 == 0x0 goto pc+44
+ 15: 0.....67.. (15) if r0 == 0x0 goto pc+43
+ 16: 0.....67.. (79) r3 = *(u64 *)(r7 +8)
+ 17: 0..3..67.. (15) if r3 == 0x0 goto pc+41
+ 18: 0..3..67.. (79) r1 = *(u64 *)(r6 +16)
+ 19: 01.3...7.. (61) r2 = *(u32 *)(r7 +0)
+ 20: 0123...... (63) *(u32 *)(r0 +4) = r2
+ 21: 01.3...... (61) r7 = *(u32 *)(r0 +8)
+ 22: 01.3...7.. (67) r7 <<= 32
+ 23: 01.3...7.. (c7) r7 s>>= 32
+ 24: 01.3...7.. (65) if r7 s> 0x1000 goto pc+34
+ 25: 01.3...7.. (bf) r2 = r1
+ 26: 0123...7.. (67) r2 <<= 32
+ 27: 0123...7.. (bf) r4 = r2
+ 28: 01234..7.. (c7) r4 s>>= 32
+ 29: 01234..7.. (b7) r5 = 0
+ 30: 012345.7.. (6d) if r5 s> r4 goto pc+28
+ 31: 0123...7.. (57) r7 &= 4095
+ 32: 0123...7.. (77) r2 >>= 32
+ 33: 0123...7.. (b7) r6 = 4095
+ 34: 0123..67.. (25) if r2 > 0x1000 goto pc+1
+ 35: 01.3...7.. (bf) r6 = r1
+ 36: 0..3..67.. (bf) r1 = r6
+ 37: 01.3..67.. (67) r1 <<= 32
+ 38: 01.3..67.. (77) r1 >>= 32
+ 39: 01.3..67.. (b7) r2 = 4096
+ 40: 0123..67.. (1f) r2 -= r7
+ 41: 0123..67.. (2d) if r2 > r1 goto pc+2
+ 42: 0..3...7.. (bf) r6 = r7
+ 43: 0..3..67.. (a7) r6 ^= 4095
+ 44: 0..3..67.. (bf) r1 = r6
+ 45: 01.3..67.. (67) r1 <<= 32
+ 46: 01.3..67.. (77) r1 >>= 32
+ 47: 01.3..67.. (15) if r1 == 0x0 goto pc+11
+ 48: 0..3..67.. (bf) r1 = r0
+ 49: 01.3..67.. (0f) r1 += r7
+ 50: 01.3..67.. (07) r1 += 12
+ 51: 01.3..67.. (bf) r2 = r6
+ 52: 0123..67.. (bf) r8 = r0
+ 53: .123..678. (85) call bpf_probe_read_user#112
+ 54: 0.....678. (bf) r1 = r8
+ 55: 01....67.. (b7) r2 = 0
+ 56: 012...67.. (6d) if r2 s> r0 goto pc+2
+ 57: .1....67.. (0f) r6 += r7
+ 58: .1....6... (63) *(u32 *)(r1 +8) = r6
+ 59: .......... (b7) r0 = 0
+ 60: 0......... (95) exit
+0: R1=ctx() R10=fp0
+; int read_data_probe(struct read_exit_ctx *ctx) @ fixed.c:283
+0: (bf) r6 = r1                       ; R1=ctx() R6_w=ctx()
+1: (b7) r1 = 0                        ; R1_w=0
+; int zero = 0; @ fixed.c:285
+2: (63) *(u32 *)(r10 -4) = r1
+mark_precise: frame0: last_idx 2 first_idx 0 subseq_idx -1 
+mark_precise: frame0: regs=r1 stack= before 1: (b7) r1 = 0
+3: R1_w=0 R10=fp0 fp-8=0000????
+3: (bf) r8 = r10                      ; R8_w=fp0 R10=fp0
+;  @ fixed.c:0
+4: (07) r8 += -4                      ; R8_w=fp-4
+; struct ReadArgs *args = bpf_map_lookup_elem(&read_args_map, &zero); @ fixed.c:286
+5: (18) r1 = 0xffff8f27106f4000       ; R1_w=map_ptr(map=read_args_map,ks=4,vs=16)
+7: (bf) r2 = r8                       ; R2_w=fp-4 R8_w=fp-4
+8: (85) call bpf_map_lookup_elem#1    ; R0_w=map_value(map=read_args_map,ks=4,vs=16)
+9: (bf) r7 = r0                       ; R0_w=map_value(map=read_args_map,ks=4,vs=16) R7_w=map_value(map=read_args_map,ks=4,vs=16)
+; struct ReadEvent *event = bpf_map_lookup_elem(&read_event_map, &zero); @ fixed.c:287
+10: (18) r1 = 0xffff8f2904bd8000      ; R1_w=map_ptr(map=read_event_map,ks=4,vs=4108)
+12: (bf) r2 = r8                      ; R2_w=fp-4 R8_w=fp-4
+13: (85) call bpf_map_lookup_elem#1   ; R0=map_value(map=read_event_map,ks=4,vs=4108)
+; if (!args || !event) @ fixed.c:289
+14: (15) if r7 == 0x0 goto pc+44      ; R7=map_value(map=read_args_map,ks=4,vs=16)
+15: (15) if r0 == 0x0 goto pc+43      ; R0=map_value(map=read_event_map,ks=4,vs=4108)
+; if ((void *)args->buf == NULL) @ fixed.c:249
+16: (79) r3 = *(u64 *)(r7 +8)         ; R3_w=scalar() R7=map_value(map=read_args_map,ks=4,vs=16)
+17: (15) if r3 == 0x0 goto pc+41      ; R3_w=scalar(umin=1)
+; readData(args, event, ctx->ret); @ fixed.c:292
+18: (79) r1 = *(u64 *)(r6 +16)        ; R1_w=scalar() R6=ctx()
+; event->fd = args->fd; @ fixed.c:251
+19: (61) r2 = *(u32 *)(r7 +0)         ; R2_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R7=map_value(map=read_args_map,ks=4,vs=16)
+20: (63) *(u32 *)(r0 +4) = r2         ; R0=map_value(map=read_event_map,ks=4,vs=4108) R2_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+; if (event->len > MAX_READ_CONTENT_LENGTH) @ fixed.c:252
+21: (61) r7 = *(u32 *)(r0 +8)         ; R0=map_value(map=read_event_map,ks=4,vs=4108) R7_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+22: (67) r7 <<= 32                    ; R7_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+23: (c7) r7 s>>= 32                   ; R7=scalar(smin=0xffffffff80000000,smax=0x7fffffff)
+24: (65) if r7 s> 0x1000 goto pc+34   ; R7=scalar(smin=0xffffffff80000000,smax=smax32=4096)
+; readData(args, event, ctx->ret); @ fixed.c:292
+25: (bf) r2 = r1                      ; R1=scalar(id=1) R2_w=scalar(id=1)
+26: (67) r2 <<= 32                    ; R2_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+27: (bf) r4 = r2                      ; R2_w=scalar(id=2,smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000)) R4_w=scalar(id=2,smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+28: (c7) r4 s>>= 32                   ; R4_w=scalar(smin=0xffffffff80000000,smax=0x7fffffff)
+29: (b7) r5 = 0                       ; R5_w=0
+; if (read < 0) @ fixed.c:256
+30: (6d) if r5 s> r4 goto pc+28       ; R4_w=scalar(smin=smin32=0,smax=umax=umax32=0x7fffffff,var_off=(0x0; 0x7fffffff)) R5_w=0
+; readData(args, event, ctx->ret); @ fixed.c:292
+31: (57) r7 &= 4095                   ; R7_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff))
+32: (77) r2 >>= 32                    ; R2_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+33: (b7) r6 = 4095                    ; R6=4095
+34: (25) if r2 > 0x1000 goto pc+1     ; R2=scalar(smin=smin32=0,smax=umax=smax32=umax32=4096,var_off=(0x0; 0x1fff))
+35: (bf) r6 = r1                      ; R1=scalar(id=1) R6_w=scalar(id=1)
+36: (bf) r1 = r6                      ; R1_w=scalar(id=1) R6_w=scalar(id=1)
+37: (67) r1 <<= 32                    ; R1_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000))
+38: (77) r1 >>= 32                    ; R1_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+39: (b7) r2 = 4096                    ; R2_w=4096
+; remaining = (__u32)((char *)end - (char *)dst); @ fixed.c:265
+40: (1f) r2 -= r7                     ; R2_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=4096,var_off=(0x0; 0x1fff)) R7=scalar(smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff))
+; if (read_len >= remaining) @ fixed.c:266
+41: (2d) if r2 > r1 goto pc+2         ; R1_w=scalar(smin=umin=umin32=1,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R2_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=4096,var_off=(0x0; 0x1fff))
+42: (bf) r6 = r7                      ; R6_w=scalar(id=3,smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff)) R7=scalar(id=3,smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff))
+43: (a7) r6 ^= 4095                   ; R6=scalar(smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff))
+44: (bf) r1 = r6                      ; R1_w=scalar(id=4,smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff)) R6=scalar(id=4,smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff))
+45: (67) r1 <<= 32                    ; R1_w=scalar(smin=smin32=0,smax=umax=0xfff00000000,smax32=umax32=0,var_off=(0x0; 0xfff00000000))
+46: (77) r1 >>= 32                    ; R1_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff))
+; if (read_len == 0) @ fixed.c:268
+47: (15) if r1 == 0x0 goto pc+11      ; R1_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff))
+; dst = &event->content[off]; @ fixed.c:263
+48: (bf) r1 = r0                      ; R0=map_value(map=read_event_map,ks=4,vs=4108) R1_w=map_value(map=read_event_map,ks=4,vs=4108)
+49: (0f) r1 += r7
+mark_precise: frame0: last_idx 49 first_idx 44 subseq_idx -1 
+mark_precise: frame0: regs=r7 stack= before 48: (bf) r1 = r0
+mark_precise: frame0: regs=r7 stack= before 47: (15) if r1 == 0x0 goto pc+11
+mark_precise: frame0: regs=r7 stack= before 46: (77) r1 >>= 32
+mark_precise: frame0: regs=r7 stack= before 45: (67) r1 <<= 32
+mark_precise: frame0: regs=r7 stack= before 44: (bf) r1 = r6
+mark_precise: frame0: parent state regs=r7 stack=:  R0_r=map_value(map=read_event_map,ks=4,vs=4108) R1_w=scalar(smin=umin=umin32=1,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R2_w=scalar(smin=umin=smin32=umin32=1,smax=umax=smax32=umax32=4096,var_off=(0x0; 0x1fff)) R3=scalar(umin=1) R4=scalar(smin=smin32=0,smax=umax=umax32=0x7fffffff,var_off=(0x0; 0x7fffffff)) R5=0 R6_rw=scalar(smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff)) R7_r=Pscalar(id=3,smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff)) R8=fp-4 R10=fp0 fp-8=0000????
+mark_precise: frame0: last_idx 43 first_idx 34 subseq_idx 44 
+mark_precise: frame0: regs=r7 stack= before 43: (a7) r6 ^= 4095
+mark_precise: frame0: regs=r7 stack= before 42: (bf) r6 = r7
+mark_precise: frame0: regs=r7 stack= before 41: (2d) if r2 > r1 goto pc+2
+mark_precise: frame0: regs=r7 stack= before 40: (1f) r2 -= r7
+mark_precise: frame0: regs=r7 stack= before 39: (b7) r2 = 4096
+mark_precise: frame0: regs=r7 stack= before 38: (77) r1 >>= 32
+mark_precise: frame0: regs=r7 stack= before 37: (67) r1 <<= 32
+mark_precise: frame0: regs=r7 stack= before 36: (bf) r1 = r6
+mark_precise: frame0: regs=r7 stack= before 35: (bf) r6 = r1
+mark_precise: frame0: regs=r7 stack= before 34: (25) if r2 > 0x1000 goto pc+1
+mark_precise: frame0: parent state regs=r7 stack=:  R0_r=map_value(map=read_event_map,ks=4,vs=4108) R1_r=scalar(id=1) R2_rw=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R3=scalar(umin=1) R4_w=scalar(smin=smin32=0,smax=umax=umax32=0x7fffffff,var_off=(0x0; 0x7fffffff)) R5_w=0 R6_w=4095 R7_rw=Pscalar(smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff)) R8=fp-4 R10=fp0 fp-8=0000????
+mark_precise: frame0: last_idx 33 first_idx 24 subseq_idx 34 
+mark_precise: frame0: regs=r7 stack= before 33: (b7) r6 = 4095
+mark_precise: frame0: regs=r7 stack= before 32: (77) r2 >>= 32
+mark_precise: frame0: regs=r7 stack= before 31: (57) r7 &= 4095
+mark_precise: frame0: regs=r7 stack= before 30: (6d) if r5 s> r4 goto pc+28
+mark_precise: frame0: regs=r7 stack= before 29: (b7) r5 = 0
+mark_precise: frame0: regs=r7 stack= before 28: (c7) r4 s>>= 32
+mark_precise: frame0: regs=r7 stack= before 27: (bf) r4 = r2
+mark_precise: frame0: regs=r7 stack= before 26: (67) r2 <<= 32
+mark_precise: frame0: regs=r7 stack= before 25: (bf) r2 = r1
+mark_precise: frame0: regs=r7 stack= before 24: (65) if r7 s> 0x1000 goto pc+34
+mark_precise: frame0: parent state regs=r7 stack=:  R0_r=map_value(map=read_event_map,ks=4,vs=4108) R1_rw=scalar() R2_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R3_w=scalar(umin=1) R6=ctx() R7_rw=Pscalar(smin=0xffffffff80000000,smax=0x7fffffff) R8=fp-4 R10=fp0 fp-8=0000????
+mark_precise: frame0: last_idx 23 first_idx 14 subseq_idx 24 
+mark_precise: frame0: regs=r7 stack= before 23: (c7) r7 s>>= 32
+mark_precise: frame0: regs=r7 stack= before 22: (67) r7 <<= 32
+mark_precise: frame0: regs=r7 stack= before 21: (61) r7 = *(u32 *)(r0 +8)
+50: R1_w=map_value(map=read_event_map,ks=4,vs=4108,smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff)) R7=scalar(id=3,smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff))
+50: (07) r1 += 12                     ; R1_w=map_value(map=read_event_map,ks=4,vs=4108,off=12,smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff))
+; long res = bpf_probe_read_user(dst, read_len, (const void *)args->buf); @ fixed.c:272
+51: (bf) r2 = r6                      ; R2_w=scalar(id=4,smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff)) R6=scalar(id=4,smin=smin32=0,smax=umax=smax32=umax32=4095,var_off=(0x0; 0xfff))
+52: (bf) r8 = r0                      ; R0=map_value(map=read_event_map,ks=4,vs=4108) R8_w=map_value(map=read_event_map,ks=4,vs=4108)
+53: (85) call bpf_probe_read_user#112
+invalid access to map value, value_size=4108 off=4107 size=4095
+R1 max value is outside of the allowed memory range
+verification time 210 usec
+stack depth 8
+processed 52 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 3
+-- END PROG LOAD LOG --
+libbpf: prog 'read_data_probe': failed to load: -EACCES
+libbpf: failed to load object 'case_study/cases/so_gh_verified/stackoverflow-77762365/fixed.o'
+Error: failed to load object file

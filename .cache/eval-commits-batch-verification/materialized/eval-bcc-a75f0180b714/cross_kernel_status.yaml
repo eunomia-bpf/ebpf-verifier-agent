@@ -1,0 +1,23 @@
+case_id: eval-bcc-a75f0180b714
+host_kernel: 6.15.11-061511-generic
+guest_kernel: 5.10.0-39-amd64
+buggy_6_15:
+  compiles: true
+  verifier_pass: true
+  reason: pass
+fixed_6_15:
+  compiles: true
+  verifier_pass: true
+  reason: pass
+buggy_5_10:
+  attempted: true
+  category: pass
+  headline: func#0 @0
+  returncode: 0
+fixed_5_10:
+  attempted: true
+  category: pass
+  headline: func#0 @0
+  returncode: 0
+confirmed: false
+confirmation_reason: buggy did not hit a clean verifier rejection on 5.10

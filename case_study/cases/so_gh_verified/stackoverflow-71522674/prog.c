@@ -208,10 +208,15 @@ int checksum_probe(struct xdp_md *ctx)
 {
     void *data = (void *)(long)ctx->data;
     void *data_end = (void *)(long)ctx->data_end;
-    struct tcphdr *tcph = data;
+    struct ethhdr *eth = data;
+    struct tcphdr *tcph;
     __u32 tcp_len = 0;
     __s64 value = 0;
 
+    if ((void *)(eth + 1) > data_end)
+        return XDP_DROP;
+
+    tcph = data + sizeof(*eth);
     if (tcph + 1 > data_end)
         return XDP_DROP;
 

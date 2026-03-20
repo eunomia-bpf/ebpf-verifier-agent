@@ -29,7 +29,7 @@ from case_study.capture_kernel_selftests_verifier_logs import (
     ensure_libbpf_headers,
     host_arch_macro,
 )
-from eval.pretty_verifier_comparison import BPFixResult, run_bpfix
+from eval.bpfix_eval_helpers import BPFixResult, run_bpfix
 from interface.extractor.log_parser import parse_log
 
 

@@ -1,0 +1,10 @@
+libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-katran-918c0e169773/fixed.o
+libbpf: elf: section(2) .text, size 1792, link 0, flags 6, type=1
+libbpf: sec '.text': found program 'jhash' at insn offset 76 (608 bytes), code size 148 insns (1184 bytes)
+libbpf: sec '.text': found program 'jhash_2words' at insn offset 0 (0 bytes), code size 76 insns (608 bytes)
+libbpf: elf: section(3) xdp-balancer, size 11416, link 0, flags 6, type=1
+libbpf: sec 'xdp-balancer': found program 'balancer_ingress' at insn offset 0 (0 bytes), code size 1427 insns (11416 bytes)
+libbpf: elf: section(4) .relxdp-balancer, size 560, link 36, flags 40, type=9
+libbpf: elf: section(5) maps, size 180, link 0, flags 3, type=1
+libbpf: elf: legacy map definitions in 'maps' section are not supported by libbpf v1.0+
+Error: failed to open object file

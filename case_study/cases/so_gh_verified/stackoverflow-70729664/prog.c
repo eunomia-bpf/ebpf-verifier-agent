@@ -208,6 +208,19 @@ struct bpf_elf_map {
 #define INV_RET_U8 255U
 #define DATA_CHUNK 0
 
+struct chunk_metrics {
+    __u16 last_len;
+    __u8 last_type;
+    __u8 seen_data;
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, __u32);
+    __type(value, struct chunk_metrics);
+} chunk_metrics_map SEC(".maps");
+
 struct hdr_cursor {
     void *pos;
 };
@@ -263,20 +276,50 @@ static __always_inline __u32 parse_sctp_hdr(struct hdr_cursor *nh, void *data_en
     nh->pos += hdrsize;
 
 #pragma clang loop unroll(full)
-    for (int i = 0; i < 16; ++i) {
+    for (int i = 0; i < 32; ++i) {
         __u8 type = parse_sctp_chunk_type(nh->pos, data_end);
         __u16 size;
+        volatile __u16 spilled_size;
+        __u32 zero = 0;
+        struct chunk_metrics *metrics;
 
         if (type == INV_RET_U8)
             return INV_RET_U32;
 
         size = parse_sctp_chunk_size(nh->pos, data_end);
+        metrics = bpf_map_lookup_elem(&chunk_metrics_map, &zero);
+        if (!metrics)
+            return INV_RET_U32;
+
+        metrics->last_type = type;
+        metrics->last_len = size;
+        spilled_size = size;
         if (size > 512)
             return INV_RET_U32;
 
+        size = spilled_size;
         size += (size % 4) == 0 ? 0 : 4 - size % 4;
         if (type == DATA_CHUNK) {
-            /* Original post omitted the DATA chunk body. */
+            char *chunk = nh->pos;
+            __u8 flags;
+            __u16 stream_id;
+            __u16 seq;
+            __u16 payload_type;
+
+            if (chunk + 30 > data_end)
+                return INV_RET_U32;
+
+            flags = *(__u8 *)(chunk + 1);
+            stream_id = bpf_ntohs(*(__u16 *)(chunk + 17));
+            seq = bpf_ntohs(*(__u16 *)(chunk + 19));
+            payload_type = bpf_ntohs(*(__u16 *)(chunk + 27));
+
+            if ((flags & 0x04) == 0 && stream_id != 0)
+                metrics->seen_data = 1;
+            if (payload_type == 0x0a00)
+                metrics->last_len = seq;
+            if (metrics->seen_data && payload_type != 0xffff)
+                metrics->last_type = *(__u8 *)(chunk + 23);
         }
 
         if (nh->pos + size < data_end)

@@ -62,6 +62,7 @@ error_types:
       - "min value is negative, either use unsigned or 'var &= const'"
       - "math between .* pointer and register with unbounded.*"
       - "(?:R[0-9]+ )?(?:(?:min|max) )?value is outside of the allowed memory range"
+      - "(?:R[0-9]+ )?(?:(?:min|max) )?value is outside of the array range"
       - "arg#\\d+\\s+arg#\\d+\\s+memory,\\s+len pair leads to invalid memory access"
     likely_obligation: BPFIX-O005
     example_fix_actions:
@@ -213,6 +214,7 @@ error_types:
       - "kernel func .* is sleepable within IRQ-disabled region"
       - "attach to unsupported member .*"
       - "helper access to the packet is not allowed"
+      - "JIT does not support calling kfunc .*"
     likely_obligation: BPFIX-O016
     example_fix_actions:
       - SWITCH_HELPER
@@ -291,6 +293,8 @@ error_types:
       - "number of funcs in func_info doesn't match(?: number of subprogs)?"
       - "failed to find kernel BTF type ID(?: of .*?)?"
       - "\\[[0-9]+\\]\\s+.*\\s+Invalid name"
+      - "btf_vmlinux is malformed"
+      - "Unrecognized arg#[0-9]+ type .*"
     likely_obligation: BPFIX-O021
     example_fix_actions:
       - REGENERATE_BTF_ARTIFACTS

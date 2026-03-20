@@ -1,11 +1,11 @@
 case_id: stackoverflow-72074115
 source_bucket: stackoverflow
 language: c
-source_origin: source_snippets[0] -> case-rewrite
+source_origin: question_body_text -> case-rewrite
 compile_ok: True
-verifier_status: rejected
+verifier_status: accepted
 verifier_error_match: mismatch
 fixed_status: not_attempted
 original_error: R2 invalid mem access 'inv'
-captured_error: Error: failed to load object file
-notes: <none>
+captured_error: <none>
+notes: Replaced the non-loadable standalone struct_ops wrapper with a focused cubic_root-like verifier repro; on the current 6.15 host the bounded table access is accepted.

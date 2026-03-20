@@ -44,7 +44,7 @@ from interface.extractor.rust_diagnostic import generate_diagnostic
 
 # ── optional oracle import ─────────────────────────────────────────────────────
 try:
-    from eval.verifier_oracle import OracleResult, verify_fix as oracle_verify_fix
+    from eval.verifier_oracle import verify_fix as oracle_verify_fix
     _ORACLE_AVAILABLE = True
 except ImportError:
     _ORACLE_AVAILABLE = False
@@ -315,10 +315,6 @@ FIX_TAG_TAXONOMY = {
 }
 ROOT_CAUSE_TAGS = {spec.tag for spec in FIX_TAG_SPECS if spec.location_kind == "root_cause"}
 LOCAL_FIX_TAGS = {spec.tag for spec in FIX_TAG_SPECS if spec.location_kind == "local"}
-
-
-def fix_type_label(tag: str) -> str:
-    return FIX_TAG_LABELS.get(tag, tag.replace("_", " "))
 
 
 def classify_fix_tags(texts: Iterable[str]) -> list[str]:
@@ -1492,13 +1488,12 @@ def build_report(
     mc = aggregates["mcnemar_fix_type"]
     btf_n = aggregates["btf_suppressed_subset"]["n"]
     btf_ok_n = aggregates["btf_ok_subset"]["n"]
-    taxonomy_counts = Counter(c.taxonomy_class for c in selected_cases)
 
     lines = [
         "# Repair Experiment V3: Raw Verifier Log vs BPFix Diagnostic (Local 20B Model)",
         "",
         f"- Generated: `{now_iso()}`",
-        f"- Model: local llama.cpp GPT-OSS 20B",
+        "- Model: local llama.cpp GPT-OSS 20B",
         f"- Selected cases: `{len(selected_cases)}`",
         f"- Desired taxonomy targets: `{dict(TARGET_CASE_COUNTS)}`",
         f"- Effective taxonomy targets: `{selection_summary['effective_targets']}`",
@@ -1669,7 +1664,6 @@ def build_report(
     # Cases where B helped
     b_better = [r for r in results if r.condition_b.fix_type_match and not r.condition_a.fix_type_match]
     a_better = [r for r in results if r.condition_a.fix_type_match and not r.condition_b.fix_type_match]
-    tied = [r for r in results if r.condition_a.fix_type_match == r.condition_b.fix_type_match]
 
     lines.extend(["", "## Cases Where Condition B Does Better", ""])
     if not b_better:

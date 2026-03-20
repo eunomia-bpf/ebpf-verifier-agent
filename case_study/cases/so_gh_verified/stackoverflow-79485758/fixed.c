@@ -203,7 +203,103 @@ struct bpf_elf_map {
 
 /* === ORIGINAL CODE from SO/GH post === */
 
-return;
+#define MAX_ACTION_LIST 32
+#define MAX_PAYLOAD_OFFSET 960
+#define MAX_IDS 5
+#define CONTEXT_KEY 0
+#define GRPC_ID_MASK 0xffe0
+#define GRPC_ID_SHIFT 5
+#define GRPC_LEN_MASK 0x001f
+#define MAX_LOOK_ITERS 32
+
+typedef __u32 context_key_t;
+
+typedef struct {
+    __u16 offset;
+    __u16 reserved;
+    __u16 field_id[MAX_IDS];
+    __u16 field_index;
+    __u8 padding[568];
+} find_grpc_t;
+
+typedef struct {
+    find_grpc_t find_grpc_args;
+} action_arg_t;
+
+typedef struct {
+    __u16 reserved0;
+    __u16 payload_offset;
+    __u16 reserved1;
+    __u16 action_index;
+    __u8 pre_action_padding[264];
+    action_arg_t action_argument[MAX_ACTION_LIST];
+    __u8 tail_padding[136];
+} context_data_t;
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, context_key_t);
+    __type(value, context_data_t);
+} context_map SEC(".maps");
+
+SEC("classifier")
+int find_grpc(struct __sk_buff *skb)
+{
+    context_key_t key = CONTEXT_KEY;
+    context_data_t *ctx = bpf_map_lookup_elem(&context_map, &key);
+    void *data_end = (void *)(__u64)skb->data_end;
+    void *data = (void *)(__u64)skb->data;
+    __u32 field_offset;
+    unsigned int flag = 0;
+    __u16 len = 0;
+    __u16 x;
+    find_grpc_t *args;
+    __u16 toBeFound;
+    int iter;
+
+    if (skb == NULL)
+        goto EXIT;
+    if (ctx == NULL)
+        goto EXIT;
+    if (ctx->action_index >= MAX_ACTION_LIST || ctx->payload_offset > MAX_PAYLOAD_OFFSET)
+        goto EXIT;
+
+    args = (find_grpc_t *)&ctx->action_argument[ctx->action_index].find_grpc_args;
+    if (args == NULL)
+        goto EXIT;
+    if (args->offset > 100)
+        goto EXIT;
+    if (args->field_index >= MAX_IDS)
+        goto EXIT;
+
+    field_offset = (__u32)ctx->payload_offset + args->offset;
+    toBeFound = args->field_id[args->field_index];
+
+#pragma clang loop unroll(full)
+    for (iter = 0; iter < MAX_LOOK_ITERS; iter++) {
+        __u16 y;
+
+        if (field_offset > 0xffff - sizeof(__u16))
+            goto EXIT;
+        if ((void *)((char *)data + field_offset + sizeof(__u16)) > data_end)
+            goto EXIT;
+
+        x = *(__u16 *)((char *)data + field_offset);
+        y = (x & GRPC_ID_MASK) >> GRPC_ID_SHIFT;
+        len = x & GRPC_LEN_MASK;
+        if (len == 0 || len > 32)
+            goto EXIT;
+        if (y == toBeFound) {
+            flag = 1;
+            goto EXIT;
+        }
+        field_offset += len;
+    }
+EXIT:
+    (void)flag;
+    return TC_ACT_OK;
+}
 
 /* === WRAPPER: added license === */
 char _license[] SEC("license") = "GPL";

@@ -9,17 +9,13 @@ from __future__ import annotations
 from pathlib import Path
 
 import yaml
-import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 
 from interface.extractor.trace_parser_parts._impl import (
     TracedInstruction,
-    BacktrackInfo,
 )
 from interface.extractor.engine.cfg_builder import (
-    BasicBlock,
-    TraceCFG,
     build_cfg,
     build_cfg_from_trace,
     extract_branch_target,

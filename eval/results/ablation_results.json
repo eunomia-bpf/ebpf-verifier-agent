@@ -948,8 +948,8 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E005",
-        "taxonomy": "lowering_artifact",
+        "error_id": "BPFIX-E023",
+        "taxonomy": "source_bug",
         "proof_status": "unknown",
         "spans": 1
       },
@@ -3356,8 +3356,8 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E005",
-        "taxonomy": "lowering_artifact",
+        "error_id": "BPFIX-E003",
+        "taxonomy": "source_bug",
         "proof_status": "unknown",
         "spans": 1
       },
@@ -3570,8 +3570,8 @@
     {
       "case_id": "kernel-selftest-exceptions-assert-check-assert-generic-tc-22b5248c",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -3579,26 +3579,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -3606,8 +3606,8 @@
     {
       "case_id": "kernel-selftest-exceptions-assert-check-assert-range-s64-tc-a32d66c6",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -3615,26 +3615,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -3642,8 +3642,8 @@
     {
       "case_id": "kernel-selftest-exceptions-assert-check-assert-range-u64-tc-832996f2",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -3651,26 +3651,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -3678,8 +3678,8 @@
     {
       "case_id": "kernel-selftest-exceptions-assert-check-assert-single-range-s64-tc-7addab51",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -3687,26 +3687,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -3714,8 +3714,8 @@
     {
       "case_id": "kernel-selftest-exceptions-assert-check-assert-single-range-u64-tc-fcaf2928",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -3723,26 +3723,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -3759,7 +3759,7 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E016",
         "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
@@ -3786,8 +3786,8 @@
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-async-callback-throw-tc-a86cf7b1",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -3795,26 +3795,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -3894,8 +3894,8 @@
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-exception-cb-type-1-tc-911dfa02",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -3903,26 +3903,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -3930,8 +3930,8 @@
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-exception-cb-type-2-tc-45ccb6dc",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -3939,26 +3939,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -3966,8 +3966,8 @@
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-exception-cb-type-3-tc-62f713bd",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -3975,26 +3975,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -4002,8 +4002,8 @@
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-exception-throw-cb-diff-tc-d4026f8f",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -4011,26 +4011,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -4038,8 +4038,8 @@
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-exception-throw-cb-tc-ed9b506d",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -4047,26 +4047,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -4155,7 +4155,7 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E016",
         "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
@@ -4233,7 +4233,7 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E016",
         "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
@@ -4260,8 +4260,8 @@
     {
       "case_id": "kernel-selftest-exceptions-fail-reject-throwing-exception-cb-tc-caa72574",
       "bpfix": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1,
         "cross_class": null,
@@ -4269,26 +4269,26 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_a": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_b": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
       "ablation_c": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E016",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       }
@@ -4305,7 +4305,7 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E016",
         "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
@@ -4341,7 +4341,7 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E016",
         "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
@@ -4461,7 +4461,7 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E016",
         "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
@@ -4497,7 +4497,7 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E016",
         "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
@@ -4533,7 +4533,7 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E021",
+        "error_id": "BPFIX-E016",
         "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
@@ -6609,8 +6609,8 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E011",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E021",
+        "taxonomy": "env_mismatch",
         "proof_status": "unknown",
         "spans": 1
       },
@@ -6793,7 +6793,7 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E003",
+        "error_id": "BPFIX-E023",
         "taxonomy": "source_bug",
         "proof_status": "unknown",
         "spans": 1
@@ -7365,8 +7365,8 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-E017",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E005",
+        "taxonomy": "lowering_artifact",
         "proof_status": "unknown",
         "spans": 1
       },
@@ -7519,8 +7519,8 @@
         "has_carrier_establishment": true
       },
       "baseline": {
-        "error_id": "BPFIX-E017",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E005",
+        "taxonomy": "lowering_artifact",
         "proof_status": "unknown",
         "spans": 1
       },
@@ -9550,8 +9550,8 @@
         "has_carrier_establishment": false
       },
       "baseline": {
-        "error_id": "BPFIX-UNKNOWN",
-        "taxonomy": "source_bug",
+        "error_id": "BPFIX-E018",
+        "taxonomy": "verifier_limit",
         "proof_status": "unknown",
         "spans": 1
       },

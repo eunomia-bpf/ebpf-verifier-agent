@@ -210,14 +210,14 @@ struct my_buffer {
     __u32 len;
     char buf[BUFFER_SIZE + 5];
 };
-struct bpf_map_def SEC("maps") map_my_buffer = {
-    .type = BPF_MAP_TYPE_ARRAY,
-    .key_size = sizeof(unsigned int),
-    .value_size = sizeof(struct my_buffer),
-    .max_entries = 1,
-};
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, unsigned int);
+    __type(value, struct my_buffer);
+} map_my_buffer SEC(".maps");
 
-SEC("WriteBuffer")
+SEC("xdp")
 int WriteBuffer_main(struct xdp_md *ctx) {
     void *data_end = (void *)(long)ctx->data_end;
     void *data = (void *)(long)ctx->data;

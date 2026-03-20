@@ -1,0 +1,133 @@
+kernel=5.10.0-39-amd64
+libbpf: loading /tmp/fixed.o
+libbpf: elf: section(2) .text, size 1016, link 0, flags 6, type=1
+libbpf: sec '.text': found program 'trace_rq_issue' at insn offset 0 (0 bytes), code size 127 insns (1016 bytes)
+libbpf: elf: section(3) .rel.text, size 112, link 30, flags 40, type=9
+libbpf: elf: section(4) tp_btf/block_rq_issue, size 104, link 0, flags 6, type=1
+libbpf: sec 'tp_btf/block_rq_issue': found program 'block_rq_issue' at insn offset 0 (0 bytes), code size 13 insns (104 bytes)
+libbpf: elf: section(5) .reltp_btf/block_rq_issue, size 32, link 30, flags 40, type=9
+libbpf: elf: section(6) .rodata, size 24, link 0, flags 2, type=1
+libbpf: elf: section(7) license, size 4, link 0, flags 3, type=1
+libbpf: license of /tmp/fixed.o is GPL
+libbpf: elf: section(8) .maps, size 32, link 0, flags 3, type=1
+libbpf: elf: section(9) .bss, size 80, link 0, flags 3, type=8
+libbpf: elf: section(20) .BTF, size 7419, link 0, flags 0, type=1
+libbpf: elf: section(22) .BTF.ext, size 1028, link 0, flags 0, type=1
+libbpf: elf: section(30) .symtab, size 912, link 1, flags 0, type=2
+libbpf: looking for externs among 38 symbols...
+libbpf: collected 1 externs total
+libbpf: extern (kcfg) #0: symbol 32, off 0, name LINUX_KERNEL_VERSION
+libbpf: map 'hists': at sec_idx 8, offset 0.
+libbpf: map 'hists': found type = 1.
+libbpf: map 'hists': found max_entries = 10240.
+libbpf: map 'hists': found key [8], sz = 16.
+libbpf: map 'hists': found value [12], sz = 80.
+libbpf: map 'fixed.rodata' (global data): at sec_idx 6, offset 0, flags 480.
+libbpf: map 1 is "fixed.rodata"
+libbpf: map 'fixed.bss' (global data): at sec_idx 9, offset 0, flags 400.
+libbpf: map 2 is "fixed.bss"
+libbpf: map 'fixed.kconfig' (global data): at sec_idx 30, offset 0, flags 480.
+libbpf: map 3 is "fixed.kconfig"
+libbpf: sec '.rel.text': collecting relocation for section(2) '.text'
+libbpf: sec '.rel.text': relo #0: insn #1 against 'filter_dev'
+libbpf: prog 'trace_rq_issue': found data map 1 (fixed.rodata, sec 6, off 0) for insn 1
+libbpf: sec '.rel.text': relo #1: insn #45 against 'targ_dev'
+libbpf: prog 'trace_rq_issue': found data map 1 (fixed.rodata, sec 6, off 0) for insn 45
+libbpf: sec '.rel.text': relo #2: insn #59 against 'targ_comm'
+libbpf: prog 'trace_rq_issue': found data map 1 (fixed.rodata, sec 6, off 0) for insn 59
+libbpf: sec '.rel.text': relo #3: insn #73 against 'hists'
+libbpf: prog 'trace_rq_issue': found map 0 (hists, sec 8, off 0) for insn #73
+libbpf: sec '.rel.text': relo #4: insn #79 against 'hists'
+libbpf: prog 'trace_rq_issue': found map 0 (hists, sec 8, off 0) for insn #79
+libbpf: sec '.rel.text': relo #5: insn #82 against '.bss'
+libbpf: prog 'trace_rq_issue': found data map 2 (fixed.bss, sec 9, off 0) for insn 82
+libbpf: sec '.rel.text': relo #6: insn #86 against 'hists'
+libbpf: prog 'trace_rq_issue': found map 0 (hists, sec 8, off 0) for insn #86
+libbpf: sec '.reltp_btf/block_rq_issue': collecting relocation for section(4) 'tp_btf/block_rq_issue'
+libbpf: sec '.reltp_btf/block_rq_issue': relo #0: insn #0 against 'LINUX_KERNEL_VERSION'
+libbpf: prog 'block_rq_issue': found extern #0 'LINUX_KERNEL_VERSION' (sym 32) for insn #0
+libbpf: sec '.reltp_btf/block_rq_issue': relo #1: insn #10 against '.text'
+libbpf: loading kernel BTF '/sys/kernel/btf/vmlinux': 0
+libbpf: extern (kcfg) LINUX_KERNEL_VERSION=0x50a00
+libbpf: map 'hists': created successfully, fd=4
+libbpf: map 'fixed.rodata': created successfully, fd=5
+libbpf: map 'fixed.bss': created successfully, fd=6
+libbpf: map 'fixed.kconfig': created successfully, fd=7
+libbpf: sec '.text': found 7 CO-RE relocations
+libbpf: prog 'trace_rq_issue': relo #0: kind <field_exists> (2), spec is [78] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: CO-RE relocating [78] struct request___x: found target candidate [2114] struct request
+libbpf: prog 'trace_rq_issue': relo #0: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'trace_rq_issue': relo #0: patched insn #5 (ALU/ALU64) imm 1 -> 1
+libbpf: prog 'trace_rq_issue': relo #1: kind <byte_off> (0), spec is [78] struct request___x.rq_disk (0:1 @ offset 8)
+libbpf: prog 'trace_rq_issue': relo #1: matching candidate #0 [2114] struct request.rq_disk (0:15 @ offset 160)
+libbpf: prog 'trace_rq_issue': relo #1: patched insn #7 (ALU/ALU64) imm 8 -> 160
+libbpf: prog 'trace_rq_issue': relo #2: kind <byte_off> (0), spec is [78] struct request___x.q (0:0 @ offset 0)
+libbpf: prog 'trace_rq_issue': relo #2: matching candidate #0 [2114] struct request.q (0:0 @ offset 0)
+libbpf: prog 'trace_rq_issue': relo #2: patched insn #10 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'trace_rq_issue': relo #3: kind <byte_off> (0), spec is [81] struct request_queue___x.disk (0:0 @ offset 0)
+libbpf: CO-RE relocating [81] struct request_queue___x: found target candidate [1371] struct request_queue
+libbpf: prog 'trace_rq_issue': relo #3: non-matching candidate #0 [1371] struct request_queue (0 @ offset 0)
+libbpf: prog 'trace_rq_issue': relo #3: no matching targets found
+libbpf: prog 'trace_rq_issue': relo #3: substituting insn #17 w/ invalid insn
+libbpf: prog 'trace_rq_issue': relo #4: kind <byte_off> (0), spec is [82] struct gendisk.major (0:0 @ offset 0)
+libbpf: CO-RE relocating [82] struct gendisk: found target candidate [2063] struct gendisk
+libbpf: prog 'trace_rq_issue': relo #4: matching candidate #0 [2063] struct gendisk.major (0:0 @ offset 0)
+libbpf: prog 'trace_rq_issue': relo #4: patched insn #27 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'trace_rq_issue': relo #5: kind <byte_off> (0), spec is [82] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'trace_rq_issue': relo #5: matching candidate #0 [2063] struct gendisk.first_minor (0:1 @ offset 4)
+libbpf: prog 'trace_rq_issue': relo #5: patched insn #34 (ALU/ALU64) imm 4 -> 4
+libbpf: prog 'trace_rq_issue': relo #6: kind <byte_off> (0), spec is [23] struct request.__data_len (0:8 @ offset 44)
+libbpf: CO-RE relocating [23] struct request: found target candidate [2114] struct request
+libbpf: prog 'trace_rq_issue': relo #6: matching candidate #0 [2114] struct request.__data_len (0:7 @ offset 40)
+libbpf: prog 'trace_rq_issue': relo #6: patched insn #91 (LDX/ST/STX) off 44 -> 40
+libbpf: prog 'block_rq_issue': added 127 insns from sub-prog 'trace_rq_issue'
+libbpf: prog 'block_rq_issue': insn #10 relocated, imm 2 points to subprog 'trace_rq_issue' (now at 13 offset)
+libbpf: load bpf program failed: Permission denied
+libbpf: -- BEGIN DUMP LOG ---
+libbpf: 
+func#0 @0
+func#1 @13
+arg#0 type is not a struct
+Unrecognized arg#0 type PTR
+0: R1=ctx(id=0,off=0,imm=0) R10=fp0
+; if (LINUX_KERNEL_VERSION >= KERNEL_VERSION(5, 11, 0))
+0: (18) r2 = 0xffffa7fd402d8000
+2: R1=ctx(id=0,off=0,imm=0) R2_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R10=fp0
+2: (61) r3 = *(u32 *)(r2 +0)
+ R1=ctx(id=0,off=0,imm=0) R2_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R10=fp0
+3: R1=ctx(id=0,off=0,imm=0) R2_w=map_value(id=0,off=0,ks=4,vs=4,imm=0) R3_w=inv330240 R10=fp0
+3: (b7) r2 = 1
+4: R1=ctx(id=0,off=0,imm=0) R2_w=inv1 R3_w=inv330240 R10=fp0
+4: (b7) r4 = 330496
+5: R1=ctx(id=0,off=0,imm=0) R2_w=inv1 R3_w=inv330240 R4_w=inv330496 R10=fp0
+; if (LINUX_KERNEL_VERSION >= KERNEL_VERSION(5, 11, 0))
+5: (2d) if r4 > r3 goto pc+1
+last_idx 5 first_idx 0
+regs=10 stack=0 before 4: (b7) r4 = 330496
+last_idx 5 first_idx 0
+regs=8 stack=0 before 4: (b7) r4 = 330496
+regs=8 stack=0 before 3: (b7) r2 = 1
+regs=8 stack=0 before 2: (61) r3 = *(u32 *)(r2 +0)
+7: R1=ctx(id=0,off=0,imm=0) R2_w=inv1 R3_w=inv330240 R4_w=inv330496 R10=fp0
+; if (LINUX_KERNEL_VERSION >= KERNEL_VERSION(5, 11, 0))
+7: (67) r2 <<= 3
+8: R1=ctx(id=0,off=0,imm=0) R2_w=inv8 R3_w=inv330240 R4_w=inv330496 R10=fp0
+8: (0f) r1 += r2
+last_idx 8 first_idx 0
+regs=4 stack=0 before 7: (67) r2 <<= 3
+regs=4 stack=0 before 5: (2d) if r4 > r3 goto pc+1
+regs=4 stack=0 before 4: (b7) r4 = 330496
+regs=4 stack=0 before 3: (b7) r2 = 1
+9: R1_w=ctx(id=0,off=8,imm=0) R2_w=inv8 R3_w=inv330240 R4_w=inv330496 R10=fp0
+; 
+9: (79) r1 = *(u64 *)(r1 +0)
+dereference of modified ctx ptr R1 off=8 disallowed
+verification time 41 usec
+stack depth 0+0
+processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+
+libbpf: -- END LOG --
+libbpf: failed to load program 'block_rq_issue'
+libbpf: failed to load object '/tmp/fixed.o'
+Error: failed to load object file
+Verifier log saved to /home/yunwei37/workspace/ebpf-verifier-agent/.cache/qemu/debian-11-5.10/verifier-logs/fixed.o.log

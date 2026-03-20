@@ -1,0 +1,197 @@
+case_id: eval-cilium-6693e11d50c9
+source: eval_commits
+repository: https://github.com/cilium/cilium
+repo_name: cilium
+commit_hash: 6693e11d50c9490e9c49be497c78929de0a7c09c
+parent_commit: 4833f172a3be6cfb49f1c4387af74917b15e69d0
+case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits/eval-cilium-6693e11d50c9.yaml
+score: 6
+changed_files:
+- bpf/lib/nodeport.h
+selected_source_file: bpf/tests/xdp_nodeport_lb4_test.c
+buggy_include_closure:
+- bpf/lib/act.h
+- bpf/lib/auth.h
+- bpf/lib/classifiers.h
+- bpf/lib/clustermesh.h
+- bpf/lib/common.h
+- bpf/lib/config.h
+- bpf/lib/config_map.h
+- bpf/lib/conntrack.h
+- bpf/lib/conntrack_map.h
+- bpf/lib/csum.h
+- bpf/lib/dbg.h
+- bpf/lib/drop.h
+- bpf/lib/drop_reasons.h
+- bpf/lib/edt.h
+- bpf/lib/egress_gateway.h
+- bpf/lib/encap.h
+- bpf/lib/endian.h
+- bpf/lib/eps.h
+- bpf/lib/eth.h
+- bpf/lib/events.h
+- bpf/lib/fib.h
+- bpf/lib/ghash.h
+- bpf/lib/hash.h
+- bpf/lib/host_firewall.h
+- bpf/lib/icmp.h
+- bpf/lib/icmp6.h
+- bpf/lib/identity.h
+- bpf/lib/ip_options.h
+- bpf/lib/ipfrag.h
+- bpf/lib/ipv4.h
+- bpf/lib/ipv6.h
+- bpf/lib/ipv6_core.h
+- bpf/lib/jhash.h
+- bpf/lib/l3.h
+- bpf/lib/l4.h
+- bpf/lib/lb.h
+- bpf/lib/map_defs.h
+- bpf/lib/metrics.h
+- bpf/lib/mono.h
+- bpf/lib/nat.h
+- bpf/lib/nat_46x64.h
+- bpf/lib/neigh.h
+- bpf/lib/node.h
+- bpf/lib/nodeport.h
+- bpf/lib/notify.h
+- bpf/lib/overloadable.h
+- bpf/lib/overloadable_skb.h
+- bpf/lib/overloadable_xdp.h
+- bpf/lib/policy.h
+- bpf/lib/policy_log.h
+- bpf/lib/proxy.h
+- bpf/lib/proxy_hairpin.h
+- bpf/lib/ratelimit.h
+- bpf/lib/signal.h
+- bpf/lib/socket.h
+- bpf/lib/source_info.h
+- bpf/lib/srv6.h
+- bpf/lib/static_data.h
+- bpf/lib/stubs.h
+- bpf/lib/tailcall.h
+- bpf/lib/time.h
+- bpf/lib/trace.h
+- bpf/lib/trace_helpers.h
+- bpf/lib/tunnel.h
+- bpf/lib/utils.h
+- bpf/lib/utime.h
+- bpf/tests/common.h
+- bpf/tests/lib/bpf_xdp.h
+- bpf/tests/lib/lb.h
+- bpf/tests/xdp_nodeport_lb4_test.c
+fixed_include_closure:
+- bpf/lib/act.h
+- bpf/lib/auth.h
+- bpf/lib/classifiers.h
+- bpf/lib/clustermesh.h
+- bpf/lib/common.h
+- bpf/lib/config.h
+- bpf/lib/config_map.h
+- bpf/lib/conntrack.h
+- bpf/lib/conntrack_map.h
+- bpf/lib/csum.h
+- bpf/lib/dbg.h
+- bpf/lib/drop.h
+- bpf/lib/drop_reasons.h
+- bpf/lib/edt.h
+- bpf/lib/egress_gateway.h
+- bpf/lib/encap.h
+- bpf/lib/endian.h
+- bpf/lib/eps.h
+- bpf/lib/eth.h
+- bpf/lib/events.h
+- bpf/lib/fib.h
+- bpf/lib/ghash.h
+- bpf/lib/hash.h
+- bpf/lib/host_firewall.h
+- bpf/lib/icmp.h
+- bpf/lib/icmp6.h
+- bpf/lib/identity.h
+- bpf/lib/ip_options.h
+- bpf/lib/ipfrag.h
+- bpf/lib/ipv4.h
+- bpf/lib/ipv6.h
+- bpf/lib/ipv6_core.h
+- bpf/lib/jhash.h
+- bpf/lib/l3.h
+- bpf/lib/l4.h
+- bpf/lib/lb.h
+- bpf/lib/map_defs.h
+- bpf/lib/metrics.h
+- bpf/lib/mono.h
+- bpf/lib/nat.h
+- bpf/lib/nat_46x64.h
+- bpf/lib/neigh.h
+- bpf/lib/node.h
+- bpf/lib/nodeport.h
+- bpf/lib/notify.h
+- bpf/lib/overloadable.h
+- bpf/lib/overloadable_skb.h
+- bpf/lib/overloadable_xdp.h
+- bpf/lib/policy.h
+- bpf/lib/policy_log.h
+- bpf/lib/proxy.h
+- bpf/lib/proxy_hairpin.h
+- bpf/lib/ratelimit.h
+- bpf/lib/signal.h
+- bpf/lib/socket.h
+- bpf/lib/source_info.h
+- bpf/lib/srv6.h
+- bpf/lib/static_data.h
+- bpf/lib/stubs.h
+- bpf/lib/tailcall.h
+- bpf/lib/time.h
+- bpf/lib/trace.h
+- bpf/lib/trace_helpers.h
+- bpf/lib/tunnel.h
+- bpf/lib/utils.h
+- bpf/lib/utime.h
+- bpf/tests/common.h
+- bpf/tests/lib/bpf_xdp.h
+- bpf/tests/lib/lb.h
+- bpf/tests/xdp_nodeport_lb4_test.c
+unresolved_buggy_includes:
+- 'bpf/lib/icmp.h: bpf/compiler.h'
+- 'bpf/lib/lb.h: bpf/compiler.h'
+- 'bpf/lib/nat.h: bpf/compiler.h'
+- 'bpf/lib/nodeport.h: bpf/compiler.h'
+- 'bpf/lib/overloadable_skb.h: linux/ip.h'
+- 'bpf/lib/ratelimit.h: bpf/helpers.h'
+- 'bpf/lib/tailcall.h: bpf/compiler.h'
+unresolved_fixed_includes:
+- 'bpf/lib/icmp.h: bpf/compiler.h'
+- 'bpf/lib/lb.h: bpf/compiler.h'
+- 'bpf/lib/nat.h: bpf/compiler.h'
+- 'bpf/lib/nodeport.h: bpf/compiler.h'
+- 'bpf/lib/overloadable_skb.h: linux/ip.h'
+- 'bpf/lib/ratelimit.h: bpf/helpers.h'
+- 'bpf/lib/tailcall.h: bpf/compiler.h'
+compile_command_buggy:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-6693e11d50c9/headers/buggy
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-6693e11d50c9/buggy.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-6693e11d50c9/buggy.o
+compile_command_fixed:
+- clang
+- -target
+- bpf
+- -O2
+- -g
+- -D__TARGET_ARCH_x86
+- -I/usr/include
+- -I/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-6693e11d50c9/headers/fixed
+- -c
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-6693e11d50c9/fixed.c
+- -o
+- /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-6693e11d50c9/fixed.o
+load_command_buggy: []
+load_command_fixed: []

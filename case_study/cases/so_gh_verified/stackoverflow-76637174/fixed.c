@@ -221,54 +221,71 @@ SEC("xdp")
 int nvme_drop(struct xdp_md *ctx) {
 void* data_end = (void*)(long)ctx->data_end;
 void* data = (void*)(long)ctx->data;
-uint64_t total = data_end-data;
-struct ethhdr *eth = data;
-uint16_t h_proto;
-uint32_t cur = 0;
+void *head = data;
+struct ethhdr *eth;
+struct iphdr *iph;
+struct ipv6hdr *ip6h;
 struct tcphdr *tcph;
-uint32_t i;
+uint16_t h_proto;
+uint8_t *tcp_data;
 int nbzeros = 0;
-bool found = 0;
-cur = sizeof(*eth);
-if (data + cur > data_end)
+int i;
+bool found = false;
+
+eth = head;
+if ((void *)eth + sizeof(*eth) > data_end)
 return XDP_PASS;
+head = (void *)eth + sizeof(*eth);
+
 h_proto = eth->h_proto;
 if (h_proto == bpf_htons(ETH_P_IP)) {
-h_proto = parse_ipv4(data, cur, data_end);
-cur += sizeof(struct iphdr);
+iph = head;
+if ((void *)iph + sizeof(*iph) > data_end)
+return XDP_PASS;
+h_proto = iph->protocol;
+if (iph->ihl < 5)
+return XDP_PASS;
+if ((void *)iph + iph->ihl * 4 > data_end)
+return XDP_PASS;
+head = (void *)iph + iph->ihl * 4;
 } else if (h_proto == bpf_htons(ETH_P_IPV6)) {
-h_proto = parse_ipv6(data, cur, data_end);
-cur += sizeof(struct ipv6hdr);
+ip6h = head;
+if ((void *)ip6h + sizeof(*ip6h) > data_end)
+return XDP_PASS;
+h_proto = ip6h->nexthdr;
+head = (void *)ip6h + sizeof(*ip6h);
 } else {
 return XDP_PASS;
 }
-if (cur > 100)
-return XDP_PASS;
 if (h_proto != IPPROTO_TCP)
 return XDP_PASS;
-if (data + cur + sizeof(*tcph) > data_end)
+
+tcph = head;
+if ((void *)tcph + sizeof(*tcph) > data_end)
 return XDP_PASS;
-tcph = data + cur;
-if (tcph->doff > 10)
+if (tcph->doff < 5 || tcph->doff > 10)
 return XDP_PASS;
-if (data + cur + tcph->doff * 4 > data_end)
+if ((void *)tcph + tcph->doff * 4 > data_end)
 return XDP_PASS;
-cur += tcph->doff * 4;
-if (tcph->dest != 4420)
+if (tcph->dest != bpf_htons(4420))
 return XDP_PASS;
-if (cur > total || cur > 100)
-return XDP_PASS;
-nbzeros = 0;
-for (i = cur; data+i+sizeof(uint8_t) < data_end; i++) {
-if (*((uint8_t*)(data+i)) == 0 && !found) {
+
+tcp_data = (void *)tcph + tcph->doff * 4;
+
+#define MAX_ITER 100
+#pragma clang loop unroll(disable)
+for (i = 0; i < MAX_ITER; i++) {
+if ((void *)tcp_data + i + 1 > data_end)
+break;
+if (tcp_data[i] == 0) {
 nbzeros++;
-} else {
+continue;
+}
 found = true;
 break;
 }
-}
 if (found && nbzeros > 50) {
-bpf_printk("found nvme pdu tail seq=%u\n", bpf_ntohs(tcph->seq));
+bpf_printk("found nvme pdu tail seq=%u\n", bpf_ntohl(tcph->seq));
 }
 return XDP_PASS;
 }

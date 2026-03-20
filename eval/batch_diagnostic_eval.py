@@ -156,14 +156,7 @@ def role_set(spans: list[dict[str, Any]]) -> set[str]:
 
 
 def has_file_line(span: dict[str, Any]) -> bool:
-    # New format: path/line at top level of span
-    if span.get("path") and span.get("line") is not None:
-        return True
-    # Old format: source.file / source.line
-    source = span.get("source")
-    if not isinstance(source, dict):
-        return False
-    return bool(source.get("file")) and source.get("line") is not None
+    return bool(span.get("path")) and span.get("line") is not None
 
 
 def evaluate_case(
@@ -532,7 +525,7 @@ def build_report(
         )
     if incomplete_role_sets:
         recommendation_lines.append(
-            f"- Enforce a minimal role set from `proof_status` during rendering so `established_then_lost` always includes established/lost/rejected context when recoverable."
+            "- Enforce a minimal role set from `proof_status` during rendering so `established_then_lost` always includes established/lost/rejected context when recoverable."
         )
     if failures:
         failure_types = Counter((result.exception or "Unknown").split(":", 1)[0] for result in failures)

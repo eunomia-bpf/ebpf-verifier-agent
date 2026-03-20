@@ -1,59 +1,38 @@
 # eval/
 
-Evaluation infrastructure for BPFix. All scripts are standalone Python
-programs. Results are written to `eval/results/` (gitignored except
-`taxonomy_coverage.json`).
+Evaluation scripts for BPFix. Most scripts are standalone Python entrypoints that read
+stored case-study YAML logs and write JSON or Markdown artifacts under `eval/results/`
+and `docs/tmp/`.
 
-## Current (Active) Scripts
+## Core Artifact-Driven Evaluations
 
-| Script | Research Question | Output |
-|--------|------------------|--------|
-| `batch_diagnostic_eval.py` | Q1: classification accuracy; Q2: span production rate across 241-case corpus | `results/batch_diagnostic_results*.json` |
-| `span_coverage_eval.py` | Q3: do BPFix spans cover known fix locations? | `results/span_coverage_results.json` |
-| `repair_experiment_v2.py` | Q4: A/B LLM repair — raw log vs BPFix diagnostic | `results/repair_experiment_results.v2.json` |
-| `pv_comparison_v3.py` | Q5: BPFix vs Pretty Verifier on 30-case benchmark | `results/pv_comparison_v3.json` |
-| `latency_benchmark.py` | Q6: end-to-end and per-stage runtime overhead | `results/latency_benchmark*.json` |
-| `batch_proof_engine_eval.py` | Proof engine ablation (obligation coverage) | `results/batch_proof_engine_round3.json` |
+| Script | Purpose | Outputs |
+|--------|---------|---------|
+| `baseline_eval.py` | Regex baseline on labeled comparison cases | `eval/results/baseline_results.json` |
+| `batch_diagnostic_eval.py` | Run BPFix on stored verifier logs from the case-study corpus | `eval/results/batch_diagnostic_results.json`, `docs/tmp/batch-diagnostic-eval.md` |
+| `localization_eval.py` | Compare stored BPFix proof spans against `case_study/ground_truth.yaml` | `eval/results/localization_eval.json`, `docs/tmp/localization-eval-report.md` |
+| `fix_type_eval.py` | Compare stored BPFix repair hints against `case_study/ground_truth.yaml` | `eval/results/fix_type_eval.json`, `docs/tmp/fix-type-eval-report.md` |
+| `latency_benchmark.py` | Benchmark diagnostic latency on stored verifier logs | `eval/results/latency_benchmark.json` |
+| `per_language_eval.py` | Per-language breakdown derived from batch results | `eval/results/per_language_eval.json`, `docs/tmp/per-language-eval.md` |
+| `ablation_eval.py` | Compare BPFix, regex baseline, and ablation variants | `eval/results/ablation_results.json` |
+| `comparison_report.py` | Render the comparison report from ablation results | `docs/tmp/comparison-report.md` |
+| `batch_proof_engine_eval.py` | Batch-check proof-engine status on stored verifier logs | `eval/results/batch_proof_engine_round3.json` |
+| `span_coverage_eval.py` | Measure whether BPFix spans cover known fix locations | `eval/results/span_coverage_results.json`, `docs/tmp/span-coverage-eval.md` |
+| `root_cause_validation.py` | Validate proof-loss spans against known fix diffs | `eval/results/root_cause_validation.json`, `docs/tmp/root-cause-validation-results.md` |
+| `taxonomy_coverage.py` | Catalog coverage analysis over collected logs | `eval/results/taxonomy_coverage.json`, `docs/tmp/taxonomy-coverage-report.md` |
+| `summarize_eval_refresh.py` | Assemble a refresh report from manifest and eval outputs | `docs/tmp/eval-refresh.md` |
 
-### Running
+## Kernel-Touching Evaluation Utilities
 
-```bash
-# Unit tests
-python -m pytest tests/ -x -q
+| Script | Purpose |
+|--------|---------|
+| `verifier_oracle.py` | Compile snippets, run `bpftool prog load`, and capture fresh verifier logs |
+| `cross_kernel_stability.py` | Re-run cases across local kernel/toolchain configurations |
+| `repair_experiment_v3.py` | LLM repair experiment using raw logs vs BPFix diagnostics |
+| `repair_experiment_v4.py` | Qwen-based variant of the same repair experiment |
 
-# Individual eval scripts (all standalone)
-python eval/batch_diagnostic_eval.py
-python eval/span_coverage_eval.py
-python eval/latency_benchmark.py
-```
+## Notes
 
-## Historical / Archived Scripts
-
-These are still runnable but have been superseded by newer versions.
-
-| Script | Notes |
-|--------|-------|
-| `diagnoser_30case_evaluation.py` | v1 evaluator on 30 manually labeled cases; superseded by `batch_diagnostic_eval.py` |
-| `repair_experiment.py` | v1 A/B repair experiment; superseded by `repair_experiment_v2.py` (v2 imports from v1 for shared helpers) |
-| `repair_experiment_v2_rerun.py` | Reruns v2 with a fixed pipeline |
-| `llm_comparison.py` | Multi-condition LLM taxonomy classification study; proved classification is not the contribution (95-100% ceiling across all conditions) |
-| `pretty_verifier_comparison.py` | Earlier PV comparison; superseded by `pv_comparison_v3.py` |
-| `cross_kernel.py`, `cross_kernel_stability.py`, `cross_log_stability.py` | Cross-kernel and cross-log stability analyses |
-| `taxonomy_coverage.py` | Error catalog coverage analysis |
-
-## Data Generation Scripts
-
-| Script | Notes |
-|--------|-------|
-| `generate_synthetic_cases.py` | Generates `eval_commits_synthetic/` corpus from `eval_commits/` buggy snippets |
-| `compile_synthetic_cases.py` | Attempted compilation of synthetic cases to obtain verifier logs (0/20 success in pilot) |
-
-## Results Directory
-
-`eval/results/` contains JSON outputs from all evaluation runs. Only
-`taxonomy_coverage.json` is tracked by git; all other result files are
-gitignored (regenerate by re-running the scripts).
-
-## Metrics
-
-`metrics.py` defines shared metric computation helpers used across scripts.
+- `case_study/ground_truth.yaml` is the canonical ground-truth label file used by current evaluations.
+- `make eval-all` runs the core artifact-driven pipeline only. It does not compile programs or invoke `bpftool`.
+- Historical and one-off experiment scripts remain in this directory, but they are not part of the default Makefile pipeline.

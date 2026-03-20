@@ -1,0 +1,878 @@
+kernel=5.10.0-39-amd64
+libbpf: loading /tmp/buggy.o
+libbpf: elf: section(3) kprobe/tcp_v4_connect, size 256, link 0, flags 6, type=1
+libbpf: sec 'kprobe/tcp_v4_connect': found program 'tcp_v4_connect' at insn offset 0 (0 bytes), code size 32 insns (256 bytes)
+libbpf: elf: section(4) .relkprobe/tcp_v4_connect, size 48, link 35, flags 40, type=9
+libbpf: elf: section(5) kretprobe/tcp_v4_connect, size 1176, link 0, flags 6, type=1
+libbpf: sec 'kretprobe/tcp_v4_connect': found program 'tcp_v4_connect_ret' at insn offset 0 (0 bytes), code size 147 insns (1176 bytes)
+libbpf: elf: section(6) .relkretprobe/tcp_v4_connect, size 176, link 35, flags 40, type=9
+libbpf: elf: section(7) kprobe/tcp_v6_connect, size 256, link 0, flags 6, type=1
+libbpf: sec 'kprobe/tcp_v6_connect': found program 'tcp_v6_connect' at insn offset 0 (0 bytes), code size 32 insns (256 bytes)
+libbpf: elf: section(8) .relkprobe/tcp_v6_connect, size 48, link 35, flags 40, type=9
+libbpf: elf: section(9) kretprobe/tcp_v6_connect, size 1200, link 0, flags 6, type=1
+libbpf: sec 'kretprobe/tcp_v6_connect': found program 'tcp_v6_connect_ret' at insn offset 0 (0 bytes), code size 150 insns (1200 bytes)
+libbpf: elf: section(10) .relkretprobe/tcp_v6_connect, size 176, link 35, flags 40, type=9
+libbpf: elf: section(11) .rodata, size 280, link 0, flags 2, type=1
+libbpf: elf: section(12) license, size 4, link 0, flags 3, type=1
+libbpf: license of /tmp/buggy.o is GPL
+libbpf: elf: section(13) .maps, size 120, link 0, flags 3, type=1
+libbpf: elf: section(14) .bss, size 8, link 0, flags 3, type=8
+libbpf: elf: section(25) .BTF, size 15616, link 0, flags 0, type=1
+libbpf: elf: section(27) .BTF.ext, size 2748, link 0, flags 0, type=1
+libbpf: elf: section(35) .symtab, size 1320, link 1, flags 0, type=2
+libbpf: looking for externs among 55 symbols...
+libbpf: collected 0 externs total
+libbpf: map 'sockets': at sec_idx 13, offset 0.
+libbpf: map 'sockets': found type = 1.
+libbpf: map 'sockets': found max_entries = 8192.
+libbpf: map 'sockets': found key [8], sz = 4.
+libbpf: map 'sockets': found value [12], sz = 8.
+libbpf: map 'ipv4_count': at sec_idx 13, offset 32.
+libbpf: map 'ipv4_count': found type = 1.
+libbpf: map 'ipv4_count': found max_entries = 8192.
+libbpf: map 'ipv4_count': found key [180], sz = 12.
+libbpf: map 'ipv4_count': found value [129], sz = 8.
+libbpf: map 'ipv6_count': at sec_idx 13, offset 64.
+libbpf: map 'ipv6_count': found type = 1.
+libbpf: map 'ipv6_count': found max_entries = 8192.
+libbpf: map 'ipv6_count': found key [185], sz = 34.
+libbpf: map 'ipv6_count': found value [129], sz = 8.
+libbpf: map 'events': at sec_idx 13, offset 96.
+libbpf: map 'events': found type = 4.
+libbpf: map 'events': found key_size = 4.
+libbpf: map 'events': found value_size = 4.
+libbpf: map 'buggy.rodata' (global data): at sec_idx 11, offset 0, flags 480.
+libbpf: map 4 is "buggy.rodata"
+libbpf: map 'buggy.bss' (global data): at sec_idx 14, offset 0, flags 400.
+libbpf: map 5 is "buggy.bss"
+libbpf: sec '.relkprobe/tcp_v4_connect': collecting relocation for section(3) 'kprobe/tcp_v4_connect'
+libbpf: sec '.relkprobe/tcp_v4_connect': relo #0: insn #4 against 'filter_pid'
+libbpf: prog 'tcp_v4_connect': found data map 4 (buggy.rodata, sec 11, off 0) for insn 4
+libbpf: sec '.relkprobe/tcp_v4_connect': relo #1: insn #12 against 'filter_uid'
+libbpf: prog 'tcp_v4_connect': found data map 4 (buggy.rodata, sec 11, off 0) for insn 12
+libbpf: sec '.relkprobe/tcp_v4_connect': relo #2: insn #26 against 'sockets'
+libbpf: prog 'tcp_v4_connect': found map 0 (sockets, sec 13, off 0) for insn #26
+libbpf: sec '.relkretprobe/tcp_v4_connect': collecting relocation for section(5) 'kretprobe/tcp_v4_connect'
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #0: insn #7 against 'sockets'
+libbpf: prog 'tcp_v4_connect_ret': found map 0 (sockets, sec 13, off 0) for insn #7
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #1: insn #23 against 'filter_ports_len'
+libbpf: prog 'tcp_v4_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 23
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #2: insn #33 against 'filter_ports'
+libbpf: prog 'tcp_v4_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 33
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #3: insn #35 against 'filter_ports_len'
+libbpf: prog 'tcp_v4_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 35
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #4: insn #46 against 'do_count'
+libbpf: prog 'tcp_v4_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 46
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #5: insn #69 against 'ipv4_count'
+libbpf: prog 'tcp_v4_connect_ret': found map 1 (ipv4_count, sec 13, off 32) for insn #69
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #6: insn #76 against 'ipv4_count'
+libbpf: prog 'tcp_v4_connect_ret': found map 1 (ipv4_count, sec 13, off 32) for insn #76
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #7: insn #78 against '.bss'
+libbpf: prog 'tcp_v4_connect_ret': found data map 5 (buggy.bss, sec 14, off 0) for insn 78
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #8: insn #86 against 'ipv4_count'
+libbpf: prog 'tcp_v4_connect_ret': found map 1 (ipv4_count, sec 13, off 32) for insn #86
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #9: insn #133 against 'events'
+libbpf: prog 'tcp_v4_connect_ret': found map 3 (events, sec 13, off 96) for insn #133
+libbpf: sec '.relkretprobe/tcp_v4_connect': relo #10: insn #142 against 'sockets'
+libbpf: prog 'tcp_v4_connect_ret': found map 0 (sockets, sec 13, off 0) for insn #142
+libbpf: sec '.relkprobe/tcp_v6_connect': collecting relocation for section(7) 'kprobe/tcp_v6_connect'
+libbpf: sec '.relkprobe/tcp_v6_connect': relo #0: insn #4 against 'filter_pid'
+libbpf: prog 'tcp_v6_connect': found data map 4 (buggy.rodata, sec 11, off 0) for insn 4
+libbpf: sec '.relkprobe/tcp_v6_connect': relo #1: insn #12 against 'filter_uid'
+libbpf: prog 'tcp_v6_connect': found data map 4 (buggy.rodata, sec 11, off 0) for insn 12
+libbpf: sec '.relkprobe/tcp_v6_connect': relo #2: insn #26 against 'sockets'
+libbpf: prog 'tcp_v6_connect': found map 0 (sockets, sec 13, off 0) for insn #26
+libbpf: sec '.relkretprobe/tcp_v6_connect': collecting relocation for section(9) 'kretprobe/tcp_v6_connect'
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #0: insn #7 against 'sockets'
+libbpf: prog 'tcp_v6_connect_ret': found map 0 (sockets, sec 13, off 0) for insn #7
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #1: insn #23 against 'filter_ports_len'
+libbpf: prog 'tcp_v6_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 23
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #2: insn #33 against 'filter_ports'
+libbpf: prog 'tcp_v6_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 33
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #3: insn #35 against 'filter_ports_len'
+libbpf: prog 'tcp_v6_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 35
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #4: insn #46 against 'do_count'
+libbpf: prog 'tcp_v6_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 46
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #5: insn #72 against 'ipv6_count'
+libbpf: prog 'tcp_v6_connect_ret': found map 2 (ipv6_count, sec 13, off 64) for insn #72
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #6: insn #79 against 'ipv6_count'
+libbpf: prog 'tcp_v6_connect_ret': found map 2 (ipv6_count, sec 13, off 64) for insn #79
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #7: insn #81 against '.rodata'
+libbpf: prog 'tcp_v6_connect_ret': found data map 4 (buggy.rodata, sec 11, off 0) for insn 81
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #8: insn #89 against 'ipv6_count'
+libbpf: prog 'tcp_v6_connect_ret': found map 2 (ipv6_count, sec 13, off 64) for insn #89
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #9: insn #136 against 'events'
+libbpf: prog 'tcp_v6_connect_ret': found map 3 (events, sec 13, off 96) for insn #136
+libbpf: sec '.relkretprobe/tcp_v6_connect': relo #10: insn #145 against 'sockets'
+libbpf: prog 'tcp_v6_connect_ret': found map 0 (sockets, sec 13, off 0) for insn #145
+libbpf: loading kernel BTF '/sys/kernel/btf/vmlinux': 0
+libbpf: map 'sockets': created successfully, fd=4
+libbpf: map 'ipv4_count': created successfully, fd=5
+libbpf: map 'ipv6_count': created successfully, fd=6
+libbpf: map 'events': setting size to 4
+libbpf: map 'events': created successfully, fd=7
+libbpf: map 'buggy.rodata': created successfully, fd=8
+libbpf: map 'buggy.bss': created successfully, fd=9
+libbpf: sec 'kprobe/tcp_v4_connect': found 1 CO-RE relocations
+libbpf: prog 'tcp_v4_connect': relo #0: kind <byte_off> (0), spec is [193] struct pt_regs.di (0:14 @ offset 112)
+libbpf: CO-RE relocating [193] struct pt_regs: found target candidate [176] struct pt_regs
+libbpf: prog 'tcp_v4_connect': relo #0: matching candidate #0 [176] struct pt_regs.di (0:14 @ offset 112)
+libbpf: prog 'tcp_v4_connect': relo #0: patched insn #0 (LDX/ST/STX) off 112 -> 112
+libbpf: sec 'kretprobe/tcp_v4_connect': found 6 CO-RE relocations
+libbpf: prog 'tcp_v4_connect_ret': relo #0: kind <byte_off> (0), spec is [193] struct pt_regs.ax (0:10 @ offset 80)
+libbpf: prog 'tcp_v4_connect_ret': relo #0: matching candidate #0 [176] struct pt_regs.ax (0:10 @ offset 80)
+libbpf: prog 'tcp_v4_connect_ret': relo #0: patched insn #1 (LDX/ST/STX) off 80 -> 80
+libbpf: prog 'tcp_v4_connect_ret': relo #1: kind <byte_off> (0), spec is [13] struct sock.__sk_common.skc_dport (0:0:2:1:0 @ offset 12)
+libbpf: CO-RE relocating [13] struct sock: found target candidate [2657] struct sock
+libbpf: prog 'tcp_v4_connect_ret': relo #1: matching candidate #0 [2657] struct sock.__sk_common.skc_dport (0:0:2:1:0 @ offset 12)
+libbpf: prog 'tcp_v4_connect_ret': relo #1: patched insn #14 (ALU/ALU64) imm 12 -> 12
+libbpf: prog 'tcp_v4_connect_ret': relo #2: kind <byte_off> (0), spec is [13] struct sock.__sk_common.skc_rcv_saddr (0:0:0:1:1 @ offset 4)
+libbpf: prog 'tcp_v4_connect_ret': relo #2: matching candidate #0 [2657] struct sock.__sk_common.skc_rcv_saddr (0:0:0:1:1 @ offset 4)
+libbpf: prog 'tcp_v4_connect_ret': relo #2: patched insn #53 (ALU/ALU64) imm 4 -> 4
+libbpf: prog 'tcp_v4_connect_ret': relo #3: kind <byte_off> (0), spec is [13] struct sock.__sk_common.skc_daddr (0:0:0:1:0 @ offset 0)
+libbpf: prog 'tcp_v4_connect_ret': relo #3: matching candidate #0 [2657] struct sock.__sk_common.skc_daddr (0:0:0:1:0 @ offset 0)
+libbpf: prog 'tcp_v4_connect_ret': relo #3: patched insn #61 (ALU/ALU64) imm 0 -> 0
+libbpf: prog 'tcp_v4_connect_ret': relo #4: kind <byte_off> (0), spec is [13] struct sock.__sk_common.skc_rcv_saddr (0:0:0:1:1 @ offset 4)
+libbpf: prog 'tcp_v4_connect_ret': relo #4: matching candidate #0 [2657] struct sock.__sk_common.skc_rcv_saddr (0:0:0:1:1 @ offset 4)
+libbpf: prog 'tcp_v4_connect_ret': relo #4: patched insn #112 (ALU/ALU64) imm 4 -> 4
+libbpf: prog 'tcp_v4_connect_ret': relo #5: kind <byte_off> (0), spec is [13] struct sock.__sk_common.skc_daddr (0:0:0:1:0 @ offset 0)
+libbpf: prog 'tcp_v4_connect_ret': relo #5: matching candidate #0 [2657] struct sock.__sk_common.skc_daddr (0:0:0:1:0 @ offset 0)
+libbpf: prog 'tcp_v4_connect_ret': relo #5: patched insn #120 (ALU/ALU64) imm 0 -> 0
+libbpf: sec 'kprobe/tcp_v6_connect': found 1 CO-RE relocations
+libbpf: prog 'tcp_v6_connect': relo #0: kind <byte_off> (0), spec is [193] struct pt_regs.di (0:14 @ offset 112)
+libbpf: prog 'tcp_v6_connect': relo #0: matching candidate #0 [176] struct pt_regs.di (0:14 @ offset 112)
+libbpf: prog 'tcp_v6_connect': relo #0: patched insn #0 (LDX/ST/STX) off 112 -> 112
+libbpf: sec 'kretprobe/tcp_v6_connect': found 6 CO-RE relocations
+libbpf: prog 'tcp_v6_connect_ret': relo #0: kind <byte_off> (0), spec is [193] struct pt_regs.ax (0:10 @ offset 80)
+libbpf: prog 'tcp_v6_connect_ret': relo #0: matching candidate #0 [176] struct pt_regs.ax (0:10 @ offset 80)
+libbpf: prog 'tcp_v6_connect_ret': relo #0: patched insn #1 (LDX/ST/STX) off 80 -> 80
+libbpf: prog 'tcp_v6_connect_ret': relo #1: kind <byte_off> (0), spec is [13] struct sock.__sk_common.skc_dport (0:0:2:1:0 @ offset 12)
+libbpf: prog 'tcp_v6_connect_ret': relo #1: matching candidate #0 [2657] struct sock.__sk_common.skc_dport (0:0:2:1:0 @ offset 12)
+libbpf: prog 'tcp_v6_connect_ret': relo #1: patched insn #14 (ALU/ALU64) imm 12 -> 12
+libbpf: prog 'tcp_v6_connect_ret': relo #2: kind <byte_off> (0), spec is [13] struct sock.__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32 (0:0:14:0:2 @ offset 72)
+libbpf: prog 'tcp_v6_connect_ret': relo #2: matching candidate #0 [2657] struct sock.__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32 (0:0:14:0:2 @ offset 72)
+libbpf: prog 'tcp_v6_connect_ret': relo #2: patched insn #56 (ALU/ALU64) imm 72 -> 72
+libbpf: prog 'tcp_v6_connect_ret': relo #3: kind <byte_off> (0), spec is [13] struct sock.__sk_common.skc_v6_daddr.in6_u.u6_addr32 (0:0:13:0:2 @ offset 56)
+libbpf: prog 'tcp_v6_connect_ret': relo #3: matching candidate #0 [2657] struct sock.__sk_common.skc_v6_daddr.in6_u.u6_addr32 (0:0:13:0:2 @ offset 56)
+libbpf: prog 'tcp_v6_connect_ret': relo #3: patched insn #64 (ALU/ALU64) imm 56 -> 56
+libbpf: prog 'tcp_v6_connect_ret': relo #4: kind <byte_off> (0), spec is [13] struct sock.__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32 (0:0:14:0:2 @ offset 72)
+libbpf: prog 'tcp_v6_connect_ret': relo #4: matching candidate #0 [2657] struct sock.__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32 (0:0:14:0:2 @ offset 72)
+libbpf: prog 'tcp_v6_connect_ret': relo #4: patched insn #115 (ALU/ALU64) imm 72 -> 72
+libbpf: prog 'tcp_v6_connect_ret': relo #5: kind <byte_off> (0), spec is [13] struct sock.__sk_common.skc_v6_daddr.in6_u.u6_addr32 (0:0:13:0:2 @ offset 56)
+libbpf: prog 'tcp_v6_connect_ret': relo #5: matching candidate #0 [2657] struct sock.__sk_common.skc_v6_daddr.in6_u.u6_addr32 (0:0:13:0:2 @ offset 56)
+libbpf: prog 'tcp_v6_connect_ret': relo #5: patched insn #123 (ALU/ALU64) imm 56 -> 56
+libbpf: verifier log:
+func#0 @0
+0: R1=ctx(id=0,off=0,imm=0) R10=fp0
+; int BPF_KPROBE(tcp_v4_connect, struct sock *sk)
+0: (79) r1 = *(u64 *)(r1 +112)
+1: R1_w=inv(id=0) R10=fp0
+1: (7b) *(u64 *)(r10 -8) = r1
+2: R1_w=inv(id=0) R10=fp0 fp-8_w=mmmmmmmm
+; __u64 pid_tgid = bpf_get_current_pid_tgid();
+2: (85) call bpf_get_current_pid_tgid#14
+3: R0_w=inv(id=0) R10=fp0 fp-8_w=mmmmmmmm
+; __u32 tid = pid_tgid;
+3: (63) *(u32 *)(r10 -12) = r0
+4: R0_w=inv(id=0) R10=fp0 fp-8_w=mmmmmmmm fp-16=mmmm????
+; if (filter_pid && pid != filter_pid)
+4: (18) r1 = 0xffffa7fd402a4008
+6: R0_w=inv(id=0) R1_w=map_value(id=0,off=8,ks=4,vs=280,imm=0) R10=fp0 fp-8_w=mmmmmmmm fp-16=mmmm????
+6: (61) r2 = *(u32 *)(r1 +0)
+ R0_w=inv(id=0) R1_w=map_value(id=0,off=8,ks=4,vs=280,imm=0) R10=fp0 fp-8_w=mmmmmmmm fp-16=mmmm????
+7: R0_w=inv(id=0) R1_w=map_value(id=0,off=8,ks=4,vs=280,imm=0) R2_w=inv0 R10=fp0 fp-8_w=mmmmmmmm fp-16=mmmm????
+; if (filter_pid && pid != filter_pid)
+7: (15) if r2 == 0x0 goto pc+3
+last_idx 7 first_idx 0
+regs=4 stack=0 before 6: (61) r2 = *(u32 *)(r1 +0)
+11: R0=inv(id=0) R1=map_value(id=0,off=8,ks=4,vs=280,imm=0) R2=inv0 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; uid = bpf_get_current_uid_gid();
+11: (85) call bpf_get_current_uid_gid#15
+12: R0_w=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; if (filter_uid != (uid_t) -1 && uid != filter_uid)
+12: (18) r1 = 0xffffa7fd402a4004
+14: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+14: (61) r2 = *(u32 *)(r1 +0)
+ R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+15: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=inv4294967295 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+15: (18) r3 = 0xffffffff
+17: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=inv4294967295 R3_w=inv4294967295 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; if (filter_uid != (uid_t) -1 && uid != filter_uid)
+17: (1d) if r2 == r3 goto pc+4
+last_idx 17 first_idx 11
+regs=4 stack=0 before 15: (18) r3 = 0xffffffff
+regs=4 stack=0 before 14: (61) r2 = *(u32 *)(r1 +0)
+last_idx 17 first_idx 11
+regs=8 stack=0 before 15: (18) r3 = 0xffffffff
+22: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=inv4294967295 R3_w=inv4294967295 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; if (filter_uid != (uid_t) -1 && uid != filter_uid)
+22: (bf) r2 = r10
+23: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=fp0 R3_w=inv4294967295 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; bpf_map_update_elem(&sockets, &tid, &sk, 0);
+23: (07) r2 += -12
+24: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=fp-12 R3_w=inv4294967295 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+24: (bf) r3 = r10
+25: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=fp-12 R3_w=fp0 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+25: (07) r3 += -8
+26: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=fp-12 R3_w=fp-8 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+26: (18) r1 = 0xffff8ad646183400
+28: R0_w=inv(id=0) R1_w=map_ptr(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-12 R3_w=fp-8 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+28: (b7) r4 = 0
+29: R0_w=inv(id=0) R1_w=map_ptr(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-12 R3_w=fp-8 R4_w=inv0 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+29: (85) call bpf_map_update_elem#2
+30: R0=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; int BPF_KPROBE(tcp_v4_connect, struct sock *sk)
+30: (b7) r0 = 0
+31: R0_w=inv0 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+31: (95) exit
+verification time 92 usec
+stack depth 12
+processed 21 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
+libbpf: verifier log:
+func#0 @0
+0: R1=ctx(id=0,off=0,imm=0) R10=fp0
+; int BPF_KRETPROBE(tcp_v4_connect_ret, int ret)
+0: (bf) r6 = r1
+1: R1=ctx(id=0,off=0,imm=0) R6_w=ctx(id=0,off=0,imm=0) R10=fp0
+; int BPF_KRETPROBE(tcp_v4_connect_ret, int ret)
+1: (79) r7 = *(u64 *)(r6 +80)
+2: R1=ctx(id=0,off=0,imm=0) R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R10=fp0
+; __u64 pid_tgid = bpf_get_current_pid_tgid();
+2: (85) call bpf_get_current_pid_tgid#14
+3: R0_w=inv(id=0) R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R10=fp0
+3: (bf) r8 = r0
+4: R0_w=inv(id=1) R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8_w=inv(id=1) R10=fp0
+; __u32 tid = pid_tgid;
+4: (63) *(u32 *)(r10 -76) = r8
+5: R0_w=inv(id=1) R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8_w=inv(id=1) R10=fp0 fp-80=mmmm????
+5: (bf) r2 = r10
+6: R0_w=inv(id=1) R2_w=fp0 R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8_w=inv(id=1) R10=fp0 fp-80=mmmm????
+; 
+6: (07) r2 += -76
+7: R0_w=inv(id=1) R2_w=fp-76 R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8_w=inv(id=1) R10=fp0 fp-80=mmmm????
+; skpp = bpf_map_lookup_elem(&sockets, &tid);
+7: (18) r1 = 0xffff8ad646183400
+9: R0_w=inv(id=1) R1_w=map_ptr(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-76 R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8_w=inv(id=1) R10=fp0 fp-80=mmmm????
+9: (85) call bpf_map_lookup_elem#1
+10: R0=map_value_or_null(id=2,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; if (!skpp)
+10: (15) if r0 == 0x0 goto pc+134
+ R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+11: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; 
+11: (67) r7 <<= 32
+12: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,smax_value=9223372032559808512,umax_value=18446744069414584320,var_off=(0x0; 0xffffffff00000000),s32_min_value=0,s32_max_value=0,u32_max_value=0) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+12: (77) r7 >>= 32
+13: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; if (ret)
+13: (55) if r7 != 0x0 goto pc+126
+ R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv0 R8=inv(id=1) R10=fp0 fp-80=mmmm????
+14: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv0 R8=inv(id=1) R10=fp0 fp-80=mmmm????
+14: (b7) r1 = 12
+15: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=inv12 R6=ctx(id=0,off=0,imm=0) R7_w=inv0 R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; sk = *skpp;
+15: (79) r7 = *(u64 *)(r0 +0)
+ R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=inv12 R6=ctx(id=0,off=0,imm=0) R7_w=inv0 R8=inv(id=1) R10=fp0 fp-80=mmmm????
+16: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=inv12 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+16: (bf) r3 = r7
+17: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=inv12 R3_w=inv(id=3) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+17: (0f) r3 += r1
+18: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=inv12 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+18: (bf) r1 = r10
+19: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=fp0 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; 
+19: (07) r1 += -78
+20: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=fp-78 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; BPF_CORE_READ_INTO(&dport, sk, __sk_common.skc_dport);
+20: (b7) r2 = 2
+21: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=fp-78 R2_w=inv2 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+21: (85) call bpf_probe_read_kernel#113
+last_idx 21 first_idx 10
+regs=4 stack=0 before 20: (b7) r2 = 2
+22: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmmmm??
+; if (filter_port(dport))
+22: (69) r9 = *(u16 *)(r10 -78)
+23: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; if (filter_ports_len == 0)
+23: (18) r1 = 0xffffa7fd402a4000
+25: R0=inv(id=0) R1_w=map_value(id=0,off=0,ks=4,vs=280,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+25: (61) r2 = *(u32 *)(r1 +0)
+ R0=inv(id=0) R1_w=map_value(id=0,off=0,ks=4,vs=280,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+26: R0=inv(id=0) R1_w=map_value(id=0,off=0,ks=4,vs=280,imm=0) R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; if (filter_ports_len == 0)
+26: (15) if r2 == 0x0 goto pc+19
+last_idx 26 first_idx 22
+regs=4 stack=0 before 25: (61) r2 = *(u32 *)(r1 +0)
+46: R0=inv(id=0) R1_w=map_value(id=0,off=0,ks=4,vs=280,imm=0) R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; if (do_count) {
+46: (18) r1 = 0xffffa7fd402a400c
+48: R0=inv(id=0) R1_w=map_value(id=0,off=12,ks=4,vs=280,imm=0) R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+48: (71) r1 = *(u8 *)(r1 +0)
+ R0=inv(id=0) R1_w=map_value(id=0,off=12,ks=4,vs=280,imm=0) R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+49: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; if (do_count) {
+49: (15) if r1 == 0x0 goto pc+43
+last_idx 49 first_idx 22
+regs=2 stack=0 before 48: (71) r1 = *(u8 *)(r1 +0)
+93: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; __atomic_add_fetch(val, 1, __ATOMIC_RELAXED);
+93: (77) r8 >>= 32
+94: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+94: (b7) r1 = 0
+95: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; struct event event = {};
+95: (7b) *(u64 *)(r10 -16) = r1
+last_idx 95 first_idx 22
+regs=2 stack=0 before 94: (b7) r1 = 0
+96: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-16_w=00000000 fp-80=mmmmmm??
+96: (7b) *(u64 *)(r10 -8) = r1
+last_idx 96 first_idx 22
+regs=2 stack=0 before 95: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 94: (b7) r1 = 0
+97: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-80=mmmmmm??
+97: (7b) *(u64 *)(r10 -24) = r1
+last_idx 97 first_idx 22
+regs=2 stack=0 before 96: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 95: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 94: (b7) r1 = 0
+98: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-80=mmmmmm??
+98: (7b) *(u64 *)(r10 -32) = r1
+last_idx 98 first_idx 22
+regs=2 stack=0 before 97: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 96: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 95: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 94: (b7) r1 = 0
+99: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-80=mmmmmm??
+99: (7b) *(u64 *)(r10 -40) = r1
+last_idx 99 first_idx 22
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -32) = r1
+regs=2 stack=0 before 97: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 96: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 95: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 94: (b7) r1 = 0
+100: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-80=mmmmmm??
+100: (7b) *(u64 *)(r10 -48) = r1
+last_idx 100 first_idx 22
+regs=2 stack=0 before 99: (7b) *(u64 *)(r10 -40) = r1
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -32) = r1
+regs=2 stack=0 before 97: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 96: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 95: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 94: (b7) r1 = 0
+101: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-80=mmmmmm??
+101: (7b) *(u64 *)(r10 -56) = r1
+last_idx 101 first_idx 22
+regs=2 stack=0 before 100: (7b) *(u64 *)(r10 -48) = r1
+regs=2 stack=0 before 99: (7b) *(u64 *)(r10 -40) = r1
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -32) = r1
+regs=2 stack=0 before 97: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 96: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 95: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 94: (b7) r1 = 0
+102: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-80=mmmmmm??
+102: (7b) *(u64 *)(r10 -64) = r1
+last_idx 102 first_idx 22
+regs=2 stack=0 before 101: (7b) *(u64 *)(r10 -56) = r1
+regs=2 stack=0 before 100: (7b) *(u64 *)(r10 -48) = r1
+regs=2 stack=0 before 99: (7b) *(u64 *)(r10 -40) = r1
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -32) = r1
+regs=2 stack=0 before 97: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 96: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 95: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 94: (b7) r1 = 0
+103: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-64_w=00000000 fp-80=mmmmmm??
+103: (7b) *(u64 *)(r10 -72) = r1
+last_idx 103 first_idx 22
+regs=2 stack=0 before 102: (7b) *(u64 *)(r10 -64) = r1
+regs=2 stack=0 before 101: (7b) *(u64 *)(r10 -56) = r1
+regs=2 stack=0 before 100: (7b) *(u64 *)(r10 -48) = r1
+regs=2 stack=0 before 99: (7b) *(u64 *)(r10 -40) = r1
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -32) = r1
+regs=2 stack=0 before 97: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 96: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 95: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 94: (b7) r1 = 0
+104: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-64_w=00000000 fp-72_w=00000000 fp-80=mmmmmm??
+; event.pid = pid;
+104: (63) *(u32 *)(r10 -12) = r8
+105: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=mmmm0000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-64_w=00000000 fp-72_w=00000000 fp-80=mmmmmm??
+105: (b7) r1 = 2
+106: R0=inv(id=0) R1_w=inv2 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=mmmm0000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-64_w=00000000 fp-72_w=00000000 fp-80=mmmmmm??
+; event.af = AF_INET;
+106: (63) *(u32 *)(r10 -16) = r1
+107: R0=inv(id=0) R1_w=inv2 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=inv2 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-64_w=00000000 fp-72_w=00000000 fp-80=mmmmmm??
+; event.uid = bpf_get_current_uid_gid();
+107: (85) call bpf_get_current_uid_gid#15
+108: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00000000 fp-16=inv2 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; event.uid = bpf_get_current_uid_gid();
+108: (63) *(u32 *)(r10 -8) = r0
+109: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; event.ts_us = bpf_ktime_get_ns() / 1000;
+109: (85) call bpf_ktime_get_ns#5
+110: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; event.ts_us = bpf_ktime_get_ns() / 1000;
+110: (37) r0 /= 1000
+111: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; event.ts_us = bpf_ktime_get_ns() / 1000;
+111: (7b) *(u64 *)(r10 -24) = r0
+112: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+112: (b7) r1 = 4
+113: R0_w=inv(id=0) R1_w=inv4 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+113: (bf) r3 = r7
+114: R0_w=inv(id=0) R1_w=inv4 R3_w=inv(id=3) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+114: (0f) r3 += r1
+115: R0_w=inv(id=0) R1_w=inv4 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+115: (bf) r8 = r10
+116: R0_w=inv(id=0) R1_w=inv4 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=fp0 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; 
+116: (07) r8 += -72
+117: R0_w=inv(id=0) R1_w=inv4 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; BPF_CORE_READ_INTO(&event.saddr_v4, sk, __sk_common.skc_rcv_saddr);
+117: (bf) r1 = r8
+118: R0_w=inv(id=0) R1_w=fp-72 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+118: (b7) r2 = 4
+119: R0_w=inv(id=0) R1_w=fp-72 R2_w=inv4 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+119: (85) call bpf_probe_read_kernel#113
+last_idx 119 first_idx 108
+regs=4 stack=0 before 118: (b7) r2 = 4
+120: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+120: (b7) r1 = 0
+121: R0=inv(id=0) R1_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+121: (0f) r7 += r1
+122: R0=inv(id=0) R1_w=inv0 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+; struct event event = {};
+122: (bf) r1 = r10
+123: R0=inv(id=0) R1_w=fp0 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+123: (07) r1 += -56
+124: R0=inv(id=0) R1_w=fp-56 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+; BPF_CORE_READ_INTO(&event.daddr_v4, sk, __sk_common.skc_daddr);
+124: (b7) r2 = 4
+125: R0=inv(id=0) R1_w=fp-56 R2_w=inv4 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+125: (bf) r3 = r7
+126: R0=inv(id=0) R1_w=fp-56 R2_w=inv4 R3_w=inv(id=4) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+126: (85) call bpf_probe_read_kernel#113
+last_idx 126 first_idx 120
+regs=4 stack=0 before 125: (bf) r3 = r7
+regs=4 stack=0 before 124: (b7) r2 = 4
+127: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=0000mmmm fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+; event.dport = dport;
+127: (6b) *(u16 *)(r10 -4) = r9
+128: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=0000mmmm fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+; struct event event = {};
+128: (bf) r1 = r10
+129: R0_w=inv(id=0) R1_w=fp0 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=0000mmmm fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+129: (07) r1 += -40
+130: R0_w=inv(id=0) R1_w=fp-40 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=0000mmmm fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+; bpf_get_current_comm(event.task, sizeof(event.task));
+130: (b7) r2 = 16
+131: R0_w=inv(id=0) R1_w=fp-40 R2_w=inv16 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=0000mmmm fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+131: (85) call bpf_get_current_comm#16
+last_idx 131 first_idx 120
+regs=4 stack=0 before 130: (b7) r2 = 16
+132: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=00000000 fp-56=0000mmmm fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+; bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU,
+132: (bf) r1 = r6
+133: R0=inv(id=0) R1_w=ctx(id=0,off=0,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=00000000 fp-56=0000mmmm fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+133: (18) r2 = 0xffff8ad6436f8e00
+135: R0=inv(id=0) R1_w=ctx(id=0,off=0,imm=0) R2_w=map_ptr(id=0,off=0,ks=4,vs=4,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=00000000 fp-56=0000mmmm fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+135: (18) r3 = 0xffffffff
+137: R0=inv(id=0) R1_w=ctx(id=0,off=0,imm=0) R2_w=map_ptr(id=0,off=0,ks=4,vs=4,imm=0) R3_w=inv4294967295 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=00000000 fp-56=0000mmmm fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+137: (bf) r4 = r8
+138: R0=inv(id=0) R1_w=ctx(id=0,off=0,imm=0) R2_w=map_ptr(id=0,off=0,ks=4,vs=4,imm=0) R3_w=inv4294967295 R4_w=fp-72 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=00000000 fp-56=0000mmmm fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+138: (b7) r5 = 72
+139: R0=inv(id=0) R1_w=ctx(id=0,off=0,imm=0) R2_w=map_ptr(id=0,off=0,ks=4,vs=4,imm=0) R3_w=inv4294967295 R4_w=fp-72 R5_w=inv72 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv2 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=00000000 fp-56=0000mmmm fp-64=00000000 fp-72=0000mmmm fp-80=mmmmmm??
+139: (85) call bpf_perf_event_output#25
+last_idx 139 first_idx 132
+regs=20 stack=0 before 138: (b7) r5 = 72
+140: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+140: (bf) r2 = r10
+141: R0_w=inv(id=0) R2_w=fp0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; end:
+141: (07) r2 += -76
+142: R0_w=inv(id=0) R2_w=fp-76 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; bpf_map_delete_elem(&sockets, &tid);
+142: (18) r1 = 0xffff8ad646183400
+144: R0_w=inv(id=0) R1_w=map_ptr(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-76 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+144: (85) call bpf_map_delete_elem#3
+145: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; int BPF_KRETPROBE(tcp_v4_connect_ret, int ret)
+145: (b7) r0 = 0
+146: R0_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+146: (95) exit
+140: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU,
+140: (bf) r2 = r10
+141: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp0 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; end:
+141: (07) r2 += -76
+142: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-76 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; bpf_map_delete_elem(&sockets, &tid);
+142: (18) r1 = 0xffff8ad646183400
+144: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=map_ptr(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-76 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+144: (85) call bpf_map_delete_elem#3
+145: safe
+
+from 10 to 145: safe
+verification time 296 usec
+stack depth 78
+processed 85 insns (limit 1000000) max_states_per_insn 0 total_states 6 peak_states 6 mark_read 5
+libbpf: verifier log:
+func#0 @0
+0: R1=ctx(id=0,off=0,imm=0) R10=fp0
+; int BPF_KPROBE(tcp_v6_connect, struct sock *sk)
+0: (79) r1 = *(u64 *)(r1 +112)
+1: R1_w=inv(id=0) R10=fp0
+1: (7b) *(u64 *)(r10 -8) = r1
+2: R1_w=inv(id=0) R10=fp0 fp-8_w=mmmmmmmm
+; __u64 pid_tgid = bpf_get_current_pid_tgid();
+2: (85) call bpf_get_current_pid_tgid#14
+3: R0_w=inv(id=0) R10=fp0 fp-8_w=mmmmmmmm
+; __u32 tid = pid_tgid;
+3: (63) *(u32 *)(r10 -12) = r0
+4: R0_w=inv(id=0) R10=fp0 fp-8_w=mmmmmmmm fp-16=mmmm????
+; if (filter_pid && pid != filter_pid)
+4: (18) r1 = 0xffffa7fd402a4008
+6: R0_w=inv(id=0) R1_w=map_value(id=0,off=8,ks=4,vs=280,imm=0) R10=fp0 fp-8_w=mmmmmmmm fp-16=mmmm????
+6: (61) r2 = *(u32 *)(r1 +0)
+ R0_w=inv(id=0) R1_w=map_value(id=0,off=8,ks=4,vs=280,imm=0) R10=fp0 fp-8_w=mmmmmmmm fp-16=mmmm????
+7: R0_w=inv(id=0) R1_w=map_value(id=0,off=8,ks=4,vs=280,imm=0) R2_w=inv0 R10=fp0 fp-8_w=mmmmmmmm fp-16=mmmm????
+; if (filter_pid && pid != filter_pid)
+7: (15) if r2 == 0x0 goto pc+3
+last_idx 7 first_idx 0
+regs=4 stack=0 before 6: (61) r2 = *(u32 *)(r1 +0)
+11: R0=inv(id=0) R1=map_value(id=0,off=8,ks=4,vs=280,imm=0) R2=inv0 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; uid = bpf_get_current_uid_gid();
+11: (85) call bpf_get_current_uid_gid#15
+12: R0_w=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; if (filter_uid != (uid_t) -1 && uid != filter_uid)
+12: (18) r1 = 0xffffa7fd402a4004
+14: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+14: (61) r2 = *(u32 *)(r1 +0)
+ R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+15: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=inv4294967295 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+15: (18) r3 = 0xffffffff
+17: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=inv4294967295 R3_w=inv4294967295 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; if (filter_uid != (uid_t) -1 && uid != filter_uid)
+17: (1d) if r2 == r3 goto pc+4
+last_idx 17 first_idx 11
+regs=4 stack=0 before 15: (18) r3 = 0xffffffff
+regs=4 stack=0 before 14: (61) r2 = *(u32 *)(r1 +0)
+last_idx 17 first_idx 11
+regs=8 stack=0 before 15: (18) r3 = 0xffffffff
+22: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=inv4294967295 R3_w=inv4294967295 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; if (filter_uid != (uid_t) -1 && uid != filter_uid)
+22: (bf) r2 = r10
+23: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=fp0 R3_w=inv4294967295 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; bpf_map_update_elem(&sockets, &tid, &sk, 0);
+23: (07) r2 += -12
+24: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=fp-12 R3_w=inv4294967295 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+24: (bf) r3 = r10
+25: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=fp-12 R3_w=fp0 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+25: (07) r3 += -8
+26: R0_w=inv(id=0) R1_w=map_value(id=0,off=4,ks=4,vs=280,imm=0) R2_w=fp-12 R3_w=fp-8 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+26: (18) r1 = 0xffff8ad646183400
+28: R0_w=inv(id=0) R1_w=map_ptr(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-12 R3_w=fp-8 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+28: (b7) r4 = 0
+29: R0_w=inv(id=0) R1_w=map_ptr(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-12 R3_w=fp-8 R4_w=inv0 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+29: (85) call bpf_map_update_elem#2
+30: R0=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+; int BPF_KPROBE(tcp_v6_connect, struct sock *sk)
+30: (b7) r0 = 0
+31: R0_w=inv0 R10=fp0 fp-8=mmmmmmmm fp-16=mmmm????
+31: (95) exit
+verification time 46 usec
+stack depth 12
+processed 21 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
+libbpf: verifier log:
+func#0 @0
+0: R1=ctx(id=0,off=0,imm=0) R10=fp0
+; int BPF_KRETPROBE(tcp_v6_connect_ret, int ret)
+0: (bf) r6 = r1
+1: R1=ctx(id=0,off=0,imm=0) R6_w=ctx(id=0,off=0,imm=0) R10=fp0
+; int BPF_KRETPROBE(tcp_v6_connect_ret, int ret)
+1: (79) r7 = *(u64 *)(r6 +80)
+2: R1=ctx(id=0,off=0,imm=0) R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R10=fp0
+; __u64 pid_tgid = bpf_get_current_pid_tgid();
+2: (85) call bpf_get_current_pid_tgid#14
+3: R0_w=inv(id=0) R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R10=fp0
+3: (bf) r8 = r0
+4: R0_w=inv(id=1) R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8_w=inv(id=1) R10=fp0
+; __u32 tid = pid_tgid;
+4: (63) *(u32 *)(r10 -76) = r8
+5: R0_w=inv(id=1) R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8_w=inv(id=1) R10=fp0 fp-80=mmmm????
+5: (bf) r2 = r10
+6: R0_w=inv(id=1) R2_w=fp0 R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8_w=inv(id=1) R10=fp0 fp-80=mmmm????
+; 
+6: (07) r2 += -76
+7: R0_w=inv(id=1) R2_w=fp-76 R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8_w=inv(id=1) R10=fp0 fp-80=mmmm????
+; skpp = bpf_map_lookup_elem(&sockets, &tid);
+7: (18) r1 = 0xffff8ad646183400
+9: R0_w=inv(id=1) R1_w=map_ptr(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-76 R6_w=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8_w=inv(id=1) R10=fp0 fp-80=mmmm????
+9: (85) call bpf_map_lookup_elem#1
+10: R0=map_value_or_null(id=2,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; if (!skpp)
+10: (15) if r0 == 0x0 goto pc+137
+ R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+11: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; 
+11: (67) r7 <<= 32
+12: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,smax_value=9223372032559808512,umax_value=18446744069414584320,var_off=(0x0; 0xffffffff00000000),s32_min_value=0,s32_max_value=0,u32_max_value=0) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+12: (77) r7 >>= 32
+13: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; if (ret)
+13: (55) if r7 != 0x0 goto pc+129
+ R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv0 R8=inv(id=1) R10=fp0 fp-80=mmmm????
+14: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv0 R8=inv(id=1) R10=fp0 fp-80=mmmm????
+14: (b7) r1 = 12
+15: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=inv12 R6=ctx(id=0,off=0,imm=0) R7_w=inv0 R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; sk = *skpp;
+15: (79) r7 = *(u64 *)(r0 +0)
+ R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=inv12 R6=ctx(id=0,off=0,imm=0) R7_w=inv0 R8=inv(id=1) R10=fp0 fp-80=mmmm????
+16: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=inv12 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+16: (bf) r3 = r7
+17: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=inv12 R3_w=inv(id=3) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+17: (0f) r3 += r1
+18: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=inv12 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+18: (bf) r1 = r10
+19: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=fp0 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; 
+19: (07) r1 += -78
+20: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=fp-78 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; BPF_CORE_READ_INTO(&dport, sk, __sk_common.skc_dport);
+20: (b7) r2 = 2
+21: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=fp-78 R2_w=inv2 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+21: (85) call bpf_probe_read_kernel#113
+last_idx 21 first_idx 10
+regs=4 stack=0 before 20: (b7) r2 = 2
+22: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R10=fp0 fp-80=mmmmmm??
+; if (filter_port(dport))
+22: (69) r9 = *(u16 *)(r10 -78)
+23: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; if (filter_ports_len == 0)
+23: (18) r1 = 0xffffa7fd402a4000
+25: R0=inv(id=0) R1_w=map_value(id=0,off=0,ks=4,vs=280,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+25: (61) r2 = *(u32 *)(r1 +0)
+ R0=inv(id=0) R1_w=map_value(id=0,off=0,ks=4,vs=280,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+26: R0=inv(id=0) R1_w=map_value(id=0,off=0,ks=4,vs=280,imm=0) R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; if (filter_ports_len == 0)
+26: (15) if r2 == 0x0 goto pc+19
+last_idx 26 first_idx 22
+regs=4 stack=0 before 25: (61) r2 = *(u32 *)(r1 +0)
+46: R0=inv(id=0) R1_w=map_value(id=0,off=0,ks=4,vs=280,imm=0) R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; if (do_count) {
+46: (18) r1 = 0xffffa7fd402a400c
+48: R0=inv(id=0) R1_w=map_value(id=0,off=12,ks=4,vs=280,imm=0) R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+48: (71) r1 = *(u8 *)(r1 +0)
+ R0=inv(id=0) R1_w=map_value(id=0,off=12,ks=4,vs=280,imm=0) R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+49: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; if (do_count) {
+49: (15) if r1 == 0x0 goto pc+46
+last_idx 49 first_idx 22
+regs=2 stack=0 before 48: (71) r1 = *(u8 *)(r1 +0)
+96: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=1) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; __atomic_add_fetch(val, 1, __ATOMIC_RELAXED);
+96: (77) r8 >>= 32
+97: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+97: (b7) r1 = 0
+98: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-80=mmmmmm??
+; struct event event = {};
+98: (7b) *(u64 *)(r10 -16) = r1
+last_idx 98 first_idx 22
+regs=2 stack=0 before 97: (b7) r1 = 0
+99: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-16_w=00000000 fp-80=mmmmmm??
+99: (7b) *(u64 *)(r10 -8) = r1
+last_idx 99 first_idx 22
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 97: (b7) r1 = 0
+100: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-80=mmmmmm??
+100: (7b) *(u64 *)(r10 -24) = r1
+last_idx 100 first_idx 22
+regs=2 stack=0 before 99: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 97: (b7) r1 = 0
+101: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-80=mmmmmm??
+101: (7b) *(u64 *)(r10 -32) = r1
+last_idx 101 first_idx 22
+regs=2 stack=0 before 100: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 99: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 97: (b7) r1 = 0
+102: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-80=mmmmmm??
+102: (7b) *(u64 *)(r10 -40) = r1
+last_idx 102 first_idx 22
+regs=2 stack=0 before 101: (7b) *(u64 *)(r10 -32) = r1
+regs=2 stack=0 before 100: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 99: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 97: (b7) r1 = 0
+103: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-80=mmmmmm??
+103: (7b) *(u64 *)(r10 -48) = r1
+last_idx 103 first_idx 22
+regs=2 stack=0 before 102: (7b) *(u64 *)(r10 -40) = r1
+regs=2 stack=0 before 101: (7b) *(u64 *)(r10 -32) = r1
+regs=2 stack=0 before 100: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 99: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 97: (b7) r1 = 0
+104: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-80=mmmmmm??
+104: (7b) *(u64 *)(r10 -56) = r1
+last_idx 104 first_idx 22
+regs=2 stack=0 before 103: (7b) *(u64 *)(r10 -48) = r1
+regs=2 stack=0 before 102: (7b) *(u64 *)(r10 -40) = r1
+regs=2 stack=0 before 101: (7b) *(u64 *)(r10 -32) = r1
+regs=2 stack=0 before 100: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 99: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 97: (b7) r1 = 0
+105: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-80=mmmmmm??
+105: (7b) *(u64 *)(r10 -64) = r1
+last_idx 105 first_idx 22
+regs=2 stack=0 before 104: (7b) *(u64 *)(r10 -56) = r1
+regs=2 stack=0 before 103: (7b) *(u64 *)(r10 -48) = r1
+regs=2 stack=0 before 102: (7b) *(u64 *)(r10 -40) = r1
+regs=2 stack=0 before 101: (7b) *(u64 *)(r10 -32) = r1
+regs=2 stack=0 before 100: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 99: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 97: (b7) r1 = 0
+106: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-64_w=00000000 fp-80=mmmmmm??
+106: (7b) *(u64 *)(r10 -72) = r1
+last_idx 106 first_idx 22
+regs=2 stack=0 before 105: (7b) *(u64 *)(r10 -64) = r1
+regs=2 stack=0 before 104: (7b) *(u64 *)(r10 -56) = r1
+regs=2 stack=0 before 103: (7b) *(u64 *)(r10 -48) = r1
+regs=2 stack=0 before 102: (7b) *(u64 *)(r10 -40) = r1
+regs=2 stack=0 before 101: (7b) *(u64 *)(r10 -32) = r1
+regs=2 stack=0 before 100: (7b) *(u64 *)(r10 -24) = r1
+regs=2 stack=0 before 99: (7b) *(u64 *)(r10 -8) = r1
+regs=2 stack=0 before 98: (7b) *(u64 *)(r10 -16) = r1
+regs=2 stack=0 before 97: (b7) r1 = 0
+107: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=00000000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-64_w=00000000 fp-72_w=00000000 fp-80=mmmmmm??
+; event.pid = pid;
+107: (63) *(u32 *)(r10 -12) = r8
+108: R0=inv(id=0) R1_w=inv0 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=mmmm0000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-64_w=00000000 fp-72_w=00000000 fp-80=mmmmmm??
+108: (b7) r1 = 10
+109: R0=inv(id=0) R1_w=inv10 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=mmmm0000 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-64_w=00000000 fp-72_w=00000000 fp-80=mmmmmm??
+; event.af = AF_INET6;
+109: (63) *(u32 *)(r10 -16) = r1
+110: R0=inv(id=0) R1_w=inv10 R2_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8_w=00000000 fp-16_w=inv10 fp-24_w=00000000 fp-32_w=00000000 fp-40_w=00000000 fp-48_w=00000000 fp-56_w=00000000 fp-64_w=00000000 fp-72_w=00000000 fp-80=mmmmmm??
+; event.uid = bpf_get_current_uid_gid();
+110: (85) call bpf_get_current_uid_gid#15
+111: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00000000 fp-16=inv10 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; event.uid = bpf_get_current_uid_gid();
+111: (63) *(u32 *)(r10 -8) = r0
+112: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; event.ts_us = bpf_ktime_get_ns() / 1000;
+112: (85) call bpf_ktime_get_ns#5
+113: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; event.ts_us = bpf_ktime_get_ns() / 1000;
+113: (37) r0 /= 1000
+114: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; event.ts_us = bpf_ktime_get_ns() / 1000;
+114: (7b) *(u64 *)(r10 -24) = r0
+115: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+115: (b7) r1 = 72
+116: R0_w=inv(id=0) R1_w=inv72 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+116: (bf) r3 = r7
+117: R0_w=inv(id=0) R1_w=inv72 R3_w=inv(id=3) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+117: (0f) r3 += r1
+118: R0_w=inv(id=0) R1_w=inv72 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+118: (bf) r8 = r10
+119: R0_w=inv(id=0) R1_w=inv72 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=fp0 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; 
+119: (07) r8 += -72
+120: R0_w=inv(id=0) R1_w=inv72 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+; BPF_CORE_READ_INTO(&event.saddr_v6, sk,
+120: (bf) r1 = r8
+121: R0_w=inv(id=0) R1_w=fp-72 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+121: (b7) r2 = 16
+122: R0_w=inv(id=0) R1_w=fp-72 R2_w=inv16 R3_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8_w=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24_w=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmm??
+122: (85) call bpf_probe_read_kernel#113
+last_idx 122 first_idx 111
+regs=4 stack=0 before 121: (b7) r2 = 16
+123: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+123: (b7) r1 = 56
+124: R0=inv(id=0) R1_w=inv56 R6=ctx(id=0,off=0,imm=0) R7=inv(id=3) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+124: (0f) r7 += r1
+125: R0=inv(id=0) R1_w=inv56 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; struct event event = {};
+125: (bf) r1 = r10
+126: R0=inv(id=0) R1_w=fp0 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+126: (07) r1 += -56
+127: R0=inv(id=0) R1_w=fp-56 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; BPF_CORE_READ_INTO(&event.daddr_v6, sk,
+127: (b7) r2 = 16
+128: R0=inv(id=0) R1_w=fp-56 R2_w=inv16 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+128: (bf) r3 = r7
+129: R0=inv(id=0) R1_w=fp-56 R2_w=inv16 R3_w=inv(id=4) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+129: (85) call bpf_probe_read_kernel#113
+last_idx 129 first_idx 123
+regs=4 stack=0 before 128: (bf) r3 = r7
+regs=4 stack=0 before 127: (b7) r2 = 16
+130: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=0000mmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; event.dport = dport;
+130: (6b) *(u16 *)(r10 -4) = r9
+131: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; struct event event = {};
+131: (bf) r1 = r10
+132: R0_w=inv(id=0) R1_w=fp0 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+132: (07) r1 += -40
+133: R0_w=inv(id=0) R1_w=fp-40 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; bpf_get_current_comm(event.task, sizeof(event.task));
+133: (b7) r2 = 16
+134: R0_w=inv(id=0) R1_w=fp-40 R2_w=inv16 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=00000000 fp-40=00000000 fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+134: (85) call bpf_get_current_comm#16
+last_idx 134 first_idx 123
+regs=4 stack=0 before 133: (b7) r2 = 16
+135: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU,
+135: (bf) r1 = r6
+136: R0=inv(id=0) R1_w=ctx(id=0,off=0,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+136: (18) r2 = 0xffff8ad6436f8e00
+138: R0=inv(id=0) R1_w=ctx(id=0,off=0,imm=0) R2_w=map_ptr(id=0,off=0,ks=4,vs=4,imm=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+138: (18) r3 = 0xffffffff
+140: R0=inv(id=0) R1_w=ctx(id=0,off=0,imm=0) R2_w=map_ptr(id=0,off=0,ks=4,vs=4,imm=0) R3_w=inv4294967295 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+140: (bf) r4 = r8
+141: R0=inv(id=0) R1_w=ctx(id=0,off=0,imm=0) R2_w=map_ptr(id=0,off=0,ks=4,vs=4,imm=0) R3_w=inv4294967295 R4_w=fp-72 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+141: (b7) r5 = 72
+142: R0=inv(id=0) R1_w=ctx(id=0,off=0,imm=0) R2_w=map_ptr(id=0,off=0,ks=4,vs=4,imm=0) R3_w=inv4294967295 R4_w=fp-72 R5_w=inv72 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=00mmmmmm fp-16=inv10 fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+142: (85) call bpf_perf_event_output#25
+last_idx 142 first_idx 135
+regs=20 stack=0 before 141: (b7) r5 = 72
+143: R0_w=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+143: (bf) r2 = r10
+144: R0_w=inv(id=0) R2_w=fp0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; end:
+144: (07) r2 += -76
+145: R0_w=inv(id=0) R2_w=fp-76 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; bpf_map_delete_elem(&sockets, &tid);
+145: (18) r1 = 0xffff8ad646183400
+147: R0_w=inv(id=0) R1_w=map_ptr(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-76 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+147: (85) call bpf_map_delete_elem#3
+148: R0=inv(id=0) R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+; int BPF_KRETPROBE(tcp_v6_connect_ret, int ret)
+148: (b7) r0 = 0
+149: R0_w=inv0 R6=ctx(id=0,off=0,imm=0) R7=inv(id=4) R8=fp-72 R9=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R10=fp0 fp-8=mmmmmmmm fp-16=mmmmmmmm fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmm??
+149: (95) exit
+143: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU,
+143: (bf) r2 = r10
+144: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp0 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; end:
+144: (07) r2 += -76
+145: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-76 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+; bpf_map_delete_elem(&sockets, &tid);
+145: (18) r1 = 0xffff8ad646183400
+147: R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1_w=map_ptr(id=0,off=0,ks=4,vs=8,imm=0) R2_w=fp-76 R6=ctx(id=0,off=0,imm=0) R7_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R8=inv(id=1) R10=fp0 fp-80=mmmm????
+147: (85) call bpf_map_delete_elem#3
+148: safe
+
+from 10 to 148: safe
+verification time 280 usec
+stack depth 78
+processed 85 insns (limit 1000000) max_states_per_insn 0 total_states 6 peak_states 6 mark_read 5
+libbpf: pinned program '/sys/fs/bpf/qemu_verify_727/kprobe_tcp_v4_connect'
+libbpf: pinned program '/sys/fs/bpf/qemu_verify_727/kretprobe_tcp_v4_connect'
+libbpf: pinned program '/sys/fs/bpf/qemu_verify_727/kprobe_tcp_v6_connect'
+libbpf: pinned program '/sys/fs/bpf/qemu_verify_727/kretprobe_tcp_v6_connect'
+Verifier log saved to /home/yunwei37/workspace/ebpf-verifier-agent/.cache/qemu/debian-11-5.10/verifier-logs/buggy.o.log

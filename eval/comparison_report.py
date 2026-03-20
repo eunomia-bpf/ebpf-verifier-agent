@@ -32,12 +32,11 @@ from eval.source_strata import (
 DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "ablation_results.json"
 DEFAULT_MANIFEST_PATH = ROOT / "case_study" / "eval_manifest.yaml"
 DEFAULT_LABELS_PATH = ROOT / "case_study" / "ground_truth.yaml"
-ARCHIVE_LABELS_PATH = ROOT / "case_study" / "archive" / "ground_truth_labels.yaml"
-DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "comparison-report-2026-03-18.md"
+DEFAULT_REPORT_PATH = ROOT / "docs" / "tmp" / "comparison-report.md"
 METHOD_ORDER = ("bpfix", "baseline", "ablation_a", "ablation_b", "ablation_c")
 METHOD_LABELS = {
     "bpfix": "BPFix",
-    "baseline": "Baseline",
+    "baseline": "Regex Baseline",
     "ablation_a": "Ablation A",
     "ablation_b": "Ablation B",
     "ablation_c": "Ablation C",
@@ -420,16 +419,10 @@ def render_inputs_section(
         f"- Selftest cases: `{len(selftest_ids)}`",
         f"- Real-world cases: `{len(real_world_ids)}`",
         "- `All Cases` combines the selftest and real-world strata.",
+        "- `Regex Baseline` is the message-only, PV-equivalent baseline; it parses verifier tail messages without trace analysis.",
+        "- `ground_truth.yaml` is the canonical label set for all tables in this report.",
+        "- Quarantined cases in `ground_truth.yaml` are excluded from the labeled tables.",
     ]
-    if labels_path == DEFAULT_LABELS_PATH and ARCHIVE_LABELS_PATH.exists():
-        lines.append(
-            "- `ground_truth.yaml` is used for the primary tables; the older `ground_truth_labels.yaml` is still used below for the historical 70.2% vs 75.7% gap analysis."
-        )
-        lines.append("- Quarantined cases in `ground_truth.yaml` are excluded from the primary tables.")
-    elif labels_path == ARCHIVE_LABELS_PATH and DEFAULT_LABELS_PATH.exists():
-        lines.append(
-            "- `ground_truth_labels.yaml` is used for the primary tables; `ground_truth.yaml` remains the canonical label set."
-        )
     return lines
 
 
@@ -672,30 +665,16 @@ def main() -> int:
         )
     append_section(lines, "Source-Stratified Results", render_source_stratified_section(results, labels, full_case_ids))
 
-    if ARCHIVE_LABELS_PATH.exists():
-        old_labels = labels_by_case(ARCHIVE_LABELS_PATH)
-        old_case_ids = shared_case_ids(results, old_labels, eligible_ids)
-        append_section(
-            lines,
-            "Why BPFix Trails Baseline",
-            render_gap_analysis(
-                results,
-                old_labels,
-                old_case_ids,
-                "This section uses the older `ground_truth_labels.yaml` split so it lines up with the cited 70.2% BPFix vs 75.7% baseline comparison.",
-            ),
-        )
-    else:
-        append_section(
-            lines,
-            "Why BPFix Trails Baseline",
-            render_gap_analysis(
-                results,
-                labels,
-                full_case_ids,
-                "This section uses the same label file as the primary tables because `case_study/archive/ground_truth_labels.yaml` is unavailable.",
-            ),
-        )
+    append_section(
+        lines,
+        "Why BPFix Trails Baseline",
+        render_gap_analysis(
+            results,
+            labels,
+            full_case_ids,
+            "This section uses the same canonical `ground_truth.yaml` labels as the primary tables.",
+        ),
+    )
 
     append_section(
         lines,

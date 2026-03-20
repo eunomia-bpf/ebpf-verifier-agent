@@ -26,7 +26,7 @@ from batch_diagnostic_eval import MIN_LOG_CHARS, extract_verifier_log, iter_case
 from interface.extractor import rust_diagnostic
 
 
-DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "latency_benchmark_v3.json"
+DEFAULT_RESULTS_PATH = ROOT / "eval" / "results" / "latency_benchmark.json"
 EXPECTED_ELIGIBLE_CASES = 262
 TOTAL_STAGE = "generate_diagnostic"
 STAGE_ORDER: tuple[str, ...] = (TOTAL_STAGE,)

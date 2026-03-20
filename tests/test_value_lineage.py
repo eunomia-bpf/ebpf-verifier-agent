@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-
-from interface.extractor.value_lineage import build_value_lineage, ValueLineage
+from interface.extractor.value_lineage import build_value_lineage
 from interface.extractor.trace_parser import RegisterState, TracedInstruction
 
 

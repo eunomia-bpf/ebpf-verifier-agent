@@ -1,0 +1,4 @@
+/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-d3edaec19789/fixed.c:22:10: fatal error: 'node_config.h' file not found
+   22 | #include <node_config.h>
+      |          ^~~~~~~~~~~~~~~
+1 error generated.

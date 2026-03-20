@@ -310,10 +310,6 @@ ROOT_CAUSE_TAGS = {spec.tag for spec in FIX_TAG_SPECS if spec.location_kind == "
 LOCAL_FIX_TAGS = {spec.tag for spec in FIX_TAG_SPECS if spec.location_kind == "local"}
 
 
-def fix_type_label(tag: str) -> str:
-    return FIX_TAG_LABELS.get(tag, tag.replace("_", " "))
-
-
 def classify_fix_tags(texts: Iterable[str]) -> list[str]:
     combined = "\n".join(t for t in texts if t and t.strip())
     if not combined.strip():
@@ -1334,13 +1330,12 @@ def build_report(
     mc = aggregates["mcnemar_fix_type"]
     btf_n = aggregates["btf_suppressed_subset"]["n"]
     btf_ok_n = aggregates["btf_ok_subset"]["n"]
-    taxonomy_counts = Counter(c.taxonomy_class for c in selected_cases)
 
     lines = [
         "# Repair Experiment V4: Raw Verifier Log vs BPFix Diagnostic (Qwen3.5-122B-A10B)",
         "",
         f"- Generated: `{now_iso()}`",
-        f"- Model: Qwen3.5-122B-A10B (MoE, ~10B active params) via llama.cpp `-hf` loading",
+        "- Model: Qwen3.5-122B-A10B (MoE, ~10B active params) via llama.cpp `-hf` loading",
         f"- Selected cases: `{len(selected_cases)}`",
         f"- Desired taxonomy targets: `{dict(TARGET_CASE_COUNTS)}`",
         f"- Effective taxonomy targets: `{selection_summary['effective_targets']}`",
@@ -1836,7 +1831,7 @@ def main() -> int:
     b_sum = aggregates["condition_b"]
     mc = aggregates["mcnemar_fix_type"]
     print("\n[summary]")
-    print(f"  Model:        Qwen3.5-122B-A10B")
+    print("  Model:        Qwen3.5-122B-A10B")
     print(f"  Cases:        {a_sum['cases']}")
     print(f"  A fix-type:   {a_sum['fix_type_correct']}/{a_sum['cases']} ({a_sum['fix_type_accuracy']:.1f}%)")
     print(f"  B fix-type:   {b_sum['fix_type_correct']}/{b_sum['cases']} ({b_sum['fix_type_accuracy']:.1f}%)")

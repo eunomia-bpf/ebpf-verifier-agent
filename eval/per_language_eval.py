@@ -18,11 +18,11 @@ Outputs:
 """
 
 import json
-import os
-import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
 import yaml
 from collections import defaultdict, Counter
-from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -43,7 +43,6 @@ GENERIC_OBLIGATION_TYPES = {"safety_violation", "verifier_limits"}
 def detect_language(result: dict) -> str:
     """Return 'Rust', 'Go', or 'C' for a batch-result record."""
     case_id = result["case_id"]
-    source_dir = result.get("source_dir", "")
 
     # GitHub issues: repo name is embedded in case_id
     if "github-aya-rs-aya" in case_id:
@@ -121,8 +120,6 @@ def aggregate(records: list[dict]) -> dict:
         return {}
 
     n_diag = sum(1 for r in records if r["has_diagnostic"])
-    n_obligation = sum(1 for r in records if r["has_any_obligation"])
-    n_specific_obl = sum(1 for r in records if r["has_specific_obligation"])
     n_btf = sum(1 for r in records if r["has_btf"])
     n_skipped = sum(1 for r in records if r["skipped"])
 
@@ -131,9 +128,6 @@ def aggregate(records: list[dict]) -> dict:
     n_never = proof_counts.get("never_established", 0)
     n_established_insuf = proof_counts.get("established_but_insufficient", 0)
     n_unknown = proof_counts.get("unknown", 0)
-
-    # Only count BTF among cases that have a diagnostic
-    n_btf_diag = sum(1 for r in records if r["has_btf"] and r["has_diagnostic"])
 
     # Obligation stats among cases that have a diagnostic
     n_obl_diag = sum(1 for r in records if r["has_any_obligation"] and r["has_diagnostic"])
@@ -212,11 +206,12 @@ def latex_table(lang_stats: dict) -> str:
 # ---------------------------------------------------------------------------
 
 def markdown_report(lang_stats: dict, per_language_cases: dict) -> str:
+    generated_on = datetime.now(timezone.utc).date().isoformat()
     order = ["C", "Rust", "Go", "Total"]
     lines = [
         "# Per-Language BPFix Evaluation",
         "",
-        "Date: 2026-03-12",
+        f"Date: {generated_on}",
         "",
         "## Summary",
         "",
@@ -298,7 +293,7 @@ def markdown_report(lang_stats: dict, per_language_cases: dict) -> str:
 
 def main():
     print(f"Loading batch results from {BATCH_RESULTS} ...")
-    with open(BATCH_RESULTS) as f:
+    with BATCH_RESULTS.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
     results = data["results"]
@@ -337,20 +332,20 @@ def main():
 
     # Save JSON
     out_data = {
-        "generated_at": "2026-03-12",
+        "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         "source_file": str(BATCH_RESULTS),
         "language_stats": lang_stats,
         "language_case_counts": {
             lang: len(cases) for lang, cases in per_language_cases.items()
         },
     }
-    with open(OUT_JSON, "w") as f:
+    with OUT_JSON.open("w", encoding="utf-8") as f:
         json.dump(out_data, f, indent=2)
     print(f"\nSaved JSON to {OUT_JSON}")
 
     # Save markdown
     OUT_MD.parent.mkdir(parents=True, exist_ok=True)
-    with open(OUT_MD, "w") as f:
+    with OUT_MD.open("w", encoding="utf-8") as f:
         f.write(md)
     print(f"Saved markdown to {OUT_MD}")
 
