@@ -34,7 +34,7 @@ ERROR_ID_PATTERN = re.compile(r"^BPFIX-E\d{3}$|^BPFIX-UNKNOWN$")
 
 def _load_verifier_log(relative_path: str) -> str:
     payload = yaml.safe_load((ROOT / relative_path).read_text(encoding="utf-8"))
-    verifier_log = payload["verifier_log"]
+    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
     if isinstance(verifier_log, str):
         return verifier_log
     combined = verifier_log.get("combined")
@@ -51,7 +51,7 @@ def _so_cases_with_logs() -> list[Path]:
         if f.name == "index.yaml":
             continue
         payload = yaml.safe_load(f.read_text(encoding="utf-8"))
-        vl = payload.get("verifier_log", "")
+        vl = payload.get("original_verifier_log", payload.get("verifier_log", ""))
         if isinstance(vl, str):
             has_log = bool(vl.strip())
         elif isinstance(vl, dict):

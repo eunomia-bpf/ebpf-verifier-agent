@@ -13,7 +13,7 @@ from interface.extractor.rust_diagnostic import generate_diagnostic
 
 def _load_verifier_log(relative_path: str) -> str:
     payload = yaml.safe_load((ROOT / relative_path).read_text(encoding="utf-8"))
-    verifier_log = payload["verifier_log"]
+    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
     if isinstance(verifier_log, str):
         return verifier_log
     combined = verifier_log.get("combined")

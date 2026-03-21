@@ -26,12 +26,17 @@ def _load_case(relative_path: str) -> dict:
 
 def _block(case_path: str, index: int) -> str:
     payload = _load_case(case_path)
-    return payload["verifier_log"]["blocks"][index]
+    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
+    if isinstance(verifier_log, str):
+        if index != 0:
+            raise IndexError(index)
+        return verifier_log
+    return verifier_log["blocks"][index]
 
 
 def _verifier_log(case_path: str) -> str:
     payload = _load_case(case_path)
-    verifier_log = payload["verifier_log"]
+    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
     if isinstance(verifier_log, str):
         return verifier_log
     combined = verifier_log.get("combined")

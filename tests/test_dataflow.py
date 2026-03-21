@@ -61,7 +61,7 @@ def _load_case(relative_path: str) -> dict:
 
 def _verifier_log(case_path: str) -> str:
     payload = _load_case(case_path)
-    verifier_log = payload["verifier_log"]
+    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
     if isinstance(verifier_log, str):
         return verifier_log
     combined = verifier_log.get("combined")

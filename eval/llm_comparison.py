@@ -275,7 +275,7 @@ def load_verbose_audit_ranks(path: Path) -> dict[str, int]:
 
 
 def extract_verifier_log(case_data: dict[str, Any]) -> str:
-    raw = case_data.get("verifier_log")
+    raw = case_data.get("original_verifier_log", case_data.get("verifier_log"))
     if isinstance(raw, str):
         return raw.strip()
     if isinstance(raw, dict):
