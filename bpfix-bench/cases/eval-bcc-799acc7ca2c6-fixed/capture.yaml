@@ -1,0 +1,20 @@
+schema_version: bpfix.capture/v1
+capture_id: eval-bcc-799acc7ca2c6-fixed__kernel-6.15.11-clang-18-log2
+case_id: eval-bcc-799acc7ca2c6-fixed
+environment_id: kernel-6.15.11-clang-18-log2
+imported_at: '2026-04-29T22:56:27+00:00'
+source_artifact:
+  path: case_study/cases/eval_commits_verified/eval-bcc-799acc7ca2c6
+  status_file: verification_status.txt
+  metadata_file: metadata.yaml
+  repository: https://github.com/iovisor/bcc
+  commit: 799acc7ca2c618d9b467f79e63ba9a0059a22121
+  parent_commit: 4138cc42c563f11e7f476056b22457f942ff565d
+  variant: fixed
+  variant_compile: 'True'
+  variant_verifier_pass: 'False'
+replay:
+  build_command: make
+  load_command: make replay-verify
+  verifier_log: replay-verifier.log
+  expected_load_status: verifier_reject

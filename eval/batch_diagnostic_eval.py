@@ -21,6 +21,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from interface.extractor.rust_diagnostic import generate_diagnostic
+from eval.benchmark_loader import load_benchmark_rows
 
 
 CASE_DIRS: tuple[tuple[str, str, Path], ...] = (
@@ -73,6 +74,14 @@ class CaseResult:
     headline: str | None
     diagnostic_text: str | None
     diagnostic_json: dict[str, Any] | None
+    benchmark_id: str | None = None
+    verifier_log_path: str | None = None
+    verifier_log: str | None = None
+    capture_id: str | None = None
+    source_kind: str | None = None
+    family_id: str | None = None
+    representative: bool | None = None
+    label: Any = None
 
 
 def parse_args() -> argparse.Namespace:
@@ -94,6 +103,11 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=MIN_LOG_CHARS,
         help=f"Minimum verifier log length to evaluate (default: {MIN_LOG_CHARS})",
+    )
+    parser.add_argument(
+        "--benchmark",
+        type=Path,
+        help="Optional benchmark directory such as bpfix-bench. When set, cases are loaded via eval/benchmark_loader.py.",
     )
     return parser.parse_args()
 
@@ -164,10 +178,17 @@ def evaluate_case(
     source_dir: str,
     path: Path,
     min_log_chars: int,
+    benchmark_row: dict[str, Any] | None = None,
 ) -> CaseResult:
-    case_data = read_yaml(path)
-    case_id = str(case_data.get("case_id") or path.stem)
-    verifier_log = extract_verifier_log(case_data)
+    benchmark_fields = benchmark_result_fields(benchmark_row)
+    if benchmark_row is None:
+        case_data = read_yaml(path)
+        case_id = str(case_data.get("case_id") or path.stem)
+        verifier_log = extract_verifier_log(case_data)
+    else:
+        case_data = {}
+        case_id = str(benchmark_row.get("case_id") or path.parent.name)
+        verifier_log = str(benchmark_row.get("verifier_log") or "")
     verifier_log_chars = len(verifier_log)
     has_source_markers = log_has_source_locations(verifier_log)
 
@@ -197,6 +218,7 @@ def evaluate_case(
             headline=None,
             diagnostic_text=None,
             diagnostic_json=None,
+            **benchmark_fields,
         )
 
     try:
@@ -226,6 +248,7 @@ def evaluate_case(
             headline=None,
             diagnostic_text=None,
             diagnostic_json=None,
+            **benchmark_fields,
         )
 
     json_data = output.json_data if isinstance(output.json_data, dict) else {}
@@ -271,7 +294,23 @@ def evaluate_case(
         headline=extract_headline(output_text),
         diagnostic_text=output_text,
         diagnostic_json=json_data,
+        **benchmark_fields,
     )
+
+
+def benchmark_result_fields(row: dict[str, Any] | None) -> dict[str, Any]:
+    if row is None:
+        return {}
+    return {
+        "benchmark_id": _as_str_or_none(row.get("benchmark_id")),
+        "verifier_log_path": _as_str_or_none(row.get("verifier_log_path")),
+        "verifier_log": _as_str_or_none(row.get("verifier_log")),
+        "capture_id": _as_str_or_none(row.get("capture_id")),
+        "source_kind": _as_str_or_none(row.get("source_kind")),
+        "family_id": _as_str_or_none(row.get("family_id")),
+        "representative": bool(row.get("representative")),
+        "label": row.get("label"),
+    }
 
 
 def _as_str_or_none(value: Any) -> str | None:
@@ -470,8 +509,14 @@ def build_report(
         "| Source | Total | Eligible | Success | Failure | Skipped | Success Rate | BTF Rate | Avg Spans |",
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
-    for source, _, _case_dir in CASE_DIRS:
+    legacy_source_order = [source for source, _, _case_dir in CASE_DIRS]
+    source_order = legacy_source_order + sorted(
+        source for source in {result.source for result in results} if source not in legacy_source_order
+    )
+    for source in source_order:
         source_results = [result for result in results if result.source == source]
+        if not source_results:
+            continue
         source_eligible = [result for result in source_results if not result.skipped]
         source_successes = [result for result in source_eligible if result.success]
         avg_spans = (
@@ -619,12 +664,28 @@ def save_text(path: Path, text: str) -> None:
 def main() -> int:
     args = parse_args()
     generated_at = datetime.now(timezone.utc).isoformat()
-    case_files = iter_case_files()
+    benchmark_rows: list[dict[str, Any]] | None = None
+    if args.benchmark:
+        benchmark_rows = load_benchmark_rows(args.benchmark)
+        case_files = [
+            (
+                str(row.get("source_kind") or "benchmark"),
+                str(row.get("benchmark_id") or args.benchmark),
+                Path(str(row["case_path"])),
+                row,
+            )
+            for row in benchmark_rows
+        ]
+    else:
+        case_files = [
+            (source, source_dir, path, None)
+            for source, source_dir, path in iter_case_files()
+        ]
     results: list[CaseResult] = []
 
     total = len(case_files)
-    for index, (source, source_dir, path) in enumerate(case_files, start=1):
-        results.append(evaluate_case(source, source_dir, path, args.min_log_chars))
+    for index, (source, source_dir, path, benchmark_row) in enumerate(case_files, start=1):
+        results.append(evaluate_case(source, source_dir, path, args.min_log_chars, benchmark_row))
         if index % 50 == 0 or index == total:
             print(f"[batch_diagnostic_eval] processed {index}/{total} cases", flush=True)
 
@@ -632,6 +693,8 @@ def main() -> int:
     payload = {
         "generated_at": generated_at,
         "min_log_chars": args.min_log_chars,
+        "benchmark": str(args.benchmark) if args.benchmark else None,
+        "benchmark_cases": len(benchmark_rows) if benchmark_rows is not None else None,
         "totals": {
             "scanned": len(results),
             "eligible": sum(not result.skipped for result in results),

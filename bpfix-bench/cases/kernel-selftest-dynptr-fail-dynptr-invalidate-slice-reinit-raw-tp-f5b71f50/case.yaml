@@ -1,0 +1,67 @@
+schema_version: bpfix.case/v1
+case_id: kernel-selftest-dynptr-fail-dynptr-invalidate-slice-reinit-raw-tp-f5b71f50
+source:
+  kind: kernel_selftest
+  url: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/testing/selftests/bpf/progs/dynptr_fail.c
+  repository: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+  commit: null
+  upstream_file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  upstream_section: dynptr_invalidate_slice_reinit
+  collected_at: '2026-03-20T00:37:17.256624+00:00'
+  raw_excerpt_files: []
+reproducer:
+  status: ready
+  reconstruction: original
+  language: C
+  program_type: ?raw_tp
+  source_file: prog.c
+  build_command: make
+  object_path: prog.o
+  load_command: make replay-verify
+  notes: Imported from locally verified kernel selftest artifact; replay log is written to
+    replay-verifier.log.
+capture:
+  capture_id: kernel-selftest-dynptr-fail-dynptr-invalidate-slice-reinit-raw-tp-f5b71f50__kernel-6.15.11-clang-18-log2
+  environment_id: kernel-6.15.11-clang-18-log2
+  captured_at: '2026-04-29T22:43:47+00:00'
+  build_status: success
+  load_status: verifier_reject
+  verifier_pass: false
+  exit_code: 1
+  verifier_log: replay-verifier.log
+  capture_metadata: capture.yaml
+  log_quality: trace_rich
+  terminal_error: R7 invalid mem access 'scalar'
+  rejected_insn_idx: 52
+external_match:
+  status: not_applicable
+  policy: kernel_selftest_expected_message
+  matched_messages:
+  - R7 invalid mem access 'scalar'
+  notes: Kernel selftest case; no external report matching is required.
+label:
+  capture_id: kernel-selftest-dynptr-fail-dynptr-invalidate-slice-reinit-raw-tp-f5b71f50__kernel-6.15.11-clang-18-log2
+  taxonomy_class: source_bug
+  error_id: BPFIX-E011
+  confidence: high
+  label_source: agree
+  root_cause_description: 'Intentional negative test: keeps the slice pointer `p = bpf_dynptr_data(&ptr,
+    0, 1)` and then dereferences `*p` after `get_map_val_dynptr(&ptr)` reinitializes the dynptr
+    slot.'
+  rejected_insn_idx: 52
+  root_cause_insn_idx: 52
+  rejected_line: return *p;
+  root_cause_line: return *p;
+  localization_confidence: high
+  fix_type: reorder
+  fix_direction: In real code, treat any existing slice as invalid after reinitializing the
+    dynptr and reacquire a fresh slice before dereferencing it.
+repair:
+  eligible: false
+reporting:
+  split: main
+  family_id: R7 invalid mem access 'scalar'
+  representative: true
+  intentional_negative_test: true
+  quarantine: false
+  notes: Kernel selftest replay-valid case.

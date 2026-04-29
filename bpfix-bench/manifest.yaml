@@ -1,0 +1,716 @@
+schema_version: bpfix.benchmark/v1
+benchmark_id: bpfix-bench-v1
+frozen_at: '2026-04-29'
+environment_id: kernel-6.15.11-clang-18-log2
+description: Locally reproducible verifier-log benchmark.
+cases:
+- case_id: eval-bcc-799acc7ca2c6-fixed
+  path: cases/eval-bcc-799acc7ca2c6-fixed
+  split: candidate
+  source_kind: commit_derived
+  family_id: R2 unbounded memory access, make sure to bounds check any such access
+  representative: false
+  capture_id: eval-bcc-799acc7ca2c6-fixed__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda
+  path: cases/kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda
+  split: main
+  source_kind: kernel_selftest
+  family_id: combined stack size of 2 calls is 576. Too large
+  representative: true
+  capture_id: kernel-selftest-async-stack-depth-async-call-root-check-tc-21513dda__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-async-stack-depth-pseudo-call-check-tc-320d654d
+  path: cases/kernel-selftest-async-stack-depth-pseudo-call-check-tc-320d654d
+  split: main
+  source_kind: kernel_selftest
+  family_id: combined stack size of 2 calls is 544. Too large
+  representative: true
+  capture_id: kernel-selftest-async-stack-depth-pseudo-call-check-tc-320d654d__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-fp-tp-btf-cgroup-mkdir-7d3a90fe
+  path: cases/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-fp-tp-btf-cgroup-mkdir-7d3a90fe
+  split: main
+  source_kind: kernel_selftest
+  family_id: arg#0 pointer type STRUCT cgroup must point to scalar, or struct with scalar
+  representative: true
+  capture_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-fp-tp-btf-cgroup-mkdir-7d3a90fe__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-trusted-walked-tp-btf-cgroup-mkdir-6deeac84
+  path: cases/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-trusted-walked-tp-btf-cgroup-mkdir-6deeac84
+  split: main
+  source_kind: kernel_selftest
+  family_id: R1 must be a rcu pointer
+  representative: true
+  capture_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-trusted-walked-tp-btf-cgroup-mkdir-6deeac84__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-untrusted-tp-btf-cgroup-mkdir-2bcab89b
+  path: cases/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-untrusted-tp-btf-cgroup-mkdir-2bcab89b
+  split: main
+  source_kind: kernel_selftest
+  family_id: Possibly NULL pointer passed to trusted arg0
+  representative: true
+  capture_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-untrusted-tp-btf-cgroup-mkdir-2bcab89b__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-rcu-get-release-tp-btf-cgroup-mkdir-29aa212b
+  path: cases/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-rcu-get-release-tp-btf-cgroup-mkdir-29aa212b
+  split: main
+  source_kind: kernel_selftest
+  family_id: R1 must be referenced or trusted
+  representative: true
+  capture_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-rcu-get-release-tp-btf-cgroup-mkdir-29aa212b__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99
+  path: cases/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99
+  split: main
+  source_kind: kernel_selftest
+  family_id: arg#0 pointer type STRUCT cgroup must point to scalar, or struct with scalar
+  representative: true
+  capture_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-untrusted-tp-btf-cgroup-mkdir-9eb3123d
+  path: cases/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-untrusted-tp-btf-cgroup-mkdir-9eb3123d
+  split: main
+  source_kind: kernel_selftest
+  family_id: Possibly NULL pointer passed to trusted arg0
+  representative: true
+  capture_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-untrusted-tp-btf-cgroup-mkdir-9eb3123d__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-xchg-unreleased-tp-btf-cgroup-mkdir-241e8fc0
+  path: cases/kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-xchg-unreleased-tp-btf-cgroup-mkdir-241e8fc0
+  split: main
+  source_kind: kernel_selftest
+  family_id: BPF_EXIT instruction in main prog would lead to reference leak
+  representative: true
+  capture_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-xchg-unreleased-tp-btf-cgroup-mkdir-241e8fc0__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cpumask-failure-test-global-mask-no-null-check-tp-btf-task-newtask-655f6c03
+  path: cases/kernel-selftest-cpumask-failure-test-global-mask-no-null-check-tp-btf-task-newtask-655f6c03
+  split: main
+  source_kind: kernel_selftest
+  family_id: Possibly NULL pointer passed to trusted arg1
+  representative: true
+  capture_id: kernel-selftest-cpumask-failure-test-global-mask-no-null-check-tp-btf-task-newtask-655f6c03__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cpumask-failure-test-global-mask-out-of-rcu-tp-btf-task-newtask-55a16b69
+  path: cases/kernel-selftest-cpumask-failure-test-global-mask-out-of-rcu-tp-btf-task-newtask-55a16b69
+  split: main
+  source_kind: kernel_selftest
+  family_id: R2 must be a rcu pointer
+  representative: true
+  capture_id: kernel-selftest-cpumask-failure-test-global-mask-out-of-rcu-tp-btf-task-newtask-55a16b69__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39
+  path: cases/kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39
+  split: main
+  source_kind: kernel_selftest
+  family_id: Possibly NULL pointer passed to helper arg2
+  representative: true
+  capture_id: kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cpumask-failure-test-invalid-nested-array-tp-btf-task-newtask-bd05d03f
+  path: cases/kernel-selftest-cpumask-failure-test-invalid-nested-array-tp-btf-task-newtask-bd05d03f
+  split: main
+  source_kind: kernel_selftest
+  family_id: R1 has no valid kptr
+  representative: true
+  capture_id: kernel-selftest-cpumask-failure-test-invalid-nested-array-tp-btf-task-newtask-bd05d03f__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cpumask-failure-test-mutate-cpumask-tp-btf-task-newtask-d7b7c258
+  path: cases/kernel-selftest-cpumask-failure-test-mutate-cpumask-tp-btf-task-newtask-d7b7c258
+  split: main
+  source_kind: kernel_selftest
+  family_id: kernel function bpf_cpumask_set_cpu args#1 expected pointer to STRUCT bpf_cpumask
+    but R2 has a pointer to STRUCT cpumask
+  representative: true
+  capture_id: kernel-selftest-cpumask-failure-test-mutate-cpumask-tp-btf-task-newtask-d7b7c258__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cpumask-failure-test-populate-invalid-destination-tp-btf-task-newtask-2aa0585a
+  path: cases/kernel-selftest-cpumask-failure-test-populate-invalid-destination-tp-btf-task-newtask-2aa0585a
+  split: main
+  source_kind: kernel_selftest
+  family_id: R1 type=scalar expected=fp
+  representative: true
+  capture_id: kernel-selftest-cpumask-failure-test-populate-invalid-destination-tp-btf-task-newtask-2aa0585a__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-cpumask-failure-test-populate-invalid-source-tp-btf-task-newtask-149c6ecc
+  path: cases/kernel-selftest-cpumask-failure-test-populate-invalid-source-tp-btf-task-newtask-149c6ecc
+  split: main
+  source_kind: kernel_selftest
+  family_id: arg#1 arg#2 memory, len pair leads to invalid memory access
+  representative: true
+  capture_id: kernel-selftest-cpumask-failure-test-populate-invalid-source-tp-btf-task-newtask-149c6ecc__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-crypto-basic-crypto-acquire-syscall-b8afbe98
+  path: cases/kernel-selftest-crypto-basic-crypto-acquire-syscall-b8afbe98
+  split: main
+  source_kind: kernel_selftest
+  family_id: BPF_EXIT instruction in main prog would lead to reference leak
+  representative: true
+  capture_id: kernel-selftest-crypto-basic-crypto-acquire-syscall-b8afbe98__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-add-dynptr-to-map1-raw-tp-2b5ac898
+  path: cases/kernel-selftest-dynptr-fail-add-dynptr-to-map1-raw-tp-2b5ac898
+  split: main
+  source_kind: kernel_selftest
+  family_id: invalid read from stack R3 off -16+0 size 16
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-add-dynptr-to-map1-raw-tp-2b5ac898__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-add-dynptr-to-map2-raw-tp-7a037daf
+  path: cases/kernel-selftest-dynptr-fail-add-dynptr-to-map2-raw-tp-7a037daf
+  split: main
+  source_kind: kernel_selftest
+  family_id: invalid read from stack R3 off -24+8 size 24
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-add-dynptr-to-map2-raw-tp-7a037daf__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-clone-invalid1-raw-tp-b7206632
+  path: cases/kernel-selftest-dynptr-fail-clone-invalid1-raw-tp-b7206632
+  split: main
+  source_kind: kernel_selftest
+  family_id: 'Expected an initialized dynptr as arg #0'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-clone-invalid1-raw-tp-b7206632__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-data-slice-missing-null-check1-raw-tp-af2be9c9
+  path: cases/kernel-selftest-dynptr-fail-data-slice-missing-null-check1-raw-tp-af2be9c9
+  split: main
+  source_kind: kernel_selftest
+  family_id: R0 invalid mem access 'mem_or_null'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-data-slice-missing-null-check1-raw-tp-af2be9c9__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-data-slice-missing-null-check2-raw-tp-8e533162
+  path: cases/kernel-selftest-dynptr-fail-data-slice-missing-null-check2-raw-tp-8e533162
+  split: main
+  source_kind: kernel_selftest
+  family_id: R0 invalid mem access 'mem_or_null'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-data-slice-missing-null-check2-raw-tp-8e533162__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84
+  path: cases/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84
+  split: main
+  source_kind: kernel_selftest
+  family_id: invalid access to memory, mem_size=4 off=5 size=1
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-tc-b903ac49
+  path: cases/kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-tc-b903ac49
+  split: main
+  source_kind: kernel_selftest
+  family_id: invalid access to memory, mem_size=14 off=14 size=1
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-tc-b903ac49__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-dynptr-from-mem-invalid-api-raw-tp-1040be69
+  path: cases/kernel-selftest-dynptr-fail-dynptr-from-mem-invalid-api-raw-tp-1040be69
+  split: main
+  source_kind: kernel_selftest
+  family_id: 'arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-dynptr-from-mem-invalid-api-raw-tp-1040be69__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-dynptr-invalidate-slice-reinit-raw-tp-f5b71f50
+  path: cases/kernel-selftest-dynptr-fail-dynptr-invalidate-slice-reinit-raw-tp-f5b71f50
+  split: main
+  source_kind: kernel_selftest
+  family_id: R7 invalid mem access 'scalar'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-dynptr-invalidate-slice-reinit-raw-tp-f5b71f50__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-dynptr-overwrite-ref-raw-tp-3fed55ba
+  path: cases/kernel-selftest-dynptr-fail-dynptr-overwrite-ref-raw-tp-3fed55ba
+  split: main
+  source_kind: kernel_selftest
+  family_id: cannot overwrite referenced dynptr
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-dynptr-overwrite-ref-raw-tp-3fed55ba__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-dynptr-pruning-type-confusion-tc-28056c9b
+  path: cases/kernel-selftest-dynptr-fail-dynptr-pruning-type-confusion-tc-28056c9b
+  split: main
+  source_kind: kernel_selftest
+  family_id: cannot overwrite referenced dynptr
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-dynptr-pruning-type-confusion-tc-28056c9b__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35
+  path: cases/kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35
+  split: main
+  source_kind: kernel_selftest
+  family_id: 'arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-dynptr-slice-var-len1-tc-76a0b3fb
+  path: cases/kernel-selftest-dynptr-fail-dynptr-slice-var-len1-tc-76a0b3fb
+  split: main
+  source_kind: kernel_selftest
+  family_id: arg#2 arg#3 memory, len pair leads to invalid memory access
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-dynptr-slice-var-len1-tc-76a0b3fb__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-dynptr-slice-var-len2-tc-673ab9e7
+  path: cases/kernel-selftest-dynptr-fail-dynptr-slice-var-len2-tc-673ab9e7
+  split: main
+  source_kind: kernel_selftest
+  family_id: R4 must be a known constant
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-dynptr-slice-var-len2-tc-673ab9e7__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-dynptr-var-off-overwrite-tc-ab0a2e71
+  path: cases/kernel-selftest-dynptr-fail-dynptr-var-off-overwrite-tc-ab0a2e71
+  split: main
+  source_kind: kernel_selftest
+  family_id: Dynptr has to be an uninitialized dynptr
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-dynptr-var-off-overwrite-tc-ab0a2e71__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-global-raw-tp-e92dc79e
+  path: cases/kernel-selftest-dynptr-fail-global-raw-tp-e92dc79e
+  split: main
+  source_kind: kernel_selftest
+  family_id: R4 type=map_value expected=fp, dynptr_ptr
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-global-raw-tp-e92dc79e__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-invalid-data-slices-raw-tp-6798c725
+  path: cases/kernel-selftest-dynptr-fail-invalid-data-slices-raw-tp-6798c725
+  split: main
+  source_kind: kernel_selftest
+  family_id: R6 invalid mem access 'scalar'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-invalid-data-slices-raw-tp-6798c725__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-invalid-helper1-raw-tp-e765040b
+  path: cases/kernel-selftest-dynptr-fail-invalid-helper1-raw-tp-e765040b
+  split: main
+  source_kind: kernel_selftest
+  family_id: invalid read from stack R1 off -24+0 size 16
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-invalid-helper1-raw-tp-e765040b__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-invalid-helper2-raw-tp-34ba04aa
+  path: cases/kernel-selftest-dynptr-fail-invalid-helper2-raw-tp-34ba04aa
+  split: main
+  source_kind: kernel_selftest
+  family_id: 'Expected an initialized dynptr as arg #2'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-invalid-helper2-raw-tp-34ba04aa__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-invalid-offset-raw-tp-549f8135
+  path: cases/kernel-selftest-dynptr-fail-invalid-offset-raw-tp-549f8135
+  split: main
+  source_kind: kernel_selftest
+  family_id: Dynptr has to be an uninitialized dynptr
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-invalid-offset-raw-tp-549f8135__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-invalid-read1-raw-tp-f61c0428
+  path: cases/kernel-selftest-dynptr-fail-invalid-read1-raw-tp-f61c0428
+  split: main
+  source_kind: kernel_selftest
+  family_id: invalid read from stack off -16+0 size 4
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-invalid-read1-raw-tp-f61c0428__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993
+  path: cases/kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993
+  split: main
+  source_kind: kernel_selftest
+  family_id: 'Expected an initialized dynptr as arg #2'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-invalid-read2-raw-tp-2cc2b993__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-invalid-read3-raw-tp-99c4b958
+  path: cases/kernel-selftest-dynptr-fail-invalid-read3-raw-tp-99c4b958
+  split: main
+  source_kind: kernel_selftest
+  family_id: invalid read from stack off -8+0 size 4
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-invalid-read3-raw-tp-99c4b958__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-invalid-read4-raw-tp-8a9b0872
+  path: cases/kernel-selftest-dynptr-fail-invalid-read4-raw-tp-8a9b0872
+  split: main
+  source_kind: kernel_selftest
+  family_id: invalid read from stack off -16+0 size 4
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-invalid-read4-raw-tp-8a9b0872__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly-cgroup-skb-ingress-61688196
+  path: cases/kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly-cgroup-skb-ingress-61688196
+  split: main
+  source_kind: kernel_selftest
+  family_id: the prog does not allow writes to packet data
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly-cgroup-skb-ingress-61688196__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-invalid-write1-raw-tp-ba5ba8ca
+  path: cases/kernel-selftest-dynptr-fail-invalid-write1-raw-tp-ba5ba8ca
+  split: main
+  source_kind: kernel_selftest
+  family_id: 'Expected an initialized dynptr as arg #0'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-invalid-write1-raw-tp-ba5ba8ca__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-release-twice-callback-raw-tp-bd7b2a60
+  path: cases/kernel-selftest-dynptr-fail-release-twice-callback-raw-tp-bd7b2a60
+  split: main
+  source_kind: kernel_selftest
+  family_id: 'arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-release-twice-callback-raw-tp-bd7b2a60__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d
+  path: cases/kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d
+  split: main
+  source_kind: kernel_selftest
+  family_id: 'arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-ringbuf-invalid-api-raw-tp-87a443d6
+  path: cases/kernel-selftest-dynptr-fail-ringbuf-invalid-api-raw-tp-87a443d6
+  split: main
+  source_kind: kernel_selftest
+  family_id: R1 type=mem expected=ringbuf_mem
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-ringbuf-invalid-api-raw-tp-87a443d6__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403
+  path: cases/kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403
+  split: main
+  source_kind: kernel_selftest
+  family_id: R1 must be referenced or trusted
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-skb-invalid-ctx-xdp-1a32a21f
+  path: cases/kernel-selftest-dynptr-fail-skb-invalid-ctx-xdp-1a32a21f
+  split: main
+  source_kind: kernel_selftest
+  family_id: calling kernel function bpf_dynptr_from_skb is not allowed
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-skb-invalid-ctx-xdp-1a32a21f__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-skb-invalid-data-slice1-tc-0b35a757
+  path: cases/kernel-selftest-dynptr-fail-skb-invalid-data-slice1-tc-0b35a757
+  split: main
+  source_kind: kernel_selftest
+  family_id: R8 invalid mem access 'scalar'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-skb-invalid-data-slice1-tc-0b35a757__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-skb-invalid-data-slice3-tc-a15c4322
+  path: cases/kernel-selftest-dynptr-fail-skb-invalid-data-slice3-tc-a15c4322
+  split: main
+  source_kind: kernel_selftest
+  family_id: R7 invalid mem access 'scalar'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-skb-invalid-data-slice3-tc-a15c4322__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-test-dynptr-skb-small-buff-cgroup-skb-egress-4f498dbd
+  path: cases/kernel-selftest-dynptr-fail-test-dynptr-skb-small-buff-cgroup-skb-egress-4f498dbd
+  split: main
+  source_kind: kernel_selftest
+  family_id: arg#2 arg#3 memory, len pair leads to invalid memory access
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-test-dynptr-skb-small-buff-cgroup-skb-egress-4f498dbd__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838
+  path: cases/kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838
+  split: main
+  source_kind: kernel_selftest
+  family_id: 'arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-xdp-invalid-ctx-raw-tp-e886d43f
+  path: cases/kernel-selftest-dynptr-fail-xdp-invalid-ctx-raw-tp-e886d43f
+  split: main
+  source_kind: kernel_selftest
+  family_id: calling kernel function bpf_dynptr_from_xdp is not allowed
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-xdp-invalid-ctx-raw-tp-e886d43f__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5
+  path: cases/kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5
+  split: main
+  source_kind: kernel_selftest
+  family_id: R8 invalid mem access 'scalar'
+  representative: true
+  capture_id: kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-exceptions-fail-reject-async-callback-throw-tc-a86cf7b1
+  path: cases/kernel-selftest-exceptions-fail-reject-async-callback-throw-tc-a86cf7b1
+  split: main
+  source_kind: kernel_selftest
+  family_id: JIT does not support calling kfunc bpf_throw#73439
+  representative: true
+  capture_id: kernel-selftest-exceptions-fail-reject-async-callback-throw-tc-a86cf7b1__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8
+  path: cases/kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8
+  split: main
+  source_kind: kernel_selftest
+  family_id: insn 3 cannot call exception cb directly
+  representative: true
+  capture_id: kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-exceptions-fail-reject-exception-cb-call-static-func-tc-f3ceb9b7
+  path: cases/kernel-selftest-exceptions-fail-reject-exception-cb-call-static-func-tc-f3ceb9b7
+  split: main
+  source_kind: kernel_selftest
+  family_id: insn 3 cannot call exception cb directly
+  representative: true
+  capture_id: kernel-selftest-exceptions-fail-reject-exception-cb-call-static-func-tc-f3ceb9b7__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586
+  path: cases/kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586
+  split: main
+  source_kind: kernel_selftest
+  family_id: 'arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
+  representative: true
+  capture_id: kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-exceptions-fail-reject-with-cb-reference-tc-c99ec1a7
+  path: cases/kernel-selftest-exceptions-fail-reject-with-cb-reference-tc-c99ec1a7
+  split: main
+  source_kind: kernel_selftest
+  family_id: JIT does not support calling kfunc bpf_throw#73439
+  representative: true
+  capture_id: kernel-selftest-exceptions-fail-reject-with-cb-reference-tc-c99ec1a7__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-exceptions-fail-reject-with-rbtree-add-throw-tc-e943cfe2
+  path: cases/kernel-selftest-exceptions-fail-reject-with-rbtree-add-throw-tc-e943cfe2
+  split: main
+  source_kind: kernel_selftest
+  family_id: function calls are not allowed while holding a lock
+  representative: true
+  capture_id: kernel-selftest-exceptions-fail-reject-with-rbtree-add-throw-tc-e943cfe2__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-flag-overwrite-tc-4c974993
+  path: cases/kernel-selftest-irq-irq-flag-overwrite-tc-4c974993
+  split: main
+  source_kind: kernel_selftest
+  family_id: expected an initialized irq flag as arg#0
+  representative: true
+  capture_id: kernel-selftest-irq-irq-flag-overwrite-tc-4c974993__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-ooo-lock-cond-inv-tc-950f35d5
+  path: cases/kernel-selftest-irq-irq-ooo-lock-cond-inv-tc-950f35d5
+  split: main
+  source_kind: kernel_selftest
+  family_id: cannot restore irq state out of order, expected id=2 acquired at insn_idx=10
+  representative: true
+  capture_id: kernel-selftest-irq-irq-ooo-lock-cond-inv-tc-950f35d5__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-ooo-refs-array-tc-193001a6
+  path: cases/kernel-selftest-irq-irq-ooo-refs-array-tc-193001a6
+  split: main
+  source_kind: kernel_selftest
+  family_id: cannot restore irq state out of order, expected id=5 acquired at insn_idx=16
+  representative: true
+  capture_id: kernel-selftest-irq-irq-ooo-refs-array-tc-193001a6__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-restore-4-subprog-tc-f3feb6a1
+  path: cases/kernel-selftest-irq-irq-restore-4-subprog-tc-f3feb6a1
+  split: main
+  source_kind: kernel_selftest
+  family_id: cannot restore irq state out of order, expected id=2 acquired at insn_idx=29
+  representative: true
+  capture_id: kernel-selftest-irq-irq-restore-4-subprog-tc-f3feb6a1__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-restore-invalid-tc-e1f743bf
+  path: cases/kernel-selftest-irq-irq-restore-invalid-tc-e1f743bf
+  split: main
+  source_kind: kernel_selftest
+  family_id: expected an initialized irq flag as arg#0
+  representative: true
+  capture_id: kernel-selftest-irq-irq-restore-invalid-tc-e1f743bf__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-restore-missing-3-minus-2-subprog-tc-5c202e26
+  path: cases/kernel-selftest-irq-irq-restore-missing-3-minus-2-subprog-tc-5c202e26
+  split: main
+  source_kind: kernel_selftest
+  family_id: BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed
+    region
+  representative: true
+  capture_id: kernel-selftest-irq-irq-restore-missing-3-minus-2-subprog-tc-5c202e26__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-restore-missing-3-subprog-tc-8592c5d7
+  path: cases/kernel-selftest-irq-irq-restore-missing-3-subprog-tc-8592c5d7
+  split: main
+  source_kind: kernel_selftest
+  family_id: BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed
+    region
+  representative: true
+  capture_id: kernel-selftest-irq-irq-restore-missing-3-subprog-tc-8592c5d7__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-restore-ooo-3-subprog-tc-b32ae1a0
+  path: cases/kernel-selftest-irq-irq-restore-ooo-3-subprog-tc-b32ae1a0
+  split: main
+  source_kind: kernel_selftest
+  family_id: cannot restore irq state out of order, expected id=4 acquired at insn_idx=15
+  representative: true
+  capture_id: kernel-selftest-irq-irq-restore-ooo-3-subprog-tc-b32ae1a0__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-restore-ooo-3-tc-e0b5e5ee
+  path: cases/kernel-selftest-irq-irq-restore-ooo-3-tc-e0b5e5ee
+  split: main
+  source_kind: kernel_selftest
+  family_id: cannot restore irq state out of order, expected id=3 acquired at insn_idx=13
+  representative: true
+  capture_id: kernel-selftest-irq-irq-restore-ooo-3-tc-e0b5e5ee__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-restore-ooo-tc-84ede29d
+  path: cases/kernel-selftest-irq-irq-restore-ooo-tc-84ede29d
+  split: main
+  source_kind: kernel_selftest
+  family_id: cannot restore irq state out of order, expected id=2 acquired at insn_idx=7
+  representative: true
+  capture_id: kernel-selftest-irq-irq-restore-ooo-tc-84ede29d__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-save-invalid-tc-86a07a3f
+  path: cases/kernel-selftest-irq-irq-save-invalid-tc-86a07a3f
+  split: main
+  source_kind: kernel_selftest
+  family_id: expected uninitialized irq flag as arg#0
+  representative: true
+  capture_id: kernel-selftest-irq-irq-save-invalid-tc-86a07a3f__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-sleepable-global-subprog-indirect-syscall-c96d09ca
+  path: cases/kernel-selftest-irq-irq-sleepable-global-subprog-indirect-syscall-c96d09ca
+  split: main
+  source_kind: kernel_selftest
+  family_id: global functions that may sleep are not allowed in non-sleepable context,
+  representative: true
+  capture_id: kernel-selftest-irq-irq-sleepable-global-subprog-indirect-syscall-c96d09ca__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-sleepable-helper-global-subprog-syscall-7d470f89
+  path: cases/kernel-selftest-irq-irq-sleepable-helper-global-subprog-syscall-7d470f89
+  split: main
+  source_kind: kernel_selftest
+  family_id: global functions that may sleep are not allowed in non-sleepable context,
+  representative: true
+  capture_id: kernel-selftest-irq-irq-sleepable-helper-global-subprog-syscall-7d470f89__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958
+  path: cases/kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958
+  split: main
+  source_kind: kernel_selftest
+  family_id: function calls are not allowed while holding a lock
+  representative: true
+  capture_id: kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-iters-iter-err-too-permissive1-raw-tp-25649784
+  path: cases/kernel-selftest-iters-iter-err-too-permissive1-raw-tp-25649784
+  split: main
+  source_kind: kernel_selftest
+  family_id: R6 invalid mem access 'scalar'
+  representative: true
+  capture_id: kernel-selftest-iters-iter-err-too-permissive1-raw-tp-25649784__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-iters-iter-err-too-permissive2-raw-tp-177534f5
+  path: cases/kernel-selftest-iters-iter-err-too-permissive2-raw-tp-177534f5
+  split: main
+  source_kind: kernel_selftest
+  family_id: R6 invalid mem access 'map_value_or_null'
+  representative: true
+  capture_id: kernel-selftest-iters-iter-err-too-permissive2-raw-tp-177534f5__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-iters-iter-err-too-permissive3-raw-tp-969d109d
+  path: cases/kernel-selftest-iters-iter-err-too-permissive3-raw-tp-969d109d
+  split: main
+  source_kind: kernel_selftest
+  family_id: R7 invalid mem access 'map_value_or_null'
+  representative: true
+  capture_id: kernel-selftest-iters-iter-err-too-permissive3-raw-tp-969d109d__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-iters-iter-err-unsafe-c-loop-raw-tp-4b9ee52e
+  path: cases/kernel-selftest-iters-iter-err-unsafe-c-loop-raw-tp-4b9ee52e
+  split: main
+  source_kind: kernel_selftest
+  family_id: math between map_value pointer and register with unbounded min value is not allowed
+  representative: true
+  capture_id: kernel-selftest-iters-iter-err-unsafe-c-loop-raw-tp-4b9ee52e__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-iters-iter-new-bad-arg-raw-tp-e25f0e76
+  path: cases/kernel-selftest-iters-iter-new-bad-arg-raw-tp-e25f0e76
+  split: main
+  source_kind: kernel_selftest
+  family_id: arg#0 expected pointer to an iterator on stack
+  representative: true
+  capture_id: kernel-selftest-iters-iter-new-bad-arg-raw-tp-e25f0e76__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-53136145
+  path: cases/stackoverflow-53136145
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-53136145
+  representative: true
+  capture_id: stackoverflow-53136145__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-61945212
+  path: cases/stackoverflow-61945212
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-61945212
+  representative: true
+  capture_id: stackoverflow-61945212__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-67402772
+  path: cases/stackoverflow-67402772
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-67402772
+  representative: true
+  capture_id: stackoverflow-67402772__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-67679109
+  path: cases/stackoverflow-67679109
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-67679109
+  representative: true
+  capture_id: stackoverflow-67679109__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-68752893
+  path: cases/stackoverflow-68752893
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-68752893
+  representative: true
+  capture_id: stackoverflow-68752893__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-70729664
+  path: cases/stackoverflow-70729664
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-70729664
+  representative: true
+  capture_id: stackoverflow-70729664__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-70750259
+  path: cases/stackoverflow-70750259
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-70750259
+  representative: true
+  capture_id: stackoverflow-70750259__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-70873332
+  path: cases/stackoverflow-70873332
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-70873332
+  representative: true
+  capture_id: stackoverflow-70873332__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-71522674
+  path: cases/stackoverflow-71522674
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-71522674
+  representative: true
+  capture_id: stackoverflow-71522674__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-71946593
+  path: cases/stackoverflow-71946593
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-71946593
+  representative: true
+  capture_id: stackoverflow-71946593__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-72005172
+  path: cases/stackoverflow-72005172
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-72005172
+  representative: true
+  capture_id: stackoverflow-72005172__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-72560675
+  path: cases/stackoverflow-72560675
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-72560675
+  representative: true
+  capture_id: stackoverflow-72560675__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-74531552
+  path: cases/stackoverflow-74531552
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-74531552
+  representative: true
+  capture_id: stackoverflow-74531552__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-75643912
+  path: cases/stackoverflow-75643912
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-75643912
+  representative: true
+  capture_id: stackoverflow-75643912__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-76637174
+  path: cases/stackoverflow-76637174
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-76637174
+  representative: true
+  capture_id: stackoverflow-76637174__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-77205912
+  path: cases/stackoverflow-77205912
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-77205912
+  representative: true
+  capture_id: stackoverflow-77205912__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-77762365
+  path: cases/stackoverflow-77762365
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-77762365
+  representative: true
+  capture_id: stackoverflow-77762365__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-78236856
+  path: cases/stackoverflow-78236856
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-78236856
+  representative: true
+  capture_id: stackoverflow-78236856__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-79348306
+  path: cases/stackoverflow-79348306
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-79348306
+  representative: true
+  capture_id: stackoverflow-79348306__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-79485758
+  path: cases/stackoverflow-79485758
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-79485758
+  representative: true
+  capture_id: stackoverflow-79485758__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-79812509
+  path: cases/stackoverflow-79812509
+  split: main
+  source_kind: stackoverflow
+  family_id: stackoverflow-79812509
+  representative: true
+  capture_id: stackoverflow-79812509__kernel-6.15.11-clang-18-log2

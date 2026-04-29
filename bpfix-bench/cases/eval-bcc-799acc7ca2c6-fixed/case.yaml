@@ -1,0 +1,64 @@
+schema_version: bpfix.case/v1
+case_id: eval-bcc-799acc7ca2c6-fixed
+source:
+  kind: commit_derived
+  url: https://github.com/iovisor/bcc/commit/799acc7ca2c618d9b467f79e63ba9a0059a22121
+  repository: https://github.com/iovisor/bcc
+  commit: 799acc7ca2c618d9b467f79e63ba9a0059a22121
+  parent_commit: 4138cc42c563f11e7f476056b22457f942ff565d
+  upstream_file: libbpf-tools/softirqs.bpf.c
+  upstream_section: null
+  collected_at: null
+  raw_excerpt_files: []
+  variant: fixed
+reproducer:
+  status: ready
+  reconstruction: original
+  language: C
+  source_file: prog.c
+  build_command: make
+  object_path: prog.o
+  load_command: make replay-verify
+  notes: Imported from eval_commits_verified; replay log is written to replay-verifier.log.
+capture:
+  capture_id: eval-bcc-799acc7ca2c6-fixed__kernel-6.15.11-clang-18-log2
+  environment_id: kernel-6.15.11-clang-18-log2
+  build_status: success
+  load_status: verifier_reject
+  verifier_pass: false
+  exit_code: 1
+  verifier_log: replay-verifier.log
+  capture_metadata: capture.yaml
+  log_quality: trace_rich
+  terminal_error: R2 unbounded memory access, make sure to bounds check any such access
+  rejected_insn_idx: 50
+external_match:
+  status: semantic
+  policy: commit_derived_replay
+  matched_messages:
+  - R2 unbounded memory access, make sure to bounds check any such access
+  notes: Commit-derived case admitted only because the local replay reproduces this verifier
+    failure.
+label:
+  capture_id: eval-bcc-799acc7ca2c6-fixed__kernel-6.15.11-clang-18-log2
+  taxonomy_class: verifier_reject
+  error_id: commit_derived_verifier_failure
+  confidence: low
+  label_source: fresh verifier terminal error; root-cause label requires manual audit
+  root_cause_description: R2 unbounded memory access, make sure to bounds check any such access
+  rejected_insn_idx: 50
+  root_cause_insn_idx: null
+  rejected_line: null
+  root_cause_line: null
+  localization_confidence: low
+  fix_type: null
+  fix_direction: null
+repair:
+  eligible: false
+reporting:
+  split: candidate
+  family_id: R2 unbounded memory access, make sure to bounds check any such access
+  representative: false
+  intentional_negative_test: false
+  quarantine: true
+  notes: Replay-valid commit-derived verifier failure; candidate until manual root-cause audit.

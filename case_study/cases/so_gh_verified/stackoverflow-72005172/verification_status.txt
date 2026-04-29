@@ -4,8 +4,8 @@ language: c
 source_origin: source_snippets[0] -> case-rewrite
 compile_ok: True
 verifier_status: rejected
-verifier_error_match: mismatch
+verifier_error_match: exact
 fixed_status: accepted:fixed[0]/raw
-original_error: Prog section 'classifier' rejected: Permission denied (13)!
+original_error: invalid access to packet, off=23 size=1, R1(id=0,off=23,r=15)
 captured_error: invalid access to packet, off=23 size=1, R1(id=0,off=23,r=15)
 notes: <none>

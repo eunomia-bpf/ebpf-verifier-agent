@@ -1,0 +1,66 @@
+schema_version: bpfix.case/v1
+case_id: kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958
+source:
+  kind: kernel_selftest
+  url: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/testing/selftests/bpf/progs/irq.c
+  repository: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+  commit: null
+  upstream_file: tools/testing/selftests/bpf/progs/irq.c
+  upstream_section: irq_wrong_kfunc_class_2
+  collected_at: '2026-03-20T00:37:26.389763+00:00'
+  raw_excerpt_files: []
+reproducer:
+  status: ready
+  reconstruction: original
+  language: C
+  program_type: ?tc
+  source_file: prog.c
+  build_command: make
+  object_path: prog.o
+  load_command: make replay-verify
+  notes: Imported from locally verified kernel selftest artifact; replay log is written to
+    replay-verifier.log.
+capture:
+  capture_id: kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958__kernel-6.15.11-clang-18-log2
+  environment_id: kernel-6.15.11-clang-18-log2
+  captured_at: '2026-04-29T22:43:57+00:00'
+  build_status: success
+  load_status: verifier_reject
+  verifier_pass: false
+  exit_code: 1
+  verifier_log: replay-verifier.log
+  capture_metadata: capture.yaml
+  log_quality: trace_rich
+  terminal_error: function calls are not allowed while holding a lock
+  rejected_insn_idx: 11
+external_match:
+  status: not_applicable
+  policy: kernel_selftest_expected_message
+  matched_messages:
+  - function calls are not allowed while holding a lock
+  notes: Kernel selftest case; no external report matching is required.
+label:
+  capture_id: kernel-selftest-irq-irq-wrong-kfunc-class-2-tc-03b53958__kernel-6.15.11-clang-18-log2
+  taxonomy_class: source_bug
+  error_id: BPFIX-E013
+  confidence: high
+  label_source: agree
+  root_cause_description: 'Intentional negative test: takes `lockA` with `bpf_res_spin_lock_irqsave(&lockA,
+    &flags2)` and then calls `bpf_local_irq_restore(&flags2)` while the lock is still held.'
+  rejected_insn_idx: 11
+  root_cause_insn_idx: 11
+  rejected_line: bpf_local_irq_restore(&flags2);
+  root_cause_line: bpf_local_irq_restore(&flags2);
+  localization_confidence: high
+  fix_type: reorder
+  fix_direction: In real code, pair each lock/IRQ acquisition with its matching unlock/restore
+    helper and do not mix local-IRQ and lock-IRQ restore paths.
+repair:
+  eligible: false
+reporting:
+  split: main
+  family_id: function calls are not allowed while holding a lock
+  representative: true
+  intentional_negative_test: true
+  quarantine: false
+  notes: Kernel selftest replay-valid case.

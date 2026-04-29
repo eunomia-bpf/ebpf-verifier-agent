@@ -4,8 +4,8 @@ language: c
 source_origin: source_snippets[0] -> case-rewrite
 compile_ok: True
 verifier_status: rejected
-verifier_error_match: mismatch
+verifier_error_match: exact
 fixed_status: not_attempted
-original_error: bpf: Failed to load program: Permission denied
+original_error: R8 invalid mem access 'scalar'
 captured_error: R8 invalid mem access 'scalar'
 notes: <none>

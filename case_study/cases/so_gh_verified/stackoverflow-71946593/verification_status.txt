@@ -4,8 +4,8 @@ language: c
 source_origin: source_snippets[1] -> case-rewrite
 compile_ok: True
 verifier_status: rejected
-verifier_error_match: mismatch
+verifier_error_match: exact
 fixed_status: rejected:fixed[3]/wrapped
-original_error: 2022/04/20 20:56:17 loading objects: field NfHookSlow: program nf_hook_slow: load program: permission denied: ; int BPF_KPROBE(nf_hook_slow, struct sk_buff *skb, struct nf_hook_state *state,
+original_error: R1 invalid mem access 'scalar'
 captured_error: R1 invalid mem access 'scalar'
 notes: <none>

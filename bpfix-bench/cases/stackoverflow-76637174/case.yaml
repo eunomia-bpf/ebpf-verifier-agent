@@ -1,0 +1,64 @@
+schema_version: bpfix.case/v1
+case_id: stackoverflow-76637174
+source:
+  kind: stackoverflow
+  url: https://stackoverflow.com/questions/76637174
+  repository: null
+  commit: null
+  upstream_file: null
+  collected_at: null
+  raw_excerpt_files: []
+reproducer:
+  status: ready
+  reconstruction: reconstructed
+  language: C
+  source_file: prog.c
+  build_command: make
+  object_path: prog.o
+  load_command: make replay-verify
+  notes: Imported from case_study/cases/so_gh_verified with replay logs written to replay-verifier.log.
+capture:
+  capture_id: stackoverflow-76637174__kernel-6.15.11-clang-18-log2
+  environment_id: kernel-6.15.11-clang-18-log2
+  build_status: success
+  load_status: verifier_reject
+  verifier_pass: false
+  verifier_log: replay-verifier.log
+  capture_metadata: capture.yaml
+  log_quality: trace_rich
+  terminal_error: invalid access to packet, off=0 size=1, R0(id=2,off=0,r=0)
+  rejected_insn_idx: 54
+external_match:
+  status: exact
+  policy: terminal_error
+  matched_messages:
+  - invalid access to packet, off=0 size=1, R0(id=3,off=0,r=0)
+  - invalid access to packet, off=0 size=1, R0(id=2,off=0,r=0)
+  notes: Imported only because verifier_error_match was exact/partial in the verified SO/GH
+    artifact.
+label:
+  capture_id: stackoverflow-76637174__kernel-6.15.11-clang-18-log2
+  taxonomy_class: lowering_artifact
+  error_id: BPFIX-E005
+  confidence: low
+  label_source: adjudicated
+  root_cause_description: The loop checks `data + i < data_end`, but the lowered code rebuilds
+    the packet pointer used by `*((uint8_t *)(data + i))` after additional offset math, so
+    the verifier drops the packet-range proof and the byte load becomes unproven.
+  rejected_insn_idx: 54
+  root_cause_insn_idx: 39
+  rejected_line: if (*((uint8_t*)(data+i)) == 0 && !found) {
+  root_cause_line: if (data + cur + tcph->doff * 4 > data_end)
+  localization_confidence: high
+  fix_type: reorder
+  fix_direction: Keep the checked packet pointer in the same register that is dereferenced,
+    and use a `+ 1 <= data_end` style check that directly matches the one-byte access.
+repair:
+  eligible: true
+reporting:
+  split: main
+  family_id: stackoverflow-76637174
+  representative: true
+  intentional_negative_test: false
+  quarantine: false
+  notes: External SO/GH case imported from verified exact/partial artifact.

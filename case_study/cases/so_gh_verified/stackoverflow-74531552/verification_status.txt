@@ -4,8 +4,8 @@ language: c
 source_origin: body[0] -> case-rewrite
 compile_ok: True
 verifier_status: rejected
-verifier_error_match: mismatch
+verifier_error_match: exact
 fixed_status: not_attempted
-original_error: bpf: Failed to load program: Invalid argument
+original_error: math between fp pointer and register with unbounded min value is not allowed
 captured_error: math between fp pointer and register with unbounded min value is not allowed
 notes: <none>

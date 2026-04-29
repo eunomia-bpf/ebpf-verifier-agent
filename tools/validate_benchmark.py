@@ -1,0 +1,401 @@
+#!/usr/bin/env python3
+"""Validate and replay a bpfix benchmark directory."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from dataclasses import asdict
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+import yaml
+
+if __package__:
+    from .replay_case import parse_verifier_log, replay_case
+else:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from replay_case import parse_verifier_log, replay_case
+
+
+VALID_RECONSTRUCTIONS = {"original", "minimized", "reconstructed"}
+VALID_EXTERNAL_MATCH = {"exact", "partial", "semantic", "not_applicable"}
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--replay", type=Path, required=True, help="Benchmark root, e.g. bpfix-bench")
+    parser.add_argument("--timeout-sec", type=int, default=30, help="Per-command timeout in seconds")
+    args = parser.parse_args(argv)
+
+    report = validate_benchmark(args.replay.resolve(), args.timeout_sec)
+    report_path = args.replay / "replay-report.json"
+    if args.replay.exists():
+        report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    print(json.dumps(report, indent=2, sort_keys=True))
+    return 0 if report["valid"] else 1
+
+
+def validate_benchmark(benchmark_root: Path, timeout_sec: int) -> dict[str, Any]:
+    report: dict[str, Any] = {
+        "valid": False,
+        "benchmark_root": str(benchmark_root),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "summary": {"total_main_cases": 0, "passed": 0, "failed": 0},
+        "errors": [],
+        "cases": [],
+    }
+
+    manifest_path = benchmark_root / "manifest.yaml"
+    if not benchmark_root.exists():
+        report["errors"].append(f"benchmark root does not exist: {benchmark_root}")
+        return report
+    if not manifest_path.exists():
+        report["errors"].append(f"missing manifest: {manifest_path}")
+        return report
+
+    try:
+        manifest = load_yaml_mapping(manifest_path)
+    except Exception as exc:  # noqa: BLE001
+        report["errors"].append(f"failed to read manifest.yaml: {exc}")
+        return report
+
+    entries = manifest.get("cases")
+    if not isinstance(entries, list):
+        report["errors"].append("manifest.cases must be a list")
+        return report
+
+    duplicate_errors = _duplicate_case_errors(entries)
+    report["errors"].extend(duplicate_errors)
+
+    main_entries = [entry for entry in entries if isinstance(entry, dict) and entry.get("split") == "main"]
+    report["summary"]["total_main_cases"] = len(main_entries)
+
+    for entry in main_entries:
+        case_report = validate_case(benchmark_root, manifest, entry, timeout_sec)
+        report["cases"].append(case_report)
+        if case_report["valid"]:
+            report["summary"]["passed"] += 1
+        else:
+            report["summary"]["failed"] += 1
+
+    report["valid"] = not report["errors"] and report["summary"]["failed"] == 0
+    return report
+
+
+def validate_case(
+    benchmark_root: Path,
+    manifest: dict[str, Any],
+    entry: dict[str, Any],
+    timeout_sec: int,
+) -> dict[str, Any]:
+    case_id = str(entry.get("case_id") or "<missing>")
+    case_report: dict[str, Any] = {
+        "case_id": case_id,
+        "valid": False,
+        "errors": [],
+        "warnings": [],
+        "manifest": _public_manifest_fields(entry),
+        "replay": None,
+        "fresh": None,
+        "stored": None,
+    }
+
+    required_manifest = ["case_id", "path", "source_kind", "family_id", "representative", "capture_id"]
+    require_fields(entry, required_manifest, "manifest case", case_report["errors"])
+
+    path_value = entry.get("path")
+    case_dir = benchmark_root / path_value if isinstance(path_value, str) else benchmark_root / "cases" / case_id
+    case_yaml_path = case_dir / "case.yaml"
+    if not case_dir.is_dir():
+        case_report["errors"].append(f"missing case directory: {case_dir}")
+        return case_report
+    if not case_yaml_path.exists():
+        case_report["errors"].append(f"missing case.yaml: {case_yaml_path}")
+        return case_report
+
+    try:
+        case_data = load_yaml_mapping(case_yaml_path)
+    except Exception as exc:  # noqa: BLE001
+        case_report["errors"].append(f"failed to read case.yaml: {exc}")
+        return case_report
+
+    validate_case_metadata(case_dir, manifest, entry, case_data, case_report)
+    validate_stored_artifacts(case_dir, case_data, case_report)
+
+    try:
+        replay = replay_case(case_dir, case_data, timeout_sec=timeout_sec)
+    except Exception as exc:  # noqa: BLE001
+        case_report["errors"].append(f"replay failed before load comparison: {exc}")
+        return case_report
+
+    case_report["replay"] = {
+        "build": command_summary(replay.build),
+        "load": command_summary(replay.load),
+        "log_source": replay.parsed_log.source,
+    }
+    fresh = asdict(replay.parsed_log)
+    case_report["fresh"] = fresh
+
+    if replay.build.timed_out:
+        case_report["errors"].append("build command timed out")
+    elif replay.build.returncode != 0:
+        case_report["errors"].append(f"build command failed with exit code {replay.build.returncode}")
+
+    capture = case_data.get("capture") or {}
+    expected_terminal = capture.get("terminal_error")
+    expected_idx = capture.get("rejected_insn_idx")
+    expected_quality = capture.get("log_quality")
+
+    if not fresh.get("terminal_error"):
+        case_report["errors"].append("fresh replay did not produce a parseable verifier terminal error")
+    elif expected_terminal != fresh["terminal_error"]:
+        case_report["errors"].append(
+            f"terminal_error mismatch: expected {expected_terminal!r}, got {fresh['terminal_error']!r}"
+        )
+
+    if fresh.get("rejected_insn_idx") is None:
+        case_report["errors"].append("fresh replay did not produce a rejected instruction index")
+    elif expected_idx != fresh["rejected_insn_idx"]:
+        case_report["errors"].append(
+            f"rejected_insn_idx mismatch: expected {expected_idx!r}, got {fresh['rejected_insn_idx']!r}"
+        )
+
+    if expected_quality and expected_quality != fresh.get("log_quality"):
+        case_report["errors"].append(
+            f"log_quality mismatch: expected {expected_quality!r}, got {fresh.get('log_quality')!r}"
+        )
+
+    if not fresh.get("terminal_error") and replay.load.returncode == 0:
+        case_report["errors"].append("load command succeeded and no verifier rejection was parsed")
+
+    validate_post_build_artifacts(case_dir, case_data, case_report)
+    case_report["valid"] = not case_report["errors"]
+    return case_report
+
+
+def validate_case_metadata(
+    case_dir: Path,
+    manifest: dict[str, Any],
+    entry: dict[str, Any],
+    case_data: dict[str, Any],
+    case_report: dict[str, Any],
+) -> None:
+    errors = case_report["errors"]
+    case_id = entry.get("case_id")
+    capture = mapping(case_data.get("capture"))
+    label = mapping(case_data.get("label"))
+    reproducer = mapping(case_data.get("reproducer"))
+    source = mapping(case_data.get("source"))
+    reporting = mapping(case_data.get("reporting"))
+    external_match = mapping(case_data.get("external_match"))
+
+    require_fields(case_data, ["schema_version", "case_id", "source", "reproducer", "capture", "label", "reporting"], "case", errors)
+    require_fields(reproducer, ["status", "reconstruction", "build_command", "load_command", "source_file", "object_path"], "reproducer", errors)
+    require_fields(capture, ["capture_id", "log_quality", "terminal_error", "rejected_insn_idx"], "capture", errors)
+    require_fields(label, ["capture_id"], "label", errors)
+    require_fields(reporting, ["split", "family_id", "representative"], "reporting", errors)
+
+    compare(case_data.get("case_id"), case_id, "case.case_id", errors)
+    compare(source.get("kind"), entry.get("source_kind"), "source.kind/source_kind", errors)
+    compare(capture.get("capture_id"), entry.get("capture_id"), "capture.capture_id/manifest.capture_id", errors)
+    compare(label.get("capture_id"), capture.get("capture_id"), "label.capture_id/capture.capture_id", errors)
+    if label.get("rejected_insn_idx") is not None:
+        compare(label.get("rejected_insn_idx"), capture.get("rejected_insn_idx"), "label.rejected_insn_idx/capture.rejected_insn_idx", errors)
+    compare(reporting.get("split"), entry.get("split"), "reporting.split/manifest.split", errors)
+    compare(reporting.get("family_id"), entry.get("family_id"), "reporting.family_id/manifest.family_id", errors)
+    compare(reporting.get("representative"), entry.get("representative"), "reporting.representative/manifest.representative", errors)
+
+    if reproducer.get("status") != "ready":
+        errors.append(f"reproducer.status must be 'ready', got {reproducer.get('status')!r}")
+    if reproducer.get("reconstruction") not in VALID_RECONSTRUCTIONS:
+        errors.append(f"invalid reproducer.reconstruction: {reproducer.get('reconstruction')!r}")
+    if capture.get("load_status") not in (None, "verifier_reject"):
+        errors.append(f"capture.load_status must be 'verifier_reject', got {capture.get('load_status')!r}")
+    if capture.get("verifier_pass") not in (None, False):
+        errors.append(f"capture.verifier_pass must be false, got {capture.get('verifier_pass')!r}")
+    if not entry.get("family_id"):
+        errors.append("manifest family_id is required")
+    if "representative" not in entry:
+        errors.append("manifest representative is required")
+
+    if external_match:
+        status = external_match.get("status")
+        if status not in VALID_EXTERNAL_MATCH:
+            errors.append(f"invalid external_match.status: {status!r}")
+        if source.get("kind") == "kernel_selftest" and status != "not_applicable":
+            errors.append("kernel_selftest cases must use external_match.status == 'not_applicable'")
+        if source.get("kind") != "kernel_selftest" and status not in {"exact", "partial", "semantic"}:
+            errors.append("external cases must use exact, partial, or semantic external_match.status")
+        if entry.get("split") == "main" and source.get("kind") != "kernel_selftest" and status == "semantic":
+            errors.append("main external cases must use exact or partial external_match.status")
+
+    if manifest.get("environment_id") and capture.get("environment_id"):
+        compare(capture.get("environment_id"), manifest.get("environment_id"), "capture.environment_id/manifest.environment_id", errors)
+
+    validate_capture_metadata(case_dir, case_data, manifest, case_report)
+
+
+def validate_stored_artifacts(case_dir: Path, case_data: dict[str, Any], case_report: dict[str, Any]) -> None:
+    errors = case_report["errors"]
+    capture = mapping(case_data.get("capture"))
+    source_file = mapping(case_data.get("reproducer")).get("source_file")
+    if isinstance(source_file, str):
+        source_path = case_dir / source_file
+        if not source_path.exists():
+            errors.append(f"missing reproducer.source_file: {source_file}")
+
+    verifier_log_value = capture.get("verifier_log")
+    if not isinstance(verifier_log_value, str) or not verifier_log_value:
+        return
+
+    verifier_log_path = case_dir / verifier_log_value
+    if not verifier_log_path.exists():
+        return
+    if verifier_log_path.stat().st_size == 0:
+        errors.append(f"empty verifier log: {verifier_log_path}")
+        return
+
+    parsed = parse_verifier_log(verifier_log_path.read_text(encoding="utf-8", errors="replace"), source=str(verifier_log_path.name))
+    case_report["stored"] = {
+        "verifier_log": verifier_log_value,
+        "terminal_error": parsed.terminal_error,
+        "rejected_insn_idx": parsed.rejected_insn_idx,
+        "log_quality": parsed.log_quality,
+    }
+
+    if capture.get("terminal_error") and parsed.terminal_error != capture.get("terminal_error"):
+        errors.append("capture.terminal_error does not match stored verifier.log")
+    if parsed.rejected_insn_idx is None:
+        errors.append("stored verifier.log has no parseable rejected instruction index")
+    elif capture.get("rejected_insn_idx") != parsed.rejected_insn_idx:
+        errors.append("capture.rejected_insn_idx does not match stored verifier.log")
+
+    for field in ("build_stdout", "build_stderr", "load_stdout", "load_stderr"):
+        value = capture.get(field)
+        if isinstance(value, str) and value and not (case_dir / value).exists():
+            errors.append(f"missing capture artifact {field}: {value}")
+
+
+def validate_post_build_artifacts(case_dir: Path, case_data: dict[str, Any], case_report: dict[str, Any]) -> None:
+    reproducer = mapping(case_data.get("reproducer"))
+    object_path_value = reproducer.get("object_path")
+    if not isinstance(object_path_value, str) or not object_path_value:
+        return
+    object_path = case_dir / object_path_value
+    if not object_path.exists():
+        case_report["errors"].append(f"missing reproducer.object_path after build: {object_path_value}")
+
+
+def validate_capture_metadata(
+    case_dir: Path,
+    case_data: dict[str, Any],
+    manifest: dict[str, Any],
+    case_report: dict[str, Any],
+) -> None:
+    capture = mapping(case_data.get("capture"))
+    metadata_value = capture.get("capture_metadata")
+    if not isinstance(metadata_value, str) or not metadata_value:
+        case_report["errors"].append("capture.capture_metadata is required")
+        return
+    metadata_path = case_dir / metadata_value
+    if not metadata_path.exists():
+        case_report["errors"].append(f"missing capture metadata: {metadata_value}")
+        return
+    try:
+        metadata = load_yaml_mapping(metadata_path)
+    except Exception as exc:  # noqa: BLE001
+        case_report["errors"].append(f"failed to read capture metadata {metadata_value}: {exc}")
+        return
+
+    reproducer = mapping(case_data.get("reproducer"))
+    checks = [
+        ("capture_id", capture.get("capture_id"), first_present(metadata, ["capture_id"], ["capture", "capture_id"])),
+        ("environment_id", capture.get("environment_id") or manifest.get("environment_id"), first_present(metadata, ["environment_id"], ["capture", "environment_id"])),
+        ("build_command", reproducer.get("build_command"), first_present(metadata, ["build_command"], ["reproducer", "build_command"], ["commands", "build"])),
+        ("load_command", reproducer.get("load_command"), first_present(metadata, ["load_command"], ["reproducer", "load_command"], ["commands", "load"])),
+    ]
+    for name, expected, actual in checks:
+        if actual is not None and expected is not None and actual != expected:
+            case_report["errors"].append(f"capture metadata {name} mismatch: expected {expected!r}, got {actual!r}")
+
+
+def load_yaml_mapping(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        data = yaml.safe_load(handle)
+    if not isinstance(data, dict):
+        raise TypeError(f"{path} must contain a top-level mapping")
+    return data
+
+
+def mapping(value: Any) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
+def require_fields(mapping_value: dict[str, Any], fields: list[str], prefix: str, errors: list[str]) -> None:
+    for field in fields:
+        if field not in mapping_value or mapping_value.get(field) is None:
+            errors.append(f"missing {prefix}.{field}")
+
+
+def compare(left: Any, right: Any, label: str, errors: list[str]) -> None:
+    if left != right:
+        errors.append(f"{label} mismatch: {left!r} != {right!r}")
+
+
+def first_present(mapping_value: dict[str, Any], *paths: list[str]) -> Any:
+    for path in paths:
+        value: Any = mapping_value
+        for part in path:
+            if not isinstance(value, dict) or part not in value:
+                value = None
+                break
+            value = value[part]
+        if value is not None:
+            return value
+    return None
+
+
+def command_summary(result: Any) -> dict[str, Any]:
+    return {
+        "command": result.command,
+        "returncode": result.returncode,
+        "timed_out": result.timed_out,
+        "stdout_tail": tail(result.stdout),
+        "stderr_tail": tail(result.stderr),
+    }
+
+
+def tail(text: str, limit: int = 4000) -> str:
+    if len(text) <= limit:
+        return text
+    return text[-limit:]
+
+
+def _duplicate_case_errors(entries: list[Any]) -> list[str]:
+    seen: set[str] = set()
+    errors: list[str] = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            errors.append("manifest.cases entries must be mappings")
+            continue
+        case_id = entry.get("case_id")
+        if not isinstance(case_id, str) or not case_id:
+            errors.append("manifest case missing case_id")
+            continue
+        if case_id in seen:
+            errors.append(f"duplicate manifest case_id: {case_id}")
+        seen.add(case_id)
+    return errors
+
+
+def _public_manifest_fields(entry: dict[str, Any]) -> dict[str, Any]:
+    fields = ("path", "split", "source_kind", "family_id", "representative", "capture_id")
+    return {field: entry.get(field) for field in fields}
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

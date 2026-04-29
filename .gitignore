@@ -26,6 +26,32 @@ case_study/.cache/
 *.log
 *.jsonl
 
+# Compiled artifacts
+*.o
+*.obj
+*.a
+*.d
+*.su
+*.gcno
+*.gcda
+*.gcov
+*.profraw
+*.profdata
+*.skel.h
+core
+core.*
+
+# bpfix-bench replay/build outputs
+bpfix-bench/checksums.txt
+bpfix-bench/replay-report.json
+bpfix-bench/cases/**/hashes.txt
+bpfix-bench/cases/**/prog.o
+bpfix-bench/cases/**/selftest_prog_loader
+bpfix-bench/cases/**/verifier.log
+bpfix-bench/cases/**/replay-verifier.log
+bpfix-bench/cases/**/verifier_load_result.json
+bpfix-bench/cases/**/replay_load_result.json
+
 # LaTeX temporaries
 *.aux
 *.out

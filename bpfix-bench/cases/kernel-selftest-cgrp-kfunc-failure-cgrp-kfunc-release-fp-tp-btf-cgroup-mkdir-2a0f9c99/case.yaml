@@ -1,0 +1,66 @@
+schema_version: bpfix.case/v1
+case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99
+source:
+  kind: kernel_selftest
+  url: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/testing/selftests/bpf/progs/cgrp_kfunc_failure.c
+  repository: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+  commit: null
+  upstream_file: tools/testing/selftests/bpf/progs/cgrp_kfunc_failure.c
+  upstream_section: cgrp_kfunc_release_fp
+  collected_at: '2026-03-20T00:37:12.634674+00:00'
+  raw_excerpt_files: []
+reproducer:
+  status: ready
+  reconstruction: original
+  language: C
+  program_type: tp_btf/cgroup_mkdir
+  source_file: prog.c
+  build_command: make
+  object_path: prog.o
+  load_command: make replay-verify
+  notes: Imported from locally verified kernel selftest artifact; replay log is written to
+    replay-verifier.log.
+capture:
+  capture_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99__kernel-6.15.11-clang-18-log2
+  environment_id: kernel-6.15.11-clang-18-log2
+  captured_at: '2026-04-29T22:43:42+00:00'
+  build_status: success
+  load_status: verifier_reject
+  verifier_pass: false
+  exit_code: 1
+  verifier_log: replay-verifier.log
+  capture_metadata: capture.yaml
+  log_quality: trace_rich
+  terminal_error: arg#0 pointer type STRUCT cgroup must point to scalar, or struct with scalar
+  rejected_insn_idx: 4
+external_match:
+  status: not_applicable
+  policy: kernel_selftest_expected_message
+  matched_messages:
+  - arg#0 pointer type STRUCT cgroup must point to scalar, or struct with scalar
+  notes: Kernel selftest case; no external report matching is required.
+label:
+  capture_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-fp-tp-btf-cgroup-mkdir-2a0f9c99__kernel-6.15.11-clang-18-log2
+  taxonomy_class: source_bug
+  error_id: BPFIX-E023
+  confidence: high
+  label_source: agree
+  root_cause_description: 'Intentional negative test: calls `bpf_cgroup_release` on `(struct
+    cgroup *)&path`, which is just a frame-pointer-backed stack address.'
+  rejected_insn_idx: 4
+  root_cause_insn_idx: 4
+  rejected_line: bpf_cgroup_release(acquired);
+  root_cause_line: bpf_cgroup_release(acquired);
+  localization_confidence: high
+  fix_type: other
+  fix_direction: In real code, pass a real referenced cgroup object to `bpf_cgroup_release`,
+    not a stack variable cast to `struct cgroup *`.
+repair:
+  eligible: false
+reporting:
+  split: main
+  family_id: arg#0 pointer type STRUCT cgroup must point to scalar, or struct with scalar
+  representative: true
+  intentional_negative_test: true
+  quarantine: false
+  notes: Kernel selftest replay-valid case.
