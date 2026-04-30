@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: The fixed code comment identifies a Linux 5.2 verifier register-copy issue
+    with protocol == IPPROTO_IPIP
   verifier_status: null
   captured_error: null
   verifier_error_match: null

@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Adds kprobe-multi attach support and libbpf API/section handling. The raw
+    evidence is attach-time user-space library code and has no verifier rejected instruction.
 raw:
   case_id: github-commit-libbpf-05acce9e03d9
   source: github_commits

@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The diff adds relax_verifier() on a CT lookup
+    drop path in full LXC egress handling; reproducing the historical complexity issue
+    requires old Cilium datapath composition.
 raw:
   case_id: github-commit-cilium-eebbfbe7fbf5
   source: github_commits

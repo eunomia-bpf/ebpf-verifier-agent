@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The diff changes IPv6 address copies to builtin
+    memcpy() or an unaligned helper across encap, LB, nodeport, trace, and tests;
+    replay depends on full Cilium contexts and compiler lowering.
 raw:
   case_id: github-commit-cilium-eeca01efc0b7
   source: github_commits

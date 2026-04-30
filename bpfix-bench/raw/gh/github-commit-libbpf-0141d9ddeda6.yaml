@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: The raw snippets are libbpf relocation/resolution code for unresolved weak
+    kfuncs, including BPF_PSEUDO_KFUNC_CALL imm/off handling. They do not include
+    the BPF source/object that triggers the unresolved weak kfunc load, and no verifier
+    log is captured.
 raw:
   case_id: github-commit-libbpf-0141d9ddeda6
   source: github_commits

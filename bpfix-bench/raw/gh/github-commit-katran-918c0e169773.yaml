@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: The commit spans balancer_consts.h, balancer_helpers.h, balancer_kern.c,
+    and balancer_maps.h, including flood, connection-table, L3, and map contexts.
+    It is a full Katran datapath rewrite without isolated rejected bytecode.
   verifier_status: null
   captured_error: null
   verifier_error_match: null

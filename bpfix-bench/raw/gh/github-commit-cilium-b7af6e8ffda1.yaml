@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw title explicitly says "work around verifier issue in __ct_update_timeout";
+    snippets replace pointer dereferences with READ_ONCE/WRITE_ONCE and add a barrier
+    for a modified skb ctx pointer. Reproduction depends on historical verifier handling
+    of Cilium CT map-value pointers and skb context arithmetic.
 raw:
   case_id: github-commit-cilium-b7af6e8ffda1
   source: github_commits

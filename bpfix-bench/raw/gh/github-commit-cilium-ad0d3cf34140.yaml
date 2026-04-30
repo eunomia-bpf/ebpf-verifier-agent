@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: 'Raw title is "bpf: Fixes to support mattr=+alu32"; snippets span skb/xdp
+    context helpers, checksum, encap, metrics, NAT, and NodePort, changing several
+    32-bit lengths to 64-bit forms. Reproduction depends on clang +alu32 lowering
+    and full Cilium feature composition.'
 raw:
   case_id: github-commit-cilium-ad0d3cf34140
   source: github_commits

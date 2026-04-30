@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The diff gates a 16-bit ifindex field behind
+    HAVE_FIB_IFINDEX and updates conntrack/nodeport state handling; the evidence is
+    runtime ifindex width handling, not a verifier log.
 raw:
   case_id: github-commit-cilium-bd8b4d0ee3ee
   source: github_commits

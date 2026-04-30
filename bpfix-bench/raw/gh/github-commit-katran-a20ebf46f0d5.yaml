@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: The actual fixed snippet changes TPR server-id byte-order handling with
+    a big-endian __builtin_bswap32() path. That is cross-architecture datapath semantics,
+    not a verifier-load rejection, and no verifier log exists.
   verifier_status: null
   captured_error: null
   verifier_error_match: null

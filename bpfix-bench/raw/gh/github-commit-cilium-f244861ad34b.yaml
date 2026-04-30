@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: IPsec monitor aggregation change controls trace notifications and includes
+    a barrier_data(ctx) clang workaround; no verifier-load failure is captured.
 raw:
   case_id: github-commit-cilium-f244861ad34b
   source: github_commits

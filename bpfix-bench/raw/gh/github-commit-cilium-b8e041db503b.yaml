@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: 'Raw title is "bpf: Add send_trace_notify hook for redirect_direct_{v4,v6}";
+    snippets change LXC host-routing calls and FIB redirect helpers to return oif.
+    Any verifier pressure depends on full redirect, FIB, trace, and host-routing composition.'
 raw:
   case_id: github-commit-cilium-b8e041db503b
   source: github_commits

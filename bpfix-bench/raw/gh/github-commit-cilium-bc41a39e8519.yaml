@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The snippets move builtin memory tests into
+    Cilium's BPF unit-test framework and adjust random-position masking; faithful
+    replay requires the generated builtin test harness and historical verifier/compiler
+    behavior.
 raw:
   case_id: github-commit-cilium-bc41a39e8519
   source: github_commits

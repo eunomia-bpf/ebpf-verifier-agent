@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The diff compresses Maglev service LUT state,
+    changes loader map metadata, and updates map migration handling; it is map layout/migration
+    behavior, not a captured verifier failure.
 raw:
   case_id: github-commit-cilium-bfaef16f3485
   source: github_commits

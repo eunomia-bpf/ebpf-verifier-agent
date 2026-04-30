@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: Raw diff says the change avoided older-kernel rejection of stack-passed
+    TCP option parser state and bounded loops. The snippet is only katran/lib/bpf/pckt_parsing.h
+    context, with no verifier log or standalone XDP harness.
   verifier_status: null
   captured_error: null
   verifier_error_match: null

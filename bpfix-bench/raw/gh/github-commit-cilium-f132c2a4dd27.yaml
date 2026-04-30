@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Reverts broad inlining/lookup changes across bpf_lxc.c, bpf_sock.c, lb.h,
+    nodeport.h, sockops, and XDP tests; raw has no verifier log and the affected behavior
+    is older-kernel full-Cilium verifier shape.
 raw:
   case_id: github-commit-cilium-f132c2a4dd27
   source: github_commits

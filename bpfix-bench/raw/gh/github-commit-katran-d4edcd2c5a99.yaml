@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: Replaces a TCP option unroll pattern with a global helper call across balancer_kern.c
+    and pckt_parsing.h. The failure mode is tied to Katran's full parser, maps, and
+    feature configuration, with no terminal verifier evidence.
   verifier_status: null
   captured_error: null
   verifier_error_match: null

@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The diff renames example SNAT map macros to
+    test_cilium_*; this is test/example map naming, not a verifier-reject case.
 raw:
   case_id: github-commit-cilium-c08e72af878b
   source: github_commits

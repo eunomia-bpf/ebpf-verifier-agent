@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Fixes a libbpf NULL-pointer issue by initializing open_attr after validating
+    attr. The touched code is user-space loader API setup, not verifier-rejected BPF
+    bytecode.
 raw:
   case_id: github-commit-libbpf-0cc3d9d33292
   source: github_commits

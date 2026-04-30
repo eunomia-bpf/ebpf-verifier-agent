@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Changes SNAT retry constants based on HAVE_LARGE_INSN_LIMIT; any verifier
+    effect is instruction-limit/full NAT program dependent, and the raw record has
+    no terminal verifier log.
 raw:
   case_id: github-commit-cilium-f1a2789dbccc
   source: github_commits
