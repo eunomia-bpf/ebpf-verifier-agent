@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The diff removes libbpf-side validation of log_level/log_buf
+    restrictions in src/bpf.c:bpf_prog_load(); it changes user-space syscall option
+    handling and supplies no BPF program, terminal verifier error, or rejected instruction.
 raw:
   case_id: github-commit-libbpf-a22abb9c8570
   source: github_commits

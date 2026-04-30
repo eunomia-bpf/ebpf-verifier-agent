@@ -18,11 +18,14 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: candidate_for_replay
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: reject_log_and_complete_small_sockops_tail_call_program_present
+  reason: Raw external log is only message-level for the original LLVM 3.8/libbpf
+    section issue (unreachable insn 2, no rejected instruction). A /tmp/batch44-so482
+    reconstruction of the shown sockops tail-call program built and loaded successfully
+    on kernel 6.15.11 with clang 18; parser result was log_quality=no_terminal_error.
 raw:
   case_id: stackoverflow-48267671
   source: stackoverflow

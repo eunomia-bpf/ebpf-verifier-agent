@@ -18,11 +18,14 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: missing_verifier_log
   case_id: null
   case_path: null
   artifact_path: null
-  reason: too_large_evidence_and_core_snippets_present_but_maps_macros_harness_incomplete
+  reason: Raw metadata says has_verifier_log=true, but verifier_log.blocks is empty,
+    combined is empty, and parser quality is empty. The snippets are partial userspace/LSM/string-search
+    fragments, so there is no captured terminal verifier error or rejected instruction
+    to validate a replay.
 raw:
   case_id: stackoverflow-79817058
   source: stackoverflow

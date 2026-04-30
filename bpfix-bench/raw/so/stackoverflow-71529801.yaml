@@ -19,11 +19,16 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verifier_error_and_struct_fragments_present_but_packet_parser_harness_omitted
+  reason: 'Raw log is trace-rich (invalid indirect read from stack R3 off -32+10 size
+    16, rejected insn 84), and the answer identifies uninitialized struct client_port_addr
+    val.pad. A local reconstruction using the reported structs, partial val.client_ip/val.dmac
+    initialization, and bpf_map_update_elem() built successfully, but replay did not
+    reject: the log ended with processed 17 insns and no terminal verifier error,
+    followed only by a pin failure.'
 raw:
   case_id: stackoverflow-71529801
   source: stackoverflow

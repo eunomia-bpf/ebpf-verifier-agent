@@ -18,11 +18,14 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: candidate_for_replay
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: load_rejection_and_enough_bpf_user_makefile_context_present
+  reason: Raw error (invalid relo for insn[6].code 0x85, then last insn is not an
+    exit or jmp) depends on the historical kernel samples/bpf loader and missing helper
+    declaration path. A modern /tmp/batch44-so629 probe with bpf_helpers.h built and
+    loaded successfully, so it was not admitted.
 raw:
   case_id: stackoverflow-62936008
   source: stackoverflow

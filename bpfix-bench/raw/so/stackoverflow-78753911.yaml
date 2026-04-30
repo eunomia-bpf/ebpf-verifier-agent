@@ -18,11 +18,14 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: complexity_log_and_loop_snippet_present_but_map_program_context_missing
+  reason: Raw has only a bounded-loop snippet plus a short disassembly window. The
+    verifier block says The sequence of 8193 jumps is too complex but parser quality
+    is no_terminal_error with no rejected instruction. Required program context, map/argument
+    definitions, constants, and surrounding control flow are absent.
 raw:
   case_id: stackoverflow-78753911
   source: stackoverflow

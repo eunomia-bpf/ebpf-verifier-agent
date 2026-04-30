@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false, source_snippet_count=0. The header change adds
+    __arg_ctx and __arg_nonnull BTF declaration-tag macros to bpf_helpers.h; no BPF
+    call site, object, or verifier terminal error is present.
 raw:
   case_id: github-commit-libbpf-c378eff58c68
   source: github_commits

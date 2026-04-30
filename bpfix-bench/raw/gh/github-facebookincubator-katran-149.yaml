@@ -19,11 +19,13 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: not_run
+  reason: External raw log is trace-rich (R1 type=inv expected=map_ptr, rejected insn
+    553), but source_snippet_count=0 and no buggy/fixed code are present; the full
+    Katran xdp-balancer program is not reconstructable from the issue text alone.
   verifier_status: not_run
   captured_error: <none>
   verifier_error_match: mismatch

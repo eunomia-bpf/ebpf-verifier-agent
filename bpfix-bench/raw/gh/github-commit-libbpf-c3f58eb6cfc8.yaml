@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false, source_snippet_count=0. The diff post-processes
+    verifier logs for poisoned failed CO-RE relocations matching invalid func unknown#195896080,
+    but the raw record contains only libbpf/relo_core log-fixup code and no BPF object
+    with the unguarded failing CO-RE relocation.
 raw:
   case_id: github-commit-libbpf-c3f58eb6cfc8
   source: github_commits

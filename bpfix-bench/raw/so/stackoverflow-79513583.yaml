@@ -19,11 +19,15 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: candidate_for_replay
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: complete_bpf_user_header_snippets_and_reserved_fields_reject_present
+  reason: Raw includes full BPF snippet plus demo.h and reports BPF_STX uses reserved
+    fields, but parser quality is no_terminal_error. The local reconstruction built
+    and replayed; clang 18 generated atomic64_fetch_add, the verifier log marked the
+    path safe, ended with processed 27 insns, and had no terminal verifier error.
+    It was not a fresh reject on kernel 6.15.
 raw:
   case_id: stackoverflow-79513583
   source: stackoverflow

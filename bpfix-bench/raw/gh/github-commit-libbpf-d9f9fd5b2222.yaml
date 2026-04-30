@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false, source_snippet_count=0. The change probes kernel
+    multi-uprobe PID filtering by loading a tiny program and attempting an invalid
+    uprobe_multi attach; reproduction depends on a kernel with the broken/fixed PID-filtering
+    behavior and is attach-feature validation, not a captured verifier reject.
 raw:
   case_id: github-commit-libbpf-d9f9fd5b2222
   source: github_commits

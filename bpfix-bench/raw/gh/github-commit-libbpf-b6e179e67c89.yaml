@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The header-only change adds __noinline to bpf_helpers.h;
+    any verifier effect would depend on a particular BPF program's subprogram/inlining
+    shape, which is not captured.
 raw:
   case_id: github-commit-libbpf-b6e179e67c89
   source: github_commits

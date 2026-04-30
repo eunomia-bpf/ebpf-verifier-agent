@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false, source_snippet_count=0. The diff improves libbpf
+    logging around bpf_prog_load() and program names; it changes how failures are
+    reported, but includes no captured verifier reject or replay source.
 raw:
   case_id: github-commit-libbpf-d9b3fae39124
   source: github_commits

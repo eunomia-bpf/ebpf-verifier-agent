@@ -18,11 +18,18 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: candidate_for_replay
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: complete_xdp_program_and_full_unsupported_helper_reject_log_present
+  reason: 'Raw includes the full bpf_printk("Hello World %d", counter) XDP snippet
+    and a message-only raw parser result (reg type unsupported for arg#0 function
+    hello#4, no rejected instruction). The exact snippet built locally with the distro
+    arch include path. make replay-verify returned success and bpftool prog show pinned
+    /sys/fs/bpf/stackoverflow-77225068 showed a loaded XDP program; the pin was removed.
+    Because the local load succeeded, the parser-recognized arg#0 reference type(''UNKNOWN
+    '') size cannot be determined: -22 line in the verbose log is not admissible as
+    a fresh verifier reject.'
 raw:
   case_id: stackoverflow-77225068
   source: stackoverflow

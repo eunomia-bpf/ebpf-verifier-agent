@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The change poisons unresolved weak kfunc calls
+    so libbpf can later rewrite verifier logs like invalid func unknown#2002...; faithful
+    replay requires a matching unresolved kfunc relocation/libbpf load path and kernel
+    BTF context, which the raw diff alone does not provide.
 raw:
   case_id: github-commit-libbpf-e6cc30f445bc
   source: github_commits

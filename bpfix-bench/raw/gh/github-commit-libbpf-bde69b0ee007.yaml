@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false, source_snippet_count=0. The diff fixes ptr_is_aligned()
+    use in src/btf_dump.c typed-data formatting for integers/floats/structs, which
+    is user-space BTF dump behavior rather than kernel verification.
 raw:
   case_id: github-commit-libbpf-bde69b0ee007
   source: github_commits

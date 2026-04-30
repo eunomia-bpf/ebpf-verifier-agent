@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false, source_snippet_count=0. The diff refactors CO-RE
+    relocation human-description formatting in src/relo_core.c; it changes libbpf
+    diagnostic formatting and includes no triggering BPF program or verifier terminal
+    error.
 raw:
   case_id: github-commit-libbpf-e2d8a820cb4c
   source: github_commits

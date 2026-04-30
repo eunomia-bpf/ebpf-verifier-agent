@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The BPF_KSYSCALL macro change depends on syscall-wrapper
+    kconfig extern resolution and architecture-specific register layout; no terminal
+    verifier log is available for a standalone replay.
 raw:
   case_id: github-commit-libbpf-fd6c9d906aff
   source: github_commits

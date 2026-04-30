@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The fix changes need_func_arg_type_fixup() for
+    PERF_EVENT __arg_ctx handling; reproducing it requires matching BTF context types,
+    program type, and kernel behavior not present in the raw record.
 raw:
   case_id: github-commit-libbpf-b24a6277cc94
   source: github_commits

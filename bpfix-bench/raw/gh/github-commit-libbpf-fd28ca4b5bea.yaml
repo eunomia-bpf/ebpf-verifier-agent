@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The diff fixes kfunc ksym relocation for ld_imm64
+    by carrying kernel BTF object FD data; any reject depends on a specific kfunc
+    relocation and kernel/module BTF setup not captured by the raw record.
 raw:
   case_id: github-commit-libbpf-fd28ca4b5bea
   source: github_commits

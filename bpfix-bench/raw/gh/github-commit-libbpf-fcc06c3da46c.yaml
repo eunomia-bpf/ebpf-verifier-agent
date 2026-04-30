@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The change removes unused arguments from USDT
+    note parsing and target collection; this is user-space parser cleanup without
+    verifier evidence.
 raw:
   case_id: github-commit-libbpf-fcc06c3da46c
   source: github_commits

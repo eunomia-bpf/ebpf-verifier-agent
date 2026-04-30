@@ -18,11 +18,15 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: reject_log_and_partial_bcc_source_present_but_external_code_omitted
+  reason: Raw has a verifier-shaped failure (jump out of range from insn 38 to 148)
+    but parser quality is message_only with no rejected instruction. The post provides
+    a BCC C fragment derived from filetop.py and says the actual code is elsewhere,
+    but the raw record has no standalone source, BCC Python loader, or complete reconstruction
+    inputs for the dentry_path_raw() call site.
 raw:
   case_id: stackoverflow-78373013
   source: stackoverflow
