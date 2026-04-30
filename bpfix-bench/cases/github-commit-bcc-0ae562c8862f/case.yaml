@@ -31,7 +31,7 @@ capture:
   terminal_error: math between map_value pointer and register with unbounded min value is not allowed
   rejected_insn_idx: 25
 external_match:
-  status: semantic
+  status: not_applicable
   policy: terminal_error
   matched_messages:
   - last_ip = func_stack->ips[last_stack_depth]

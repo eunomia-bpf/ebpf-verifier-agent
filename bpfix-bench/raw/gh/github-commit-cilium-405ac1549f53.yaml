@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: not_reconstructable_from_diff
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Segment Routing Header support touches egress policy and room-adjustment
+    helpers; no raw verifier log or minimal failing path is present.
 raw:
   case_id: github-commit-cilium-405ac1549f53
   source: github_commits

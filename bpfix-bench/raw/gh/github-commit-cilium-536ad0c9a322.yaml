@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Splits IPv6 nodeport NAT into a tail call to manage full-datapath verifier
+    complexity. Replay requires historical generated Cilium nodeport programs rather
+    than an isolated snippet.
 raw:
   case_id: github-commit-cilium-536ad0c9a322
   source: github_commits

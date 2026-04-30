@@ -238,7 +238,7 @@ def validate_case_metadata(
             errors.append("kernel_selftest cases must use external_match.status == 'not_applicable'")
         if source.get("kind") in {"stackoverflow", "github_issue"} and status not in {"exact", "partial", "semantic"}:
             errors.append("Stack Overflow/GitHub cases must use exact, partial, or semantic external_match.status")
-        if source.get("kind") == "commit_derived" and status != "not_applicable":
+        if source.get("kind") in {"commit_derived", "github_commit"} and status != "not_applicable":
             errors.append("commit-derived cases must use external_match.status == 'not_applicable'")
 
     if manifest.get("environment_id") and capture.get("environment_id"):
@@ -329,6 +329,15 @@ def validate_capture_metadata(
     for name, expected, actual in checks:
         if actual is not None and expected is not None and actual != expected:
             case_report["errors"].append(f"capture metadata {name} mismatch: expected {expected!r}, got {actual!r}")
+
+    source = mapping(case_data.get("source"))
+    if source.get("kind") in {"commit_derived", "github_commit"}:
+        source_artifact = mapping(metadata.get("source_artifact"))
+        verifier_error_match = source_artifact.get("verifier_error_match")
+        if verifier_error_match is not None and verifier_error_match != "not_applicable":
+            case_report["errors"].append(
+                "commit-derived capture metadata verifier_error_match must be 'not_applicable'"
+            )
 
 
 def load_yaml_mapping(path: Path) -> dict[str, Any]:

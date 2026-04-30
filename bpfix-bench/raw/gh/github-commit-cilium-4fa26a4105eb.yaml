@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Enables session affinity on older kernels by changing netns-cookie conditional
+    paths. Faithful replay depends on old-kernel helper/configuration behavior and
+    Cilium LB generation.
 raw:
   case_id: github-commit-cilium-4fa26a4105eb
   source: github_commits

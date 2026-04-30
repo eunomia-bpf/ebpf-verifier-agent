@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Node-config VTEP loop-size reduction cites older-kernel unrolled-loop limits;
+    no local current-kernel reject was available.
 raw:
   case_id: github-commit-cilium-2fe8ce47afdf
   source: github_commits

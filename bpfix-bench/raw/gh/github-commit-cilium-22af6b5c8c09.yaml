@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Fixes IPv4 source address validation semantics (saddr comparison/byte order),
+    not verifier load rejection. The raw record has no terminal verifier log.
 raw:
   case_id: github-commit-cilium-22af6b5c8c09
   source: github_commits

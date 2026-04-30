@@ -10,7 +10,7 @@ source_artifact:
   language: C
   compile_ok: true
   verifier_status: rejected
-  verifier_error_match: semantic
+  verifier_error_match: not_applicable
   fixed_status: not_attempted
   source_record: bpfix-bench/raw/gh/github-commit-cilium-de679382fe1e.yaml
 replay:

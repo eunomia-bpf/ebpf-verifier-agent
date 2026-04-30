@@ -32,7 +32,7 @@ capture:
   terminal_error: invalid access to packet, off=36 size=2, R1(id=0,off=36,r=34)
   rejected_insn_idx: 16
 external_match:
-  status: semantic
+  status: not_applicable
   policy: commit_diff
   matched_messages:
   - invalid access to packet

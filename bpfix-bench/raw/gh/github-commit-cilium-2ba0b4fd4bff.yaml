@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: BPF_PROG_TEST_RUN framework/map definition changes depend on Cilium's libbpf/BTF
+    map-loading environment; no verifier-rejected program or terminal verifier log
+    is captured.
 raw:
   case_id: github-commit-cilium-2ba0b4fd4bff
   source: github_commits

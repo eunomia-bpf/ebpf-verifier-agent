@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Removes destination-MAC verification from LXC paths to reduce old full-program
+    verifier pressure. The raw snippets depend on full Cilium packet parsing, conntrack,
+    and policy paths.
 raw:
   case_id: github-commit-cilium-53e1f373abf8
   source: github_commits

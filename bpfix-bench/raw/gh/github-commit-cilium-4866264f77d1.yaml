@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: not_reconstructable_from_diff
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: The trace-notification API change spans many Cilium programs and helper
+    wrappers. Without a verifier log or complete generated program, the snippets do
+    not isolate a faithful standalone reject.
 raw:
   case_id: github-commit-cilium-4866264f77d1
   source: github_commits

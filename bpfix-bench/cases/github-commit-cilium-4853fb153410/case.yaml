@@ -33,7 +33,7 @@ capture:
   terminal_error: misaligned stack access off 0+-16+4 size 8
   rejected_insn_idx: 10
 external_match:
-  status: semantic
+  status: not_applicable
   policy: verifier_symptom
   matched_messages:
   - 64-bit accesses to only 4-byte-aligned stack slots

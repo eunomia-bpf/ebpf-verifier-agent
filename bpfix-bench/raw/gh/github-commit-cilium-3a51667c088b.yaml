@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: not_reconstructable_from_diff
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Trace/drop notification length factoring spans several Cilium headers and
+    tests; the snippets do not isolate a standalone rejected access or a concrete
+    verifier log.
 raw:
   case_id: github-commit-cilium-3a51667c088b
   source: github_commits

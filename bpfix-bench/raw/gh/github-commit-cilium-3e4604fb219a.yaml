@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: not_reconstructable_from_diff
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Pod-to-node encapsulation and host-firewall flow changes span Cilium CT/VTEP/encap
+    state; the raw snippets lack a verifier log and cannot be reduced faithfully.
 raw:
   case_id: github-commit-cilium-3e4604fb219a
   source: github_commits

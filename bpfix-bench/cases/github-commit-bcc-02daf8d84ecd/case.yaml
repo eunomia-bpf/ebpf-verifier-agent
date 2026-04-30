@@ -31,7 +31,7 @@ capture:
   terminal_error: R1 invalid mem access 'scalar'
   rejected_insn_idx: 1
 external_match:
-  status: semantic
+  status: not_applicable
   policy: terminal_error
   matched_messages:
   - rq->__sector

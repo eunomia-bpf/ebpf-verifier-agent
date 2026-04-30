@@ -33,7 +33,7 @@ capture:
   terminal_error: invalid write to stack R1 off=-600 size=600
   rejected_insn_idx: 3
 external_match:
-  status: semantic
+  status: not_applicable
   policy: root_cause
   matched_messages:
   - invalid write to stack R1 off=-600 size=600

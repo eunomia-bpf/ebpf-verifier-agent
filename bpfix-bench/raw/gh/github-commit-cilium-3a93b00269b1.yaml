@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: The change works around skb->mark scrubbing across veth transition and adjusts
+    datapath metadata propagation; no verifier-rejected program shape is identified.
 raw:
   case_id: github-commit-cilium-3a93b00269b1
   source: github_commits

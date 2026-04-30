@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: IPv6 tunneling checksum workaround touches policy, LB, nodeport, and nodeport
+    egress paths. No verifier log is present; a faithful replay would require the
+    full Cilium datapath and checksum/tunnel configuration.
 raw:
   case_id: github-commit-cilium-2a6780cf8afb
   source: github_commits

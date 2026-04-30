@@ -1385,3 +1385,15 @@ cases:
   family_id: github-commit-cilium-06c6520c57ad
   representative: true
   capture_id: github-commit-cilium-06c6520c57ad__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-46024c6c4a30
+  path: cases/github-commit-cilium-46024c6c4a30
+  source_kind: github_commit
+  family_id: github-commit-cilium-46024c6c4a30
+  representative: true
+  capture_id: github-commit-cilium-46024c6c4a30__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-2ff1a462cd33
+  path: cases/github-commit-cilium-2ff1a462cd33
+  source_kind: github_commit
+  family_id: github-commit-cilium-2ff1a462cd33
+  representative: true
+  capture_id: github-commit-cilium-2ff1a462cd33__kernel-6.15.11-clang-18-log2
