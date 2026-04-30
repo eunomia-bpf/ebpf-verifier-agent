@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Adds relax_verifier() before returning CT lookup errors to reduce old full-datapath
+    verifier pressure. Reproduction requires the historical Cilium LXC program shape
+    and verifier.
 raw:
   case_id: github-commit-cilium-93dee7abedea
   source: github_commits

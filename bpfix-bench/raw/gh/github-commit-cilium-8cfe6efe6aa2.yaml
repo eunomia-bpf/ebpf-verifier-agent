@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: The change only drops IPv6 proxy redirects when proxy_port is nonzero instead
+    of dropping all TCP/UDP L4 traffic. This is datapath policy semantics, not a verifier
+    rejection.
 raw:
   case_id: github-commit-cilium-8cfe6efe6aa2
   source: github_commits

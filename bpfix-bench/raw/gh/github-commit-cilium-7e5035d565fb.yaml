@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: not_reconstructable_from_diff
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: XDP complexity workaround adds relax_verifier() in a large LB path; no raw
+    verifier terminal error or bounded standalone reproducer is available from the
+    snippet.
 raw:
   case_id: github-commit-cilium-7e5035d565fb
   source: github_commits

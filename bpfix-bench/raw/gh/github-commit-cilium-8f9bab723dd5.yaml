@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Converts snat_v6_needs_masquerade() from always-inline to weak noinline/global
+    form. Any verifier effect depends on Cilium NAT map storage and program composition,
+    with no captured reject.
 raw:
   case_id: github-commit-cilium-8f9bab723dd5
   source: github_commits

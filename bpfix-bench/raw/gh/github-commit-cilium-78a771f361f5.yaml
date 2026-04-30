@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: not_reconstructable_from_diff
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: WireGuard host-delivery redirect/ingress changes require the broader Cilium
+    datapath and no raw verifier log identifies a failing instruction or terminal
+    verifier error.
 raw:
   case_id: github-commit-cilium-78a771f361f5
   source: github_commits

@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: not_reconstructable_from_diff
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Early ethertype rejection changes SNAT/datapath control flow but the raw
+    record lacks a verifier log or minimal failing access pattern.
 raw:
   case_id: github-commit-cilium-7de434985f89
   source: github_commits

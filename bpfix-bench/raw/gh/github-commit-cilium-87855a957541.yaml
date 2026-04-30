@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Outer-source-IP propagation touches host, LXC, overlay, and context structures.
+    Any verifier effect depends on generated Cilium tunnel/IPsec datapath state and
+    old-kernel verifier behavior, with no terminal log.
 raw:
   case_id: github-commit-cilium-87855a957541
   source: github_commits

@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Reduces SNAT collision retries to avoid nodeport instruction-limit regressions.
+    Faithful rejection depends on full generated netdev/overlay programs and historical
+    instruction limits.
 raw:
   case_id: github-commit-cilium-90ddfb3fcf3f
   source: github_commits
