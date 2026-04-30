@@ -56,12 +56,12 @@ def test_baseline_produces_valid_output_on_real_log() -> None:
         (
             "unknown func bpf_get_current_pid_tgid#14",
             "BPFIX-E009",
-            "env_mismatch",
+            "environment_or_configuration",
         ),
         (
             "JIT does not support calling kfunc bpf_throw#73439",
             "BPFIX-E016",
-            "env_mismatch",
+            "environment_or_configuration",
         ),
         (
             "R1 min value is outside of the array range",

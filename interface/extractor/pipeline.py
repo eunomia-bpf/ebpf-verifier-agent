@@ -54,12 +54,12 @@ from .trace_parser import ParsedTrace, parse_trace
 _STRUCTURAL_TAXONOMY_BY_ERROR_ID = {
     "BPFIX-E007": "verifier_limit",
     "BPFIX-E008": "verifier_limit",
-    "BPFIX-E009": "env_mismatch",
+    "BPFIX-E009": "environment_or_configuration",
     "BPFIX-E010": "verifier_bug",
-    "BPFIX-E016": "env_mismatch",
+    "BPFIX-E016": "environment_or_configuration",
     "BPFIX-E018": "verifier_limit",
-    "BPFIX-E021": "env_mismatch",
-    "BPFIX-E022": "env_mismatch",
+    "BPFIX-E021": "environment_or_configuration",
+    "BPFIX-E022": "environment_or_configuration",
 }
 
 

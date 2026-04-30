@@ -41,6 +41,16 @@ external_match:
 label:
   capture_id: stackoverflow-53136145__kernel-6.15.11-clang-18-log2
   taxonomy_class: lowering_artifact
+  mechanism_tags:
+  - packet_bounds
+  - pointer_provenance
+  obligation_ids:
+  - BPFIX-O001
+  - BPFIX-O006
+  evidence_tags:
+  - source_check_present
+  - cfg_join_widening
+  - accepted_with_equivalent_lowering
   error_id: BPFIX-E006
   confidence: low
   label_source: adjudicated

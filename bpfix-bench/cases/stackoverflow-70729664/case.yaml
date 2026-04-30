@@ -41,6 +41,18 @@ external_match:
 label:
   capture_id: stackoverflow-70729664__kernel-6.15.11-clang-18-log2
   taxonomy_class: lowering_artifact
+  mechanism_tags:
+  - packet_bounds
+  - scalar_range
+  - spill_reload_loss
+  obligation_ids:
+  - BPFIX-O001
+  - BPFIX-O005
+  evidence_tags:
+  - source_check_present
+  - proof_established_then_lost
+  - spill_reload_loss
+  - accepted_with_equivalent_lowering
   error_id: BPFIX-E005
   confidence: low
   label_source: adjudicated

@@ -41,7 +41,17 @@ external_match:
     verifier rejection.
 label:
   capture_id: stackoverflow-62171477__kernel-6.15.11-clang-18-log2
-  taxonomy_class: env_mismatch
+  taxonomy_class: environment_or_configuration
+  mechanism_tags:
+  - helper_availability
+  - program_type_compatibility
+  - checksum_helper_context
+  obligation_ids:
+  - BPFIX-O009
+  evidence_tags:
+  - terminal_error_helper_forbidden
+  - external_report_unknown_func
+  - fix_requires_compatible_program_type
   error_id: BPFIX-E021
   confidence: medium
   label_source: external_replay_reconstruction

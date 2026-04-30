@@ -40,22 +40,30 @@ external_match:
     SO/GH artifact.
 label:
   capture_id: stackoverflow-76637174__kernel-6.15.11-clang-18-log2
-  taxonomy_class: lowering_artifact
+  taxonomy_class: source_bug
+  mechanism_tags:
+  - packet_bounds
+  - scalar_range
+  obligation_ids:
+  - BPFIX-O001
+  evidence_tags:
+  - source_check_incomplete
+  - accepted_fix_adds_bounds_check
+  - external_fix_identifies_off_by_one
   error_id: BPFIX-E005
   confidence: low
   label_source: adjudicated
-  root_cause_description: The loop checks `data + i < data_end`, but the lowered code
-    rebuilds the packet pointer used by `*((uint8_t *)(data + i))` after additional
-    offset math, so the verifier drops the packet-range proof and the byte load becomes
-    unproven.
+  root_cause_description: The loop uses `data + i < data_end` for a one-byte read;
+    the accepted external fix identifies this as an off-by-one/incomplete access-width
+    guard and rewrites the loop to test the exact byte access before dereferencing.
   rejected_insn_idx: 54
-  root_cause_insn_idx: 39
+  root_cause_insn_idx: 50
   rejected_line: if (*((uint8_t*)(data+i)) == 0 && !found) {
-  root_cause_line: if (data + cur + tcph->doff * 4 > data_end)
+  root_cause_line: for (i = cur; data+i < data_end; i++) {
   localization_confidence: high
-  fix_type: reorder
-  fix_direction: Keep the checked packet pointer in the same register that is dereferenced,
-    and use a `+ 1 <= data_end` style check that directly matches the one-byte access.
+  fix_type: bounds_check
+  fix_direction: Add an access-width-aware packet bound check for the byte load and
+    keep the checked packet pointer form visible to the verifier.
 repair:
   eligible: true
 reporting:

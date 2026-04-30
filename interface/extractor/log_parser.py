@@ -86,7 +86,7 @@ EXACT_VERIFIER_SYMPTOM_RE = re.compile(
             r"cannot overwrite referenced dynptr",
             r"cannot pass in dynptr at an offset",
             r"dynptr has to be at a constant offset",
-            # iterator state-machine violations — source_bug, not env_mismatch
+            # iterator state-machine violations: source_bug, not environment/configuration
             r"expected (?:an )?(?:un)?initialized iter_\w+ as arg #\d+",
             r"arg#\d+ expected pointer to an iterator",
             # exception callback misuse — source_bug

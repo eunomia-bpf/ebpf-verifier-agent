@@ -41,7 +41,17 @@ external_match:
     line rather than the terminal verifier error.
 label:
   capture_id: stackoverflow-67402772__kernel-6.15.11-clang-18-log2
-  taxonomy_class: env_mismatch
+  taxonomy_class: environment_or_configuration
+  mechanism_tags:
+  - context_field_availability
+  - attach_context_layout
+  - program_type_compatibility
+  obligation_ids:
+  - BPFIX-O016
+  evidence_tags:
+  - terminal_error_invalid_context_access
+  - unavailable_skb_context_field
+  - fix_requires_supported_context_or_packet_parse
   error_id: BPFIX-E016
   confidence: medium
   label_source: agree

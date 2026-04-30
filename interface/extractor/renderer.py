@@ -12,7 +12,7 @@ VALID_FAILURE_CLASSES = {
     "source_bug",
     "lowering_artifact",
     "verifier_limit",
-    "env_mismatch",
+    "environment_or_configuration",
     "verifier_bug",
 }
 
@@ -469,7 +469,7 @@ def _repair_action_for(
     if failure_class == "verifier_limit":
         return "SIMPLIFY_CFG"
 
-    if failure_class == "env_mismatch":
+    if failure_class == "environment_or_configuration":
         return "GATE_BY_KERNEL_CAPABILITY"
 
     if failure_class == "verifier_bug":

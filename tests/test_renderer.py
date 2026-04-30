@@ -151,7 +151,7 @@ def test_renderer_crypto_acquire_b8afbe98_produces_rejected_span() -> None:
     The expected verifier message for this case is 'Unreleased reference' (E004,
     source_bug).  Previously the spurious BTF probe line
     'arg#0 reference type(UNKNOWN) size cannot be determined: -22' was selected as
-    the error line and mis-mapped to E021 / env_mismatch.  After the BTF_PROBE_NOISE_RE
+    the error line and mis-mapped to E021 / environment_or_configuration.  After the BTF_PROBE_NOISE_RE
     penalisation the correct 'Unreleased reference' error line is selected instead.
     """
     output = generate_diagnostic(
@@ -164,7 +164,7 @@ def test_renderer_crypto_acquire_b8afbe98_produces_rejected_span() -> None:
     roles = {span["role"] for span in _proof_spans(output)}
     # Must have at least a rejected span — no false lifecycle spans
     assert "rejected" in roles
-    # The real error is Unreleased reference (E004 / source_bug), not env_mismatch
+    # The real error is Unreleased reference (E004 / source_bug), not environment_or_configuration
     assert output.json_data["failure_class"] == "source_bug"
     assert output.json_data["error_id"] == "BPFIX-E004"
 
@@ -282,10 +282,10 @@ def test_renderer_drops_false_satisfied_status_for_round2_zero_trace_cases() -> 
 
 
 def test_renderer_preserves_engine_inferred_obligation_when_formal_analysis_returns_none() -> None:
-    """BPFIX-E022 env_mismatch: 'only read from bpf_array is supported'.
+    """BPFIX-E022 environment_or_configuration: 'only read from bpf_array is supported'.
 
     With the heuristics removed from the critical path, structural
-    env_mismatch cases without an explicit error instruction keep
+    environment_or_configuration cases without an explicit error instruction keep
     proof_status='unknown' because no proof lifecycle can be established.
     """
     output = generate_diagnostic(
@@ -293,7 +293,7 @@ def test_renderer_preserves_engine_inferred_obligation_when_formal_analysis_retu
     )
 
     assert output.json_data["metadata"]["proof_status"] == "unknown"
-    # With opcode-driven analysis: no register-level obligation for structural env_mismatch.
+    # With opcode-driven analysis: no register-level obligation for structural environment_or_configuration.
     # The old approach produced a generic "safety_violation" placeholder; now we omit it.
     obligation = output.json_data.get("metadata", {}).get("obligation")
     if obligation is not None:
@@ -302,7 +302,7 @@ def test_renderer_preserves_engine_inferred_obligation_when_formal_analysis_retu
 
 
 def test_renderer_keeps_engine_obligation_when_unknown_engine_status_is_ignored() -> None:
-    """BPFIX-E021 env_mismatch: BTF reference type error (no explicit error instruction).
+    """BPFIX-E021 environment_or_configuration: BTF reference type error (no explicit error instruction).
 
     With opcode-driven analysis: no instruction is explicitly marked as is_error=True,
     so the opcode-driven lifecycle analysis does not apply. The proof_status is

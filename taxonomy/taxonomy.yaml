@@ -13,7 +13,7 @@ classification_principles:
   - If a case is ambiguous, ask which layer must change to make the failure disappear.
 decision_order:
   - verifier_bug
-  - env_mismatch
+  - environment_or_configuration
   - lowering_artifact
   - verifier_limit
   - source_bug
@@ -117,19 +117,22 @@ classes:
       - Add invariant-preserving guards and tighten ranges earlier.
       - Split programs or use tail calls to reduce verifier workload.
       - Replace clever arithmetic with simpler equivalences.
-  - id: env_mismatch
-    short_label: Environment Mismatch
-    summary: The program and runtime assumptions do not match the target kernel or attach environment.
+  - id: environment_or_configuration
+    short_label: Environment or Configuration
+    summary: The program, build, loader, or runtime assumptions do not match the target environment.
     detailed_description: |
       The verifier failure is caused by differences between the program's assumed
-      environment and the actual target environment. Typical sources include helper
-      availability, kfunc support, BTF presence, attach-type constraints, map definitions,
-      kernel configuration, or expected context layout. The source logic may be valid
-      in one environment and invalid in another.
+      environment or build/loader configuration and the actual target. Typical
+      sources include helper availability, kfunc support, BTF presence,
+      attach-type constraints, map definitions, compiler flags, loader
+      relocations, kernel configuration, or expected context layout. The source
+      logic may be valid under one target/configuration and invalid under
+      another.
     inclusion_signals:
       - Helper or kfunc is unknown on the target kernel.
       - BTF-derived type information or CO-RE relocations do not match the runtime target.
       - Program type or attach point forbids an operation that is legal elsewhere.
+      - Build flags or loader relocations produce bytecode outside the intended BPF contract.
       - The same bytecode verifies on one kernel/configuration but not another due to feature support.
     exclusion_signals:
       - The source misuses the API regardless of environment.

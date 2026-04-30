@@ -40,7 +40,17 @@ external_match:
     SO/GH artifact.
 label:
   capture_id: github-aya-rs-aya-521__kernel-6.15.11-clang-18-log2
-  taxonomy_class: env_mismatch
+  taxonomy_class: environment_or_configuration
+  mechanism_tags:
+  - btf_metadata
+  - func_info_metadata
+  - subprogram_metadata
+  obligation_ids:
+  - BPFIX-O021
+  evidence_tags:
+  - terminal_error_missing_btf_func_info
+  - callback_subprogram_requires_func_info
+  - fix_requires_build_metadata
   error_id: BPFIX-E021
   confidence: medium
   label_source: external_replay_reconstruction

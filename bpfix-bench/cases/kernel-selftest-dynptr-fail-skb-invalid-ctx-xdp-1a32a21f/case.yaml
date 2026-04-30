@@ -41,7 +41,17 @@ external_match:
   notes: Kernel selftest case; no external report matching is required.
 label:
   capture_id: kernel-selftest-dynptr-fail-skb-invalid-ctx-xdp-1a32a21f__kernel-6.15.11-clang-18-log2
-  taxonomy_class: env_mismatch
+  taxonomy_class: environment_or_configuration
+  mechanism_tags:
+  - kfunc_availability
+  - program_type_compatibility
+  - skb_xdp_context_mismatch
+  obligation_ids:
+  - BPFIX-O016
+  evidence_tags:
+  - terminal_error_kfunc_not_allowed
+  - selected_program_type_xdp
+  - skb_dynptr_api_used
   error_id: BPFIX-E016
   confidence: high
   label_source: agree

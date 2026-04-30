@@ -42,7 +42,15 @@ external_match:
     rejection on this kernel.
 label:
   capture_id: stackoverflow-70392721__kernel-6.15.11-clang-18-log2
-  taxonomy_class: build_configuration
+  taxonomy_class: environment_or_configuration
+  mechanism_tags:
+  - build_config
+  - compiler_flags
+  - unsupported_opcode
+  evidence_tags:
+  - unoptimized_helper_call_shape
+  - indirect_helper_call_opcode
+  - optimization_flag_required
   error_id: BPFIX-UNKNOWN
   confidence: medium
   label_source: external_replay_reconstruction

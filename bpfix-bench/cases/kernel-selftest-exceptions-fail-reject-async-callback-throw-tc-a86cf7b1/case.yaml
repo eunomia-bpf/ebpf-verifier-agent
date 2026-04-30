@@ -41,7 +41,17 @@ external_match:
   notes: Kernel selftest case; no external report matching is required.
 label:
   capture_id: kernel-selftest-exceptions-fail-reject-async-callback-throw-tc-a86cf7b1__kernel-6.15.11-clang-18-log2
-  taxonomy_class: env_mismatch
+  taxonomy_class: environment_or_configuration
+  mechanism_tags:
+  - kfunc_availability
+  - callback_context
+  - jit_capability
+  obligation_ids:
+  - BPFIX-O016
+  evidence_tags:
+  - terminal_error_jit_kfunc_unsupported
+  - async_callback_context
+  - bpf_throw_kfunc_used
   error_id: BPFIX-E016
   confidence: medium
   label_source: agree

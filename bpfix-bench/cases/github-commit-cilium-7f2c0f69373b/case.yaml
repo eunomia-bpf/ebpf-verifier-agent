@@ -41,7 +41,17 @@ external_match:
     helper class that the helper switch avoids.
 label:
   capture_id: github-commit-cilium-7f2c0f69373b__kernel-6.15.11-clang-18-log2
-  taxonomy_class: env_mismatch
+  taxonomy_class: environment_or_configuration
+  mechanism_tags:
+  - helper_availability
+  - program_type_compatibility
+  - xdp_skb_helper_mismatch
+  obligation_ids:
+  - BPFIX-O009
+  evidence_tags:
+  - terminal_error_helper_forbidden
+  - selected_program_type_xdp
+  - skb_only_helper
   error_id: BPFIX-E009
   confidence: medium
   label_source: external_replay_reconstruction

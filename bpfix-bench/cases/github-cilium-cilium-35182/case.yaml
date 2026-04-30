@@ -41,7 +41,17 @@ external_match:
     verifier rejection.
 label:
   capture_id: github-cilium-cilium-35182__kernel-6.15.11-clang-18-log2
-  taxonomy_class: env_mismatch
+  taxonomy_class: source_bug
+  mechanism_tags:
+  - subprogram_signature
+  - pointer_type_contract
+  - btf_reference_type_erasure
+  obligation_ids:
+  - BPFIX-O023
+  evidence_tags:
+  - terminal_error_invalid_subprogram_args
+  - unknown_reference_size
+  - fix_requires_supported_argument_type
   error_id: BPFIX-E021
   confidence: medium
   label_source: external_replay_reconstruction

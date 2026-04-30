@@ -40,7 +40,17 @@ external_match:
     SO/GH artifact.
 label:
   capture_id: github-aya-rs-aya-1233__kernel-6.15.11-clang-18-log2
-  taxonomy_class: env_mismatch
+  taxonomy_class: environment_or_configuration
+  mechanism_tags:
+  - helper_availability
+  - program_type_compatibility
+  - cgroup_skb_helper_mismatch
+  obligation_ids:
+  - BPFIX-O009
+  evidence_tags:
+  - terminal_error_helper_forbidden
+  - selected_program_type_cgroup_skb
+  - fix_requires_compatible_helper_or_program_type
   error_id: BPFIX-E021
   confidence: medium
   label_source: external_replay_reconstruction

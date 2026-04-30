@@ -41,7 +41,17 @@ external_match:
   notes: Kernel selftest case; no external report matching is required.
 label:
   capture_id: kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly-cgroup-skb-ingress-61688196__kernel-6.15.11-clang-18-log2
-  taxonomy_class: env_mismatch
+  taxonomy_class: source_bug
+  mechanism_tags:
+  - dynptr_writeability
+  - packet_write_permission
+  - helper_argument_contract
+  obligation_ids:
+  - BPFIX-O023
+  evidence_tags:
+  - terminal_error_packet_writes_disallowed
+  - read_write_slice_requested
+  - selected_program_type_cgroup_skb_ingress
   error_id: BPFIX-E016
   confidence: medium
   label_source: adjudicated

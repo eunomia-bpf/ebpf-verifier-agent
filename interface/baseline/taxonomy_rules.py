@@ -17,7 +17,7 @@ VERIFIER_LIMIT_RE = re.compile(
     r"BPF program is too large|combined stack size|stack depth .* exceeds",
     flags=re.IGNORECASE,
 )
-ENV_MISMATCH_RE = re.compile(
+ENVIRONMENT_OR_CONFIGURATION_RE = re.compile(
     r"unknown func|program of this type cannot use helper|helper call is not allowed|"
     r"attach_btf_id is not a function|invalid btf|missing btf func_info|"
     r"failed to find kernel BTF type ID|only read from bpf_array is supported|"
@@ -42,8 +42,8 @@ def classify_failure_class(
         return "verifier_bug"
     if VERIFIER_LIMIT_RE.search(error_message):
         return "verifier_limit"
-    if ENV_MISMATCH_RE.search(error_message):
-        return "env_mismatch"
+    if ENVIRONMENT_OR_CONFIGURATION_RE.search(error_message):
+        return "environment_or_configuration"
     if LOWERING_ARTIFACT_RE.search(error_message):
         return "lowering_artifact"
     return "source_bug"

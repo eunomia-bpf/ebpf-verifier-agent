@@ -54,7 +54,7 @@ the corresponding metrics.
   stale pointer proof, helper contract violation, invalid map definition,
   unavailable helper, verifier complexity limit, or frontend lowering artifact
 - `taxonomy_class`: one of the benchmark taxonomy classes, for example
-  `source_bug`, `lowering_artifact`, `verifier_limit`, `env_mismatch`, or
+  `source_bug`, `lowering_artifact`, `verifier_limit`, `environment_or_configuration`, or
   `verifier_bug`
 - `verifier_error_class`: normalized verifier error family extracted from the
   replayed log

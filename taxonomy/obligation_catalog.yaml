@@ -109,7 +109,7 @@ templates:
       - BPFIX-E008
 
   - obligation_id: BPFIX-O009
-    taxonomy_class: env_mismatch
+    taxonomy_class: environment_or_configuration
     title: Helper, kfunc, and attach assumptions must match the running kernel environment
     expected_state: The target kernel exports the required helper, kfunc, BTF info, and attach target.
     observed_state: Verification fails because the environment lacks one of those capabilities.
@@ -209,7 +209,7 @@ templates:
       - BPFIX-E015
 
   - obligation_id: BPFIX-O016
-    taxonomy_class: env_mismatch
+    taxonomy_class: environment_or_configuration
     title: Helper and kfunc usage must match the active program type and execution context
     expected_state: The selected helper or kfunc is available for the running kernel, program type, callback context, and sleepability constraints.
     observed_state: Verification fails because the current attachment or execution context forbids the helper or kfunc invocation.
@@ -283,7 +283,7 @@ templates:
       - BPFIX-E020
 
   - obligation_id: BPFIX-O021
-    taxonomy_class: env_mismatch
+    taxonomy_class: environment_or_configuration
     title: BTF-backed reference arguments require complete runtime metadata
     expected_state: The target kernel exposes the BTF and reference-size metadata needed to validate the argument and attach context.
     observed_state: Verification fails because the runtime BTF metadata is missing, invalid, or insufficient to determine reference layout and size.
@@ -298,7 +298,7 @@ templates:
       - BPFIX-E021
 
   - obligation_id: BPFIX-O022
-    taxonomy_class: env_mismatch
+    taxonomy_class: environment_or_configuration
     title: Mutable global state assumptions must match the deployed BPF data model
     expected_state: The target environment supports the intended mutable global or static data access pattern.
     observed_state: Verification fails because the runtime only permits read-only access for the chosen global-data representation.

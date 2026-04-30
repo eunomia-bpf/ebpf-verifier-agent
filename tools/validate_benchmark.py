@@ -22,6 +22,13 @@ else:
 
 VALID_RECONSTRUCTIONS = {"original", "minimized", "reconstructed"}
 VALID_EXTERNAL_MATCH = {"exact", "partial", "semantic", "not_applicable"}
+VALID_TAXONOMY_CLASSES = {
+    "source_bug",
+    "lowering_artifact",
+    "environment_or_configuration",
+    "verifier_limit",
+    "verifier_bug",
+}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -198,8 +205,9 @@ def validate_case_metadata(
     require_fields(case_data, ["schema_version", "case_id", "source", "reproducer", "capture", "label", "reporting"], "case", errors)
     require_fields(reproducer, ["status", "reconstruction", "build_command", "load_command", "source_file", "object_path"], "reproducer", errors)
     require_fields(capture, ["capture_id", "log_quality", "terminal_error", "rejected_insn_idx"], "capture", errors)
-    require_fields(label, ["capture_id"], "label", errors)
+    require_fields(label, ["capture_id", "taxonomy_class"], "label", errors)
     require_fields(reporting, ["family_id", "representative"], "reporting", errors)
+    validate_label_metadata(label, errors)
 
     if "split" in entry:
         errors.append("manifest case must not define split; bpfix-bench has a single case set")
@@ -245,6 +253,23 @@ def validate_case_metadata(
         compare(capture.get("environment_id"), manifest.get("environment_id"), "capture.environment_id/manifest.environment_id", errors)
 
     validate_capture_metadata(case_dir, case_data, manifest, case_report)
+
+
+def validate_label_metadata(label: dict[str, Any], errors: list[str]) -> None:
+    taxonomy_class = label.get("taxonomy_class")
+    if taxonomy_class is None:
+        return
+    if not isinstance(taxonomy_class, str) or not taxonomy_class:
+        errors.append("label.taxonomy_class must be a non-empty string")
+    elif taxonomy_class not in VALID_TAXONOMY_CLASSES:
+        errors.append(f"invalid label.taxonomy_class: {taxonomy_class!r}")
+
+    for field in ("mechanism_tags", "obligation_ids", "evidence_tags"):
+        value = label.get(field)
+        if value is None:
+            continue
+        if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
+            errors.append(f"label.{field} must be a list of non-empty strings")
 
 
 def validate_stored_artifacts(case_dir: Path, case_data: dict[str, Any], case_report: dict[str, Any]) -> None:

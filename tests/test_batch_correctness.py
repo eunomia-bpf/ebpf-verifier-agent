@@ -26,7 +26,7 @@ SO_CASES_DIR = ROOT / "bpfix-bench" / "raw" / "so"
 
 VALID_PROOF_STATUSES = {"never_established", "established_then_lost", "established_but_insufficient", "proof_satisfied", "unknown"}
 VALID_TAXONOMY_CLASSES = {
-    "source_bug", "lowering_artifact", "verifier_limit", "env_mismatch", "verifier_bug", "unknown",
+    "source_bug", "lowering_artifact", "verifier_limit", "environment_or_configuration", "verifier_bug", "unknown",
 }
 ERROR_ID_PATTERN = re.compile(r"^BPFIX-E\d{3}$|^BPFIX-UNKNOWN$")
 
@@ -195,15 +195,15 @@ def test_known_answer_source_bug_60053570() -> None:
     assert data.get("metadata", {}).get("proof_status") == "never_established"
 
 
-def test_known_answer_env_mismatch_77462271() -> None:
-    """stackoverflow-77462271: failed kernel BTF lookup — env_mismatch."""
+def test_known_answer_environment_or_configuration_77462271() -> None:
+    """stackoverflow-77462271: failed kernel BTF lookup — environment_or_configuration."""
     out = generate_diagnostic(
         _load_verifier_log("bpfix-bench/raw/so/stackoverflow-77462271.yaml")
     )
     data = out.json_data
 
     assert data["error_id"] == "BPFIX-E021"
-    assert data["failure_class"] == "env_mismatch"
+    assert data["failure_class"] == "environment_or_configuration"
 
 
 # ============================================================================

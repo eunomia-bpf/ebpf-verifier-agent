@@ -62,7 +62,7 @@ def test_taxonomy_defines_all_five_classes() -> None:
         "source_bug",
         "lowering_artifact",
         "verifier_limit",
-        "env_mismatch",
+        "environment_or_configuration",
         "verifier_bug",
     }
 

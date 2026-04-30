@@ -42,7 +42,18 @@ external_match:
   notes: Kernel selftest case; no external report matching is required.
 label:
   capture_id: kernel-selftest-irq-irq-sleepable-helper-global-subprog-syscall-7d470f89__kernel-6.15.11-clang-18-log2
-  taxonomy_class: env_mismatch
+  taxonomy_class: source_bug
+  mechanism_tags:
+  - irq_state
+  - sleepability
+  - critical_section
+  - helper_call_context
+  obligation_ids:
+  - BPFIX-O013
+  evidence_tags:
+  - terminal_error_sleepable_in_non_sleepable_context
+  - irq_disabled_region
+  - sleepable_helper_path
   error_id: BPFIX-E016
   confidence: medium
   label_source: agree

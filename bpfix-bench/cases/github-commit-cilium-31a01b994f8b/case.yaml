@@ -42,7 +42,17 @@ external_match:
     stack access failure mode.
 label:
   capture_id: github-commit-cilium-31a01b994f8b__kernel-6.15.11-clang-18-log2
-  taxonomy_class: stack_safety
+  taxonomy_class: source_bug
+  mechanism_tags:
+  - stack_safety
+  - stack_bounds
+  - large_stack_object
+  obligation_ids:
+  - BPFIX-O023
+  evidence_tags:
+  - direct_stack_region_violation
+  - verifier_stack_access_oob
+  - helper_writable_region_crosses_stack_limit
   error_id: BPFIX-E006
   confidence: medium
   label_source: external_replay_reconstruction

@@ -41,6 +41,16 @@ external_match:
 label:
   capture_id: stackoverflow-74614706__kernel-6.15.11-clang-18-log2
   taxonomy_class: verifier_limit
+  mechanism_tags:
+  - verifier_budget
+  - combined_stack_budget
+  - stack_safety
+  obligation_ids:
+  - BPFIX-O018
+  evidence_tags:
+  - combined_stack_size_exceeds_budget
+  - nested_call_stack_accounting
+  - refactor_reduces_stack_budget
   error_id: BPFIX-E018
   confidence: medium
   label_source: external_replay_reconstruction

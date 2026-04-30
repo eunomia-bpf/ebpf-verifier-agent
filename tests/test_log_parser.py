@@ -87,7 +87,7 @@ def test_parse_log_prefers_selected_error_line_for_catalog_seed() -> None:
     # clone_invalid1: expected message is "Expected an initialized dynptr as arg #0"
     # which is a source_bug (E012).  Previously the spurious BTF probe line
     # "arg#0 reference type('UNKNOWN') size cannot be determined: -22" was
-    # selected instead and mis-mapped to E021 / env_mismatch.  The fix adds
+    # selected instead and mis-mapped to E021 / environment_or_configuration. The fix adds
     # BTF_PROBE_NOISE_RE penalisation so the real dynptr protocol error wins.
     dynptr_unknown = parse_log(
         _load_verifier_log(
