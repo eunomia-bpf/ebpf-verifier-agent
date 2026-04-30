@@ -471,6 +471,12 @@ cases:
   family_id: R7 invalid mem access 'map_value_or_null'
   representative: true
   capture_id: kernel-selftest-iters-iter-err-too-permissive3-raw-tp-969d109d__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-iters-iter-err-unsafe-asm-loop-raw-tp-9ee4d943
+  path: cases/kernel-selftest-iters-iter-err-unsafe-asm-loop-raw-tp-9ee4d943
+  source_kind: kernel_selftest
+  family_id: R1 unbounded memory access, make sure to bounds check any such access
+  representative: true
+  capture_id: kernel-selftest-iters-iter-err-unsafe-asm-loop-raw-tp-9ee4d943__kernel-6.15.11-clang-18-log2
 - case_id: kernel-selftest-iters-iter-err-unsafe-c-loop-raw-tp-4b9ee52e
   path: cases/kernel-selftest-iters-iter-err-unsafe-c-loop-raw-tp-4b9ee52e
   source_kind: kernel_selftest
@@ -484,6 +490,36 @@ cases:
   family_id: arg#0 expected pointer to an iterator on stack
   representative: true
   capture_id: kernel-selftest-iters-iter-new-bad-arg-raw-tp-e25f0e76__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-iters-looping-missing-null-check-fail-raw-tp-732d9857
+  path: cases/kernel-selftest-iters-looping-missing-null-check-fail-raw-tp-732d9857
+  source_kind: kernel_selftest
+  family_id: R0 invalid mem access 'scalar'
+  representative: true
+  capture_id: kernel-selftest-iters-looping-missing-null-check-fail-raw-tp-732d9857__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-iters-state-safety-compromise-iter-w-helper-write-fail-raw-tp-50431478
+  path: cases/kernel-selftest-iters-state-safety-compromise-iter-w-helper-write-fail-raw-tp-50431478
+  source_kind: kernel_selftest
+  family_id: 'expected an initialized iter_num as arg #0'
+  representative: true
+  capture_id: kernel-selftest-iters-state-safety-compromise-iter-w-helper-write-fail-raw-tp-50431478__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-iters-state-safety-double-create-fail-raw-tp-11a53add
+  path: cases/kernel-selftest-iters-state-safety-double-create-fail-raw-tp-11a53add
+  source_kind: kernel_selftest
+  family_id: 'expected uninitialized iter_num as arg #0'
+  representative: true
+  capture_id: kernel-selftest-iters-state-safety-double-create-fail-raw-tp-11a53add__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-iters-state-safety-double-destroy-fail-raw-tp-224283ff
+  path: cases/kernel-selftest-iters-state-safety-double-destroy-fail-raw-tp-224283ff
+  source_kind: kernel_selftest
+  family_id: 'expected an initialized iter_num as arg #0'
+  representative: true
+  capture_id: kernel-selftest-iters-state-safety-double-destroy-fail-raw-tp-224283ff__kernel-6.15.11-clang-18-log2
+- case_id: kernel-selftest-iters-state-safety-read-from-iter-slot-fail-raw-tp-812dc246
+  path: cases/kernel-selftest-iters-state-safety-read-from-iter-slot-fail-raw-tp-812dc246
+  source_kind: kernel_selftest
+  family_id: invalid read from stack off -24+0 size 8
+  representative: true
+  capture_id: kernel-selftest-iters-state-safety-read-from-iter-slot-fail-raw-tp-812dc246__kernel-6.15.11-clang-18-log2
 - case_id: stackoverflow-53136145
   path: cases/stackoverflow-53136145
   source_kind: stackoverflow
@@ -622,3 +658,4 @@ cases:
   family_id: stackoverflow-79812509
   representative: true
   capture_id: stackoverflow-79812509__kernel-6.15.11-clang-18-log2
+

@@ -34,11 +34,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--all", action="store_true")
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--allow-rebuild-no-log",
+        action="store_true",
+        help="Allow old verified artifacts without captured logs; fresh replay must still produce a trace-rich verifier reject.",
+    )
     parser.add_argument("--timeout-sec", type=int, default=30)
     args = parser.parse_args(argv)
 
     labels = load_labels(args.ground_truth.resolve())
-    candidates = discover(args.source_root.resolve(), labels)
+    candidates = discover(args.source_root.resolve(), labels, allow_rebuild_no_log=args.allow_rebuild_no_log)
     selected = select(candidates, set(args.case_id), args.limit)
     print_summary(candidates, selected)
 
@@ -79,12 +84,12 @@ def load_labels(path: Path) -> dict[str, dict[str, Any]]:
     }
 
 
-def discover(source_root: Path, labels: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+def discover(source_root: Path, labels: dict[str, dict[str, Any]], *, allow_rebuild_no_log: bool) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     for source_dir in sorted(path for path in source_root.iterdir() if path.is_dir()):
         status = parse_status(source_dir / "verification_status.txt")
         case_id = status.get("case_id") or source_dir.name
-        reason = eligibility_reason(source_dir, status, labels.get(case_id))
+        reason = eligibility_reason(source_dir, status, labels.get(case_id), allow_rebuild_no_log=allow_rebuild_no_log)
         candidates.append({"case_id": case_id, "source_dir": source_dir, "status": status, "label": labels.get(case_id), "reason": reason})
     return candidates
 
@@ -101,7 +106,13 @@ def parse_status(path: Path) -> dict[str, str]:
     return status
 
 
-def eligibility_reason(source_dir: Path, status: dict[str, str], label: dict[str, Any] | None) -> str | None:
+def eligibility_reason(
+    source_dir: Path,
+    status: dict[str, str],
+    label: dict[str, Any] | None,
+    *,
+    allow_rebuild_no_log: bool,
+) -> str | None:
     for name in ("prog.c", "Makefile", "selftest_prog_loader.c", "headers"):
         if not (source_dir / name).exists():
             return f"missing {name}"
@@ -111,7 +122,7 @@ def eligibility_reason(source_dir: Path, status: dict[str, str], label: dict[str
         return "load_attempted is not yes"
     if status.get("verifier_rejected") != "yes":
         return "verifier_rejected is not yes"
-    if status.get("verifier_log_captured") != "yes":
+    if status.get("verifier_log_captured") != "yes" and not allow_rebuild_no_log:
         return "verifier_log_captured is not yes"
     if not status.get("target_function"):
         return "missing target_function"
@@ -186,6 +197,7 @@ def import_case(candidate: dict[str, Any], bench_root: Path, manifest: dict[str,
     shutil.copy2(source_dir / "prog.c", case_dir / "prog.c")
     shutil.copy2(source_dir / "selftest_prog_loader.c", case_dir / "selftest_prog_loader.c")
     shutil.copytree(source_dir / "headers", case_dir / "headers")
+    patch_iterator_asm_ksym_btf(case_dir / "prog.c")
     write_makefile(case_dir / "Makefile", status["target_function"])
 
     skeleton = {
@@ -251,6 +263,26 @@ replay-verify: prog.o selftest_prog_loader
 clean:
 \trm -f prog.o selftest_prog_loader verifier_load_result.json replay_load_result.json replay-verifier.log
 """, encoding="utf-8")
+
+
+def patch_iterator_asm_ksym_btf(path: Path) -> None:
+    source = path.read_text(encoding="utf-8")
+    if "__imm(bpf_iter_num_new)" not in source or "force_iter_ksym_btf" in source:
+        return
+
+    marker = 'char _license[] SEC("license") = "GPL";'
+    helper = """
+
+static __attribute__((used)) void force_iter_ksym_btf(struct bpf_iter_num *it)
+{
+\tbpf_iter_num_new(it, 0, 0);
+\tbpf_iter_num_next(it);
+\tbpf_iter_num_destroy(it);
+}
+"""
+    if marker not in source:
+        return
+    path.write_text(source.replace(marker, marker + helper, 1), encoding="utf-8")
 
 
 def build_case_yaml(
