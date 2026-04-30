@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: A local probe for the packed union v6addr old_daddr stack-alignment pattern
+    built and loaded without a verifier terminal error on kernel 6.15.11.
 raw:
   case_id: github-commit-cilium-0cf109933350
   source: github_commits

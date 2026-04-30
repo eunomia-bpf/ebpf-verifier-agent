@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: true
 reproduction:
-  status: attempted_unknown
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: not_run
+  reason: The issue log reports unchecked PerCpuArray lookup use as R0 invalid mem
+    access 'map_value_or_null'. A faithful PerCpuArray write without a null check
+    built and loaded locally because the current verifier treats this array lookup
+    result as non-null.
   verifier_status: not_run
   captured_error: <none>
   verifier_error_match: mismatch

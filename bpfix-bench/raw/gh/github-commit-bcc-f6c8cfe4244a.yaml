@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: Fixes BCC-generated BTF DataSec size metadata, not a verifier-rejected program
+    with a replayable source/log pair.
   verifier_status: null
   captured_error: null
   verifier_error_match: null

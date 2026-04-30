@@ -19,11 +19,13 @@ content:
   has_fixed_code: true
   has_fix_description: true
 reproduction:
-  status: attempted_unknown
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: not_run
+  reason: The report depends on Cilium's bpf/tests/builtins.o, /proc/sys/net/core/bpf_jit_harden=2,
+    and a large memmove complexity path. No standalone source snippet or isolated
+    terminal instruction is available.
   verifier_status: not_run
   captured_error: <none>
   verifier_error_match: mismatch

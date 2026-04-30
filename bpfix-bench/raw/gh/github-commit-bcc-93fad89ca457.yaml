@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Commit is in libbpf-tools/tcpconnect.c user-space output/alignment code,
+    not a verifier-rejected BPF program.
 raw:
   case_id: github-commit-bcc-93fad89ca457
   source: github_commits

@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: Fix removes BPF_F_NO_PREALLOC from many hash maps. This is map/object load
+    compatibility rather than an isolated verifier instruction rejection with a terminal
+    verifier error.
   verifier_status: null
   captured_error: null
   verifier_error_match: null

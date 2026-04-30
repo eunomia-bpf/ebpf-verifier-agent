@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: Fix copies perf-buffer event data in userspace filelife.c before field access;
+    no BPF program verifier rejection is represented.
   verifier_status: null
   captured_error: null
   verifier_error_match: null

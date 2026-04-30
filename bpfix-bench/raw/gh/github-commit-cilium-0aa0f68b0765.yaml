@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: not_reconstructable_from_diff
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Large load-balancer/conntrack change mentions separate verifier rejects,
+    but the stored snippets do not isolate a faithful rejected program. A simple null-lookup
+    probe was rejected locally but did not match the upstream state-propagation change,
+    so it was not admitted.
 raw:
   case_id: github-commit-cilium-0aa0f68b0765
   source: github_commits

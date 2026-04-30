@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: not_reconstructable_from_diff
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: 16-bit ifindex fix spans Cilium common state and generated program context;
+    no verifier log and no faithful standalone source could be derived from the excerpt.
 raw:
   case_id: github-commit-cilium-064b947efb86
   source: github_commits

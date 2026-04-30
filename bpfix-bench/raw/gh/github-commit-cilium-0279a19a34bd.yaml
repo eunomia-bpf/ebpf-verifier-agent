@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Commit describes a 4.19 complexity issue when IPv6 is disabled; replay requires
+    Cilium's historical tail-call/macro environment and no raw verifier log is present.
 raw:
   case_id: github-commit-cilium-0279a19a34bd
   source: github_commits

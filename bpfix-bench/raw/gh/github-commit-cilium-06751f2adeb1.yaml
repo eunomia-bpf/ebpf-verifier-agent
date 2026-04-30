@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: not_reconstructable_from_diff
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Conntrack ct_state forwarding change lacks the full map/value and caller
+    context needed to reproduce the verifier-visible behavior.
 raw:
   case_id: github-commit-cilium-06751f2adeb1
   source: github_commits

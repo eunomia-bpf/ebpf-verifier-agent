@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: SO_NETNS_COOKIE helper/configuration change depends on Cilium socket-program
+    build settings and helper availability; no raw verifier log is present.
 raw:
   case_id: github-commit-cilium-0a4a393d6554
   source: github_commits

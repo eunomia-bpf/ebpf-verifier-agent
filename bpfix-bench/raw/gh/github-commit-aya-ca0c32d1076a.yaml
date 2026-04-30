@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Fixes Aya loader materialization/finalization of .bss maps as zero-filled
+    data. The failure is a userspace object-loader/map-initialization condition, not
+    a standalone prog.c verifier-reject source.
 raw:
   case_id: github-commit-aya-ca0c32d1076a
   source: github_commits

@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: The commit switches pt_regs field reads to bpf_probe_read_kernel; replay
+    depends on Aya's Rust lowering and kernel helper support, with no verifier log
+    or standalone source.
 raw:
   case_id: github-commit-aya-05c1586202ce
   source: github_commits

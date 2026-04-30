@@ -1361,3 +1361,27 @@ cases:
   family_id: stackoverflow-79878809
   representative: true
   capture_id: stackoverflow-79878809__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-bcc-118bf168f9f6
+  path: cases/github-commit-bcc-118bf168f9f6
+  source_kind: github_commit
+  family_id: github-commit-bcc-tcpconnect-filter-ports-bound
+  representative: true
+  capture_id: github-commit-bcc-118bf168f9f6__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-bcc-a75f0180b714
+  path: cases/github-commit-bcc-a75f0180b714
+  source_kind: github_commit
+  family_id: github-commit-bcc-a75f0180b714
+  representative: true
+  capture_id: github-commit-bcc-a75f0180b714__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-bcc-d4e505c1e4ed
+  path: cases/github-commit-bcc-d4e505c1e4ed
+  source_kind: github_commit
+  family_id: github-commit-bcc-d4e505c1e4ed
+  representative: true
+  capture_id: github-commit-bcc-d4e505c1e4ed__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-06c6520c57ad
+  path: cases/github-commit-cilium-06c6520c57ad
+  source_kind: github_commit
+  family_id: github-commit-cilium-06c6520c57ad
+  representative: true
+  capture_id: github-commit-cilium-06c6520c57ad__kernel-6.15.11-clang-18-log2

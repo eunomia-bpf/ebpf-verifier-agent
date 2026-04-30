@@ -18,11 +18,11 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
-  case_id: null
-  case_path: null
-  artifact_path: null
-  reason: verification_status_unclear
+  status: replay_valid
+  case_id: github-commit-bcc-a75f0180b714
+  case_path: cases/github-commit-bcc-a75f0180b714
+  artifact_path: cases/github-commit-bcc-a75f0180b714
+  reason: admitted_to_bpfix_bench_cases
   verifier_status: null
   captured_error: null
   verifier_error_match: null

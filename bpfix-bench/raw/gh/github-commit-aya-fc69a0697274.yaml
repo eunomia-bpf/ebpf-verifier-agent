@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Fix changes a feature-detection probe from BPF_SUB 8 to BPF_ADD -8 for aarch64
+    Linux 5.5. The local x86_64 6.15 verifier is not the historical target, and no
+    local verifier rejection can be faithfully captured.
 raw:
   case_id: github-commit-aya-fc69a0697274
   source: github_commits

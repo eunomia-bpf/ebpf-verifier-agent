@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: Fix changes BCC LLVM IR generation for sscanf string pointer GEP under opaque
+    pointers. Faithful replay requires BCC's C++ code generator and LLVM-version-specific
+    output; no verifier log or standalone source is available.
   verifier_status: null
   captured_error: null
   verifier_error_match: null

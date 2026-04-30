@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: Adds a CPU filter option to softirqs; no captured verifier log, and the
+    changed BPF code is a feature guard rather than a verifier-reject fix.
   verifier_status: null
   captured_error: null
   verifier_error_match: null

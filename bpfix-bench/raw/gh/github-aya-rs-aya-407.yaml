@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: true
 reproduction:
-  status: attempted_unknown
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: not_run
+  reason: The issue log reports invalid indirect read from stack from a 16-byte perf-event
+    payload with only 14 initialized bytes. A faithful TC bpf_perf_event_output reconstruction
+    built and loaded on the local 6.15.11 replay kernel, producing no terminal verifier
+    error.
   verifier_status: not_run
   captured_error: <none>
   verifier_error_match: mismatch

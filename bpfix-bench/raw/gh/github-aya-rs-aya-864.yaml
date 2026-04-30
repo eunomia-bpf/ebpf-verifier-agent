@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: true
 reproduction:
-  status: candidate_for_replay
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verifier_reject_and_embedded_aya_source_context_present
+  reason: The issue log reports unknown func bpf_get_current_pid_tgid#14 from a TC
+    classifier. A faithful TC helper-call reconstruction built and loaded locally
+    on the current replay kernel, so the original failure appears tied to historical
+    helper availability.
 raw:
   case_id: github-aya-rs-aya-864
   source: github_issues

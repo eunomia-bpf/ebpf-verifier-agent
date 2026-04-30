@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: A standalone reconstruction of the ksnoop func_stack->ips[stack_depth++]
+    indexing pattern built locally; the verifier log contained no terminal error,
+    so it was not admitted.
   verifier_status: null
   captured_error: null
   verifier_error_match: null

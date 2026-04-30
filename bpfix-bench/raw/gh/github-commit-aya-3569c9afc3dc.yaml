@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: The change alters map-helper signatures and inlining across many Aya eBPF
+    map APIs. The raw record has no terminal log and requires a large historical Aya/Rust
+    lowering context.
 raw:
   case_id: github-commit-aya-3569c9afc3dc
   source: github_commits

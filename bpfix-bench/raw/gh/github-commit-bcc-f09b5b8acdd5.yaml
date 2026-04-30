@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: attempted_unknown
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: verification_status_unclear
+  reason: BCC compatibility header/helper version-check removal from 2016; no captured
+    verifier log or concrete rejected program source.
   verifier_status: null
   captured_error: null
   verifier_error_match: null
