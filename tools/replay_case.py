@@ -106,6 +106,8 @@ def parse_verifier_log(text: str, source: str = "output") -> ParsedVerifierLog:
     if search_end is None:
         search_end = _first_processed_line_index(lines)
     rejected_insn_idx = _last_instruction_index(lines, search_end)
+    if rejected_insn_idx is None:
+        rejected_insn_idx = _fallback_instruction_index(lines, search_end, terminal_error)
 
     if terminal_error and rejected_insn_idx is not None:
         quality = "trace_rich"
@@ -260,6 +262,8 @@ def _looks_like_terminal_error(line: str) -> bool:
         "math between",
         "type=",
         "verifier log",
+        "unknown opcode",
+        "should have been",
     )
     return any(term.lower() in lower for term in error_terms)
 
@@ -278,3 +282,16 @@ def _last_instruction_index(lines: list[str], search_end: int | None) -> int | N
         if match:
             last = int(match.group(1))
     return last
+
+
+def _fallback_instruction_index(lines: list[str], search_end: int | None, terminal_error: str | None) -> int | None:
+    if not terminal_error:
+        return None
+    end = len(lines) if search_end is None else max(search_end, 0)
+    window = lines[:end]
+    if "unknown opcode" in terminal_error.lower():
+        for line in reversed(window):
+            match = re.match(r"^\s*func#\d+\s+@(\d+)\s*$", line)
+            if match:
+                return int(match.group(1))
+    return None

@@ -5,30 +5,30 @@ description: Raw external SO/GH/commit records. Replayable verifier rejects are 
 counts:
   gh:
     total: 622
-    replay_valid: 18
+    replay_valid: 50
     replay_reject_no_rejected_insn: 3
     missing_source: 1
     attempted_unknown: 34
     environment_required: 4
     candidate_for_replay: 1
-    needs_manual_reconstruction: 561
+    needs_manual_reconstruction: 529
   all:
     total: 736
-    replay_valid: 101
+    replay_valid: 136
     replay_reject_no_rejected_insn: 3
     missing_source: 5
     attempted_unknown: 35
     environment_required: 8
-    candidate_for_replay: 8
-    needs_manual_reconstruction: 566
+    candidate_for_replay: 5
+    needs_manual_reconstruction: 534
     out_of_scope_non_verifier: 2
     attempted_accepted: 4
     missing_verifier_log: 4
   so:
     total: 114
     out_of_scope_non_verifier: 2
-    candidate_for_replay: 7
-    replay_valid: 83
+    candidate_for_replay: 4
+    replay_valid: 86
     needs_manual_reconstruction: 5
     missing_source: 4
     attempted_accepted: 4
@@ -306,9 +306,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-aya-628b473e0937.yaml
   url: https://github.com/aya-rs/aya/commit/628b473e0937eef94b0b337608a5d6c51ad2fd2a
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-aya-628b473e0937
+  artifact_path: cases/github-commit-aya-628b473e0937
 - raw_id: github-commit-aya-62c6dfd764ce
   source_kind: github_commit
   path: raw/gh/github-commit-aya-62c6dfd764ce.yaml
@@ -327,9 +327,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-aya-9be90f8a74de.yaml
   url: https://github.com/aya-rs/aya/commit/9be90f8a74de26de16a5cb79206f027d0cbed377
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-aya-9be90f8a74de
+  artifact_path: cases/github-commit-aya-9be90f8a74de
 - raw_id: github-commit-aya-bce3c4fb1d0c
   source_kind: github_commit
   path: raw/gh/github-commit-aya-bce3c4fb1d0c.yaml
@@ -376,9 +376,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-bcc-02daf8d84ecd.yaml
   url: https://github.com/iovisor/bcc/commit/02daf8d84ecd23d4b8c55ccf5b4a0246abe38765
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-bcc-02daf8d84ecd
+  artifact_path: cases/github-commit-bcc-02daf8d84ecd
 - raw_id: github-commit-bcc-03f9322cc688
   source_kind: github_commit
   path: raw/gh/github-commit-bcc-03f9322cc688.yaml
@@ -390,16 +390,16 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-bcc-0ae562c8862f.yaml
   url: https://github.com/iovisor/bcc/commit/0ae562c8862f4aa7a028a3f9bc561636a63a507d
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-bcc-0ae562c8862f
+  artifact_path: cases/github-commit-bcc-0ae562c8862f
 - raw_id: github-commit-bcc-0cfd665b49d8
   source_kind: github_commit
   path: raw/gh/github-commit-bcc-0cfd665b49d8.yaml
   url: https://github.com/iovisor/bcc/commit/0cfd665b49d8d2dfe8ee2599763cbca3f4b54015
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-bcc-0cfd665b49d8
+  artifact_path: cases/github-commit-bcc-0cfd665b49d8
 - raw_id: github-commit-bcc-118bf168f9f6
   source_kind: github_commit
   path: raw/gh/github-commit-bcc-118bf168f9f6.yaml
@@ -439,9 +439,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-bcc-42c00adb4181.yaml
   url: https://github.com/iovisor/bcc/commit/42c00adb4181920d3e52f01e5020686ef470d6ce
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-bcc-42c00adb4181
+  artifact_path: cases/github-commit-bcc-42c00adb4181
 - raw_id: github-commit-bcc-45f5df4c5942
   source_kind: github_commit
   path: raw/gh/github-commit-bcc-45f5df4c5942.yaml
@@ -509,9 +509,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-bcc-80b1e778aa72.yaml
   url: https://github.com/iovisor/bcc/commit/80b1e778aa729e57b3ccebc97dcfebafbb1efb00
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-bcc-80b1e778aa72
+  artifact_path: cases/github-commit-bcc-80b1e778aa72
 - raw_id: github-commit-bcc-81a783a8f992
   source_kind: github_commit
   path: raw/gh/github-commit-bcc-81a783a8f992.yaml
@@ -551,9 +551,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-bcc-8cbc816aea77.yaml
   url: https://github.com/iovisor/bcc/commit/8cbc816aea77ee3e134e9efbff695cfc3ad43d1a
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-bcc-8cbc816aea77
+  artifact_path: cases/github-commit-bcc-8cbc816aea77
 - raw_id: github-commit-bcc-93fad89ca457
   source_kind: github_commit
   path: raw/gh/github-commit-bcc-93fad89ca457.yaml
@@ -1160,9 +1160,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-31a01b994f8b.yaml
   url: https://github.com/cilium/cilium/commit/31a01b994f8b0f4caa073b808d05e0851c5f64eb
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-31a01b994f8b
+  artifact_path: cases/github-commit-cilium-31a01b994f8b
 - raw_id: github-commit-cilium-321ec097bcf1
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-321ec097bcf1.yaml
@@ -1209,9 +1209,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-3740e9db8fef.yaml
   url: https://github.com/cilium/cilium/commit/3740e9db8fef9adc382f9dfecb5c404bda278afb
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-3740e9db8fef
+  artifact_path: cases/github-commit-cilium-3740e9db8fef
 - raw_id: github-commit-cilium-3801c14ef454
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-3801c14ef454.yaml
@@ -1314,9 +1314,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-3f356b0156d8.yaml
   url: https://github.com/cilium/cilium/commit/3f356b0156d86016695f97a0d8e747ca8f3f2ee0
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-3f356b0156d8
+  artifact_path: cases/github-commit-cilium-3f356b0156d8
 - raw_id: github-commit-cilium-405ac1549f53
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-405ac1549f53.yaml
@@ -1405,9 +1405,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-4853fb153410.yaml
   url: https://github.com/cilium/cilium/commit/4853fb153410219443d8985442759c1f0ec23d6a
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-4853fb153410
+  artifact_path: cases/github-commit-cilium-4853fb153410
 - raw_id: github-commit-cilium-4856e3829193
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-4856e3829193.yaml
@@ -1426,9 +1426,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-489da3e3f924.yaml
   url: https://github.com/cilium/cilium/commit/489da3e3f924e782c7fb73a21bc40226d3500898
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-489da3e3f924
+  artifact_path: cases/github-commit-cilium-489da3e3f924
 - raw_id: github-commit-cilium-4b8ad8fa6bd8
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-4b8ad8fa6bd8.yaml
@@ -1440,9 +1440,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-4bb6b56b5c22.yaml
   url: https://github.com/cilium/cilium/commit/4bb6b56b5c2276045efdfadae7452d6d85bf7e6f
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-4bb6b56b5c22
+  artifact_path: cases/github-commit-cilium-4bb6b56b5c22
 - raw_id: github-commit-cilium-4cba4f153b9b
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-4cba4f153b9b.yaml
@@ -1454,9 +1454,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-4d36cac2ee63.yaml
   url: https://github.com/cilium/cilium/commit/4d36cac2ee6328fe796674b9e72b4c36a7c0f70b
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-4d36cac2ee63
+  artifact_path: cases/github-commit-cilium-4d36cac2ee63
 - raw_id: github-commit-cilium-4dbbe2aa8c90
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-4dbbe2aa8c90.yaml
@@ -1468,9 +1468,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-4dc7d8047caf.yaml
   url: https://github.com/cilium/cilium/commit/4dc7d8047cafc9661ff07bc784a20da1e0f617e3
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-4dc7d8047caf
+  artifact_path: cases/github-commit-cilium-4dc7d8047caf
 - raw_id: github-commit-cilium-4dee1580a096
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-4dee1580a096.yaml
@@ -1503,16 +1503,16 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-50c319d0cbfe.yaml
   url: https://github.com/cilium/cilium/commit/50c319d0cbfe0ab7c5999c83f47025563948b170
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-50c319d0cbfe
+  artifact_path: cases/github-commit-cilium-50c319d0cbfe
 - raw_id: github-commit-cilium-514825596e44
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-514825596e44.yaml
   url: https://github.com/cilium/cilium/commit/514825596e446961c7d9bf4f52a0be253a8edf2a
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-514825596e44
+  artifact_path: cases/github-commit-cilium-514825596e44
 - raw_id: github-commit-cilium-515b99559972
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-515b99559972.yaml
@@ -1587,9 +1587,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-5a76cf2c5e96.yaml
   url: https://github.com/cilium/cilium/commit/5a76cf2c5e9648693ec15f59fc73847be3c5a1b6
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-5a76cf2c5e96
+  artifact_path: cases/github-commit-cilium-5a76cf2c5e96
 - raw_id: github-commit-cilium-5af1f5715e6d
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-5af1f5715e6d.yaml
@@ -1734,9 +1734,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-6b3c9f16c99f.yaml
   url: https://github.com/cilium/cilium/commit/6b3c9f16c99f7744ca5b294254b59b061059ff88
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-6b3c9f16c99f
+  artifact_path: cases/github-commit-cilium-6b3c9f16c99f
 - raw_id: github-commit-cilium-6bf5e4e65121
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-6bf5e4e65121.yaml
@@ -1783,9 +1783,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-71f8962acd55.yaml
   url: https://github.com/cilium/cilium/commit/71f8962acd5556fc7b2d0853be6ecb196d62ae06
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-71f8962acd55
+  artifact_path: cases/github-commit-cilium-71f8962acd55
 - raw_id: github-commit-cilium-724a101aed68
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-724a101aed68.yaml
@@ -1944,9 +1944,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-7e3115694f03.yaml
   url: https://github.com/cilium/cilium/commit/7e3115694f03aa24cd029baea25d9394ae3cc6ee
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-7e3115694f03
+  artifact_path: cases/github-commit-cilium-7e3115694f03
 - raw_id: github-commit-cilium-7e5035d565fb
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-7e5035d565fb.yaml
@@ -1972,9 +1972,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-7f2c0f69373b.yaml
   url: https://github.com/cilium/cilium/commit/7f2c0f69373bc4bf3cafb16b79e78178a127df1c
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-7f2c0f69373b
+  artifact_path: cases/github-commit-cilium-7f2c0f69373b
 - raw_id: github-commit-cilium-7fa2782adde0
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-7fa2782adde0.yaml
@@ -2021,16 +2021,16 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-847014aa62f9.yaml
   url: https://github.com/cilium/cilium/commit/847014aa62f94e5a53178670cad1eacea455b227
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-847014aa62f9
+  artifact_path: cases/github-commit-cilium-847014aa62f9
 - raw_id: github-commit-cilium-848d41d1909b
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-848d41d1909b.yaml
   url: https://github.com/cilium/cilium/commit/848d41d1909b4144be8ea8f0827f95693111ab28
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-848d41d1909b
+  artifact_path: cases/github-commit-cilium-848d41d1909b
 - raw_id: github-commit-cilium-854473726b50
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-854473726b50.yaml
@@ -2042,9 +2042,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-86c904761b39.yaml
   url: https://github.com/cilium/cilium/commit/86c904761b395508673524c9081341afe02b96ad
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-86c904761b39
+  artifact_path: cases/github-commit-cilium-86c904761b39
 - raw_id: github-commit-cilium-87855a957541
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-87855a957541.yaml
@@ -2063,9 +2063,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-892316d8df68.yaml
   url: https://github.com/cilium/cilium/commit/892316d8df689384d6eaf9b964e44027e6b251bb
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-892316d8df68
+  artifact_path: cases/github-commit-cilium-892316d8df68
 - raw_id: github-commit-cilium-8a2b370692cd
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-8a2b370692cd.yaml
@@ -2112,9 +2112,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-8eb389403823.yaml
   url: https://github.com/cilium/cilium/commit/8eb389403823188d809021653bb73f2c598b4def
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-8eb389403823
+  artifact_path: cases/github-commit-cilium-8eb389403823
 - raw_id: github-commit-cilium-8f9bab723dd5
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-8f9bab723dd5.yaml
@@ -2147,9 +2147,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-9100ffbef979.yaml
   url: https://github.com/cilium/cilium/commit/9100ffbef97968f8bf27edc1e489829a73129f99
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-9100ffbef979
+  artifact_path: cases/github-commit-cilium-9100ffbef979
 - raw_id: github-commit-cilium-911ccd86df5f
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-911ccd86df5f.yaml
@@ -2196,9 +2196,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-968227de9cc5.yaml
   url: https://github.com/cilium/cilium/commit/968227de9cc5c447d64fc266b14e55856ee60e4f
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-968227de9cc5
+  artifact_path: cases/github-commit-cilium-968227de9cc5
 - raw_id: github-commit-cilium-97283583e26c
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-97283583e26c.yaml
@@ -2231,9 +2231,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-99ac9998471f.yaml
   url: https://github.com/cilium/cilium/commit/99ac9998471f417e65dec91de60478f2e758d8e1
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-99ac9998471f
+  artifact_path: cases/github-commit-cilium-99ac9998471f
 - raw_id: github-commit-cilium-9b48866e7acd
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-9b48866e7acd.yaml
@@ -2539,9 +2539,9 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-bbf57970f552.yaml
   url: https://github.com/cilium/cilium/commit/bbf57970f552619604d5eb84bc2971404ab0f255
-  reproduction_status: needs_manual_reconstruction
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/github-commit-cilium-bbf57970f552
+  artifact_path: cases/github-commit-cilium-bbf57970f552
 - raw_id: github-commit-cilium-bc13b39af1c9
   source_kind: github_commit
   path: raw/gh/github-commit-cilium-bc13b39af1c9.yaml
@@ -4520,9 +4520,9 @@ entries:
   source_kind: stackoverflow
   path: raw/so/stackoverflow-68460177.yaml
   url: https://stackoverflow.com/questions/68460177/register-errors-when-trying-to-separate-strings-and-print-them-using-bcc
-  reproduction_status: candidate_for_replay
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/stackoverflow-68460177
+  artifact_path: cases/stackoverflow-68460177
 - raw_id: stackoverflow-68752893
   source_kind: stackoverflow
   path: raw/so/stackoverflow-68752893.yaml
@@ -4576,9 +4576,9 @@ entries:
   source_kind: stackoverflow
   path: raw/so/stackoverflow-70392721.yaml
   url: https://stackoverflow.com/questions/70392721/unable-to-load-ebpf-program-loading-stops-at-13-func-bpf-prog1-type-id-9-inval
-  reproduction_status: candidate_for_replay
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/stackoverflow-70392721
+  artifact_path: cases/stackoverflow-70392721
 - raw_id: stackoverflow-70402992
   source_kind: stackoverflow
   path: raw/so/stackoverflow-70402992.yaml
@@ -4884,9 +4884,9 @@ entries:
   source_kind: stackoverflow
   path: raw/so/stackoverflow-77191387.yaml
   url: https://stackoverflow.com/questions/77191387/invalid-argument-error-from-ebpf-program-when-when-loading-program-using-bpftool
-  reproduction_status: candidate_for_replay
-  case_path: null
-  artifact_path: null
+  reproduction_status: replay_valid
+  case_path: cases/stackoverflow-77191387
+  artifact_path: cases/stackoverflow-77191387
 - raw_id: stackoverflow-77205912
   source_kind: stackoverflow
   path: raw/so/stackoverflow-77205912.yaml

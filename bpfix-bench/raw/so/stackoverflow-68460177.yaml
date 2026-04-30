@@ -18,11 +18,11 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: candidate_for_replay
-  case_id: null
-  case_path: null
-  artifact_path: null
-  reason: bcc_script_and_verifier_reject_present
+  status: replay_valid
+  case_id: stackoverflow-68460177
+  case_path: cases/stackoverflow-68460177
+  artifact_path: cases/stackoverflow-68460177
+  reason: admitted_to_bpfix_bench_cases
 raw:
   case_id: stackoverflow-68460177
   source: stackoverflow

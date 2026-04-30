@@ -31,12 +31,13 @@ capture:
   verifier_log: replay-verifier.log
   capture_metadata: capture.yaml
   log_quality: trace_rich
-  terminal_error: 'arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
+  terminal_error: At program exit the register R0 has unknown scalar value should have been in [0, 0]
   rejected_insn_idx: 3
 external_match:
   status: not_applicable
   policy: kernel_selftest_expected_message
   matched_messages:
+  - At program exit the register R0 has unknown scalar value should have been in [0, 0]
   - 'arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
   notes: Kernel selftest case; no external report matching is required.
 label:
@@ -60,7 +61,7 @@ label:
 repair:
   eligible: false
 reporting:
-  family_id: 'arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
+  family_id: At program exit the register R0 has unknown scalar value should have been in [0, 0]
   representative: true
   intentional_negative_test: true
   notes: Kernel selftest replay-valid case.

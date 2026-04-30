@@ -82,6 +82,198 @@ cases:
   family_id: github-cilium-cilium-41522
   representative: true
   capture_id: github-cilium-cilium-41522__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-aya-628b473e0937
+  path: cases/github-commit-aya-628b473e0937
+  source_kind: github_commit
+  family_id: github-commit-aya-log-buffer-bounds
+  representative: true
+  capture_id: github-commit-aya-628b473e0937__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-aya-9be90f8a74de
+  path: cases/github-commit-aya-9be90f8a74de
+  source_kind: github_commit
+  family_id: github-commit-aya-log-buffer-bounds
+  representative: false
+  capture_id: github-commit-aya-9be90f8a74de__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-bcc-02daf8d84ecd
+  path: cases/github-commit-bcc-02daf8d84ecd
+  source_kind: github_commit
+  family_id: github-commit-bcc-02daf8d84ecd
+  representative: true
+  capture_id: github-commit-bcc-02daf8d84ecd__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-bcc-0ae562c8862f
+  path: cases/github-commit-bcc-0ae562c8862f
+  source_kind: github_commit
+  family_id: github-commit-bcc-0ae562c8862f
+  representative: true
+  capture_id: github-commit-bcc-0ae562c8862f__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-bcc-0cfd665b49d8
+  path: cases/github-commit-bcc-0cfd665b49d8
+  source_kind: github_commit
+  family_id: github-commit-bcc-0cfd665b49d8
+  representative: true
+  capture_id: github-commit-bcc-0cfd665b49d8__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-bcc-42c00adb4181
+  path: cases/github-commit-bcc-42c00adb4181
+  source_kind: github_commit
+  family_id: github-commit-bcc-42c00adb4181
+  representative: true
+  capture_id: github-commit-bcc-42c00adb4181__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-bcc-80b1e778aa72
+  path: cases/github-commit-bcc-80b1e778aa72
+  source_kind: github_commit
+  family_id: github-commit-bcc-80b1e778aa72
+  representative: true
+  capture_id: github-commit-bcc-80b1e778aa72__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-bcc-8cbc816aea77
+  path: cases/github-commit-bcc-8cbc816aea77
+  source_kind: github_commit
+  family_id: github-commit-bcc-8cbc816aea77
+  representative: true
+  capture_id: github-commit-bcc-8cbc816aea77__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-31a01b994f8b
+  path: cases/github-commit-cilium-31a01b994f8b
+  source_kind: github_commit
+  family_id: github-commit-cilium-31a01b994f8b
+  representative: true
+  capture_id: github-commit-cilium-31a01b994f8b__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-3740e9db8fef
+  path: cases/github-commit-cilium-3740e9db8fef
+  source_kind: github_commit
+  family_id: github-commit-cilium-3740e9db8fef
+  representative: true
+  capture_id: github-commit-cilium-3740e9db8fef__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-3f356b0156d8
+  path: cases/github-commit-cilium-3f356b0156d8
+  source_kind: github_commit
+  family_id: github-commit-cilium-3f356b0156d8
+  representative: true
+  capture_id: github-commit-cilium-3f356b0156d8__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-4853fb153410
+  path: cases/github-commit-cilium-4853fb153410
+  source_kind: github_commit
+  family_id: github-commit-cilium-4853fb153410
+  representative: true
+  capture_id: github-commit-cilium-4853fb153410__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-489da3e3f924
+  path: cases/github-commit-cilium-489da3e3f924
+  source_kind: github_commit
+  family_id: github-commit-cilium-489da3e3f924
+  representative: true
+  capture_id: github-commit-cilium-489da3e3f924__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-4bb6b56b5c22
+  path: cases/github-commit-cilium-4bb6b56b5c22
+  source_kind: github_commit
+  family_id: github-commit-cilium-4bb6b56b5c22
+  representative: true
+  capture_id: github-commit-cilium-4bb6b56b5c22__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-4d36cac2ee63
+  path: cases/github-commit-cilium-4d36cac2ee63
+  source_kind: github_commit
+  family_id: github-commit-cilium-4d36cac2ee63
+  representative: true
+  capture_id: github-commit-cilium-4d36cac2ee63__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-4dc7d8047caf
+  path: cases/github-commit-cilium-4dc7d8047caf
+  source_kind: github_commit
+  family_id: github-commit-cilium-4dc7d8047caf
+  representative: true
+  capture_id: github-commit-cilium-4dc7d8047caf__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-50c319d0cbfe
+  path: cases/github-commit-cilium-50c319d0cbfe
+  source_kind: github_commit
+  family_id: github-commit-cilium-50c319d0cbfe
+  representative: true
+  capture_id: github-commit-cilium-50c319d0cbfe__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-514825596e44
+  path: cases/github-commit-cilium-514825596e44
+  source_kind: github_commit
+  family_id: github-commit-cilium-514825596e44
+  representative: true
+  capture_id: github-commit-cilium-514825596e44__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-5a76cf2c5e96
+  path: cases/github-commit-cilium-5a76cf2c5e96
+  source_kind: github_commit
+  family_id: github-commit-cilium-5a76cf2c5e96
+  representative: true
+  capture_id: github-commit-cilium-5a76cf2c5e96__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-6b3c9f16c99f
+  path: cases/github-commit-cilium-6b3c9f16c99f
+  source_kind: github_commit
+  family_id: github-commit-cilium-6b3c9f16c99f
+  representative: true
+  capture_id: github-commit-cilium-6b3c9f16c99f__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-71f8962acd55
+  path: cases/github-commit-cilium-71f8962acd55
+  source_kind: github_commit
+  family_id: github-commit-cilium-71f8962acd55
+  representative: true
+  capture_id: github-commit-cilium-71f8962acd55__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-7e3115694f03
+  path: cases/github-commit-cilium-7e3115694f03
+  source_kind: github_commit
+  family_id: github-commit-cilium-7e3115694f03
+  representative: true
+  capture_id: github-commit-cilium-7e3115694f03__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-7f2c0f69373b
+  path: cases/github-commit-cilium-7f2c0f69373b
+  source_kind: github_commit
+  family_id: github-commit-cilium-7f2c0f69373b
+  representative: true
+  capture_id: github-commit-cilium-7f2c0f69373b__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-847014aa62f9
+  path: cases/github-commit-cilium-847014aa62f9
+  source_kind: github_commit
+  family_id: github-commit-cilium-847014aa62f9
+  representative: true
+  capture_id: github-commit-cilium-847014aa62f9__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-848d41d1909b
+  path: cases/github-commit-cilium-848d41d1909b
+  source_kind: github_commit
+  family_id: github-commit-cilium-848d41d1909b
+  representative: true
+  capture_id: github-commit-cilium-848d41d1909b__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-86c904761b39
+  path: cases/github-commit-cilium-86c904761b39
+  source_kind: github_commit
+  family_id: github-commit-cilium-86c904761b39
+  representative: true
+  capture_id: github-commit-cilium-86c904761b39__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-892316d8df68
+  path: cases/github-commit-cilium-892316d8df68
+  source_kind: github_commit
+  family_id: github-commit-cilium-892316d8df68
+  representative: true
+  capture_id: github-commit-cilium-892316d8df68__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-8eb389403823
+  path: cases/github-commit-cilium-8eb389403823
+  source_kind: github_commit
+  family_id: github-commit-cilium-8eb389403823
+  representative: true
+  capture_id: github-commit-cilium-8eb389403823__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-9100ffbef979
+  path: cases/github-commit-cilium-9100ffbef979
+  source_kind: github_commit
+  family_id: github-commit-cilium-9100ffbef979
+  representative: true
+  capture_id: github-commit-cilium-9100ffbef979__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-968227de9cc5
+  path: cases/github-commit-cilium-968227de9cc5
+  source_kind: github_commit
+  family_id: github-commit-cilium-968227de9cc5
+  representative: true
+  capture_id: github-commit-cilium-968227de9cc5__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-99ac9998471f
+  path: cases/github-commit-cilium-99ac9998471f
+  source_kind: github_commit
+  family_id: github-commit-cilium-99ac9998471f
+  representative: true
+  capture_id: github-commit-cilium-99ac9998471f__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-bbf57970f552
+  path: cases/github-commit-cilium-bbf57970f552
+  source_kind: github_commit
+  family_id: github-commit-cilium-bbf57970f552
+  representative: true
+  capture_id: github-commit-cilium-bbf57970f552__kernel-6.15.11-clang-18-log2
 - case_id: github-iovisor-bcc-10
   path: cases/github-iovisor-bcc-10
   source_kind: github_issue
@@ -460,7 +652,8 @@ cases:
 - case_id: kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586
   path: cases/kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586
   source_kind: kernel_selftest
-  family_id: 'arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
+  family_id: At program exit the register R0 has unknown scalar value should have
+    been in [0, 0]
   representative: true
   capture_id: kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586__kernel-6.15.11-clang-18-log2
 - case_id: kernel-selftest-exceptions-fail-reject-with-cb-reference-tc-c99ec1a7
@@ -712,6 +905,12 @@ cases:
   family_id: stackoverflow-67679109
   representative: true
   capture_id: stackoverflow-67679109__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-68460177
+  path: cases/stackoverflow-68460177
+  source_kind: stackoverflow
+  family_id: stackoverflow-68460177
+  representative: true
+  capture_id: stackoverflow-68460177__kernel-6.15.11-clang-18-log2
 - case_id: stackoverflow-68752893
   path: cases/stackoverflow-68752893
   source_kind: stackoverflow
@@ -736,6 +935,12 @@ cases:
   family_id: stackoverflow-70091221
   representative: true
   capture_id: stackoverflow-70091221__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-70392721
+  path: cases/stackoverflow-70392721
+  source_kind: stackoverflow
+  family_id: stackoverflow-70392721
+  representative: true
+  capture_id: stackoverflow-70392721__kernel-6.15.11-clang-18-log2
 - case_id: stackoverflow-70402992
   path: cases/stackoverflow-70402992
   source_kind: stackoverflow
@@ -958,6 +1163,12 @@ cases:
   family_id: stackoverflow-77174348
   representative: true
   capture_id: stackoverflow-77174348__kernel-6.15.11-clang-18-log2
+- case_id: stackoverflow-77191387
+  path: cases/stackoverflow-77191387
+  source_kind: stackoverflow
+  family_id: stackoverflow-77191387
+  representative: true
+  capture_id: stackoverflow-77191387__kernel-6.15.11-clang-18-log2
 - case_id: stackoverflow-77205912
   path: cases/stackoverflow-77205912
   source_kind: stackoverflow
@@ -1126,4 +1337,3 @@ cases:
   family_id: stackoverflow-79878809
   representative: true
   capture_id: stackoverflow-79878809__kernel-6.15.11-clang-18-log2
-
