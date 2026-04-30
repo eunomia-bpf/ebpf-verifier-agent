@@ -18,11 +18,15 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: 'This is verifier-shaped: the fix splits arg_num >= BPF_USDT_MAX_ARG_CNT
+    from arg_num >= spec->arg_cnt and inserts barrier_var(arg_num). A scratch old-pattern
+    tracepoint program on local x86_64 kernel 6.15 built and loaded; parse_verifier_log(/tmp/bpfix-23898-exp/load.err)
+    returned terminal_error=None, log_quality=no_terminal_error. Upstream patch text
+    identifies the reject as s390x-specific, so no local trace-rich reject was admitted.'
 raw:
   case_id: github-commit-libbpf-23898cf8583b
   source: github_commits

@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Fixes a NULL-pointer dereference in libbpf relocation bookkeeping around
+    find_prog_by_sec_insn(). The failure is user-space loader robustness, not kernel
+    verifier behavior.
 raw:
   case_id: github-commit-libbpf-3a3ef0c1d09e
   source: github_commits

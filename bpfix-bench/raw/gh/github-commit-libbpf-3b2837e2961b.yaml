@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Handles missing BPF_OBJ_GET_INFO_BY_FD gracefully in perf buffer setup.
+    This is syscall compatibility for map info lookup, not a BPF program verification
+    failure.
 raw:
   case_id: github-commit-libbpf-3b2837e2961b
   source: github_commits

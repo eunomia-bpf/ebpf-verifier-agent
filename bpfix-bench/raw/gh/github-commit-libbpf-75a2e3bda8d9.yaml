@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: 'Raw has_verifier_log=true, but the captured text ends with Error: object
+    file doesn''t contain any bpf program; parser result is log_quality=no_terminal_error,
+    terminal_error=None, rejected_insn_idx=None. The diff only adds NULL and KERNEL_VERSION
+    convenience macros in bpf_helpers.h.'
 raw:
   case_id: github-commit-libbpf-75a2e3bda8d9
   source: github_commits

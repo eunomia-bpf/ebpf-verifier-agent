@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Header change makes __kptr/__kptr_ref always emit btf_type_tag attributes.
+    A reproducer would need a BPF map/value type using these annotations; raw has
+    only macro definitions and no load log.
 raw:
   case_id: github-commit-libbpf-1f30788b417c
   source: github_commits

@@ -6,26 +6,26 @@ counts:
   gh:
     total: 622
     replay_valid: 64
-    replay_reject_no_rejected_insn: 3
-    missing_source: 3
-    attempted_accepted: 22
-    environment_required: 175
+    replay_reject_no_rejected_insn: 4
+    missing_source: 18
+    attempted_accepted: 23
+    environment_required: 180
     missing_verifier_log: 10
-    out_of_scope_non_verifier: 165
+    out_of_scope_non_verifier: 223
     not_reconstructable_from_diff: 44
-    needs_manual_reconstruction: 135
+    needs_manual_reconstruction: 55
     attempted_unknown: 1
   all:
     total: 736
     replay_valid: 150
-    replay_reject_no_rejected_insn: 3
-    missing_source: 7
-    attempted_accepted: 26
-    environment_required: 179
+    replay_reject_no_rejected_insn: 4
+    missing_source: 22
+    attempted_accepted: 27
+    environment_required: 184
     missing_verifier_log: 14
-    out_of_scope_non_verifier: 167
+    out_of_scope_non_verifier: 225
     not_reconstructable_from_diff: 44
-    needs_manual_reconstruction: 140
+    needs_manual_reconstruction: 60
     attempted_unknown: 2
     candidate_for_replay: 4
   so:
@@ -3411,560 +3411,560 @@ entries:
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-0e7520949e5a.yaml
   url: https://github.com/libbpf/libbpf/commit/0e7520949e5a9e92c10d8aacd5e2e0e7bcd87108
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-0ff6d28aecf2
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-0ff6d28aecf2.yaml
   url: https://github.com/libbpf/libbpf/commit/0ff6d28aecf2980407ccbb7b79727f3349f74510
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-112479afb736
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-112479afb736.yaml
   url: https://github.com/libbpf/libbpf/commit/112479afb736bd2768e74859cdb689aa502c8b3c
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-1770ac49cf2f
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-1770ac49cf2f.yaml
   url: https://github.com/libbpf/libbpf/commit/1770ac49cf2f722db64d992b2f201002b8c6cfc0
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-18922504c336
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-18922504c336.yaml
   url: https://github.com/libbpf/libbpf/commit/18922504c3366d5738322466a53c172c025097a0
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-1f30788b417c
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-1f30788b417c.yaml
   url: https://github.com/libbpf/libbpf/commit/1f30788b417cb2946b2f700038632d28fec17e04
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-2200fefd8741
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-2200fefd8741.yaml
   url: https://github.com/libbpf/libbpf/commit/2200fefd8741c057cf8e90a3c8aad3ea34b832f5
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: environment_required
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-23898cf8583b
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-23898cf8583b.yaml
   url: https://github.com/libbpf/libbpf/commit/23898cf8583b8f9a9aae01d5430ace5c421a6e19
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: attempted_accepted
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-240b8fa09860
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-240b8fa09860.yaml
   url: https://github.com/libbpf/libbpf/commit/240b8fa098604095332f4a88d1cc09cd2cf60e07
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-25eb5c4e02cc
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-25eb5c4e02cc.yaml
   url: https://github.com/libbpf/libbpf/commit/25eb5c4e02cc33e0ee636691d7ef52970667fcb4
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-294c85e9b3a4
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-294c85e9b3a4.yaml
   url: https://github.com/libbpf/libbpf/commit/294c85e9b3a46f0644f7feee365487054586b38c
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-29e229ef1426
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-29e229ef1426.yaml
   url: https://github.com/libbpf/libbpf/commit/29e229ef142695a75053578b1e6740805615bdeb
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: environment_required
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-2b940bcde10c
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-2b940bcde10c.yaml
   url: https://github.com/libbpf/libbpf/commit/2b940bcde10c460c4e09570a31143f88c80c8c20
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-2c5038dcf485
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-2c5038dcf485.yaml
   url: https://github.com/libbpf/libbpf/commit/2c5038dcf4851b7b9136a0504667c9f5bfd0fd19
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-2c6f445a8ea4
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-2c6f445a8ea4.yaml
   url: https://github.com/libbpf/libbpf/commit/2c6f445a8ea43686d20d08c2fc3c9f2d16ff0973
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-2cfeea135cd7
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-2cfeea135cd7.yaml
   url: https://github.com/libbpf/libbpf/commit/2cfeea135cd73f02a89754b3bc1aeded9a221d75
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-2d042d22a73c
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-2d042d22a73c.yaml
   url: https://github.com/libbpf/libbpf/commit/2d042d22a73c71bd970d8c34ee65ed19caadeea1
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-2d5df9f626bf
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-2d5df9f626bf.yaml
   url: https://github.com/libbpf/libbpf/commit/2d5df9f626bff591454defa5996166e453c0d516
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-2f52e2afc068
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-2f52e2afc068.yaml
   url: https://github.com/libbpf/libbpf/commit/2f52e2afc068b801880021334a41f16a18fa4bc2
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-30c61391bf06
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-30c61391bf06.yaml
   url: https://github.com/libbpf/libbpf/commit/30c61391bf065e71796b09d9250ccf19ba7802eb
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-3319982d34dd
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-3319982d34dd.yaml
   url: https://github.com/libbpf/libbpf/commit/3319982d34ddc51a2807ccc92445d9a9d9089dcf
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-33b22671c2cd
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-33b22671c2cd.yaml
   url: https://github.com/libbpf/libbpf/commit/33b22671c2cd92ef2656004cf8d0ac9e250e9663
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-36cc591ac8a7
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-36cc591ac8a7.yaml
   url: https://github.com/libbpf/libbpf/commit/36cc591ac8a7b390249c4f3afcef21b8c9c6c76f
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-39cf9fc90f36
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-39cf9fc90f36.yaml
   url: https://github.com/libbpf/libbpf/commit/39cf9fc90f3665808ef337e6ca35e8097a53a107
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-3a3ef0c1d09e
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-3a3ef0c1d09e.yaml
   url: https://github.com/libbpf/libbpf/commit/3a3ef0c1d09e1894740db71cdcb7be0bfd713671
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-3b19b1bb5599
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-3b19b1bb5599.yaml
   url: https://github.com/libbpf/libbpf/commit/3b19b1bb559963a1fc9010e5895211c47c4ff4ae
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-3b2837e2961b
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-3b2837e2961b.yaml
   url: https://github.com/libbpf/libbpf/commit/3b2837e2961b3b57af566f0945928b42bebb4945
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-3b301cf75d12
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-3b301cf75d12.yaml
   url: https://github.com/libbpf/libbpf/commit/3b301cf75d120da2e00a7555f895c776260da550
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-3b80b6c77e5c
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-3b80b6c77e5c.yaml
   url: https://github.com/libbpf/libbpf/commit/3b80b6c77e5cdc7b5d3fd67503111041f88f42eb
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-3cd45b660ce2
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-3cd45b660ce2.yaml
   url: https://github.com/libbpf/libbpf/commit/3cd45b660ce26f3b6f80a6eac6f9fab7fb56bcb4
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-3d81b13b364e
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-3d81b13b364e.yaml
   url: https://github.com/libbpf/libbpf/commit/3d81b13b364edd42b058132374ec332d1b791457
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-3db758537866
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-3db758537866.yaml
   url: https://github.com/libbpf/libbpf/commit/3db758537866ea2848387ec0aeb95964946e911d
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-41c612167e2b
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-41c612167e2b.yaml
   url: https://github.com/libbpf/libbpf/commit/41c612167e2b644e22e1accb14bbf6c139823ad3
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-429aaef6a3d4
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-429aaef6a3d4.yaml
   url: https://github.com/libbpf/libbpf/commit/429aaef6a3d40d31b038b069218719a02d781759
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: replay_reject_no_rejected_insn
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-444f3c0e7a0f
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-444f3c0e7a0f.yaml
   url: https://github.com/libbpf/libbpf/commit/444f3c0e7a0fbfeeac4b3809a184c6640ce10306
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-471e7c241d30
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-471e7c241d30.yaml
   url: https://github.com/libbpf/libbpf/commit/471e7c241d30df733e51e75be39040c8da175e42
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-49058f8c6f37
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-49058f8c6f37.yaml
   url: https://github.com/libbpf/libbpf/commit/49058f8c6f37ebad69a6004183a0d2bffc015e87
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-4dc3aeb072ef
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-4dc3aeb072ef.yaml
   url: https://github.com/libbpf/libbpf/commit/4dc3aeb072ef00e9d1bd86611cda8326d4f685f5
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-4ec5e360ae01
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-4ec5e360ae01.yaml
   url: https://github.com/libbpf/libbpf/commit/4ec5e360ae01e8be78e63d7b7e3111e242ba2d21
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-509ef92905f0
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-509ef92905f0.yaml
   url: https://github.com/libbpf/libbpf/commit/509ef92905f0838fed29b9a17eae6ac5888705b7
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-50d1b8e6b45b
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-50d1b8e6b45b.yaml
   url: https://github.com/libbpf/libbpf/commit/50d1b8e6b45b2ea00c8710c9a259581bb19051ed
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-5579664205e4
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-5579664205e4.yaml
   url: https://github.com/libbpf/libbpf/commit/5579664205e42194e1921d69d0839f660c801a4d
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-58b164237a44
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-58b164237a44.yaml
   url: https://github.com/libbpf/libbpf/commit/58b164237a4493a808d72f4ecefda6ee1b337a84
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-5a8c675d0a3b
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-5a8c675d0a3b.yaml
   url: https://github.com/libbpf/libbpf/commit/5a8c675d0a3be4106e269e727824055134d6e0b7
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-5b6dfd7f6b90
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-5b6dfd7f6b90.yaml
   url: https://github.com/libbpf/libbpf/commit/5b6dfd7f6b90e8a3842ade8af35e514d92756c0a
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-5c31bcf220f6
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-5c31bcf220f6.yaml
   url: https://github.com/libbpf/libbpf/commit/5c31bcf220f66e70f39fd141f5b0c55c6ab65e8e
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: environment_required
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-5fe9c1217a63
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-5fe9c1217a63.yaml
   url: https://github.com/libbpf/libbpf/commit/5fe9c1217a63203e1dc886c29f30a0a6647b972f
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-6028cec50c55
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-6028cec50c55.yaml
   url: https://github.com/libbpf/libbpf/commit/6028cec50c55b3226d66f938909666135c66f34b
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-60ce9af668b3
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-60ce9af668b3.yaml
   url: https://github.com/libbpf/libbpf/commit/60ce9af668b3a9d7124e0294735d26f72f76aecd
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-6215836a089f
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-6215836a089f.yaml
   url: https://github.com/libbpf/libbpf/commit/6215836a089f9517071ef7a0ea0c431735e28893
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-691c22dc0c29
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-691c22dc0c29.yaml
   url: https://github.com/libbpf/libbpf/commit/691c22dc0c29b5e55b705f2fc3a64c4f2e24e7b9
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-6a41f02ad405
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-6a41f02ad405.yaml
   url: https://github.com/libbpf/libbpf/commit/6a41f02ad4050c4a32966368de281e63c4d14af3
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-6bec18258cd7
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-6bec18258cd7.yaml
   url: https://github.com/libbpf/libbpf/commit/6bec18258cd7f27aee92825ca84cc72531b3b753
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-6d0fcc3bd534
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-6d0fcc3bd534.yaml
   url: https://github.com/libbpf/libbpf/commit/6d0fcc3bd53430a8f6e8e5e66427d675f4eee55a
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-6d704c7ffd5d
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-6d704c7ffd5d.yaml
   url: https://github.com/libbpf/libbpf/commit/6d704c7ffd5defb0ec655a687cc9fe0952164c2f
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-6d7acdae6de8
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-6d7acdae6de8.yaml
   url: https://github.com/libbpf/libbpf/commit/6d7acdae6de882197ad220b065b7fc0886a5dc25
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-6fdbfb00f1f8
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-6fdbfb00f1f8.yaml
   url: https://github.com/libbpf/libbpf/commit/6fdbfb00f1f86eb6f273093bff80fb2557fe9787
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-6ff506248078
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-6ff506248078.yaml
   url: https://github.com/libbpf/libbpf/commit/6ff506248078cb773e1e48bba6fee78fa928cb85
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-72ef206260db
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-72ef206260db.yaml
   url: https://github.com/libbpf/libbpf/commit/72ef206260dbd22da8f042202c32b9e7c8b0d2bd
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-732d6c011fad
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-732d6c011fad.yaml
   url: https://github.com/libbpf/libbpf/commit/732d6c011fad4fbeceb6c1a169b5f0ec4212ad67
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-732f5982826c
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-732f5982826c.yaml
   url: https://github.com/libbpf/libbpf/commit/732f5982826ca3320f7f7699642fbd9731f82d9e
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-741277511035
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-741277511035.yaml
   url: https://github.com/libbpf/libbpf/commit/741277511035893c72a34df05da3b943afa747a4
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-75a2e3bda8d9
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-75a2e3bda8d9.yaml
   url: https://github.com/libbpf/libbpf/commit/75a2e3bda8d9d60926154ea1ddc096047982d621
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-7cfc3659953c
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-7cfc3659953c.yaml
   url: https://github.com/libbpf/libbpf/commit/7cfc3659953cae15b0292e279e570d597685c1b5
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-7db9ce5fdad1
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-7db9ce5fdad1.yaml
   url: https://github.com/libbpf/libbpf/commit/7db9ce5fdad16580fb03ee66c081ca4bbe0e7a19
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-8404d1396c0b
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-8404d1396c0b.yaml
   url: https://github.com/libbpf/libbpf/commit/8404d1396c0b239cb245819b42aa12daf38c9216
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-855bf91055a6
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-855bf91055a6.yaml
   url: https://github.com/libbpf/libbpf/commit/855bf91055a6250642dff1390231387cc5540711
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-896a3ae0d0f3
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-896a3ae0d0f3.yaml
   url: https://github.com/libbpf/libbpf/commit/896a3ae0d0f33c2152a3cb828e9d99b6746e3123
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-8ac9773f52ae
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-8ac9773f52ae.yaml
   url: https://github.com/libbpf/libbpf/commit/8ac9773f52aefdbb9c5dbdf59f29195b46443adf
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-8fd8b5bb4641
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-8fd8b5bb4641.yaml
   url: https://github.com/libbpf/libbpf/commit/8fd8b5bb46413f0ec378fc8dcd332e6a21dc7741
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-939ab641b89b
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-939ab641b89b.yaml
   url: https://github.com/libbpf/libbpf/commit/939ab641b89bf9831cea1c17afb81793f4527427
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: environment_required
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-93c109c9ee23
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-93c109c9ee23.yaml
   url: https://github.com/libbpf/libbpf/commit/93c109c9ee23085996d436541afc6c5e36fcd44d
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-969018545d49
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-969018545d49.yaml
   url: https://github.com/libbpf/libbpf/commit/969018545d4971cdef8f652435a8d1929003c9c7
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-989d7189cdcf
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-989d7189cdcf.yaml
   url: https://github.com/libbpf/libbpf/commit/989d7189cdcf43480c7d1f15a13ad13333e0877d
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: missing_source
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-9b91dce6913e
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-9b91dce6913e.yaml
   url: https://github.com/libbpf/libbpf/commit/9b91dce6913e2837738089b3716a0667208da30e
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-9d2f8aaf21a9
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-9d2f8aaf21a9.yaml
   url: https://github.com/libbpf/libbpf/commit/9d2f8aaf21a9ce998502410d4a9e207b7e72c97d
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-9ff2b7669370
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-9ff2b7669370.yaml
   url: https://github.com/libbpf/libbpf/commit/9ff2b76693703e02c364c63dce5580458cb2ee5f
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-a00b10df8c89
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-a00b10df8c89.yaml
   url: https://github.com/libbpf/libbpf/commit/a00b10df8c893a4b1825950f88e0098c1de3e178
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: environment_required
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-a0ad81d9c464
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-a0ad81d9c464.yaml
   url: https://github.com/libbpf/libbpf/commit/a0ad81d9c46436553d6ad03d2838ecfab0b8ce31
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-a20b60f97135
   source_kind: github_commit
   path: raw/gh/github-commit-libbpf-a20b60f97135.yaml
   url: https://github.com/libbpf/libbpf/commit/a20b60f9713527d46ba03a33c8886646e3c83ee6
-  reproduction_status: needs_manual_reconstruction
+  reproduction_status: out_of_scope_non_verifier
   case_path: null
   artifact_path: null
 - raw_id: github-commit-libbpf-a22abb9c8570

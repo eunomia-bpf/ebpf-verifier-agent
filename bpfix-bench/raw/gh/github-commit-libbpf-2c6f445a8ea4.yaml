@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Adds btf_dump_type_values(d, "'\\0'") before terminating array dump output.
+    This is BTF dump formatting, not a verifier load failure.
 raw:
   case_id: github-commit-libbpf-2c6f445a8ea4
   source: github_commits

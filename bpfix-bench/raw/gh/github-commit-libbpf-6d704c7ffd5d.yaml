@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw diff supports triple-underscore flavor names for kfunc/ksym relocation
+    via bpf_core_essential_name_len() and essent_name. Reproduction would require
+    a BPF object using the flavored extern; none is present, and no verifier log is
+    captured.
 raw:
   case_id: github-commit-libbpf-6d704c7ffd5d
   source: github_commits

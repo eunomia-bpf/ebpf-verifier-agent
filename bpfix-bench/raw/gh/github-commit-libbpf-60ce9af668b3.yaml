@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw diff changes BTF dedup equivalence for duplicated compiler-emitted structs.
+    The affected code is user-space BTF deduplication, with no BPF source/object or
+    verifier rejection.
 raw:
   case_id: github-commit-libbpf-60ce9af668b3
   source: github_commits

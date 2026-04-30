@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Adds names to libbpf auxiliary maps used by feature probes. The embedded
+    probes are capability checks and map-name compatibility changes, not a captured
+    verifier-reject benchmark.
 raw:
   case_id: github-commit-libbpf-3db758537866
   source: github_commits

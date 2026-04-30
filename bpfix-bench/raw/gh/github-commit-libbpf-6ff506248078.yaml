@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw diff relaxes libbpf's bpf_object__is_btf_mandatory() check by excluding
+    .BTF maps. It is BTF-load policy in the user-space loader, not verifier instruction
+    rejection.
 raw:
   case_id: github-commit-libbpf-6ff506248078
   source: github_commits

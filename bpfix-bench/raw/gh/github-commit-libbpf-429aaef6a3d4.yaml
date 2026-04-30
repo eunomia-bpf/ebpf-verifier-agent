@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: replay_reject_no_rejected_insn
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: A temp reconstruction of the raw probe_ldimm64_full_range_off() instruction
+    sequence rejected locally with direct value offset of 1073741824 is not allowed,
+    but the log reported processed 0 insns and parser output was log_quality=message_only,
+    rejected_insn_idx=None.
 raw:
   case_id: github-commit-libbpf-429aaef6a3d4
   source: github_commits

@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Auto-detects BTF IDs for BTF-based raw tracepoints through libbpf load/section
+    metadata paths. The snippets are loader API changes and contain no verifier rejection
+    evidence.
 raw:
   case_id: github-commit-libbpf-39cf9fc90f36
   source: github_commits

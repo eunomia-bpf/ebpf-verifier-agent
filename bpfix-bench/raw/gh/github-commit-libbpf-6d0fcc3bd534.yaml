@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw diff adds typed ksym metadata, vmlinux BTF lookup, and extern relocation
+    support. A replay would need the BPF object declaring the typed ksym and the target
+    BTF environment; the raw record contains only libbpf implementation snippets and
+    no verifier log.
 raw:
   case_id: github-commit-libbpf-6d0fcc3bd534
   source: github_commits

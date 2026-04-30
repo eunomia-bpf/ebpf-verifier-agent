@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Moves btf_ext_parse_hdr() after copying data to aligned storage and changes
+    btf_ext__new() input to const. This is user-space BTF extension parsing/alignment,
+    not verifier replay material.
 raw:
   case_id: github-commit-libbpf-25eb5c4e02cc
   source: github_commits

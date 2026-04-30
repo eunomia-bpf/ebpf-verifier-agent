@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Replaces packed-struct unaligned big-endian helpers in src/libbpf_utils.c
+    with memcpy(). This is user-space undefined-behavior cleanup in SHA/libbpf utilities,
+    not BPF verifier behavior.
 raw:
   case_id: github-commit-libbpf-2b940bcde10c
   source: github_commits

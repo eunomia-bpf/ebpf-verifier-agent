@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Changes libbpf to call memfd_create() directly. The touched find_elf_var_sym()/memfd
+    path is user-space compatibility code and has no verifier log.
 raw:
   case_id: github-commit-libbpf-3b19b1bb5599
   source: github_commits

@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Changes libbpf/BTF log-buffer allocation and retry behavior (log_buf_size
+    = 0, retry on ENOSPC). It affects diagnostics and memory allocation around load
+    failures, not a verifier-rejected BPF program.
 raw:
   case_id: github-commit-libbpf-240b8fa09860
   source: github_commits

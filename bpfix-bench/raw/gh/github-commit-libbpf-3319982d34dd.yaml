@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw diff adds __hidden and libbpf BTF FUNC linkage rewriting so hidden global/weak
+    subprograms are verified like static functions. It contains only libbpf/header
+    implementation snippets and no triggering BPF source/object or verifier log.
 raw:
   case_id: github-commit-libbpf-3319982d34dd
   source: github_commits

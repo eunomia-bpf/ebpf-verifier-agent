@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Commit subject is a -Wmaybe-uninitialized false-positive workaround in src/elf.c.
+    The raw evidence is compiler-warning control flow, not a verifier-load reject.
 raw:
   case_id: github-commit-libbpf-33b22671c2cd
   source: github_commits

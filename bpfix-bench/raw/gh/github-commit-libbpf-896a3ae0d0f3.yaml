@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw has_verifier_log=false. The diff changes bpf_prog_load() log-buffer
+    handling for log_level == 0; it affects diagnostic/log plumbing and includes no
+    rejected BPF program or captured verifier error.
 raw:
   case_id: github-commit-libbpf-896a3ae0d0f3
   source: github_commits

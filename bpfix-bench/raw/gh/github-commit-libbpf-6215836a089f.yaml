@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Raw diff validates xsk_socket__create() flags and rejects unknown libbpf_flags.
+    This is AF_XDP socket API input validation, not verifier behavior.
 raw:
   case_id: github-commit-libbpf-6215836a089f
   source: github_commits
