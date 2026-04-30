@@ -1,0 +1,67 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-de679382fe1e
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/de679382fe1ed0b325c4d3cc76ab88af6752fac1
+  title: 'ICMPv6: Fix verifier error when loading on l2-less devices'
+  repository: https://github.com/cilium/cilium
+  commit: de679382fe1ed0b325c4d3cc76ab88af6752fac1
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-de679382fe1e.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-de679382fe1e
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: de679382fe1ed0b325c4d3cc76ab88af6752fac1
+  commit_message: 'ICMPv6: Fix verifier error when loading on l2-less devices'
+  commit_date: '2025-09-09'
+  fix_type: bounds_check
+  buggy_code: "// FILE: bpf/lib/icmp6.h\n// CONTEXT: icmp6_host_handle(struct __ctx_buff\
+    \ *ctx, int l4_off, __s8 *ext_err, bool handle\n}\n\nstatic __always_inline\n\
+    bool icmp6_ndisc_validate(struct __ctx_buff *ctx, const struct ipv6hdr *ip6,\n\
+    \                          const union macaddr *iface_mac, union v6addr *tip)\n\
+    {\n        __u8 nexthdr = ip6->nexthdr;\n        struct icmp6hdr *icmp;\n    \
+    \    int l4_off = ipv6_hdrlen(ctx, &nexthdr);\n        struct ethhdr *eth = ctx_data(ctx);\n\
+    \        union macaddr *dmac;\n\n        if ((void *)eth + ETH_HLEN > ctx_data_end(ctx))\n\
+    \                return false;\n\n        dmac = (union macaddr *)&eth->h_dest;\n\
+    \n        if (l4_off < 0 || nexthdr != NEXTHDR_ICMP)\n                return false;\n\
+    \n        icmp = (struct icmp6hdr *)((__u8 *)ip6 + l4_off);\n        if ((void\
+    \ *)icmp + sizeof(*icmp) + sizeof(*tip) > ctx_data_end(ctx))\n               \
+    \ return false;"
+  fixed_code: "// FILE: bpf/lib/icmp6.h\n// CONTEXT: icmp6_host_handle(struct __ctx_buff\
+    \ *ctx, int l4_off, __s8 *ext_err, bool handle\n}\n\nstatic __always_inline\n\
+    bool icmp6_ndisc_validate(struct __ctx_buff *ctx, const struct ipv6hdr *ip6,\n\
+    \                          const union macaddr *iface_mac, union v6addr *tip)\n\
+    {\n        __u8 nexthdr = ip6->nexthdr;\n        struct icmp6hdr *icmp;\n    \
+    \    int l4_off = ipv6_hdrlen(ctx, &nexthdr);\n        struct ethhdr *eth = ctx_data(ctx);\n\
+    \        union macaddr *dmac;\n\n        /* On l2-less devices there is no MAC\
+    \ address, and we cannot proceed */\n        if (sizeof(struct ethhdr) != ETH_HLEN)\n\
+    \                return false;\n\n        if ((void *)eth + ETH_HLEN > ctx_data_end(ctx))\n\
+    \                return false;\n\n        dmac = (union macaddr *)&eth->h_dest;\n\
+    \n        if (l4_off < 0 || nexthdr != NEXTHDR_ICMP)\n                return false;\n\
+    \n        icmp = (struct icmp6hdr *)((__u8 *)ip6 + l4_off);\n        if ((void\
+    \ *)icmp + sizeof(*icmp) + sizeof(*tip) > ctx_data_end(ctx))\n               \
+    \ return false;"
+  diff_summary: 'bpf/lib/icmp6.h:
+
+    - Added an explicit `sizeof(struct ethhdr) != ETH_HLEN` guard before dereferencing
+    Ethernet headers.
+
+    - Prevented verifier rejection on L3-only devices where the old code assumed an
+    L2 header always existed.'
+

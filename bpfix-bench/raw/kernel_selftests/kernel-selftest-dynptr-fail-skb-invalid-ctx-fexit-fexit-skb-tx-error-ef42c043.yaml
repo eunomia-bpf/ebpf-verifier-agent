@@ -1,0 +1,42 @@
+case_id: kernel-selftest-dynptr-fail-skb-invalid-ctx-fexit-fexit-skb-tx-error-ef42c043
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: fexit/skb_tx_error
+  function: skb_invalid_ctx_fexit
+  description: skb_invalid_ctx_fexit
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - must be referenced or trusted
+  unprivileged: []
+  combined:
+  - must be referenced or trusted
+verifier_log: |
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (79) r1 = *(u64 *)(r1 +0)
+    1: .1........ (bf) r3 = r10
+    2: .1.3...... (07) r3 += -16
+    3: .1.3...... (b7) r2 = 0
+    4: .123...... (85) call bpf_dynptr_from_skb#71549
+    5: .......... (b4) w0 = 0
+    6: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int BPF_PROG(skb_invalid_ctx_fexit, void *skb) @ dynptr_fail.c:1272
+  0: (79) r1 = *(u64 *)(r1 +0)
+  func 'skb_tx_error' arg0 has btf_id 925 type STRUCT 'sk_buff'
+  1: R1_w=ptr_sk_buff()
+  1: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+  ;  @ dynptr_fail.c:0
+  2: (07) r3 += -16                     ; R3_w=fp-16
+  ; bpf_dynptr_from_skb(skb, 0, &ptr); @ dynptr_fail.c:1277
+  3: (b7) r2 = 0                        ; R2_w=0
+  4: (85) call bpf_dynptr_from_skb#71549
+  R1 must be referenced or trusted
+  processed 5 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"fexit/skb_tx_error\")\n__failure __msg(\"must be referenced or trusted\")\nint BPF_PROG(skb_invalid_ctx_fexit, void *skb)\n{\n\tstruct bpf_dynptr ptr;\n\n\t/* this should fail */\n\tbpf_dynptr_from_skb(skb, 0, &ptr);\n\n\treturn 0;\n}\n\n/* Reject writes to dynptr slot for uninit arg */"

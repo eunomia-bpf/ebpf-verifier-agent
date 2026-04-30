@@ -1,0 +1,19 @@
+case_id: kernel-selftest-dynptr-fail-dynptr-fail-tc-db029308
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?tc
+  function: ''
+  description: dynptr_fail
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - R{{[0-9]+}} cannot write into rdonly_mem
+  unprivileged: []
+  combined:
+  - R{{[0-9]+}} cannot write into rdonly_mem
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"R{{[0-9]+}} cannot write into rdonly_mem\")\nint skb_meta_invalid_slice_write(struct __sk_buff *skb)\n{\n\tstruct bpf_dynptr meta;\n\t__u8 *md;\n\n\tbpf_dynptr_from_skb_meta(skb, 0, &meta);\n\n\tmd = bpf_dynptr_slice(&meta, 0, NULL, sizeof(*md));\n\tif (!md)\n\t\treturn SK_DROP;\n\n\t/* this should fail */\n\t*md = 42;\n\n\treturn SK_PASS;\n}\n\n/* The read-only data slice is invalidated whenever a helper changes packet data */"

@@ -1,0 +1,189 @@
+case_id: kernel-selftest-irq-irq-restore-missing-3-subprog-tc-8592c5d7
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/irq.c
+  section: ?tc
+  function: irq_restore_missing_3_subprog
+  description: irq_restore_missing_3_subprog
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region
+  unprivileged: []
+  combined:
+  - BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region
+original_verifier_log: |
+  func#0 @0
+  func#1 @11
+  Live regs before insn:
+    0: ..2345.... (bf) r1 = r10
+    1: .12345.... (07) r1 += -8
+    2: .12345.... (85) call pc+8
+    3: ..2345.... (bf) r1 = r10
+    4: .12345.... (07) r1 += -16
+    5: .12345.... (85) call pc+5
+    6: ..2345.... (bf) r1 = r10
+    7: .12345.... (07) r1 += -24
+    8: .12345.... (85) call pc+2
+    9: .......... (b4) w0 = 0
+   10: 0......... (95) exit
+   11: .1........ (85) call bpf_local_irq_save#72094
+   12: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int irq_restore_missing_3_subprog(struct __sk_buff *ctx) @ irq.c:109
+  0: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+  ; local_irq_save(&flags1); @ irq.c:115
+  1: (07) r1 += -8                      ; R1_w=fp-8
+  2: (85) call pc+8
+  caller:
+   R10=fp0
+  callee:
+   frame1: R1_w=fp[0]-8 R10=fp0
+  11: frame1: R1_w=fp[0]-8 R10=fp0
+  ; bpf_local_irq_save(flags); @ irq.c:77
+  11: (85) call bpf_local_irq_save#72094        ; frame1: refs=1
+  ; } @ irq.c:78
+  12: (95) exit
+  returning from callee:
+   frame1: R10=fp0 refs=1
+  to caller at 3:
+   R10=fp0 fp-8_w=ffffffff refs=1
+
+  from 12 to 3: R10=fp0 fp-8_w=ffffffff refs=1
+  ; local_irq_save(&flags1); @ irq.c:115
+  3: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=1
+  4: (07) r1 += -16                     ; R1=fp-16 refs=1
+  ; local_irq_save(&flags2); @ irq.c:116
+  5: (85) call pc+5
+  caller:
+   R10=fp0 fp-8=ffffffff refs=1
+  callee:
+   frame1: R1=fp[0]-16 R10=fp0 refs=1
+  11: frame1: R1=fp[0]-16 R10=fp0 refs=1
+  ; bpf_local_irq_save(flags); @ irq.c:77
+  11: (85) call bpf_local_irq_save#72094        ; frame1: refs=1,2
+  ; } @ irq.c:78
+  12: (95) exit
+  returning from callee:
+   frame1: R10=fp0 refs=1,2
+  to caller at 6:
+   R10=fp0 fp-8=ffffffff fp-16_w=ffffffff refs=1,2
+
+  from 12 to 6: R10=fp0 fp-8=ffffffff fp-16_w=ffffffff refs=1,2
+  ; local_irq_save(&flags2); @ irq.c:116
+  6: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=1,2
+  ; local_irq_save(&flags1); @ irq.c:115
+  7: (07) r1 += -24                     ; R1_w=fp-24 refs=1,2
+  ; local_irq_save(&flags3); @ irq.c:117
+  8: (85) call pc+2
+  caller:
+   R10=fp0 fp-8=ffffffff fp-16_w=ffffffff refs=1,2
+  callee:
+   frame1: R1_w=fp[0]-24 R10=fp0 refs=1,2
+  11: frame1: R1_w=fp[0]-24 R10=fp0 refs=1,2
+  ; bpf_local_irq_save(flags); @ irq.c:77
+  11: (85) call bpf_local_irq_save#72094        ; frame1: refs=1,2,3
+  ; } @ irq.c:78
+  12: (95) exit
+  returning from callee:
+   frame1: R10=fp0 refs=1,2,3
+  to caller at 9:
+   R10=fp0 fp-8=ffffffff fp-16_w=ffffffff fp-24_w=ffffffff refs=1,2,3
+
+  from 12 to 9: R10=fp0 fp-8=ffffffff fp-16=ffffffff fp-24=ffffffff refs=1,2,3
+  ; return 0; @ irq.c:118
+  9: (b4) w0 = 0                        ; R0_w=0 refs=1,2,3
+  10: (95) exit
+  BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region
+  processed 17 insns (limit 1000000) max_states_per_insn 1 total_states 2 peak_states 2 mark_read 1
+verifier_log: |-
+  func#0 @0
+  func#1 @11
+  Live regs before insn:
+    0: ..2345.... (bf) r1 = r10
+    1: .12345.... (07) r1 += -8
+    2: .12345.... (85) call pc+8
+    3: ..2345.... (bf) r1 = r10
+    4: .12345.... (07) r1 += -16
+    5: .12345.... (85) call pc+5
+    6: ..2345.... (bf) r1 = r10
+    7: .12345.... (07) r1 += -24
+    8: .12345.... (85) call pc+2
+    9: .......... (b4) w0 = 0
+   10: 0......... (95) exit
+   11: .1........ (85) call bpf_local_irq_save#72094
+   12: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int irq_restore_missing_3_subprog(struct __sk_buff *ctx) @ prog.c:27
+  0: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+  ; local_irq_save(&flags1); @ prog.c:33
+  1: (07) r1 += -8                      ; R1_w=fp-8
+  2: (85) call pc+8
+  caller:
+   R10=fp0
+  callee:
+   frame1: R1_w=fp[0]-8 R10=fp0
+  11: frame1: R1_w=fp[0]-8 R10=fp0
+  ; bpf_local_irq_save(flags); @ prog.c:22
+  11: (85) call bpf_local_irq_save#72094        ; frame1: refs=1
+  ; } @ prog.c:23
+  12: (95) exit
+  returning from callee:
+   frame1: R10=fp0 refs=1
+  to caller at 3:
+   R10=fp0 fp-8_w=ffffffff refs=1
+
+  from 12 to 3: R10=fp0 fp-8_w=ffffffff refs=1
+  ; local_irq_save(&flags1); @ prog.c:33
+  3: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=1
+  4: (07) r1 += -16                     ; R1=fp-16 refs=1
+  ; local_irq_save(&flags2); @ prog.c:34
+  5: (85) call pc+5
+  caller:
+   R10=fp0 fp-8=ffffffff refs=1
+  callee:
+   frame1: R1=fp[0]-16 R10=fp0 refs=1
+  11: frame1: R1=fp[0]-16 R10=fp0 refs=1
+  ; bpf_local_irq_save(flags); @ prog.c:22
+  11: (85) call bpf_local_irq_save#72094        ; frame1: refs=1,2
+  ; } @ prog.c:23
+  12: (95) exit
+  returning from callee:
+   frame1: R10=fp0 refs=1,2
+  to caller at 6:
+   R10=fp0 fp-8=ffffffff fp-16_w=ffffffff refs=1,2
+
+  from 12 to 6: R10=fp0 fp-8=ffffffff fp-16_w=ffffffff refs=1,2
+  ; local_irq_save(&flags2); @ prog.c:34
+  6: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=1,2
+  ; local_irq_save(&flags1); @ prog.c:33
+  7: (07) r1 += -24                     ; R1_w=fp-24 refs=1,2
+  ; local_irq_save(&flags3); @ prog.c:35
+  8: (85) call pc+2
+  caller:
+   R10=fp0 fp-8=ffffffff fp-16_w=ffffffff refs=1,2
+  callee:
+   frame1: R1_w=fp[0]-24 R10=fp0 refs=1,2
+  11: frame1: R1_w=fp[0]-24 R10=fp0 refs=1,2
+  ; bpf_local_irq_save(flags); @ prog.c:22
+  11: (85) call bpf_local_irq_save#72094        ; frame1: refs=1,2,3
+  ; } @ prog.c:23
+  12: (95) exit
+  returning from callee:
+   frame1: R10=fp0 refs=1,2,3
+  to caller at 9:
+   R10=fp0 fp-8=ffffffff fp-16_w=ffffffff fp-24_w=ffffffff refs=1,2,3
+
+  from 12 to 9: R10=fp0 fp-8=ffffffff fp-16=ffffffff fp-24=ffffffff refs=1,2,3
+  ; return 0; @ prog.c:36
+  9: (b4) w0 = 0                        ; R0_w=0 refs=1,2,3
+  10: (95) exit
+  BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region
+  processed 17 insns (limit 1000000) max_states_per_insn 1 total_states 2 peak_states 2 mark_read 1
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/irq.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region\")\nint irq_restore_missing_3_subprog(struct __sk_buff *ctx)\n{\n\tunsigned long flags1;\n\tunsigned long flags2;\n\tunsigned long flags3;\n\n\tlocal_irq_save(&flags1);\n\tlocal_irq_save(&flags2);\n\tlocal_irq_save(&flags3);\n\treturn 0;\n}"

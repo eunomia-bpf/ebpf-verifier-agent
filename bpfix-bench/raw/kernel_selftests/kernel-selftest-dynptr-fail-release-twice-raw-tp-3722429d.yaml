@@ -1,0 +1,99 @@
+case_id: kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: release_twice
+  description: release_twice
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - arg 1 is an unacquired reference
+  unprivileged: []
+  combined:
+  - arg 1 is an unacquired reference
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r6 = r10
+    1: ......6... (07) r6 += -16
+    2: ......6... (18) r1 = 0xffff8d47745cc600
+    4: .1....6... (b4) w2 = 16
+    5: .12...6... (b7) r3 = 0
+    6: .123..6... (bf) r4 = r6
+    7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+    8: ......6... (bf) r1 = r6
+    9: .1....6... (b7) r2 = 0
+   10: .12...6... (85) call bpf_ringbuf_discard_dynptr#200
+   11: ......6... (bf) r1 = r6
+   12: .1........ (b7) r2 = 0
+   13: .12....... (85) call bpf_ringbuf_discard_dynptr#200
+   14: .......... (b4) w0 = 0
+   15: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int release_twice(void *ctx) @ dynptr_fail.c:634
+  0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 16, 0, &ptr); @ dynptr_fail.c:638
+  1: (07) r6 += -16                     ; R6_w=fp-16
+  2: (18) r1 = 0xffff8d47745cc600       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 16                       ; R2_w=16
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16
+  7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  ; bpf_ringbuf_discard_dynptr(&ptr, 0); @ dynptr_fail.c:640
+  8: (bf) r1 = r6                       ; R1_w=fp-16 R6_w=fp-16 refs=2
+  9: (b7) r2 = 0                        ; R2_w=0 refs=2
+  10: (85) call bpf_ringbuf_discard_dynptr#200          ;
+  ; bpf_ringbuf_discard_dynptr(&ptr, 0); @ dynptr_fail.c:643
+  11: (bf) r1 = r6                      ; R1_w=fp-16 R6=fp-16
+  12: (b7) r2 = 0                       ; R2_w=0
+  13: (85) call bpf_ringbuf_discard_dynptr#200
+  arg 1 is an unacquired reference
+  processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r6 = r10
+    1: ......6... (07) r6 += -16
+    2: ......6... (18) r1 = 0xffff8f01640e0700
+    4: .1....6... (b4) w2 = 16
+    5: .12...6... (b7) r3 = 0
+    6: .123..6... (bf) r4 = r6
+    7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+    8: ......6... (bf) r1 = r6
+    9: .1....6... (b7) r2 = 0
+   10: .12...6... (85) call bpf_ringbuf_discard_dynptr#200
+   11: ......6... (bf) r1 = r6
+   12: .1........ (b7) r2 = 0
+   13: .12....... (85) call bpf_ringbuf_discard_dynptr#200
+   14: .......... (b4) w0 = 0
+   15: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int release_twice(void *ctx) @ prog.c:78
+  0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 16, 0, &ptr); @ prog.c:82
+  1: (07) r6 += -16                     ; R6_w=fp-16
+  2: (18) r1 = 0xffff8f01640e0700       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 16                       ; R2_w=16
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16
+  7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  ; bpf_ringbuf_discard_dynptr(&ptr, 0); @ prog.c:84
+  8: (bf) r1 = r6                       ; R1_w=fp-16 R6_w=fp-16 refs=2
+  9: (b7) r2 = 0                        ; R2_w=0 refs=2
+  10: (85) call bpf_ringbuf_discard_dynptr#200          ;
+  ; bpf_ringbuf_discard_dynptr(&ptr, 0); @ prog.c:87
+  11: (bf) r1 = r6                      ; R1_w=fp-16 R6=fp-16
+  12: (b7) r2 = 0                       ; R2_w=0
+  13: (85) call bpf_ringbuf_discard_dynptr#200
+  arg 1 is an unacquired reference
+  processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"arg 1 is an unacquired reference\")\nint release_twice(void *ctx)\n{\n\tstruct bpf_dynptr ptr;\n\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, 16, 0, &ptr);\n\n\tbpf_ringbuf_discard_dynptr(&ptr, 0);\n\n\t/* this second release should fail */\n\tbpf_ringbuf_discard_dynptr(&ptr, 0);\n\n\treturn 0;\n}\n\nstatic int release_twice_callback_fn(__u32 index, void *data)\n{\n\t/* this should fail */\n\tbpf_ringbuf_discard_dynptr(data, 0);\n\n\treturn 0;\n}\n\n/* Test that releasing a dynptr twice, where one of the releases happens\n * within a callback function, fails\n */"

@@ -1,0 +1,348 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-katran-918c0e169773
+source_kind: github_commit
+source:
+  url: https://github.com/facebookincubator/katran/commit/918c0e169773b812d7beef70c9e93b10503b8c57
+  title: rework inline decapsulation (#62)
+  repository: https://github.com/facebookincubator/katran
+  commit: 918c0e169773b812d7beef70c9e93b10503b8c57
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-katran-918c0e169773.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: attempted_unknown
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: verification_status_unclear
+  verifier_status: null
+  captured_error: null
+  verifier_error_match: null
+raw:
+  case_id: eval-katran-918c0e169773
+  source: eval_commits
+  repository: https://github.com/facebookincubator/katran
+  commit_hash: 918c0e169773b812d7beef70c9e93b10503b8c57
+  commit_message: rework inline decapsulation (#62)
+  commit_date: '2019-12-01'
+  fix_type: inline_hint
+  buggy_code: "// FILE: katran/lib/bpf/balancer_consts.h\n#ifndef MAX_LPM_SRC\n#define\
+    \ MAX_LPM_SRC 3000000\n#endif\n\n#ifndef MAX_DECAP_DST\n#define MAX_DECAP_DST\
+    \ 6\n#endif\n\n// use 16 bits in quic's connection id to store real's index\n\
+    #define MAX_QUIC_REALS 65535 // 2^16-1\n\n#define CTL_MAP_SIZE 16\n#define CH_RINGS_SIZE\
+    \ (MAX_VIPS * RING_SIZE)\n#define STATS_MAP_SIZE (MAX_VIPS * 2)\n\n// for LRU's\
+    \ map in map we will support up to this number of cpus\n#ifndef MAX_SUPPORTED_CPUS\n\
+    #define MAX_SUPPORTED_CPUS 128\n#endif\n\n// default lru is a fallback lru, which\
+    \ will be used when forwarding cpu/core\n// cannot find per core lru in lrus map-in-map.\n\
+    // we should only have a hit in this default lru while running unittests.\n//\
+    \ thats why by default the value of this lru is this small\n\n// FILE: katran/lib/bpf/balancer_helpers.h\n\
+    \ *\n * You should have received a copy of the GNU General Public License along\n\
+    \ * with this program; if not, write to the Free Software Foundation, Inc.,\n\
+    \ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.\n */\n\n#ifndef\
+    \ __BALANCER_HELPERS\n#define __BALANCER_HELPERS\n/*\n * This file contains common\
+    \ used routines. such as csum helpers etc\n */\n\n#include <linux/ipv6.h>\n\n\
+    #include \"balancer_consts.h\"\n#include \"balancer_structs.h\"\n#include \"balancer_maps.h\"\
+    \n#include \"bpf.h\"\n#include \"bpf_helpers.h\"\n\n#define bpf_printk(fmt, ...)\
+    \                                    \\\n({                                  \
+    \                            \\\n               char ____fmt[] = fmt;        \
+    \                    \\\n               bpf_trace_printk(____fmt, sizeof(____fmt),\
+    \       \\\n\n// CONTEXT: static inline void submit_event(struct xdp_md *ctx,\
+    \ void *map,\n  if (!gk || gk->value == 0) {\n    return;\n  }\n  struct event_metadata\
+    \ md = {};\n  __u64 flags = BPF_F_CURRENT_CPU;\n  md.event = event_id;\n  md.pkt_size\
+    \ = size;\n  md.data_len = min_helper(size, MAX_EVENT_SIZE);\n  flags |= (__u64)\
+    \ md.data_len << 32;\n  bpf_perf_event_output(ctx, map, flags, &md, sizeof(struct\
+    \ event_metadata));\n}\n\n#endif\n\n// FILE: katran/lib/bpf/balancer_kern.c\n\
+    /*\n * Copyright 2004-present Facebook. All Rights Reserved.\n * This is main\
+    \ balancer's application code\n */\n\n#include <linux/in.h>\n#include <linux/ip.h>\n\
+    #include <linux/ipv6.h>\n#include <stddef.h>\n#include <stdbool.h>\n\n#include\
+    \ \"balancer_consts.h\"\n#include \"balancer_structs.h\"\n#include \"balancer_maps.h\"\
+    \n#include \"bpf.h\"\n#include \"bpf_helpers.h\"\n#include \"jhash.h\"\n#include\
+    \ \"pckt_encap.h\"\n#include \"pckt_parsing.h\"\n#include \"handle_icmp.h\"\n\n\
+    \n__attribute__((__always_inline__))\nstatic inline __u32 get_packet_hash(struct\
+    \ packet_description *pckt,\n\n// CONTEXT: static inline bool is_under_flood(__u64\
+    \ *cur_time) {\n__attribute__((__always_inline__))\nstatic inline bool get_packet_dst(struct\
+    \ real_definition **real,\n                                  struct packet_description\
+    \ *pckt,\n                                  struct vip_meta *vip_info,\n     \
+    \                             bool is_ipv6,\n                                \
+    \  void *lru_map) {\n\n  // to update lru w/ new connection\n  struct real_pos_lru\
+    \ new_dst_lru = {};\n  bool under_flood = false;\n  bool src_found = false;\n\
+    \  __u32 *real_pos;\n  __u64 cur_time;\n  __u32 hash;\n  __u32 key;\n\n  under_flood\
+    \ = is_under_flood(&cur_time);\n\n  #ifdef LPM_SRC_LOOKUP\n  if ((vip_info->flags\
+    \ & F_SRC_ROUTING) && !(pckt->flags & F_INLINE_DECAP) &&\n      !under_flood)\
+    \ {\n    __u32 *lpm_val;\n    if (is_ipv6) {\n      struct v6_lpm_key lpm_key_v6\
+    \ = {};\n      lpm_key_v6.prefixlen = 128;\n      memcpy(lpm_key_v6.addr, pckt->flow.srcv6,\
+    \ 16);\n      lpm_val = bpf_map_lookup_elem(&lpm_src_v6, &lpm_key_v6);\n    }\
+    \ else {\n      struct v4_lpm_key lpm_key_v4 = {};\n      lpm_key_v4.addr = pckt->flow.src;\n\
+    \      lpm_key_v4.prefixlen = 32;\n      lpm_val = bpf_map_lookup_elem(&lpm_src_v4,\
+    \ &lpm_key_v4);\n    }\n\n// CONTEXT: static inline void connection_table_lookup(struct\
+    \ real_definition **real,\n    dst_lru->atime = cur_time;\n  }\n  key = dst_lru->pos;\n\
+    \  pckt->real_index = key;\n  *real = bpf_map_lookup_elem(&reals, &key);\n  return;\n\
+    }\n\n__attribute__((__always_inline__))\nstatic inline int process_l3_headers(struct\
+    \ packet_description *pckt,\n                                     __u8 *protocol,\
+    \ __u64 off,\n                                     __u16 *pkt_bytes, void *data,\n\
+    \                                     void *data_end, bool is_ipv6,\n        \
+    \                             bool decrement_ttl) {\n  __u64 iph_len;\n  int action;\n\
+    \  struct iphdr *iph;\n  struct ipv6hdr *ip6h;\n  if (is_ipv6) {\n    ip6h = data\
+    \ + off;\n    if (ip6h + 1 > data_end) {\n      return XDP_DROP;\n    }\n\n  \
+    \  iph_len = sizeof(struct ipv6hdr);\n    *protocol = ip6h->nexthdr;\n    pckt->flow.proto\
+    \ = *protocol;\n    if (decrement_ttl) {\n      if(!--ip6h->hop_limit) {\n   \
+    \     // ttl 0\n        return XDP_DROP;\n      }\n    }\n\n    // copy tos from\
+    \ the packet\n    pckt->tos = (ip6h->priority << 4) & 0xF0;\n    pckt->tos = pckt->tos\
+    \ | ((ip6h->flow_lbl[0] >> 4) & 0x0F);\n\n    *pkt_bytes = bpf_ntohs(ip6h->payload_len);\n\
+    \    off += iph_len;\n    if (*protocol == IPPROTO_FRAGMENT) {\n      // we drop\
+    \ fragmented packets\n      return XDP_DROP;\n    } else if (*protocol == IPPROTO_ICMPV6)\
+    \ {\n      action = parse_icmpv6(data, data_end, off, pckt);\n\n// CONTEXT: static\
+    \ inline int process_l3_headers(struct packet_description *pckt,\n    }\n  } else\
+    \ {\n    iph = data + off;\n    if (iph + 1 > data_end) {\n      return XDP_DROP;\n\
+    \    }\n    //ihl contains len of ipv4 header in 32bit words\n    if (iph->ihl\
+    \ != 5) {\n      // if len of ipv4 hdr is not equal to 20bytes that means that\
+    \ header\n      // contains ip options, and we dont support em\n      return XDP_DROP;\n\
+    \    }\n\n    if (decrement_ttl) {\n      u32 csum;\n      if (!--iph->ttl) {\n\
+    \        // ttl 0\n        return XDP_DROP;\n      }\n      csum = iph->check\
+    \ + 0x0001;\n      iph->check = (csum & 0xffff) + (csum >> 16);\n    }\n    pckt->tos\
+    \ = iph->tos;\n\n    *protocol = iph->protocol;\n    pckt->flow.proto = *protocol;\n\
+    \    *pkt_bytes = bpf_ntohs(iph->tot_len);\n    off += IPV4_HDR_LEN_NO_OPT;\n\n\
+    \    if (iph->frag_off & PCKT_FRAGMENTED) {\n      // we drop fragmented packets.\n\
+    \      return XDP_DROP;\n    }\n    if (*protocol == IPPROTO_ICMP) {\n      action\
+    \ = parse_icmp(data, data_end, off, pckt);\n      if (action >= 0) {\n       \
+    \ return action;\n      }\n    } else {\n      pckt->flow.src = iph->saddr;\n\
+    \      pckt->flow.dst = iph->daddr;\n    }\n  }\n  return FURTHER_PROCESSING;\n\
+    }\n\n__attribute__((__always_inline__))\nstatic inline int process_encaped_pckt(void\
+    \ **data, void **data_end,\n                                       struct xdp_md\
+    \ *xdp, bool *is_ipv6,\n                                       struct packet_description\
+    \ *pckt,\n                                       __u8 *protocol, __u64 off,\n\
+    \                                       __u16 *pkt_bytes, bool decrement_ttl)\
+    \ {\n  int action;\n  if (*protocol == IPPROTO_IPIP) {\n    if (*is_ipv6) {\n\
+    \      if ((*data + sizeof(struct ipv6hdr) +\n           sizeof(struct eth_hdr))\
+    \ > *data_end) {\n        return XDP_DROP;\n      }\n      if (!decap_v6(xdp,\
+    \ data, data_end, true)) {\n        return XDP_DROP;\n      }\n      *is_ipv6\
+    \ = false;\n    } else {\n      if ((*data + sizeof(struct iphdr) +\n        \
+    \   sizeof(struct eth_hdr)) > *data_end) {\n        return XDP_DROP;\n      }\n\
+    \      if (!decap_v4(xdp, data, data_end)) {\n        return XDP_DROP;\n     \
+    \ }\n    }\n    off = sizeof(struct eth_hdr);\n    if (*data + off > *data_end)\
+    \ {\n      return XDP_DROP;\n    }\n    action = process_l3_headers(\n      pckt,\
+    \ protocol, off, pkt_bytes, *data, *data_end, false, decrement_ttl);\n    if (action\
+    \ >= 0) {\n      return action;\n    }\n    *protocol = pckt->flow.proto;\n  }\
+    \ else if (*protocol == IPPROTO_IPV6) {\n    if ((*data + sizeof(struct ipv6hdr)\
+    \ +\n         sizeof(struct eth_hdr)) > *data_end) {\n      return XDP_DROP;\n\
+    \    }\n    if (!decap_v6(xdp, data, data_end, false)) {\n      return XDP_DROP;\n\
+    \    }\n    off = sizeof(struct eth_hdr);\n    if (*data + off > *data_end) {\n\
+    \      return XDP_DROP;\n    }\n    action = process_l3_headers(\n      pckt,\
+    \ protocol, off, pkt_bytes, *data, *data_end, true, decrement_ttl);\n    if (action\
+    \ >= 0) {\n      return action;\n    }\n    *protocol = pckt->flow.proto;\n  }\n\
+    \  return FURTHER_PROCESSING;\n}\n\n__attribute__((__always_inline__))\nstatic\
+    \ inline int process_packet(void *data, __u64 off, void *data_end,\n         \
+    \                        bool is_ipv6, struct xdp_md *xdp) {\n\n  struct ctl_value\
+    \ *cval;\n  struct real_definition *dst = NULL;\n  struct packet_description pckt\
+    \ = {};\n  struct vip_definition vip = {};\n  struct vip_meta *vip_info;\n  struct\
+    \ lb_stats *data_stats;\n  __u64 iph_len;\n  __u8 protocol;\n\n  int action;\n\
+    \  __u32 vip_num;\n  __u32 mac_addr_pos = 0;\n  __u16 pkt_bytes;\n  action = process_l3_headers(\n\
+    \    &pckt, &protocol, off, &pkt_bytes, data, data_end, is_ipv6, false);\n  if\
+    \ (action >= 0) {\n    return action;\n  }\n  protocol = pckt.flow.proto;\n\n\
+    \  #ifdef INLINE_DECAP\n  if (protocol == IPPROTO_IPIP || protocol == IPPROTO_IPV6)\
+    \ {\n    struct address dst_addr = {};\n    if (is_ipv6) {\n      memcpy(dst_addr.addrv6,\
+    \ pckt.flow.dstv6, 16);\n    } else {\n      dst_addr.addr = pckt.flow.dst;\n\
+    \    }\n    __u32 *decap_dst_flags = bpf_map_lookup_elem(&decap_dst, &dst_addr);\n\
+    \n    action = process_encaped_pckt(&data, &data_end, xdp, &is_ipv6, &pckt,\n\
+    \                                  &protocol, off, &pkt_bytes, decap_dst_flags);\n\
+    \    if (action >= 0) {\n      return action;\n    }\n\n    if (decap_dst_flags)\
+    \ {\n      __u32 stats_key = MAX_VIPS + REMOTE_ENCAP_CNTRS;\n      data_stats\
+    \ = bpf_map_lookup_elem(&stats, &stats_key);\n      if (!data_stats) {\n     \
+    \   return XDP_DROP;\n      }\n      data_stats->v1 += 1;\n      pckt.flags |=\
+    \ F_INLINE_DECAP;\n    } else {\n      // it's ipip encapsulated packet but not\
+    \ to decap dst. so just pass\n      // decapsulated packet to the kernel\n   \
+    \   return XDP_PASS;\n    }\n  }\n  #endif\n\n  if (protocol == IPPROTO_TCP) {\n\
+    \    if (!parse_tcp(data, data_end, is_ipv6, &pckt)) {\n      return XDP_DROP;\n\
+    \    }\n  } else if (protocol == IPPROTO_UDP) {\n    if (!parse_udp(data, data_end,\
+    \ is_ipv6, &pckt)) {\n      return XDP_DROP;\n    }\n  } else {\n    // send to\
+    \ tcp/ip stack\n    return XDP_PASS;\n\n// FILE: katran/lib/bpf/balancer_maps.h\n\
+    // CONTEXT: BPF_ANNOTATE_KV_PAIR(lpm_src_v6, struct v6_lpm_key, __u32);\n\n#endif\n\
+    #ifdef INLINE_DECAP\nstruct bpf_map_def SEC(\"maps\") decap_dst = {\n  .type =\
+    \ BPF_MAP_TYPE_HASH,\n  .key_size = sizeof(struct address),\n  .value_size = sizeof(__u32),\n\
+    \  .max_entries = MAX_VIPS,\n  .map_flags = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(decap_dst,\
+    \ struct address, __u32);\n\n#endif\n\n#ifdef KATRAN_INTROSPECTION\n\nstruct bpf_map_def\
+    \ SEC(\"maps\") event_pipe = {\n  .type = BPF_MAP_TYPE_PERF_EVENT_ARRAY,\n  .key_size\
+    \ = sizeof(int),\n  .value_size = sizeof(__u32),\n  .max_entries = MAX_SUPPORTED_CPUS,\n\
+    \  .map_flags = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(event_pipe, int, __u32);"
+  fixed_code: "// FILE: katran/lib/bpf/balancer_consts.h\n#ifndef MAX_LPM_SRC\n#define\
+    \ MAX_LPM_SRC 3000000\n#endif\n\n#ifndef MAX_DECAP_DST\n#define MAX_DECAP_DST\
+    \ 6\n#endif\n\n// use 16 bits in quic's connection id to store real's index\n\
+    #define MAX_QUIC_REALS 65535 // 2^16-1\n\n#define CTL_MAP_SIZE 16\n\n// size of\
+    \ internal prog array\n#define SUBPROGRAMS_ARRAY_SIZE 1\n// position where katran\
+    \ would register itself in prog array\n// for recirculation\n#define RECIRCULATION_INDEX\
+    \ 0\n\n#define CH_RINGS_SIZE (MAX_VIPS * RING_SIZE)\n#define STATS_MAP_SIZE (MAX_VIPS\
+    \ * 2)\n\n// for LRU's map in map we will support up to this number of cpus\n\
+    #ifndef MAX_SUPPORTED_CPUS\n#define MAX_SUPPORTED_CPUS 128\n#endif\n\n// default\
+    \ lru is a fallback lru, which will be used when forwarding cpu/core\n// cannot\
+    \ find per core lru in lrus map-in-map.\n// we should only have a hit in this\
+    \ default lru while running unittests.\n// thats why by default the value of this\
+    \ lru is this small\n\n// FILE: katran/lib/bpf/balancer_helpers.h\n *\n * You\
+    \ should have received a copy of the GNU General Public License along\n * with\
+    \ this program; if not, write to the Free Software Foundation, Inc.,\n * 51 Franklin\
+    \ Street, Fifth Floor, Boston, MA 02110-1301 USA.\n */\n\n#ifndef __BALANCER_HELPERS\n\
+    #define __BALANCER_HELPERS\n/*\n * This file contains common used routines. such\
+    \ as csum helpers etc\n */\n\n#include <linux/in.h>\n#include <linux/ip.h>\n#include\
+    \ <linux/ipv6.h>\n\n#include \"balancer_consts.h\"\n#include \"balancer_structs.h\"\
+    \n#include \"balancer_maps.h\"\n#include \"bpf.h\"\n#include \"bpf_helpers.h\"\
+    \n\n#define bpf_printk(fmt, ...)                                    \\\n({   \
+    \                                                           \\\n             \
+    \  char ____fmt[] = fmt;                            \\\n               bpf_trace_printk(____fmt,\
+    \ sizeof(____fmt),       \\\n\n// CONTEXT: static inline void submit_event(struct\
+    \ xdp_md *ctx, void *map,\n  if (!gk || gk->value == 0) {\n    return;\n  }\n\
+    \  struct event_metadata md = {};\n  __u64 flags = BPF_F_CURRENT_CPU;\n  md.event\
+    \ = event_id;\n  md.pkt_size = size;\n  md.data_len = min_helper(size, MAX_EVENT_SIZE);\n\
+    \  flags |= (__u64) md.data_len << 32;\n  bpf_perf_event_output(ctx, map, flags,\
+    \ &md, sizeof(struct event_metadata));\n}\n\n#ifdef INLINE_DECAP\n__attribute__((__always_inline__))\n\
+    static inline int recirculate(struct xdp_md *ctx) {\n  int i = RECIRCULATION_INDEX;\n\
+    \  bpf_tail_call(ctx, &katran_subprograms, i);\n  // we should never hit this\n\
+    \  return XDP_PASS;\n}\n#endif // INLINE_DECAP\n\n__attribute__((__always_inline__))\n\
+    static inline int decrement_ttl(void *data, void *data_end, int offset, bool is_ipv6)\
+    \ {\n  struct iphdr *iph;\n  struct ipv6hdr *ip6h;\n\n  if (is_ipv6) {\n    if\
+    \ ((data + offset + sizeof(struct ipv6hdr)) > data_end) {\n      return XDP_DROP;\n\
+    \    }\n    ip6h = (struct ipv6hdr*)(data + offset);\n    if(!--ip6h->hop_limit)\
+    \ {\n      // ttl 0\n      return XDP_DROP;\n    }\n  } else {\n    if ((data\
+    \ + offset + sizeof(struct iphdr)) > data_end) {\n      return XDP_DROP;\n   \
+    \ }\n    iph = (struct iphdr*)(data + offset);\n    __u32 csum;\n    if (!--iph->ttl)\
+    \ {\n      // ttl 0\n      return XDP_DROP;\n    }\n    csum = iph->check + 0x0001;\n\
+    \    iph->check = (csum & 0xffff) + (csum >> 16);\n  }\n  return FURTHER_PROCESSING;\n\
+    }\n\n#endif\n\n// FILE: katran/lib/bpf/balancer_kern.c\n/*\n * Copyright 2004-present\
+    \ Facebook. All Rights Reserved.\n * This is main balancer's application code\n\
+    \ */\n\n#include <linux/in.h>\n#include <linux/ip.h>\n#include <linux/ipv6.h>\n\
+    #include <stddef.h>\n#include <stdbool.h>\n\n#include \"balancer_consts.h\"\n\
+    #include \"balancer_helpers.h\"\n#include \"balancer_structs.h\"\n#include \"\
+    balancer_maps.h\"\n#include \"bpf.h\"\n#include \"bpf_helpers.h\"\n#include \"\
+    jhash.h\"\n#include \"pckt_encap.h\"\n#include \"pckt_parsing.h\"\n#include \"\
+    handle_icmp.h\"\n\n\n__attribute__((__always_inline__))\nstatic inline __u32 get_packet_hash(struct\
+    \ packet_description *pckt,\n\n// CONTEXT: static inline bool is_under_flood(__u64\
+    \ *cur_time) {\n__attribute__((__always_inline__))\nstatic inline bool get_packet_dst(struct\
+    \ real_definition **real,\n                                  struct packet_description\
+    \ *pckt,\n                                  struct vip_meta *vip_info,\n     \
+    \                             bool is_ipv6,\n                                \
+    \  void *lru_map) {\n\n  // to update lru w/ new connection\n  struct real_pos_lru\
+    \ new_dst_lru = {};\n  bool under_flood = false;\n  bool src_found = false;\n\
+    \  __u32 *real_pos;\n  __u64 cur_time = 0;\n  __u32 hash;\n  __u32 key;\n\n  under_flood\
+    \ = is_under_flood(&cur_time);\n\n  #ifdef LPM_SRC_LOOKUP\n  if ((vip_info->flags\
+    \ & F_SRC_ROUTING) && !under_flood) {\n    __u32 *lpm_val;\n    if (is_ipv6) {\n\
+    \      struct v6_lpm_key lpm_key_v6 = {};\n      lpm_key_v6.prefixlen = 128;\n\
+    \      memcpy(lpm_key_v6.addr, pckt->flow.srcv6, 16);\n      lpm_val = bpf_map_lookup_elem(&lpm_src_v6,\
+    \ &lpm_key_v6);\n    } else {\n      struct v4_lpm_key lpm_key_v4 = {};\n    \
+    \  lpm_key_v4.addr = pckt->flow.src;\n      lpm_key_v4.prefixlen = 32;\n     \
+    \ lpm_val = bpf_map_lookup_elem(&lpm_src_v4, &lpm_key_v4);\n    }\n\n// CONTEXT:\
+    \ static inline void connection_table_lookup(struct real_definition **real,\n\
+    \    dst_lru->atime = cur_time;\n  }\n  key = dst_lru->pos;\n  pckt->real_index\
+    \ = key;\n  *real = bpf_map_lookup_elem(&reals, &key);\n  return;\n}\n\n__attribute__((__always_inline__))\n\
+    static inline int process_l3_headers(struct packet_description *pckt,\n      \
+    \                               __u8 *protocol, __u64 off,\n                 \
+    \                    __u16 *pkt_bytes, void *data,\n                         \
+    \            void *data_end, bool is_ipv6) {\n  __u64 iph_len;\n  int action;\n\
+    \  struct iphdr *iph;\n  struct ipv6hdr *ip6h;\n  if (is_ipv6) {\n    ip6h = data\
+    \ + off;\n    if (ip6h + 1 > data_end) {\n      return XDP_DROP;\n    }\n\n  \
+    \  iph_len = sizeof(struct ipv6hdr);\n    *protocol = ip6h->nexthdr;\n    pckt->flow.proto\
+    \ = *protocol;\n\n    // copy tos from the packet\n    pckt->tos = (ip6h->priority\
+    \ << 4) & 0xF0;\n    pckt->tos = pckt->tos | ((ip6h->flow_lbl[0] >> 4) & 0x0F);\n\
+    \n    *pkt_bytes = bpf_ntohs(ip6h->payload_len);\n    off += iph_len;\n    if\
+    \ (*protocol == IPPROTO_FRAGMENT) {\n      // we drop fragmented packets\n   \
+    \   return XDP_DROP;\n    } else if (*protocol == IPPROTO_ICMPV6) {\n      action\
+    \ = parse_icmpv6(data, data_end, off, pckt);\n\n// CONTEXT: static inline int\
+    \ process_l3_headers(struct packet_description *pckt,\n    }\n  } else {\n   \
+    \ iph = data + off;\n    if (iph + 1 > data_end) {\n      return XDP_DROP;\n \
+    \   }\n    //ihl contains len of ipv4 header in 32bit words\n    if (iph->ihl\
+    \ != 5) {\n      // if len of ipv4 hdr is not equal to 20bytes that means that\
+    \ header\n      // contains ip options, and we dont support em\n      return XDP_DROP;\n\
+    \    }\n    pckt->tos = iph->tos;\n    *protocol = iph->protocol;\n    pckt->flow.proto\
+    \ = *protocol;\n    *pkt_bytes = bpf_ntohs(iph->tot_len);\n    off += IPV4_HDR_LEN_NO_OPT;\n\
+    \n    if (iph->frag_off & PCKT_FRAGMENTED) {\n      // we drop fragmented packets.\n\
+    \      return XDP_DROP;\n    }\n    if (*protocol == IPPROTO_ICMP) {\n      action\
+    \ = parse_icmp(data, data_end, off, pckt);\n      if (action >= 0) {\n       \
+    \ return action;\n      }\n    } else {\n      pckt->flow.src = iph->saddr;\n\
+    \      pckt->flow.dst = iph->daddr;\n    }\n  }\n  return FURTHER_PROCESSING;\n\
+    }\n\n#ifdef INLINE_DECAP\n__attribute__((__always_inline__))\nstatic inline int\
+    \ process_encaped_pckt(void **data, void **data_end,\n                       \
+    \                struct xdp_md *xdp, bool *is_ipv6,\n                        \
+    \               __u8 *protocol) {\n  int action;\n  if (*protocol == IPPROTO_IPIP)\
+    \ {\n    if (*is_ipv6) {\n      int offset = sizeof(struct ipv6hdr) + sizeof(struct\
+    \ eth_hdr);\n      if ((*data + offset) > *data_end) {\n        return XDP_DROP;\n\
+    \      }\n      action = decrement_ttl(*data, *data_end, offset, false);\n   \
+    \   if (!decap_v6(xdp, data, data_end, true)) {\n        return XDP_DROP;\n  \
+    \    }\n      *is_ipv6 = false;\n    } else {\n      int offset = sizeof(struct\
+    \ iphdr) + sizeof(struct eth_hdr);\n      if ((*data + offset) > *data_end) {\n\
+    \        return XDP_DROP;\n      }\n      action = decrement_ttl(*data, *data_end,\
+    \ offset, false);\n      if (!decap_v4(xdp, data, data_end)) {\n        return\
+    \ XDP_DROP;\n      }\n    }\n  } else if (*protocol == IPPROTO_IPV6) {\n    int\
+    \ offset = sizeof(struct ipv6hdr) + sizeof(struct eth_hdr);\n    if ((*data +\
+    \ offset) > *data_end) {\n      return XDP_DROP;\n    }\n    action = decrement_ttl(*data,\
+    \ *data_end, offset, true);\n    if (!decap_v6(xdp, data, data_end, false)) {\n\
+    \      return XDP_DROP;\n    }\n  }\n  if (action >= 0) {\n    return action;\n\
+    \  }\n  return recirculate(xdp);\n}\n#endif // INLINE_DECAP\n\n__attribute__((__always_inline__))\n\
+    static inline int process_packet(void *data, __u64 off, void *data_end,\n    \
+    \                             bool is_ipv6, struct xdp_md *xdp) {\n\n  struct\
+    \ ctl_value *cval;\n  struct real_definition *dst = NULL;\n  struct packet_description\
+    \ pckt = {};\n  struct vip_definition vip = {};\n  struct vip_meta *vip_info;\n\
+    \  struct lb_stats *data_stats;\n  __u64 iph_len;\n  __u8 protocol;\n\n  int action;\n\
+    \  __u32 vip_num;\n  __u32 mac_addr_pos = 0;\n  __u16 pkt_bytes;\n  action = process_l3_headers(\n\
+    \    &pckt, &protocol, off, &pkt_bytes, data, data_end, is_ipv6);\n  if (action\
+    \ >= 0) {\n    return action;\n  }\n  protocol = pckt.flow.proto;\n\n  #ifdef\
+    \ INLINE_DECAP\n  if (protocol == IPPROTO_IPIP || protocol == IPPROTO_IPV6) {\n\
+    \    struct address dst_addr = {};\n    if (is_ipv6) {\n      memcpy(dst_addr.addrv6,\
+    \ pckt.flow.dstv6, 16);\n    } else {\n      dst_addr.addr = pckt.flow.dst;\n\
+    \    }\n    __u32 *decap_dst_flags = bpf_map_lookup_elem(&decap_dst, &dst_addr);\n\
+    \n    if (decap_dst_flags) {\n      __u32 stats_key = MAX_VIPS + REMOTE_ENCAP_CNTRS;\n\
+    \      data_stats = bpf_map_lookup_elem(&stats, &stats_key);\n      if (!data_stats)\
+    \ {\n        return XDP_DROP;\n      }\n      data_stats->v1 += 1;\n    }\n\n\
+    \    return process_encaped_pckt(&data, &data_end, xdp, &is_ipv6, &protocol);\n\
+    \  }\n  #endif // INLINE_DECAP\n\n  if (protocol == IPPROTO_TCP) {\n    if (!parse_tcp(data,\
+    \ data_end, is_ipv6, &pckt)) {\n      return XDP_DROP;\n    }\n  } else if (protocol\
+    \ == IPPROTO_UDP) {\n    if (!parse_udp(data, data_end, is_ipv6, &pckt)) {\n \
+    \     return XDP_DROP;\n    }\n  } else {\n    // send to tcp/ip stack\n    return\
+    \ XDP_PASS;\n\n// FILE: katran/lib/bpf/balancer_maps.h\n// CONTEXT: BPF_ANNOTATE_KV_PAIR(lpm_src_v6,\
+    \ struct v6_lpm_key, __u32);\n\n#endif\n#ifdef INLINE_DECAP\nstruct bpf_map_def\
+    \ SEC(\"maps\") decap_dst = {\n  .type = BPF_MAP_TYPE_HASH,\n  .key_size = sizeof(struct\
+    \ address),\n  .value_size = sizeof(__u32),\n  .max_entries = MAX_VIPS,\n  .map_flags\
+    \ = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(decap_dst, struct address, __u32);\n\n\
+    struct bpf_map_def SEC(\"maps\") katran_subprograms = {\n  .type = BPF_MAP_TYPE_PROG_ARRAY,\n\
+    \  .key_size = sizeof(__u32),\n  .value_size = sizeof(__u32),\n  .max_entries\
+    \ = SUBPROGRAMS_ARRAY_SIZE,\n};\nBPF_ANNOTATE_KV_PAIR(katran_subprograms, __u32,\
+    \ __u32);\n#endif\n\n#ifdef KATRAN_INTROSPECTION\n\nstruct bpf_map_def SEC(\"\
+    maps\") event_pipe = {\n  .type = BPF_MAP_TYPE_PERF_EVENT_ARRAY,\n  .key_size\
+    \ = sizeof(int),\n  .value_size = sizeof(__u32),\n  .max_entries = MAX_SUPPORTED_CPUS,\n\
+    \  .map_flags = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(event_pipe, int, __u32);"
+  diff_summary: 'katran/lib/bpf/balancer_consts.h:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: the touched section.
+
+    katran/lib/bpf/balancer_helpers.h:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: static inline void submit_event(struct xdp_md *ctx, void *map,.
+
+    katran/lib/bpf/balancer_kern.c:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: static inline bool is_under_flood(__u64 *cur_time) {, static
+    inline void connection_table_lookup(struct real_definition **real,, static inline
+    int process_l3_headers(struct packet_description *pckt,.
+
+    katran/lib/bpf/balancer_maps.h:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: BPF_ANNOTATE_KV_PAIR(lpm_src_v6, struct v6_lpm_key, __u32);.
+
+    - Commit subject: rework inline decapsulation (#62).'
+

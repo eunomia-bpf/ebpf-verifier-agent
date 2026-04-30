@@ -1,0 +1,70 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-3740e9db8fef
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/3740e9db8fef9adc382f9dfecb5c404bda278afb
+  title: 'bpf: Fix "R2 !read_ok" verifier error with LLVM 17'
+  repository: https://github.com/cilium/cilium
+  commit: 3740e9db8fef9adc382f9dfecb5c404bda278afb
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-3740e9db8fef.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-3740e9db8fef
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: 3740e9db8fef9adc382f9dfecb5c404bda278afb
+  commit_message: 'bpf: Fix "R2 !read_ok" verifier error with LLVM 17'
+  commit_date: '2024-03-16'
+  fix_type: refactor
+  buggy_code: "// FILE: bpf/lib/lb.h\n// CONTEXT: lb6_fill_key(struct lb6_key *key,\
+    \ struct ipv6_ct_tuple *tuple)\n */\nstatic __always_inline int\nlb6_extract_tuple(struct\
+    \ __ctx_buff *ctx, struct ipv6hdr *ip6, int l3_off,\n                  int *l4_off,\
+    \ struct ipv6_ct_tuple *tuple)\n{\n        int ret;\n\n        tuple->nexthdr\
+    \ = ip6->nexthdr;\n        ipv6_addr_copy(&tuple->daddr, (union v6addr *)&ip6->daddr);\n\
+    \        ipv6_addr_copy(&tuple->saddr, (union v6addr *)&ip6->saddr);\n\n     \
+    \   ret = ipv6_hdrlen_offset(ctx, &tuple->nexthdr, l3_off);\n        if (ret <\
+    \ 0)\n                return ret;\n\n        *l4_off = l3_off + ret;\n\n     \
+    \   switch (tuple->nexthdr) {\n        case IPPROTO_TCP:\n        case IPPROTO_UDP:\n\
+    #ifdef ENABLE_SCTP\n        case IPPROTO_SCTP:\n#endif  /* ENABLE_SCTP */\n  \
+    \              if (l4_load_ports(ctx, *l4_off, &tuple->dport) < 0)\n         \
+    \               return DROP_CT_INVALID_HDR;\n                return 0;"
+  fixed_code: "// FILE: bpf/lib/lb.h\n// CONTEXT: lb6_fill_key(struct lb6_key *key,\
+    \ struct ipv6_ct_tuple *tuple)\n */\nstatic __always_inline int\nlb6_extract_tuple(struct\
+    \ __ctx_buff *ctx, struct ipv6hdr *ip6, int l3_off,\n                  int *l4_off,\
+    \ struct ipv6_ct_tuple *tuple)\n{\n        int ret;\n\n        tuple->nexthdr\
+    \ = ip6->nexthdr;\n        ipv6_addr_copy(&tuple->daddr, (union v6addr *)&ip6->daddr);\n\
+    \        ipv6_addr_copy(&tuple->saddr, (union v6addr *)&ip6->saddr);\n\n     \
+    \   ret = ipv6_hdrlen_offset(ctx, &tuple->nexthdr, l3_off);\n        if (ret <\
+    \ 0) {\n                /* Make sure *l4_off is always initialized on return,\
+    \ because\n                 * Clang can spill it from a register to the stack\
+    \ even in error\n                 * flows where this value is no longer used,\
+    \ and this pattern is\n                 * rejected by the verifier.\n        \
+    \         * Use a prominent value (-1) to highlight any potential misuse.\n  \
+    \               */\n                *l4_off = -1;\n                return ret;\n\
+    \        }\n\n        *l4_off = l3_off + ret;\n\n        switch (tuple->nexthdr)\
+    \ {\n        case IPPROTO_TCP:\n        case IPPROTO_UDP:\n#ifdef ENABLE_SCTP\n\
+    \        case IPPROTO_SCTP:\n#endif  /* ENABLE_SCTP */\n                if (l4_load_ports(ctx,\
+    \ *l4_off, &tuple->dport) < 0)\n                        return DROP_CT_INVALID_HDR;\n\
+    \                return 0;"
+  diff_summary: 'bpf/lib/lb.h:
+
+    - Initialized `*l4_off = -1` on the `ipv6_hdrlen_offset()` error path in `lb6_extract_tuple()`.
+
+    - Kept Clang 17 spills verifier-safe by ensuring the would-be spilled value is
+    always initialized.'
+

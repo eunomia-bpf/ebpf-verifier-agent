@@ -20,30 +20,19 @@ from interface.extractor.trace_parser import (
 
 
 def _load_case(relative_path: str) -> dict:
-    path = ROOT / relative_path
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+    from bench_fixtures import load_case
 
+    return load_case(relative_path)
 
 def _block(case_path: str, index: int) -> str:
-    payload = _load_case(case_path)
-    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
-    if isinstance(verifier_log, str):
-        if index != 0:
-            raise IndexError(index)
-        return verifier_log
-    return verifier_log["blocks"][index]
+    from bench_fixtures import load_verifier_block
 
+    return load_verifier_block(case_path, index)
 
 def _verifier_log(case_path: str) -> str:
-    payload = _load_case(case_path)
-    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
-    if isinstance(verifier_log, str):
-        return verifier_log
-    combined = verifier_log.get("combined")
-    if isinstance(combined, str) and combined.strip():
-        return combined
-    return "\n".join(block for block in verifier_log.get("blocks", []) if isinstance(block, str))
+    from bench_fixtures import load_verifier_log
 
+    return load_verifier_log(case_path)
 
 def _find_line(block: str, needle: str) -> str:
     for line in block.splitlines():
@@ -53,8 +42,8 @@ def _find_line(block: str, needle: str) -> str:
 
 
 def test_parse_line_classifies_real_verifier_lines() -> None:
-    sni_block = _block("case_study/cases/stackoverflow/stackoverflow-70750259.yaml", 0)
-    packet_block = _block("case_study/cases/stackoverflow/stackoverflow-70729664.yaml", 0)
+    sni_block = _block("bpfix-bench/raw/so/stackoverflow-70750259.yaml", 0)
+    packet_block = _block("bpfix-bench/raw/so/stackoverflow-70729664.yaml", 0)
 
     state_line = parse_line(_find_line(sni_block, "19: R0=pkt(id=0,off=2,r=6,imm=0)"))
     assert isinstance(state_line, RegisterStateLine)
@@ -89,7 +78,7 @@ def test_parse_line_classifies_real_verifier_lines() -> None:
 
 def test_parse_trace_groups_real_instruction_blocks() -> None:
     parsed = parse_trace(
-        _block("case_study/cases/stackoverflow/stackoverflow-70750259.yaml", 0)
+        _block("bpfix-bench/raw/so/stackoverflow-70750259.yaml", 0)
     )
 
     assert parsed.total_instructions == 6
@@ -117,7 +106,7 @@ def test_parse_trace_groups_real_instruction_blocks() -> None:
 
 def test_extract_backtrack_chains_handles_cross_state_sequences() -> None:
     chains = extract_backtrack_chains(
-        _block("case_study/cases/stackoverflow/stackoverflow-70750259.yaml", 1)
+        _block("bpfix-bench/raw/so/stackoverflow-70750259.yaml", 1)
     )
 
     assert [chain.error_insn for chain in chains] == [39, 35]
@@ -130,10 +119,10 @@ def test_extract_backtrack_chains_handles_cross_state_sequences() -> None:
 
 def test_detects_critical_transitions_from_real_logs() -> None:
     bounds_case = parse_trace(
-        _block("case_study/cases/stackoverflow/stackoverflow-70750259.yaml", 0)
+        _block("bpfix-bench/raw/so/stackoverflow-70750259.yaml", 0)
     )
     downgrade_case = parse_trace(
-        _block("case_study/cases/stackoverflow/stackoverflow-78958420.yaml", 0)
+        _block("bpfix-bench/raw/so/stackoverflow-78958420.yaml", 0)
     )
 
     assert any(
@@ -155,7 +144,7 @@ def test_detects_critical_transitions_from_real_logs() -> None:
 
 def test_extracts_causal_chain_from_real_packet_error() -> None:
     parsed = parse_trace(
-        _block("case_study/cases/stackoverflow/stackoverflow-78958420.yaml", 0)
+        _block("bpfix-bench/raw/so/stackoverflow-78958420.yaml", 0)
     )
 
     assert parsed.causal_chain is not None
@@ -171,7 +160,7 @@ def test_extracts_causal_chain_from_real_packet_error() -> None:
 
 def test_full_pipeline_handles_backtracking_packet_case() -> None:
     parsed = parse_trace(
-        _block("case_study/cases/stackoverflow/stackoverflow-70729664.yaml", 0)
+        _block("bpfix-bench/raw/so/stackoverflow-70729664.yaml", 0)
     )
 
     assert parsed.total_instructions == 12
@@ -191,7 +180,7 @@ def test_full_pipeline_handles_backtracking_packet_case() -> None:
 def test_parse_trace_keeps_btf_annotations_across_multi_instruction_statement() -> None:
     parsed = parse_trace(
         _verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403.yaml"
         )
     )
@@ -204,7 +193,7 @@ def test_parse_trace_keeps_btf_annotations_across_multi_instruction_statement() 
 
 def test_parse_trace_recovers_loader_prefixed_instruction_snippet() -> None:
     parsed = parse_trace(
-        _verifier_log("case_study/cases/stackoverflow/stackoverflow-77568308.yaml")
+        _verifier_log("bpfix-bench/raw/so/stackoverflow-77568308.yaml")
     )
 
     assert parsed.total_instructions == 1
@@ -218,7 +207,7 @@ def test_parse_trace_recovers_loader_prefixed_instruction_snippet() -> None:
 
 def test_parse_trace_recovers_colon_prefixed_instructions() -> None:
     parsed = parse_trace(
-        _verifier_log("case_study/cases/stackoverflow/stackoverflow-77713434.yaml")
+        _verifier_log("bpfix-bench/raw/so/stackoverflow-77713434.yaml")
     )
 
     assert parsed.total_instructions == 11

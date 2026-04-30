@@ -4,8 +4,7 @@ case_id: kernel-selftest-dynptr-fail-dynptr-var-off-overwrite-tc-ab0a2e71
 environment_id: kernel-6.15.11-clang-18-log2
 imported_at: '2026-04-29T22:45:13+00:00'
 source_artifact:
-  path: case_study/cases/kernel_selftests_verified/kernel-selftest-dynptr-fail-dynptr-var-off-overwrite-tc-ab0a2e71
-  status_file: verification_status.txt
+  path: bpfix-bench/cases/kernel-selftest-dynptr-fail-dynptr-var-off-overwrite-tc-ab0a2e71
   source_file: tools/testing/selftests/bpf/progs/dynptr_fail.c
   target_function: dynptr_var_off_overwrite
   section: ?tc
@@ -13,6 +12,7 @@ source_artifact:
   load_attempted: true
   verifier_rejected: true
   verifier_log_captured: true
+  source_record: bpfix-bench/raw/kernel_selftests/kernel-selftest-dynptr-fail-dynptr-var-off-overwrite-tc-ab0a2e71.yaml
 replay:
   build_command: make
   load_command: make replay-verify

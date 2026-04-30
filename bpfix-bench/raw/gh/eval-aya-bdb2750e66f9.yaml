@@ -1,0 +1,56 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-aya-bdb2750e66f9
+source_kind: github_commit
+source:
+  url: https://github.com/aya-rs/aya/commit/bdb2750e66f922ebfbcba7250add38e2c932c293
+  title: 'ebpf: inline write_record_header'
+  repository: https://github.com/aya-rs/aya
+  commit: bdb2750e66f922ebfbcba7250add38e2c932c293
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-aya-bdb2750e66f9.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-aya-bdb2750e66f9
+  source: eval_commits
+  repository: https://github.com/aya-rs/aya
+  commit_hash: bdb2750e66f922ebfbcba7250add38e2c932c293
+  commit_message: 'ebpf: inline write_record_header'
+  commit_date: '2022-04-16'
+  fix_type: inline_hint
+  buggy_code: "// FILE: aya-log/ebpf/aya-log-ebpf/src/lib.rs\n// CONTEXT: impl_write_to_buf!(usize,\
+    \ ArgType::Usize);\n\nimpl_write_to_buf!(f32, ArgType::F32);\nimpl_write_to_buf!(f64,\
+    \ ArgType::F64);\n\nimpl WriteToBuf for str {\n    fn write(&self, buf: &mut [u8])\
+    \ -> Result<usize, ()> {\n        TagLenValue::<ArgType>::new(ArgType::Str, self.as_bytes()).write(buf)\n\
+    \    }\n}\n\n#[allow(clippy::result_unit_err)]\n#[doc(hidden)]\npub fn write_record_header(\n\
+    \    buf: &mut [u8],\n    target: &str,\n    level: Level,\n    module: &str,\n\
+    \    file: &str,\n    line: u32,\n    num_args: usize,\n) -> Result<usize, ()>\
+    \ {\n    let mut size = 0;\n    for attr in [\n        TagLenValue::<RecordField>::new(RecordField::Target,\
+    \ target.as_bytes()),"
+  fixed_code: "// FILE: aya-log/ebpf/aya-log-ebpf/src/lib.rs\n// CONTEXT: impl_write_to_buf!(usize,\
+    \ ArgType::Usize);\n\nimpl_write_to_buf!(f32, ArgType::F32);\nimpl_write_to_buf!(f64,\
+    \ ArgType::F64);\n\nimpl WriteToBuf for str {\n    fn write(&self, buf: &mut [u8])\
+    \ -> Result<usize, ()> {\n        TagLenValue::<ArgType>::new(ArgType::Str, self.as_bytes()).write(buf)\n\
+    \    }\n}\n\n#[allow(clippy::result_unit_err)]\n#[doc(hidden)]\n#[inline(always)]\n\
+    pub fn write_record_header(\n    buf: &mut [u8],\n    target: &str,\n    level:\
+    \ Level,\n    module: &str,\n    file: &str,\n    line: u32,\n    num_args: usize,\n\
+    ) -> Result<usize, ()> {\n    let mut size = 0;\n    for attr in [\n        TagLenValue::<RecordField>::new(RecordField::Target,\
+    \ target.as_bytes()),"
+  diff_summary: 'aya-log/ebpf/aya-log-ebpf/src/lib.rs:
+
+    - Forced `write_record_header()` to inline so the verifier can keep precise track
+    of log-buffer offsets.'
+

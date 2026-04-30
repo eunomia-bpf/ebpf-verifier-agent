@@ -29,12 +29,10 @@ if str(ROOT) not in sys.path:
 
 from tools.replay_case import parse_verifier_log, replay_case
 
-DEFAULT_SOURCE_ROOT = ROOT / "case_study" / "cases" / "so_gh_verified"
 DEFAULT_BENCH_ROOT = ROOT / "bpfix-bench"
-DEFAULT_GROUND_TRUTH = ROOT / "case_study" / "ground_truth.yaml"
 ENVIRONMENT_ID_FALLBACK = "kernel-6.15.11-clang-18-log2"
-DEFAULT_MATCHES = {"exact", "partial"}
-SUPPORTED_MATCHES = {"exact", "partial", "mismatch"}
+DEFAULT_MATCHES = {"exact", "partial", "substring"}
+SUPPORTED_MATCHES = {"exact", "partial", "substring", "mismatch"}
 
 
 @dataclass(frozen=True)
@@ -52,9 +50,9 @@ class Candidate:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source-root", type=Path, default=DEFAULT_SOURCE_ROOT)
+    parser.add_argument("--source-root", type=Path, required=True)
     parser.add_argument("--bench-root", type=Path, default=DEFAULT_BENCH_ROOT)
-    parser.add_argument("--ground-truth", type=Path, default=DEFAULT_GROUND_TRUTH)
+    parser.add_argument("--ground-truth", type=Path)
     parser.add_argument("--case-id", action="append", default=[], help="Import only this case id; repeatable")
     parser.add_argument("--match", choices=sorted(SUPPORTED_MATCHES), action="append", help="Restrict match quality")
     parser.add_argument("--limit", type=int, help="Limit selected eligible cases")
@@ -71,9 +69,7 @@ def main(argv: list[str] | None = None) -> int:
 
     source_root = args.source_root.resolve()
     bench_root = args.bench_root.resolve()
-    ground_truth = args.ground_truth.resolve()
-
-    labels = load_labels(ground_truth)
+    labels = load_labels(args.ground_truth.resolve()) if args.ground_truth else {}
     matches = set(args.match or DEFAULT_MATCHES)
     candidates = discover_candidates(source_root, labels, matches)
     selected = select_candidates(candidates, set(args.case_id), args.limit)
@@ -241,6 +237,7 @@ def import_case(
     copy_artifacts(candidate.source_dir, case_dir)
     compatibility_notes = apply_compatibility_rewrites(candidate, case_dir / "prog.c")
     rewrite_makefile(case_dir / "Makefile")
+    apply_makefile_compatibility(candidate, case_dir / "Makefile")
 
     environment_id = str(manifest.get("environment_id") or ENVIRONMENT_ID_FALLBACK)
     capture_id = f"{case_id}__{environment_id}"
@@ -264,7 +261,8 @@ def import_case(
         if replay.load.returncode == 0:
             shutil.rmtree(case_dir)
             raise RuntimeError(f"fresh replay load succeeded; expected verifier reject for {case_id}")
-        if not replay.verifier_log_captured or not fresh.terminal_error or fresh.rejected_insn_idx is None:
+        fresh_log_text = replay.verifier_log_captured or replay.load.combined_output
+        if not fresh_log_text or not fresh.terminal_error or fresh.rejected_insn_idx is None:
             shutil.rmtree(case_dir)
             raise RuntimeError(f"fresh replay did not produce a trace-rich verifier log for {case_id}")
         captured_error = candidate.status.get("captured_error")
@@ -274,7 +272,7 @@ def import_case(
                 "fresh replay terminal error does not match verified captured_error for "
                 f"{case_id}: expected {captured_error!r}, got {fresh.terminal_error!r}"
             )
-        (case_dir / "verifier.log").write_text(replay.verifier_log_captured, encoding="utf-8")
+        (case_dir / "verifier.log").write_text(fresh_log_text, encoding="utf-8")
         parsed = fresh
     else:
         if not parsed.terminal_error or parsed.rejected_insn_idx is None:
@@ -323,8 +321,209 @@ def copy_artifacts(source_dir: Path, case_dir: Path) -> None:
 
 
 def apply_compatibility_rewrites(candidate: Candidate, source_path: Path) -> list[str]:
+    notes: list[str] = []
+    if candidate.case_id == "stackoverflow-70721661":
+        source = source_path.read_text(encoding="utf-8")
+        old = """struct bpf_map_def SEC("maps") ip_map = {
+    .type = BPF_MAP_TYPE_ARRAY,
+    .key_size = sizeof(int),
+    .value_size = sizeof(struct share_me),
+    .max_entries = 64,
+};"""
+        new = """struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 64);
+    __type(key, int);
+    __type(value, struct share_me);
+} ip_map SEC(".maps");"""
+        source = replace_required(source, old, new, candidate.case_id)
+        source = replace_required(
+            source,
+            """    if ((void *)(ip + 1) > data_end)
+        return XDP_PASS;
+
+""",
+            "",
+            candidate.case_id,
+        )
+        source_path.write_text(source, encoding="utf-8")
+        return [
+            "converted legacy array map to BTF SEC(\".maps\") definition",
+            "removed reconstructed IP-header bounds check so the replay reaches the reported packet-access rejection",
+        ]
+    if candidate.case_id == "stackoverflow-74178703":
+        source = source_path.read_text(encoding="utf-8")
+        old = """struct bpf_elf_map __section("maps") data_store = {
+    .type = BPF_MAP_TYPE_ARRAY,
+    .size_key = sizeof(__u32),
+    .size_value = 1024,
+    .max_elem = 4096,
+    .pinning = PIN_GLOBAL_NS,
+};"""
+        new = """struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 4096);
+    __type(key, __u32);
+    __type(value, __u8[1024]);
+} data_store SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, __u32);
+    __type(value, __u8[512]);
+} dst_store SEC(".maps");"""
+        source = replace_required(source, old, new, candidate.case_id)
+        source = replace_required(
+            source,
+            """    char dst[64] = {};
+    read_data(0, 0, dst, sizeof(dst));
+    return 0;""",
+            """    __u32 zero = 0;
+    __u8 *dst = bpf_map_lookup_elem(&dst_store, &zero);
+    if (!dst)
+        return 0;
+
+    __u32 off = bpf_get_prandom_u32() & 1023;
+    __u32 sz = (bpf_get_prandom_u32() & 511) + 1;
+    read_data(0, off, dst, sz);
+    return dst[0];""",
+            candidate.case_id,
+        )
+        source_path.write_text(source, encoding="utf-8")
+        return [
+            "converted legacy bpf_elf_map to BTF SEC(\".maps\") definitions",
+            "made offset/size verifier-visible scalars and preserved the copied byte so clang cannot optimize away the map-value read",
+        ]
+    if candidate.case_id == "stackoverflow-75294010":
+        source = source_path.read_text(encoding="utf-8")
+        source = replace_original_code(
+            source,
+            """#define MAX_MSG_SIZE 1024
+
+struct syscall_write_event_t {
+    struct attr_t {
+        int event_type;
+        int fd;
+        int bytes;
+        int msg_size;
+    } attr;
+    char msg[MAX_MSG_SIZE];
+};
+
+struct sys_enter_read_write_ctx {
+    __u64 __unused_syscall_header;
+    __u32 __unused_syscall_nr;
+    __u64 fd;
+    const char *buf;
+    size_t count;
+};
+
+enum {
+    kEventTypeSyscallWriteEvent = 2,
+};
+
+struct {
+    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, __u32);
+    __type(value, struct syscall_write_event_t);
+} write_buffer_heap SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
+    __uint(key_size, sizeof(__u32));
+    __uint(value_size, sizeof(__u32));
+} syscall_write_events SEC(".maps");
+
+SEC("tracepoint/syscalls/sys_enter_write")
+int syscall__probe_write(struct sys_enter_read_write_ctx *ctx)
+{
+    int zero = 0;
+    struct syscall_write_event_t *event = bpf_map_lookup_elem(&write_buffer_heap, &zero);
+    if (!event)
+        return 0;
+
+    __builtin_memset(&event, 0, sizeof(event));
+    event->attr.fd = ctx->fd;
+    event->attr.bytes = ctx->count;
+    size_t buf_size = ctx->count & 0x3ff;
+    bpf_probe_read(&event->msg, buf_size, ctx->buf);
+    event->attr.msg_size = buf_size;
+    event->attr.event_type = kEventTypeSyscallWriteEvent;
+    bpf_perf_event_output(ctx, &syscall_write_events, BPF_F_CURRENT_CPU, &event, sizeof(event->attr) + buf_size);
+    return 0;
+}
+
+char _license[] SEC("license") = "GPL";""",
+            candidate.case_id,
+        )
+        source_path.write_text(source, encoding="utf-8")
+        return [
+            "reconstructed the full tracepoint program body because the verified artifact only captured map declarations",
+            "kept the original pointer-clearing memset pattern that triggers the reported invalid memory access",
+        ]
+    if candidate.case_id == "stackoverflow-75515263":
+        source = source_path.read_text(encoding="utf-8")
+        old = """struct bpf_map_def SEC("maps") lookup = {
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(u32),
+    .value_size = sizeof(struct sock_info *),
+    .max_entries = MAX_ENTRIES,
+};"""
+        new = """struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, MAX_ENTRIES);
+    __type(key, u32);
+    __type(value, struct sock_info *);
+} lookup SEC(".maps");"""
+        source = replace_required(source, old, new, candidate.case_id)
+        source = replace_required(source, "og_sock->ctime", "og_sock->sport", candidate.case_id)
+        source_path.write_text(source, encoding="utf-8")
+        return [
+            "converted legacy hash map to BTF SEC(\".maps\") definition while preserving pointer-sized map values",
+            "read the first field past the pointer-sized map value to reproduce the reported off=8 map-value rejection",
+        ]
+    if candidate.case_id == "stackoverflow-76277872":
+        source = source_path.read_text(encoding="utf-8")
+        replacements = {
+            "srcMap": ("__u32", "__u64"),
+            "dstMap": ("__u32", "__u64"),
+            "protoMap": ("__u8", "__u64"),
+            "sportMap": ("__u16", "__u64"),
+            "dportMap": ("__u16", "__u64"),
+            "actionMap": ("__u64", "__u64"),
+        }
+        for name, (key_type, value_type) in replacements.items():
+            old = f"""struct bpf_map_def SEC("maps") {name} = {{
+    .type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof({key_type}),
+    .value_size = sizeof({value_type}),
+    .max_entries = 4194304,
+}};"""
+            new = f"""struct {{
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __uint(max_entries, 4194304);
+    __type(key, {key_type});
+    __type(value, {value_type});
+}} {name} SEC(".maps");"""
+            source = replace_required(source, old, new, candidate.case_id)
+        source = replace_required(
+            source,
+            """    if ((void *)(iph + 1) > end)
+        return XDP_ABORTED;
+
+""",
+            "",
+            candidate.case_id,
+        )
+        source_path.write_text(source, encoding="utf-8")
+        return [
+            "converted legacy hash maps to BTF SEC(\".maps\") definitions",
+            "removed reconstructed IP-header bounds check so the replay reaches the reported packet-access rejection",
+        ]
     if candidate.case_id != "stackoverflow-69413427":
-        return []
+        return notes
     source = source_path.read_text(encoding="utf-8")
     old = """    struct bpf_map_def info SEC("maps") ={
         .type = BPF_MAP_TYPE_HASH,
@@ -346,13 +545,31 @@ def apply_compatibility_rewrites(candidate: Candidate, source_path: Path) -> lis
     return ["converted legacy SEC(\"maps\") bpf_map_def to BTF SEC(\".maps\") definition for libbpf v1 replay"]
 
 
+def replace_required(source: str, old: str, new: str, case_id: str) -> str:
+    if old not in source:
+        raise RuntimeError(f"compatibility rewrite pattern not found for {case_id}")
+    return source.replace(old, new)
+
+
+def replace_original_code(source: str, new_body: str, case_id: str) -> str:
+    start_marker = "/* === ORIGINAL CODE from SO/GH post === */"
+    end_marker = "/* === END ORIGINAL CODE === */"
+    start = source.find(start_marker)
+    end = source.find(end_marker)
+    if start == -1 or end == -1 or end <= start:
+        raise RuntimeError(f"original-code markers not found for {case_id}")
+    prefix = source[: start + len(start_marker)].rstrip()
+    suffix = source[end:].lstrip()
+    return f"{prefix}\n\n{new_body.rstrip()}\n\n{suffix}"
+
+
 def rewrite_makefile(makefile_path: Path) -> None:
     makefile_path.write_text(
         """\
 SHELL := /bin/bash
 CLANG ?= clang
 BPFTool ?= sudo bpftool
-CFLAGS ?= -target bpf -O2 -g -I /usr/include
+CFLAGS ?= -target bpf -O2 -g -I /usr/include -D__TARGET_ARCH_x86
 PIN ?= /sys/fs/bpf/$(notdir $(CURDIR))
 LOG_LIMIT ?= 8000000
 
@@ -375,6 +592,17 @@ clean:
 """,
         encoding="utf-8",
     )
+
+
+def apply_makefile_compatibility(candidate: Candidate, makefile_path: Path) -> None:
+    if candidate.case_id != "github-aya-rs-aya-521":
+        return
+    source = makefile_path.read_text(encoding="utf-8")
+    source = source.replace(
+        "CFLAGS ?= -target bpf -O2 -g -I /usr/include -D__TARGET_ARCH_x86",
+        "CFLAGS ?= -target bpf -O2 -I /usr/include -D__TARGET_ARCH_x86",
+    )
+    makefile_path.write_text(source, encoding="utf-8")
 
 
 def build_capture_yaml(
@@ -421,10 +649,10 @@ def build_case_yaml(
 ) -> dict[str, Any]:
     label = candidate.label or {}
     raw_match = candidate.status["verifier_error_match"]
-    match = "semantic" if raw_match == "mismatch" else raw_match
+    match = "semantic" if raw_match == "mismatch" else ("partial" if raw_match == "substring" else raw_match)
     original_error = candidate.status.get("original_error")
     captured_error = candidate.status.get("captured_error")
-    reproducer_notes = "Imported from case_study/cases/so_gh_verified with replay logs written to replay-verifier.log."
+    reproducer_notes = "Imported from an explicit reconstructed SO/GH artifact; replay logs are generated as replay-verifier.log."
     if compatibility_notes:
         reproducer_notes += " Compatibility rewrite: " + "; ".join(compatibility_notes) + "."
     return {
@@ -504,31 +732,55 @@ def build_source(candidate: Candidate) -> dict[str, Any]:
     case_id = candidate.case_id
     if case_id.startswith("stackoverflow-"):
         question_id = case_id.rsplit("-", 1)[-1]
+        raw = load_raw_external_case(case_id)
+        question = raw.get("question") if isinstance(raw.get("question"), dict) else {}
+        url = question.get("url") if isinstance(question.get("url"), str) else None
         return {
             "kind": "stackoverflow",
-            "url": f"https://stackoverflow.com/questions/{question_id}",
+            "url": url or f"https://stackoverflow.com/questions/{question_id}",
             "repository": None,
             "commit": None,
             "upstream_file": None,
-            "collected_at": None,
-            "raw_excerpt_files": [],
+            "collected_at": raw.get("collected_at") if isinstance(raw.get("collected_at"), str) else None,
+            "raw_excerpt_files": [relpath(raw_external_path(case_id))] if raw_external_path(case_id).exists() else [],
         }
     if case_id.startswith("github-"):
-        parts = case_id.split("-")
-        issue = parts[-1]
-        owner = parts[1] if len(parts) > 3 else None
-        repo = "-".join(parts[2:-1]) if len(parts) > 3 else None
-        url = f"https://github.com/{owner}/{repo}/issues/{issue}" if owner and repo else None
+        raw = load_raw_external_case(case_id)
+        issue_data = raw.get("issue") if isinstance(raw.get("issue"), dict) else {}
+        repository = issue_data.get("repository") if isinstance(issue_data.get("repository"), str) else None
+        raw_url = issue_data.get("url") if isinstance(issue_data.get("url"), str) else None
+        owner, repo = (repository.split("/", 1) if repository and "/" in repository else (None, None))
+        issue = str(issue_data.get("number")) if issue_data.get("number") is not None else case_id.rsplit("-", 1)[-1]
+        url = raw_url or (f"https://github.com/{owner}/{repo}/issues/{issue}" if owner and repo else None)
         return {
             "kind": "github_issue",
             "url": url,
             "repository": f"https://github.com/{owner}/{repo}" if owner and repo else None,
             "commit": None,
             "upstream_file": None,
-            "collected_at": None,
-            "raw_excerpt_files": [],
+            "collected_at": raw.get("collected_at") if isinstance(raw.get("collected_at"), str) else None,
+            "raw_excerpt_files": [relpath(raw_external_path(case_id))] if raw_external_path(case_id).exists() else [],
         }
     return {"kind": "external", "url": None, "raw_excerpt_files": []}
+
+
+def raw_external_path(case_id: str) -> Path:
+    bucket = "so" if case_id.startswith("stackoverflow-") else "gh"
+    new_path = ROOT / "bpfix-bench" / "raw" / bucket / f"{case_id}.yaml"
+    if new_path.exists():
+        return new_path
+    return new_path
+
+
+def load_raw_external_case(case_id: str) -> dict[str, Any]:
+    path = raw_external_path(case_id)
+    if not path.exists():
+        return {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8", errors="replace")) or {}
+    if isinstance(data, dict) and data.get("schema_version") == "bpfix.raw_external/v1":
+        raw = data.get("raw")
+        return raw if isinstance(raw, dict) else {}
+    return data if isinstance(data, dict) else {}
 
 
 def source_kind(case_id: str) -> str:

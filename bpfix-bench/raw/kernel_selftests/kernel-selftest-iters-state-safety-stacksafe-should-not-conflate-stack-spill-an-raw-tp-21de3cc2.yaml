@@ -1,0 +1,76 @@
+case_id: kernel-selftest-iters-state-safety-stacksafe-should-not-conflate-stack-spill-an-raw-tp-21de3cc2
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/iters_state_safety.c
+  section: ?raw_tp
+  function: stacksafe_should_not_conflate_stack_spill_and_iter
+  description: stacksafe_should_not_conflate_stack_spill_and_iter
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - Unreleased reference
+  unprivileged: []
+  combined:
+  - Unreleased reference
+verifier_log: |
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r8 = r10
+    1: ........8. (07) r8 += -8
+    2: ........8. (85) call bpf_get_prandom_u32#7
+    3: 0.......8. (bf) r6 = r0
+    4: ......6.8. (85) call bpf_get_prandom_u32#7
+    5: 0.....6.8. (bf) r7 = r0
+    6: ......678. (2d) if r6 > r7 goto pc+2
+    7: ......6.8. (7b) *(u64 *)(r8 +0) = r6
+    8: ......6.8. (05) goto pc+5
+    9: ......6.8. (bf) r1 = r8
+   10: .1....6.8. (b7) r2 = 0
+   11: .12...6.8. (b7) r3 = 1000
+   12: .123..6.8. (85) call bpf_iter_num_new#71887
+   13: ......6.8. (7b) *(u64 *)(r8 +0) = r6
+   14: ......6.8. (05) goto pc+0
+   15: ......6.8. (7b) *(u64 *)(r8 +0) = r6
+   16: .......... (b4) w0 = 0
+   17: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int stacksafe_should_not_conflate_stack_spill_and_iter(void *ctx) @ iters_state_safety.c:373
+  0: (bf) r8 = r10                      ; R8_w=fp0 R10=fp0
+  ; asm volatile ( @ iters_state_safety.c:377
+  1: (07) r8 += -8                      ; R8_w=fp-8
+  2: (85) call bpf_get_prandom_u32#7    ; R0_w=scalar()
+  3: (bf) r6 = r0                       ; R0_w=scalar(id=1) R6_w=scalar(id=1)
+  4: (85) call bpf_get_prandom_u32#7    ; R0_w=scalar()
+  5: (bf) r7 = r0                       ; R0_w=scalar(id=2) R7_w=scalar(id=2)
+  6: (2d) if r6 > r7 goto pc+2          ; R6_w=scalar(id=1) R7_w=scalar(id=2)
+  7: (7b) *(u64 *)(r8 +0) = r6          ; R6_w=scalar(id=1) R8_w=fp-8 fp-8_w=scalar(id=1)
+  8: (05) goto pc+5
+  14: (05) goto pc+0
+  15: (7b) *(u64 *)(r8 +0) = r6         ; R6=scalar(id=1) R8=fp-8 fp-8_w=scalar(id=1)
+  ; return 0; @ iters_state_safety.c:425
+  16: (b4) w0 = 0                       ; R0_w=0
+  17: (95) exit
+
+  from 6 to 9: R0_w=scalar(id=2,umax=0xfffffffffffffffe) R6_w=scalar(id=1,umin=1) R7_w=scalar(id=2,umax=0xfffffffffffffffe) R8_w=fp-8 R10=fp0
+  9: R0_w=scalar(id=2,umax=0xfffffffffffffffe) R6_w=scalar(id=1,umin=1) R7_w=scalar(id=2,umax=0xfffffffffffffffe) R8_w=fp-8 R10=fp0
+  ; asm volatile ( @ iters_state_safety.c:377
+  9: (bf) r1 = r8                       ; R1_w=fp-8 R8_w=fp-8
+  10: (b7) r2 = 0                       ; R2_w=0
+  11: (b7) r3 = 1000                    ; R3_w=1000
+  12: (85) call bpf_iter_num_new#71887          ; R0=scalar() fp-8=iter_num(ref_id=3,state=active,depth=0) refs=3
+  13: (7b) *(u64 *)(r8 +0) = r6         ; R6=scalar(id=1,umin=1) R8=fp-8 fp-8_w=scalar(id=1,umin=1) refs=3
+  14: (05) goto pc+0
+  15: (7b) *(u64 *)(r8 +0) = r6         ; R6=scalar(id=1,umin=1) R8=fp-8 fp-8_w=scalar(id=1,umin=1) refs=3
+  ; return 0; @ iters_state_safety.c:425
+  16: (b4) w0 = 0                       ; R0_w=0 refs=3
+  17: (95) exit
+  Unreleased reference id=3 alloc_insn=12
+  BPF_EXIT instruction in main prog would lead to reference leak
+  processed 22 insns (limit 1000000) max_states_per_insn 1 total_states 2 peak_states 2 mark_read 1
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/iters_state_safety.c
+  code: "SEC(\"?raw_tp\")\n__failure\n__flag(BPF_F_TEST_STATE_FREQ)\n__msg(\"Unreleased reference\")\nint stacksafe_should_not_conflate_stack_spill_and_iter(void *ctx)\n{\n\tstruct bpf_iter_num iter;\n\n\tasm volatile (\n\t\t/* Create a fork in logic, with general setup as follows:\n\t\t *   - fallthrough (first) path is valid;\n\t\t *   - branch (second) path is invalid.\n\t\t * Then depending on what we do in fallthrough vs branch path,\n\t\t * we try to detect bugs in func_states_equal(), regsafe(),\n\t\t * refsafe(), stack_safe(), and similar by tricking verifier\n\t\t * into believing that branch state is a valid subset of\n\t\t * a fallthrough state. Verifier should reject overall\n\t\t * validation, unless there is a bug somewhere in verifier\n\t\t * logic.\n\t\t */\n\t\t\"call %[bpf_get_prandom_u32];\"\n\t\t\"r6 = r0;\"\n\t\t\"call %[bpf_get_prandom_u32];\"\n\t\t\"r7 = r0;\"\n\n\t\t\"if r6 > r7 goto bad;\" /* fork */\n\n\t\t/* spill r6 into stack slot of bpf_iter_num var */\n\t\t\
+    \"*(u64 *)(%[iter] + 0) = r6;\"\n\n\t\t\"goto skip_bad;\"\n\n\t\"bad:\"\n\t\t/* create iterator in the same stack slot */\n\t\t\"r1 = %[iter];\"\n\t\t\"r2 = 0;\"\n\t\t\"r3 = 1000;\"\n\t\t\"call %[bpf_iter_num_new];\"\n\n\t\t/* but then forget about it and overwrite it back to r6 spill */\n\t\t\"*(u64 *)(%[iter] + 0) = r6;\"\n\n\t\"skip_bad:\"\n\t\t\"goto +0;\" /* force checkpoint */\n\n\t\t/* corrupt stack slots, if they are really dynptr */\n\t\t\"*(u64 *)(%[iter] + 0) = r6;\"\n\t\t:\n\t\t: __imm_ptr(iter),\n\t\t  __imm_addr(zero),\n\t\t  __imm(bpf_get_prandom_u32),\n\t\t  __imm(bpf_dynptr_from_mem),\n\t\t  ITER_HELPERS\n\t\t: __clobber_common, \"r6\", \"r7\"\n\t);\n\n\treturn 0;\n}"

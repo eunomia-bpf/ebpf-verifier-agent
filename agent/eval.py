@@ -10,7 +10,7 @@ from typing import Any
 import yaml
 
 from agent.repair_loop import RepairAttempt, RepairSession
-from eval.metrics import CaseMetric, summarize_results
+from agent.metrics import CaseMetric, summarize_results
 
 
 def load_cases(cases_dir: Path) -> list[dict[str, Any]]:
@@ -54,7 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--cases-dir",
         type=Path,
-        default=Path("case_study/cases"),
+        default=Path("bpfix-bench/cases"),
         help="Benchmark case directory used for counting or future execution.",
     )
     return parser

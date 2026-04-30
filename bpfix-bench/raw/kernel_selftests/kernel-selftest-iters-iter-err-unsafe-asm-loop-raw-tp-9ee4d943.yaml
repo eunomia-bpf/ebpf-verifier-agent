@@ -1,0 +1,99 @@
+case_id: kernel-selftest-iters-iter-err-unsafe-asm-loop-raw-tp-9ee4d943
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/iters.c
+  section: ?raw_tp
+  function: iter_err_unsafe_asm_loop
+  description: iter_err_unsafe_asm_loop
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - unbounded memory access
+  unprivileged: []
+  combined:
+  - unbounded memory access
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (18) r1 = 0xffffd10b747a4000
+    2: .1........ (61) r7 = *(u32 *)(r1 +0)
+    3: .......7.. (bf) r8 = r10
+    4: .......78. (07) r8 += -8
+    5: .......78. (18) r9 = 0xffffd10b747a7000
+    7: .......789 (bf) r6 = r7
+    8: ......6.89 (bf) r1 = r8
+    9: .1....6.89 (b7) r2 = 0
+   10: .12...6.89 (b7) r3 = 1000
+   11: .123..6.89 (b7) r4 = 1
+   12: .123..6.89 (85) call bpf_iter_num_new#71887
+   13: ......6.89 (bf) r1 = r8
+   14: .1....6.89 (85) call bpf_iter_num_next#71889
+   15: 0.....6.89 (15) if r0 == 0x0 goto pc+2
+   16: ......6.89 (07) r6 += 1
+   17: ......6.89 (05) goto pc-5
+   18: ......6.89 (bf) r1 = r8
+   19: .1....6..9 (85) call bpf_iter_num_destroy#71885
+   20: ......6..9 (bf) r1 = r9
+   21: .1....6... (bf) r2 = r6
+   22: .12...6... (67) r2 <<= 2
+   23: .12...6... (0f) r1 += r2
+   24: .1....6... (63) *(u32 *)(r1 +0) = r6
+   25: .......... (b4) w0 = 0
+   26: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; [zero]"r"(zero), @ iters.c:83
+  0: (18) r1 = 0xffffd10b747a4000       ; R1_w=map_value(map=iters.bss,ks=4,vs=1312)
+  2: (61) r7 = *(u32 *)(r1 +0)          ; R1_w=map_value(map=iters.bss,ks=4,vs=1312) R7_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+  3: (bf) r8 = r10                      ; R8_w=fp0 R10=fp0
+  4: (07) r8 += -8                      ; R8_w=fp-8
+  ; asm volatile ( @ iters.c:59
+  5: (18) r9 = 0xffffd10b747a7000       ; R9_w=map_value(map=.data.small_arr,ks=4,vs=64)
+  7: (bf) r6 = r7                       ; R6_w=scalar(id=1,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R7_w=scalar(id=1,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+  8: (bf) r1 = r8                       ; R1_w=fp-8 R8_w=fp-8
+  9: (b7) r2 = 0                        ; R2_w=0
+  10: (b7) r3 = 1000                    ; R3_w=1000
+  11: (b7) r4 = 1                       ; R4_w=1
+  12: (85) call bpf_iter_num_new#71887          ; R0_w=scalar() fp-8_w=iter_num(ref_id=2,state=active,depth=0) refs=2
+  13: (bf) r1 = r8                      ; R1=fp-8 R8=fp-8 refs=2
+  14: (85) call bpf_iter_num_next#71889         ; R0_w=0 fp-8=iter_num(ref_id=2,state=drained,depth=0) refs=2
+  15: (15) if r0 == 0x0 goto pc+2
+  mark_precise: frame0: last_idx 15 first_idx 14 subseq_idx -1
+  mark_precise: frame0: regs=r0 stack= before 14: (85) call bpf_iter_num_next#71889
+  15: R0_w=0 refs=2
+  18: (bf) r1 = r8                      ; R1_w=fp-8 R8=fp-8 refs=2
+  19: (85) call bpf_iter_num_destroy#71885      ;
+  20: (bf) r1 = r9                      ; R1_w=map_value(map=.data.small_arr,ks=4,vs=64) R9=map_value(map=.data.small_arr,ks=4,vs=64)
+  21: (bf) r2 = r6                      ; R2_w=scalar(id=1,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R6=scalar(id=1,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+  22: (67) r2 <<= 2                     ; R2_w=scalar(smin=0,smax=umax=0x3fffffffc,smax32=0x7ffffffc,umax32=0xfffffffc,var_off=(0x0; 0x3fffffffc))
+  23: (0f) r1 += r2
+  mark_precise: frame0: last_idx 23 first_idx 14 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 22: (67) r2 <<= 2
+  mark_precise: frame0: regs=r2 stack= before 21: (bf) r2 = r6
+  mark_precise: frame0: regs=r6 stack= before 20: (bf) r1 = r9
+  mark_precise: frame0: regs=r6 stack= before 19: (85) call bpf_iter_num_destroy#71885
+  mark_precise: frame0: regs=r6 stack= before 18: (bf) r1 = r8
+  mark_precise: frame0: regs=r6 stack= before 15: (15) if r0 == 0x0 goto pc+2
+  mark_precise: frame0: regs=r6 stack= before 14: (85) call bpf_iter_num_next#71889
+  mark_precise: frame0: parent state regs=r6 stack=:  R0_w=scalar() R1_rw=fp-8 R6_rw=Pscalar(id=1,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R7_w=scalar(id=1,smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) R8_rw=fp-8 R9_rw=map_value(map=.data.small_arr,ks=4,vs=64) R10=fp0 fp-8_rw=iter_num(ref_id=2,state=active,depth=0) refs=2
+  mark_precise: frame0: last_idx 13 first_idx 0 subseq_idx 14
+  mark_precise: frame0: regs=r6 stack= before 13: (bf) r1 = r8
+  mark_precise: frame0: regs=r6 stack= before 12: (85) call bpf_iter_num_new#71887
+  mark_precise: frame0: regs=r6 stack= before 11: (b7) r4 = 1
+  mark_precise: frame0: regs=r6 stack= before 10: (b7) r3 = 1000
+  mark_precise: frame0: regs=r6 stack= before 9: (b7) r2 = 0
+  mark_precise: frame0: regs=r6 stack= before 8: (bf) r1 = r8
+  mark_precise: frame0: regs=r6 stack= before 7: (bf) r6 = r7
+  mark_precise: frame0: regs=r7 stack= before 5: (18) r9 = 0xffffd10b747a7000
+  mark_precise: frame0: regs=r7 stack= before 4: (07) r8 += -8
+  mark_precise: frame0: regs=r7 stack= before 3: (bf) r8 = r10
+  mark_precise: frame0: regs=r7 stack= before 2: (61) r7 = *(u32 *)(r1 +0)
+  24: R1_w=map_value(map=.data.small_arr,ks=4,vs=64,smin=0,smax=umax=0x3fffffffc,smax32=0x7ffffffc,umax32=0xfffffffc,var_off=(0x0; 0x3fffffffc)) R2_w=scalar(smin=0,smax=umax=0x3fffffffc,smax32=0x7ffffffc,umax32=0xfffffffc,var_off=(0x0; 0x3fffffffc))
+  24: (63) *(u32 *)(r1 +0) = r6
+  R1 unbounded memory access, make sure to bounds check any such access
+  processed 21 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/iters.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"unbounded memory access\")\nint iter_err_unsafe_asm_loop(const void *ctx)\n{\n\tstruct bpf_iter_num it;\n\n\tMY_PID_GUARD();\n\n\tasm volatile (\n\t\t\"r6 = %[zero];\" /* iteration counter */\n\t\t\"r1 = %[it];\" /* iterator state */\n\t\t\"r2 = 0;\"\n\t\t\"r3 = 1000;\"\n\t\t\"r4 = 1;\"\n\t\t\"call %[bpf_iter_num_new];\"\n\t\"loop:\"\n\t\t\"r1 = %[it];\"\n\t\t\"call %[bpf_iter_num_next];\"\n\t\t\"if r0 == 0 goto out;\"\n\t\t\"r6 += 1;\"\n\t\t\"goto loop;\"\n\t\"out:\"\n\t\t\"r1 = %[it];\"\n\t\t\"call %[bpf_iter_num_destroy];\"\n\t\t\"r1 = %[small_arr];\"\n\t\t\"r2 = r6;\"\n\t\t\"r2 <<= 2;\"\n\t\t\"r1 += r2;\"\n\t\t\"*(u32 *)(r1 + 0) = r6;\" /* invalid */\n\t\t:\n\t\t: [it]\"r\"(&it),\n\t\t  [small_arr]\"r\"(small_arr),\n\t\t  [zero]\"r\"(zero),\n\t\t  __imm(bpf_iter_num_new),\n\t\t  __imm(bpf_iter_num_next),\n\t\t  __imm(bpf_iter_num_destroy)\n\t\t: __clobber_common, \"r6\"\n\t);\n\n\treturn 0;\n}"

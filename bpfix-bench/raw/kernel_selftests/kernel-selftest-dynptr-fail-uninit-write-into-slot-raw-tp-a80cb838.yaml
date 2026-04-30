@@ -1,0 +1,83 @@
+case_id: kernel-selftest-dynptr-fail-uninit-write-into-slot-raw-tp-a80cb838
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: uninit_write_into_slot
+  description: uninit_write_into_slot
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - potential write to dynptr at off=-16
+  unprivileged: []
+  combined:
+  - potential write to dynptr at off=-16
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r4 = r10
+    1: ....4..... (07) r4 += -16
+    2: ....4..... (18) r1 = 0xffff8d4889342c00
+    4: .1..4..... (b4) w2 = 80
+    5: .12.4..... (b7) r3 = 0
+    6: .1234..... (85) call bpf_ringbuf_reserve_dynptr#198
+    7: .......... (bf) r1 = r10
+    8: .1........ (07) r1 += -80
+    9: .1........ (b4) w2 = 80
+   10: .12....... (85) call bpf_get_current_comm#16
+   11: .......... (b4) w0 = 0
+   12: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 80, 0, &data.ptr); @ dynptr_fail.c:1292
+  0: (bf) r4 = r10                      ; R4_w=fp0 R10=fp0
+  1: (07) r4 += -16                     ; R4_w=fp-16
+  2: (18) r1 = 0xffff8d4889342c00       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 80                       ; R2_w=80
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  7: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=2
+  8: (07) r1 += -80                     ; R1_w=fp-80 refs=2
+  ; bpf_get_current_comm(data.buf, 80); @ dynptr_fail.c:1294
+  9: (b4) w2 = 80                       ; R2_w=80 refs=2
+  10: (85) call bpf_get_current_comm#16
+  potential write to dynptr at off=-16 disallowed
+  processed 10 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r4 = r10
+    1: ....4..... (07) r4 += -16
+    2: ....4..... (18) r1 = 0xffff8f15d5c7a800
+    4: .1..4..... (b4) w2 = 80
+    5: .12.4..... (b7) r3 = 0
+    6: .1234..... (85) call bpf_ringbuf_reserve_dynptr#198
+    7: .......... (bf) r1 = r10
+    8: .1........ (07) r1 += -80
+    9: .1........ (b4) w2 = 80
+   10: .12....... (85) call bpf_get_current_comm#16
+   11: .......... (b4) w0 = 0
+   12: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 80, 0, &data.ptr); @ prog.c:85
+  0: (bf) r4 = r10                      ; R4_w=fp0 R10=fp0
+  1: (07) r4 += -16                     ; R4_w=fp-16
+  2: (18) r1 = 0xffff8f15d5c7a800       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 80                       ; R2_w=80
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  7: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=2
+  8: (07) r1 += -80                     ; R1_w=fp-80 refs=2
+  ; bpf_get_current_comm(data.buf, 80); @ prog.c:87
+  9: (b4) w2 = 80                       ; R2_w=80 refs=2
+  10: (85) call bpf_get_current_comm#16
+  potential write to dynptr at off=-16 disallowed
+  processed 10 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"potential write to dynptr at off=-16\")\nint uninit_write_into_slot(void *ctx)\n{\n\tstruct {\n\t\tchar buf[64];\n\t\tstruct bpf_dynptr ptr;\n\t} data;\n\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, 80, 0, &data.ptr);\n\t/* this should fail */\n\tbpf_get_current_comm(data.buf, 80);\n\n\treturn 0;\n}\n\n/* Only supported prog type can create xdp-type dynptrs */"

@@ -1,0 +1,77 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-bcc-1d659c7f3388
+source_kind: github_commit
+source:
+  url: https://github.com/iovisor/bcc/commit/1d659c7f3388c272979198c91d10fb9887f74f66
+  title: 'bcc: Treat char* as i8 instead of ptr in sscanf funcs'
+  repository: https://github.com/iovisor/bcc
+  commit: 1d659c7f3388c272979198c91d10fb9887f74f66
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-bcc-1d659c7f3388.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: attempted_unknown
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: verification_status_unclear
+  verifier_status: null
+  captured_error: null
+  verifier_error_match: null
+raw:
+  case_id: eval-bcc-1d659c7f3388
+  source: eval_commits
+  repository: https://github.com/iovisor/bcc
+  commit_hash: 1d659c7f3388c272979198c91d10fb9887f74f66
+  commit_message: 'bcc: Treat char* as i8 instead of ptr in sscanf funcs'
+  commit_date: '2023-11-10'
+  fix_type: volatile_hack
+  buggy_code: "// FILE: src/cc/bpf_module_rw_engine.cc\n// CONTEXT: static void finish_sscanf(IRBuilder<>\
+    \ &B, vector<Value *> *args, string *fmt,\n\n  // exact_args means fail if don't\
+    \ consume exact number of \"%\" inputs\n  // exact_args is disabled for string\
+    \ parsing (empty case)\n  Value *cond = exact_args ? B.CreateICmpNE(call, B.getInt32(args->size()\
+    \ - 3))\n                           : B.CreateICmpSLT(call, B.getInt32(0));\n\
+    \  B.CreateCondBr(cond, label_true, label_false);\n\n  B.SetInsertPoint(label_true);\n\
+    \  B.CreateRet(B.getInt32(-1));\n\n  B.SetInsertPoint(label_false);\n  // s =\
+    \ &s[nread];\n  B.CreateStore(\n      createInBoundsGEP(B, createLoad(B, sptr),\
+    \ {createLoad(B, nread, true)}), sptr);\n\n  args->resize(2);\n  fmt->clear();\n\
+    }\n\n// recursive helper to capture the arguments\nstatic void parse_type(IRBuilder<>\
+    \ &B, vector<Value *> *args, string *fmt,\n                       Type *type,\
+    \ Value *out,\n                       const map<string, Value *> &locals, bool\
+    \ is_writer) {\n  if (StructType *st = dyn_cast<StructType>(type)) {\n    *fmt\
+    \ += \"{ \";\n    unsigned idx = 0;"
+  fixed_code: "// FILE: src/cc/bpf_module_rw_engine.cc\n// CONTEXT: static void finish_sscanf(IRBuilder<>\
+    \ &B, vector<Value *> *args, string *fmt,\n\n  // exact_args means fail if don't\
+    \ consume exact number of \"%\" inputs\n  // exact_args is disabled for string\
+    \ parsing (empty case)\n  Value *cond = exact_args ? B.CreateICmpNE(call, B.getInt32(args->size()\
+    \ - 3))\n                           : B.CreateICmpSLT(call, B.getInt32(0));\n\
+    \  B.CreateCondBr(cond, label_true, label_false);\n\n  B.SetInsertPoint(label_true);\n\
+    \  B.CreateRet(B.getInt32(-1));\n\n  B.SetInsertPoint(label_false);\n  // s =\
+    \ &s[nread];\n#if LLVM_VERSION_MAJOR >= 15\n  // cast `sptr` from `ptr`(an opaque\
+    \ pointer rather than `i8*`) to `i8`, so that\n  // CreateInBoundsGEP can work\
+    \ properly, i.e. the offset is in bytes not in pointer-size\n  B.CreateStore(\n\
+    \      B.CreateInBoundsGEP(B.getInt8Ty(), createLoad(B, sptr), {createLoad(B,\
+    \ nread, true)}),\n      sptr\n  );\n#else\n  B.CreateStore(\n      createInBoundsGEP(B,\
+    \ createLoad(B, sptr), {createLoad(B, nread, true)}), sptr);\n#endif\n\n  args->resize(2);\n\
+    \  fmt->clear();\n}\n\n// recursive helper to capture the arguments\nstatic void\
+    \ parse_type(IRBuilder<> &B, vector<Value *> *args, string *fmt,\n           \
+    \            Type *type, Value *out,\n                       const map<string,\
+    \ Value *> &locals, bool is_writer) {\n  if (StructType *st = dyn_cast<StructType>(type))\
+    \ {\n    *fmt += \"{ \";\n    unsigned idx = 0;"
+  diff_summary: 'src/cc/bpf_module_rw_engine.cc:
+
+    - Added or changed a volatile qualifier to force verifier-friendly code generation.
+
+    - Affected context: static void finish_sscanf(IRBuilder<> &B, vector<Value *>
+    *args, string *fmt,.
+
+    - Commit subject: bcc: Treat char* as i8 instead of ptr in sscanf funcs.'
+

@@ -1,0 +1,124 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-katran-07e10334022f
+source_kind: github_commit
+source:
+  url: https://github.com/facebookincubator/katran/commit/07e10334022f08ef3c6536260e1b028cdf8f5074
+  title: Make Katran's array-of-maps self-describing
+  repository: https://github.com/facebookincubator/katran
+  commit: 07e10334022f08ef3c6536260e1b028cdf8f5074
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-katran-07e10334022f.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: attempted_unknown
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: verification_status_unclear
+  verifier_status: null
+  captured_error: null
+  verifier_error_match: null
+raw:
+  case_id: eval-katran-07e10334022f
+  source: eval_commits
+  repository: https://github.com/facebookincubator/katran
+  commit_hash: 07e10334022f08ef3c6536260e1b028cdf8f5074
+  commit_message: Make Katran's array-of-maps self-describing
+  commit_date: '2023-03-30'
+  fix_type: other
+  buggy_code: "// FILE: katran/lib/bpf/balancer_maps.h\n#include \"katran/lib/bpf/balancer_consts.h\"\
+    \n#include \"katran/lib/bpf/balancer_structs.h\"\n\n// map, which contains all\
+    \ the vips for which we are doing load balancing\nstruct {\n  __uint(type, BPF_MAP_TYPE_HASH);\n\
+    \  __type(key, struct vip_definition);\n  __type(value, struct vip_meta);\n  __uint(max_entries,\
+    \ MAX_VIPS);\n  __uint(map_flags, NO_FLAGS);\n} vip_map SEC(\".maps\");\n\n//\
+    \ map which contains cpu core to lru mapping\nstruct {\n  __uint(type, BPF_MAP_TYPE_ARRAY_OF_MAPS);\n\
+    \  __uint(key_size, sizeof(__u32));\n  __uint(value_size, sizeof(__u32));\n  __uint(max_entries,\
+    \ MAX_SUPPORTED_CPUS);\n  __uint(map_flags, NO_FLAGS);\n} lru_mapping SEC(\".maps\"\
+    );\n\n// fallback lru. we should never hit this one outside of unittests\nstruct\
+    \ {\n  __uint(type, BPF_MAP_TYPE_LRU_HASH);\n  __type(key, struct flow_key);\n\
+    \  __type(value, struct real_pos_lru);\n  __uint(max_entries, DEFAULT_LRU_SIZE);\n\
+    \  __uint(map_flags, NO_FLAGS);\n} fallback_cache SEC(\".maps\");\n\n// map which\
+    \ contains all vip to real mappings\nstruct {\n  __uint(type, BPF_MAP_TYPE_ARRAY);\n\
+    \  __type(key, __u32);\n  __type(value, __u32);\n  __uint(max_entries, CH_RINGS_SIZE);\n\
+    \  __uint(map_flags, NO_FLAGS);\n} ch_rings SEC(\".maps\");\n\n// map which contains\
+    \ opaque real's id to real mapping\nstruct {\n  __uint(type, BPF_MAP_TYPE_ARRAY);\n\
+    \n// CONTEXT: struct {\n  __type(key, struct v6_lpm_key);\n  __type(value, __u32);\n\
+    \  __uint(max_entries, MAX_LPM_SRC);\n  __uint(map_flags, BPF_F_NO_PREALLOC);\n\
+    } lpm_src_v6 SEC(\".maps\");\n\n#endif // of LPM_SRC_LOOKUP\n\n#ifdef GLOBAL_LRU_LOOKUP\n\
+    \nstruct {\n  __uint(type, BPF_MAP_TYPE_ARRAY_OF_MAPS);\n  __uint(key_size, sizeof(__u32));\n\
+    \  __uint(value_size, sizeof(__u32));\n  __uint(max_entries, MAX_SUPPORTED_CPUS);\n\
+    \  __uint(map_flags, NO_FLAGS);\n} global_lru_maps SEC(\".maps\");\n\nstruct {\n\
+    \  __uint(type, BPF_MAP_TYPE_LRU_HASH);\n  __type(key, struct flow_key);\n  __type(value,\
+    \ __u32);\n  __uint(max_entries, DEFAULT_GLOBAL_LRU_SIZE);\n  __uint(map_flags,\
+    \ NO_FLAGS);\n} fallback_glru SEC(\".maps\");\n\n#endif // of GLOBAL_LRU_LOOKUP\n\
+    \n// FILE: katran/lib/bpf/flow_debug_maps.h\n\n#ifndef __FLOW_DEBUG_MAPS_H\n#define\
+    \ __FLOW_DEBUG_MAPS_H\n\n#include \"katran/lib/linux_includes/bpf.h\"\n#include\
+    \ \"katran/lib/linux_includes/bpf_helpers.h\"\n\n#include \"katran/lib/bpf/balancer_structs.h\"\
+    \n#include \"katran/lib/bpf/flow_debug.h\"\n\nstruct {\n  __uint(type, BPF_MAP_TYPE_ARRAY_OF_MAPS);\n\
+    \  __uint(key_size, sizeof(__u32));\n  __uint(value_size, sizeof(__u32));\n  __uint(max_entries,\
+    \ MAX_SUPPORTED_CPUS);\n  __uint(map_flags, NO_FLAGS);\n} flow_debug_maps SEC(\"\
+    .maps\");\n\n#endif // of __FLOW_DEBUG_MAPS_H"
+  fixed_code: "// FILE: katran/lib/bpf/balancer_maps.h\n#include \"katran/lib/bpf/balancer_consts.h\"\
+    \n#include \"katran/lib/bpf/balancer_structs.h\"\n\n// map, which contains all\
+    \ the vips for which we are doing load balancing\nstruct {\n  __uint(type, BPF_MAP_TYPE_HASH);\n\
+    \  __type(key, struct vip_definition);\n  __type(value, struct vip_meta);\n  __uint(max_entries,\
+    \ MAX_VIPS);\n  __uint(map_flags, NO_FLAGS);\n} vip_map SEC(\".maps\");\n\n//\
+    \ fallback lru. we should never hit this one outside of unittests\nstruct {\n\
+    \  __uint(type, BPF_MAP_TYPE_LRU_HASH);\n  __type(key, struct flow_key);\n  __type(value,\
+    \ struct real_pos_lru);\n  __uint(max_entries, DEFAULT_LRU_SIZE);\n  __uint(map_flags,\
+    \ NO_FLAGS);\n} fallback_cache SEC(\".maps\");\n\n// map which contains cpu core\
+    \ to lru mapping\nstruct {\n  __uint(type, BPF_MAP_TYPE_ARRAY_OF_MAPS);\n  __type(key,\
+    \ __u32);\n  __type(value, __u32);\n  __uint(max_entries, MAX_SUPPORTED_CPUS);\n\
+    \  __uint(map_flags, NO_FLAGS);\n  __array(\n      values,\n      struct {\n \
+    \       __uint(type, BPF_MAP_TYPE_LRU_HASH);\n        __type(key, struct flow_key);\n\
+    \        __type(value, struct real_pos_lru);\n        __uint(max_entries, DEFAULT_LRU_SIZE);\n\
+    \      });\n} lru_mapping SEC(\".maps\");\n\n// map which contains all vip to\
+    \ real mappings\nstruct {\n  __uint(type, BPF_MAP_TYPE_ARRAY);\n  __type(key,\
+    \ __u32);\n  __type(value, __u32);\n  __uint(max_entries, CH_RINGS_SIZE);\n  __uint(map_flags,\
+    \ NO_FLAGS);\n} ch_rings SEC(\".maps\");\n\n// map which contains opaque real's\
+    \ id to real mapping\nstruct {\n  __uint(type, BPF_MAP_TYPE_ARRAY);\n\n// CONTEXT:\
+    \ struct {\n  __type(key, struct v6_lpm_key);\n  __type(value, __u32);\n  __uint(max_entries,\
+    \ MAX_LPM_SRC);\n  __uint(map_flags, BPF_F_NO_PREALLOC);\n} lpm_src_v6 SEC(\"\
+    .maps\");\n\n#endif // of LPM_SRC_LOOKUP\n\n#ifdef GLOBAL_LRU_LOOKUP\n\nstruct\
+    \ {\n  __uint(type, BPF_MAP_TYPE_ARRAY_OF_MAPS);\n  __type(key, __u32);\n  __type(value,\
+    \ __u32);\n  __uint(max_entries, MAX_SUPPORTED_CPUS);\n  __uint(map_flags, NO_FLAGS);\n\
+    \  __array(\n      values,\n      struct {\n        __uint(type, BPF_MAP_TYPE_LRU_PERCPU_HASH);\n\
+    \        __type(key, struct flow_key);\n        __type(value, __u32);\n      \
+    \  __uint(max_entries, DEFAULT_LRU_SIZE);\n      });\n} global_lru_maps SEC(\"\
+    .maps\");\n\nstruct {\n  __uint(type, BPF_MAP_TYPE_LRU_HASH);\n  __type(key, struct\
+    \ flow_key);\n  __type(value, __u32);\n  __uint(max_entries, DEFAULT_GLOBAL_LRU_SIZE);\n\
+    \  __uint(map_flags, NO_FLAGS);\n} fallback_glru SEC(\".maps\");\n\n#endif //\
+    \ of GLOBAL_LRU_LOOKUP\n\n// FILE: katran/lib/bpf/flow_debug_maps.h\n\n#ifndef\
+    \ __FLOW_DEBUG_MAPS_H\n#define __FLOW_DEBUG_MAPS_H\n\n#include \"katran/lib/linux_includes/bpf.h\"\
+    \n#include \"katran/lib/linux_includes/bpf_helpers.h\"\n\n#include \"katran/lib/bpf/balancer_structs.h\"\
+    \n#include \"katran/lib/bpf/flow_debug.h\"\n\nstruct {\n  __uint(type, BPF_MAP_TYPE_ARRAY_OF_MAPS);\n\
+    \  __type(key, __u32);\n  __type(value, __u32);\n  __uint(max_entries, MAX_SUPPORTED_CPUS);\n\
+    \  __uint(map_flags, NO_FLAGS);\n  __array(\n      values,\n      struct {\n \
+    \       __uint(type, BPF_MAP_TYPE_LRU_HASH);\n        __uint(key_size, sizeof(struct\
+    \ flow_key));\n        __uint(value_size, sizeof(struct flow_debug_info));\n \
+    \       __uint(max_entries, DEFAULT_LRU_SIZE);\n      });\n} flow_debug_maps SEC(\"\
+    .maps\");\n\n#endif // of __FLOW_DEBUG_MAPS_H"
+  diff_summary: 'katran/lib/bpf/balancer_maps.h:
+
+    - Applied a small verifier-related code change captured by the exact before/after
+    snippets below.
+
+    - Affected context: struct {.
+
+    katran/lib/bpf/flow_debug_maps.h:
+
+    - Applied a small verifier-related code change captured by the exact before/after
+    snippets below.
+
+    - Affected context: the touched section.
+
+    - Commit subject: Make Katran''s array-of-maps self-describing.'
+

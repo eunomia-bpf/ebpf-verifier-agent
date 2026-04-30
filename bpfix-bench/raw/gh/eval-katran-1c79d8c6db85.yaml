@@ -1,0 +1,130 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-katran-1c79d8c6db85
+source_kind: github_commit
+source:
+  url: https://github.com/facebookincubator/katran/commit/1c79d8c6db856d9e56fde02b63b7b85e7f7a46f8
+  title: Add stats for drops during hash ring lookups [1/n]
+  repository: https://github.com/facebookincubator/katran
+  commit: 1c79d8c6db856d9e56fde02b63b7b85e7f7a46f8
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-katran-1c79d8c6db85.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: attempted_unknown
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: verification_status_unclear
+  verifier_status: null
+  captured_error: null
+  verifier_error_match: null
+raw:
+  case_id: eval-katran-1c79d8c6db85
+  source: eval_commits
+  repository: https://github.com/facebookincubator/katran
+  commit_hash: 1c79d8c6db856d9e56fde02b63b7b85e7f7a46f8
+  commit_message: Add stats for drops during hash ring lookups [1/n]
+  commit_date: '2023-01-04'
+  fix_type: inline_hint
+  buggy_code: "// FILE: katran/lib/bpf/balancer_consts.h\n// offset of remote encaped\
+    \ packets counters\n#define REMOTE_ENCAP_CNTRS 6\n// offset of QUIC routing related\
+    \ stats\n#define QUIC_ROUTE_STATS 7\n// QUIC CID versions\n#define QUIC_CID_VERSION_STATS\
+    \ 8\n// QUIC CID drops stats\n#define QUIC_CID_DROP_STATS 9\n// offset of stats\
+    \ for server_id based routing of TCP packets (TPR)\n#define TCP_SERVER_ID_ROUTE_STATS\
+    \ 10\n// offset of stats for global LRU\n#define GLOBAL_LRU_CNTR 11\n// 12 is\
+    \ unused\n// offset of stats for decap packets\n#define DECAP_CNTR 13\n\n// max\
+    \ ammount of new connections per seconda per core for lru update\n// if we go\
+    \ beyond this value - we will bypass lru update.\n#ifndef MAX_CONN_RATE\n#define\
+    \ MAX_CONN_RATE 125000\n#endif\n\n#ifndef IPIP_V4_PREFIX\n// RFC1918: we are going\
+    \ to use 172.16/10 as our src (4268 is 172.16 in BE)\n// for ipip header\n\n//\
+    \ FILE: katran/lib/bpf/balancer_kern.c\n// CONTEXT: __attribute__((__always_inline__))\
+    \ static inline bool is_under_flood(\n    conn_rate_stats->v2 = *cur_time;\n \
+    \ } else {\n    conn_rate_stats->v1 += 1;\n    if (conn_rate_stats->v1 > MAX_CONN_RATE)\
+    \ {\n      // we are exceding max connections rate. bypasing lru update and\n\
+    \      // source routing lookup\n      return true;\n    }\n  }\n  return false;\n\
+    }\n\n__attribute__((__always_inline__)) static inline bool get_packet_dst(\n \
+    \   struct real_definition** real,\n    struct packet_description* pckt,\n   \
+    \ struct vip_meta* vip_info,\n    bool is_ipv6,\n    void* lru_map) {\n  // to\
+    \ update lru w/ new connection\n  struct real_pos_lru new_dst_lru = {};\n  bool\
+    \ under_flood = false;\n  bool src_found = false;\n  __u32* real_pos;\n  __u64\
+    \ cur_time = 0;\n\n// CONTEXT: __attribute__((__always_inline__)) static inline\
+    \ bool get_packet_dst(\n      // usually VoIP related services.\n      pckt->flow.port16[0]\
+    \ = pckt->flow.port16[1];\n      memset(pckt->flow.srcv6, 0, 16);\n    }\n   \
+    \ hash = get_packet_hash(pckt, hash_16bytes) % RING_SIZE;\n    key = RING_SIZE\
+    \ * (vip_info->vip_num) + hash;\n\n    real_pos = bpf_map_lookup_elem(&ch_rings,\
+    \ &key);\n    if (!real_pos) {\n      return false;\n    }\n    key = *real_pos;\n\
+    \  }\n  pckt->real_index = key;\n  *real = bpf_map_lookup_elem(&reals, &key);\n\
+    \  if (!(*real)) {\n    return false;\n  }\n  if (lru_map && !(vip_info->flags\
+    \ & F_LRU_BYPASS) && !under_flood) {\n    if (pckt->flow.proto == IPPROTO_UDP)\
+    \ {\n      new_dst_lru.atime = cur_time;\n    }\n    new_dst_lru.pos = key;\n\
+    \    bpf_map_update_elem(lru_map, &pckt->flow, &new_dst_lru, BPF_ANY);\n  }\n\
+    \  return true;\n}"
+  fixed_code: "// FILE: katran/lib/bpf/balancer_consts.h\n// offset of remote encaped\
+    \ packets counters\n#define REMOTE_ENCAP_CNTRS 6\n// offset of QUIC routing related\
+    \ stats\n#define QUIC_ROUTE_STATS 7\n// QUIC CID versions\n#define QUIC_CID_VERSION_STATS\
+    \ 8\n// QUIC CID drops stats\n#define QUIC_CID_DROP_STATS 9\n// offset of stats\
+    \ for server_id based routing of TCP packets (TPR)\n#define TCP_SERVER_ID_ROUTE_STATS\
+    \ 10\n// offset of stats for global LRU\n#define GLOBAL_LRU_CNTR 11\n// offset\
+    \ of stats for packets dropped during consistent hashing\n#define CH_DROP_STATS\
+    \ 12\n// offset of stats for decap packets\n#define DECAP_CNTR 13\n\n// max ammount\
+    \ of new connections per seconda per core for lru update\n// if we go beyond this\
+    \ value - we will bypass lru update.\n#ifndef MAX_CONN_RATE\n#define MAX_CONN_RATE\
+    \ 125000\n#endif\n\n#ifndef IPIP_V4_PREFIX\n// RFC1918: we are going to use 172.16/10\
+    \ as our src (4268 is 172.16 in BE)\n// for ipip header\n\n// FILE: katran/lib/bpf/balancer_kern.c\n\
+    // CONTEXT: __attribute__((__always_inline__)) static inline bool is_under_flood(\n\
+    \    conn_rate_stats->v2 = *cur_time;\n  } else {\n    conn_rate_stats->v1 +=\
+    \ 1;\n    if (conn_rate_stats->v1 > MAX_CONN_RATE) {\n      // we are exceding\
+    \ max connections rate. bypasing lru update and\n      // source routing lookup\n\
+    \      return true;\n    }\n  }\n  return false;\n}\n\n__attribute__((__always_inline__))\
+    \ static inline void\nincrement_ch_drop_no_real() {\n  __u32 ch_drop_stats_key\
+    \ = MAX_VIPS + CH_DROP_STATS;\n  struct lb_stats* ch_drop_stats =\n      bpf_map_lookup_elem(&stats,\
+    \ &ch_drop_stats_key);\n  if (!ch_drop_stats) {\n    return;\n  }\n  ch_drop_stats->v1\
+    \ += 1;\n}\n\n__attribute__((__always_inline__)) static inline void\nincrement_ch_drop_real_0()\
+    \ {\n  __u32 ch_drop_stats_key = MAX_VIPS + CH_DROP_STATS;\n  struct lb_stats*\
+    \ ch_drop_stats =\n      bpf_map_lookup_elem(&stats, &ch_drop_stats_key);\n  if\
+    \ (!ch_drop_stats) {\n    return;\n  }\n  ch_drop_stats->v2 += 1;\n}\n\n__attribute__((__always_inline__))\
+    \ static inline bool get_packet_dst(\n    struct real_definition** real,\n   \
+    \ struct packet_description* pckt,\n    struct vip_meta* vip_info,\n    bool is_ipv6,\n\
+    \    void* lru_map) {\n  // to update lru w/ new connection\n  struct real_pos_lru\
+    \ new_dst_lru = {};\n  bool under_flood = false;\n  bool src_found = false;\n\
+    \  __u32* real_pos;\n  __u64 cur_time = 0;\n\n// CONTEXT: __attribute__((__always_inline__))\
+    \ static inline bool get_packet_dst(\n      // usually VoIP related services.\n\
+    \      pckt->flow.port16[0] = pckt->flow.port16[1];\n      memset(pckt->flow.srcv6,\
+    \ 0, 16);\n    }\n    hash = get_packet_hash(pckt, hash_16bytes) % RING_SIZE;\n\
+    \    key = RING_SIZE * (vip_info->vip_num) + hash;\n\n    real_pos = bpf_map_lookup_elem(&ch_rings,\
+    \ &key);\n    if (!real_pos) {\n      return false;\n    }\n    key = *real_pos;\n\
+    \    if (key == 0) {\n      // Real ids start from 1, so we don't map the id 0\
+    \ to any real. This\n      // is likely to happen if the ch ring for a vip is\
+    \ uninitialized.\n      increment_ch_drop_real_0();\n    }\n  }\n  pckt->real_index\
+    \ = key;\n  *real = bpf_map_lookup_elem(&reals, &key);\n  if (!(*real)) {\n  \
+    \  // The id we retrieved from the hash ring is out of bounds in the reals\n \
+    \   // array.\n    increment_ch_drop_no_real();\n    return false;\n  }\n  if\
+    \ (lru_map && !(vip_info->flags & F_LRU_BYPASS) && !under_flood) {\n    if (pckt->flow.proto\
+    \ == IPPROTO_UDP) {\n      new_dst_lru.atime = cur_time;\n    }\n    new_dst_lru.pos\
+    \ = key;\n    bpf_map_update_elem(lru_map, &pckt->flow, &new_dst_lru, BPF_ANY);\n\
+    \  }\n  return true;\n}"
+  diff_summary: 'katran/lib/bpf/balancer_consts.h:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: the touched section.
+
+    katran/lib/bpf/balancer_kern.c:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: __attribute__((__always_inline__)) static inline bool is_under_flood(,
+    __attribute__((__always_inline__)) static inline bool get_packet_dst(.
+
+    - Commit subject: Add stats for drops during hash ring lookups [1/n].'
+

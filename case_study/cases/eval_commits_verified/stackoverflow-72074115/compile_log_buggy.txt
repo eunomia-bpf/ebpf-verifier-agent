@@ -1,7 +1,0 @@
-/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-72074115/buggy.c:39:9: error: call to undeclared function 'fls64'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   39 |     b = fls64(a);
-      |         ^
-/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-72074115/buggy.c:55:29: error: call to undeclared function 'div64_u64'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   55 |         x = (2 * x + (__u32)div64_u64(a, (__u64)x * (__u64)(x - 1)));
-      |                             ^
-2 errors generated.

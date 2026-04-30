@@ -1,0 +1,69 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-46024c6c4a30
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/46024c6c4a30016b467b746753902b6805505a31
+  title: 'bpf/lib/nodeport.h: Fix verifier error on RHEL 8.6 + mCPU v3'
+  repository: https://github.com/cilium/cilium
+  commit: 46024c6c4a30016b467b746753902b6805505a31
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-46024c6c4a30.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-46024c6c4a30
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: 46024c6c4a30016b467b746753902b6805505a31
+  commit_message: 'bpf/lib/nodeport.h: Fix verifier error on RHEL 8.6 + mCPU v3'
+  commit_date: '2025-07-07'
+  fix_type: null_check
+  buggy_code: "// FILE: bpf/lib/nodeport.h\n// CONTEXT: int tail_nodeport_nat_egress_ipv4(struct\
+    \ __ctx_buff *ctx)\n\n        ret = __snat_v4_nat(ctx, &tuple, fraginfo, l4_off,\
+    \ true,\n                            &target, TCP_SPORT_OFF, &trace, &ext_err);\n\
+    \        if (IS_ERR(ret))\n                goto drop_err;\n\n        /* This is\
+    \ also needed for from-overlay, to avoid a second SNAT by\n         * to-overlay\
+    \ or to-netdev.\n         */\n        ctx_snat_done_set(ctx);\n\n#ifdef TUNNEL_MODE\n\
+    \        if (tunnel_endpoint) {\n                __be16 src_port;\n\n        \
+    \        src_port = tunnel_gen_src_port_v4(&tuple);\n\n                /* The\
+    \ request came from outside, so we need to\n                 * set the security\
+    \ id in the tunnel header to WORLD_ID.\n                 * Otherwise, the remote\
+    \ node will assume, that the\n                 * request originated from a cluster\
+    \ node which will\n                 * bypass any netpol which disallows LB requests\
+    \ from\n                 * outside.\n                 */\n                ret\
+    \ = nodeport_add_tunnel_encap(ctx,"
+  fixed_code: "// FILE: bpf/lib/nodeport.h\n// CONTEXT: int tail_nodeport_nat_egress_ipv4(struct\
+    \ __ctx_buff *ctx)\n\n        ret = __snat_v4_nat(ctx, &tuple, fraginfo, l4_off,\
+    \ true,\n                            &target, TCP_SPORT_OFF, &trace, &ext_err);\n\
+    \        if (IS_ERR(ret))\n                goto drop_err;\n\n        /* This is\
+    \ also needed for from-overlay, to avoid a second SNAT by\n         * to-overlay\
+    \ or to-netdev.\n         */\n        ctx_snat_done_set(ctx);\n\n#ifdef TUNNEL_MODE\n\
+    \        if (info && tunnel_endpoint) {\n                __be16 src_port;\n\n\
+    \                src_port = tunnel_gen_src_port_v4(&tuple);\n\n              \
+    \  /* The request came from outside, so we need to\n                 * set the\
+    \ security id in the tunnel header to WORLD_ID.\n                 * Otherwise,\
+    \ the remote node will assume, that the\n                 * request originated\
+    \ from a cluster node which will\n                 * bypass any netpol which disallows\
+    \ LB requests from\n                 * outside.\n                 */\n       \
+    \         ret = nodeport_add_tunnel_encap(ctx,"
+  diff_summary: 'bpf/lib/nodeport.h:
+
+    - Strengthened the tunnel path guard from `if (tunnel_endpoint)` to `if (info
+    && tunnel_endpoint)`.
+
+    - Made the nullable relation explicit so the verifier no longer follows a bogus
+    `info == NULL` dereference path on RHEL 8.6.'
+

@@ -1,0 +1,72 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-aya-2e0702854b0e
+source_kind: github_commit
+source:
+  url: https://github.com/aya-rs/aya/commit/2e0702854b0e2428f6b5b32678f5f79ca341c619
+  title: Ensure log buffer bounds
+  repository: https://github.com/aya-rs/aya
+  commit: 2e0702854b0e2428f6b5b32678f5f79ca341c619
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-aya-2e0702854b0e.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-aya-2e0702854b0e
+  source: eval_commits
+  repository: https://github.com/aya-rs/aya
+  commit_hash: 2e0702854b0e2428f6b5b32678f5f79ca341c619
+  commit_message: Ensure log buffer bounds
+  commit_date: '2022-07-20'
+  fix_type: bounds_check
+  buggy_code: "// FILE: aya-log/aya-log-common/src/lib.rs\n// CONTEXT: struct TagLenValue<'a,\
+    \ T> {\n\nimpl<'a, T> TagLenValue<'a, T>\nwhere\n    T: Copy,\n{\n    #[inline(always)]\n\
+    \    pub(crate) fn new(tag: T, value: &'a [u8]) -> TagLenValue<'a, T> {\n    \
+    \    TagLenValue { tag, value }\n    }\n\n    pub(crate) fn write(&self, mut buf:\
+    \ &mut [u8]) -> Result<usize, ()> {\n        let size = mem::size_of::<T>() +\
+    \ mem::size_of::<usize>() + self.value.len();\n        if buf.len() < size {\n\
+    \            return Err(());\n        }\n\n        unsafe { ptr::write_unaligned(buf.as_mut_ptr()\
+    \ as *mut _, self.tag) };\n        buf = &mut buf[mem::size_of::<T>()..];\n\n\
+    \        unsafe { ptr::write_unaligned(buf.as_mut_ptr() as *mut _, self.value.len())\
+    \ };\n        buf = &mut buf[mem::size_of::<usize>()..];\n\n        let len =\
+    \ cmp::min(buf.len(), self.value.len());\n        buf[..len].copy_from_slice(&self.value[..len]);\n\
+    \        Ok(size)\n    }\n}\n\npub trait WriteToBuf {\n    #[allow(clippy::result_unit_err)]\n\
+    \    fn write(&self, buf: &mut [u8]) -> Result<usize, ()>;\n}\n\nmacro_rules!\
+    \ impl_write_to_buf {\n    ($type:ident, $arg_type:expr) => {"
+  fixed_code: "// FILE: aya-log/aya-log-common/src/lib.rs\n// CONTEXT: struct TagLenValue<'a,\
+    \ T> {\n\nimpl<'a, T> TagLenValue<'a, T>\nwhere\n    T: Copy,\n{\n    #[inline(always)]\n\
+    \    pub(crate) fn new(tag: T, value: &'a [u8]) -> TagLenValue<'a, T> {\n    \
+    \    TagLenValue { tag, value }\n    }\n\n    pub(crate) fn write(&self, mut buf:\
+    \ &mut [u8]) -> Result<usize, ()> {\n        let size = mem::size_of::<T>() +\
+    \ mem::size_of::<usize>() + self.value.len();\n        // The verifier rejects\
+    \ the program if it can't see that `size` doesn't\n        // exceed the buffer\
+    \ size.\n        if size > LOG_BUF_CAPACITY {\n            return Err(());\n \
+    \       }\n\n        unsafe { ptr::write_unaligned(buf.as_mut_ptr() as *mut _,\
+    \ self.tag) };\n        buf = &mut buf[mem::size_of::<T>()..];\n\n        unsafe\
+    \ { ptr::write_unaligned(buf.as_mut_ptr() as *mut _, self.value.len()) };\n  \
+    \      buf = &mut buf[mem::size_of::<usize>()..];\n\n        let len = cmp::min(buf.len(),\
+    \ self.value.len());\n        // The verifier rejects the program if it can't\
+    \ see that `size` doesn't\n        // exceed the buffer size.\n        if len\
+    \ > LOG_BUF_CAPACITY {\n            return Err(());\n        }\n        buf[..len].copy_from_slice(&self.value[..len]);\n\
+    \        Ok(size)\n    }\n}\n\npub trait WriteToBuf {\n    #[allow(clippy::result_unit_err)]\n\
+    \    fn write(&self, buf: &mut [u8]) -> Result<usize, ()>;\n}\n\nmacro_rules!\
+    \ impl_write_to_buf {\n    ($type:ident, $arg_type:expr) => {"
+  diff_summary: 'aya-log/aya-log-common/src/lib.rs:
+
+    - Replaced verifier-hostile `buf.len() < size` reasoning with explicit constant-capacity
+    guards on `size` and `len`.
+
+    - Preserved the same write logic once the bounds proof is explicit.'
+

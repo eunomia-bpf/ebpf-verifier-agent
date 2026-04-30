@@ -1,0 +1,92 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-6e18eb020b68
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/6e18eb020b68c619dbd6e0f7dc4c194fa885a523
+  title: 'bpf: Fix compatibility with Clang 17 in __lb6_affinity_backend_id'
+  repository: https://github.com/cilium/cilium
+  commit: 6e18eb020b68c619dbd6e0f7dc4c194fa885a523
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-6e18eb020b68.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-6e18eb020b68
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: 6e18eb020b68c619dbd6e0f7dc4c194fa885a523
+  commit_message: 'bpf: Fix compatibility with Clang 17 in __lb6_affinity_backend_id'
+  commit_date: '2024-03-15'
+  fix_type: refactor
+  buggy_code: "// FILE: bpf/lib/lb.h\n// CONTEXT: l4_xlate:\n\n#ifdef ENABLE_SESSION_AFFINITY\n\
+    static __always_inline __u32\n__lb6_affinity_backend_id(const struct lb6_service\
+    \ *svc, bool netns_cookie,\n                          union lb6_affinity_client_id\
+    \ *id)\n{\n        struct lb6_affinity_key key = {\n                .rev_nat_id\
+    \     = svc->rev_nat_index,\n                .netns_cookie   = netns_cookie,\n\
+    \        };\n        struct lb_affinity_val *val;\n\n        ipv6_addr_copy_unaligned(&key.client_id.client_ip,\
+    \ &id->client_ip);\n\n        val = map_lookup_elem(&LB6_AFFINITY_MAP, &key);\n\
+    \        if (val != NULL) {\n                __u32 now = bpf_mono_now();\n   \
+    \             struct lb_affinity_match match = {\n                        .rev_nat_id\
+    \     = svc->rev_nat_index,\n                        .backend_id     = val->backend_id,\n\
+    \                };\n\n                if (READ_ONCE(val->last_used) +\n     \
+    \               bpf_sec_to_mono(svc->affinity_timeout) <= now) {\n           \
+    \             map_delete_elem(&LB6_AFFINITY_MAP, &key);\n\n// CONTEXT: __lb6_update_affinity(const\
+    \ struct lb6_service *svc, bool netns_cookie,\n                      union lb6_affinity_client_id\
+    \ *id, __u32 backend_id)\n{\n        __u32 now = bpf_mono_now();\n        struct\
+    \ lb6_affinity_key key = {\n                .rev_nat_id     = svc->rev_nat_index,\n\
+    \                .netns_cookie   = netns_cookie,\n        };\n        struct lb_affinity_val\
+    \ val = {\n                .backend_id     = backend_id,\n                .last_used\
+    \      = now,\n        };\n\n        ipv6_addr_copy_unaligned(&key.client_id.client_ip,\
+    \ &id->client_ip);\n\n        map_update_elem(&LB6_AFFINITY_MAP, &key, &val, 0);\n\
+    }\n\nstatic __always_inline void\nlb6_update_affinity_by_addr(const struct lb6_service\
+    \ *svc,\n                            union lb6_affinity_client_id *id, __u32 backend_id)\n\
+    {\n        __lb6_update_affinity(svc, false, id, backend_id);\n}\n#endif /* ENABLE_SESSION_AFFINITY\
+    \ */"
+  fixed_code: "// FILE: bpf/lib/lb.h\n// CONTEXT: l4_xlate:\n\n#ifdef ENABLE_SESSION_AFFINITY\n\
+    static __always_inline __u32\n__lb6_affinity_backend_id(const struct lb6_service\
+    \ *svc, bool netns_cookie,\n                          union lb6_affinity_client_id\
+    \ *id)\n{\n        struct lb6_affinity_key key = {\n                .rev_nat_id\
+    \     = svc->rev_nat_index,\n                .netns_cookie   = netns_cookie,\n\
+    \        };\n        struct lb_affinity_val *val;\n\n        if (netns_cookie)\n\
+    \                key.client_id.client_cookie = id->client_cookie;\n        else\n\
+    \                ipv6_addr_copy_unaligned(&key.client_id.client_ip, &id->client_ip);\n\
+    \n        val = map_lookup_elem(&LB6_AFFINITY_MAP, &key);\n        if (val !=\
+    \ NULL) {\n                __u32 now = bpf_mono_now();\n                struct\
+    \ lb_affinity_match match = {\n                        .rev_nat_id     = svc->rev_nat_index,\n\
+    \                        .backend_id     = val->backend_id,\n                };\n\
+    \n                if (READ_ONCE(val->last_used) +\n                    bpf_sec_to_mono(svc->affinity_timeout)\
+    \ <= now) {\n                        map_delete_elem(&LB6_AFFINITY_MAP, &key);\n\
+    \n// CONTEXT: __lb6_update_affinity(const struct lb6_service *svc, bool netns_cookie,\n\
+    \                      union lb6_affinity_client_id *id, __u32 backend_id)\n{\n\
+    \        __u32 now = bpf_mono_now();\n        struct lb6_affinity_key key = {\n\
+    \                .rev_nat_id     = svc->rev_nat_index,\n                .netns_cookie\
+    \   = netns_cookie,\n        };\n        struct lb_affinity_val val = {\n    \
+    \            .backend_id     = backend_id,\n                .last_used      =\
+    \ now,\n        };\n\n        if (netns_cookie)\n                key.client_id.client_cookie\
+    \ = id->client_cookie;\n        else\n                ipv6_addr_copy_unaligned(&key.client_id.client_ip,\
+    \ &id->client_ip);\n\n        map_update_elem(&LB6_AFFINITY_MAP, &key, &val, 0);\n\
+    }\n\nstatic __always_inline void\nlb6_update_affinity_by_addr(const struct lb6_service\
+    \ *svc,\n                            union lb6_affinity_client_id *id, __u32 backend_id)\n\
+    {\n        __lb6_update_affinity(svc, false, id, backend_id);\n}\n#endif /* ENABLE_SESSION_AFFINITY\
+    \ */"
+  diff_summary: 'bpf/lib/lb.h:
+
+    - Copied `client_cookie` or `client_ip` depending on which union field is actually
+    active.
+
+    - Ensured the affinity-map key is fully initialized so Clang 17 no longer leaves
+    verifier-visible stack bytes undefined.'
+

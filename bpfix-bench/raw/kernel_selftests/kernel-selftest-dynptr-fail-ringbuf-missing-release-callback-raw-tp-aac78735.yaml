@@ -1,0 +1,101 @@
+case_id: kernel-selftest-dynptr-fail-ringbuf-missing-release-callback-raw-tp-aac78735
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: ringbuf_missing_release_callback
+  description: ringbuf_missing_release_callback
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - Unreleased reference id
+  unprivileged: []
+  combined:
+  - Unreleased reference id
+verifier_log: |-
+  func#0 @0
+  func#1 @8
+  Live regs before insn:
+    0: .......... (b4) w1 = 10
+    1: .1........ (18) r2 = 0x6
+    3: .12....... (b7) r3 = 0
+    4: .123...... (b7) r4 = 0
+    5: .1234..... (85) call bpf_loop#181
+    6: .......... (b4) w0 = 0
+    7: 0......... (95) exit
+    8: .......... (18) r1 = 0xffffd10b71a44000
+   10: .1........ (61) r2 = *(u32 *)(r1 +0)
+   11: ..2....... (bf) r4 = r10
+   12: ..2.4..... (07) r4 += -16
+   13: ..2.4..... (18) r1 = 0xffff8d5e98dfde00
+   15: .12.4..... (b7) r3 = 0
+   16: .1234..... (85) call bpf_ringbuf_reserve_dynptr#198
+   17: .......... (b4) w0 = 0
+   18: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; bpf_loop(10, missing_release_callback_fn, NULL, 0); @ dynptr_fail.c:133
+  0: (b4) w1 = 10                       ; R1_w=10
+  1: (18) r2 = 0x6                      ; R2_w=func()
+  3: (b7) r3 = 0                        ; R3_w=0
+  4: (b7) r4 = 0                        ; R4=0
+  5: (85) call bpf_loop#181
+  mark_precise: frame0: last_idx 5 first_idx 5 subseq_idx -1
+  mark_precise: frame0: parent state regs=r4 stack=:  R1_rw=10 R2_rw=func() R3_rw=0 R4_rw=P0 R10=fp0
+  mark_precise: frame0: last_idx 4 first_idx 0 subseq_idx 5
+  mark_precise: frame0: regs=r4 stack= before 4: (b7) r4 = 0
+  mark_precise: frame0: last_idx 5 first_idx 5 subseq_idx -1
+  mark_precise: frame0: parent state regs=r1 stack=:  R1_rw=P10 R2_rw=func() R3_rw=0 R4_rw=P0 R10=fp0
+  mark_precise: frame0: last_idx 4 first_idx 0 subseq_idx 5
+  mark_precise: frame0: regs=r1 stack= before 4: (b7) r4 = 0
+  mark_precise: frame0: regs=r1 stack= before 3: (b7) r3 = 0
+  mark_precise: frame0: regs=r1 stack= before 1: (18) r2 = 0x6
+  mark_precise: frame0: regs=r1 stack= before 0: (b4) w1 = 10
+  6: R0_w=scalar() R10=fp0
+  ; return 0; @ dynptr_fail.c:134
+  6: (b4) w0 = 0                        ; R0_w=0
+  7: (95) exit
+
+  from 5 to 8: frame1: R1=scalar() R2=0 R10=fp0 cb
+  8: frame1: R1=scalar() R2=0 R10=fp0 cb
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, val, 0, &ptr); @ dynptr_fail.c:121
+  8: (18) r1 = 0xffffd10b71a44000       ; frame1: R1_w=map_value(map=dynptr_f.bss,ks=4,vs=28) cb
+  10: (61) r2 = *(u32 *)(r1 +0)         ; frame1: R1_w=map_value(map=dynptr_f.bss,ks=4,vs=28) R2_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff)) cb
+  11: (bf) r4 = r10                     ; frame1: R4_w=fp0 R10=fp0 cb
+  12: (07) r4 += -16                    ; frame1: R4_w=fp-16 cb
+  13: (18) r1 = 0xffff8d5e98dfde00      ; frame1: R1_w=map_ptr(map=ringbuf,ks=0,vs=0) cb
+  15: (b7) r3 = 0                       ; frame1: R3_w=0 cb
+  16: (85) call bpf_ringbuf_reserve_dynptr#198          ; frame1: R0=scalar() fp-16=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2 cb
+  ; return 0; @ dynptr_fail.c:125
+  17: (b4) w0 = 0                       ; frame1: R0_w=0 refs=2 cb
+  18: (95) exit
+  mark_precise: frame1: last_idx 18 first_idx 17 subseq_idx -1
+  mark_precise: frame1: regs=r0 stack= before 17: (b4) w0 = 0
+  returning from callee:
+   frame1: R0_w=0 R10=fp0 fp-16=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2 cb
+  to caller at 5:
+   R1=10 R2=func() R3=0 R4=0 R10=fp0 refs=2
+
+  from 18 to 5: R1=10 R2=func() R3=0 R4=0 R10=fp0 refs=2
+  ; bpf_loop(10, missing_release_callback_fn, NULL, 0); @ dynptr_fail.c:133
+  5: (85) call bpf_loop#181
+  mark_precise: frame0: last_idx 5 first_idx 5 subseq_idx -1
+  mark_precise: frame0: parent state regs=r4 stack=:  R1_r=10 R2_r=func() R3_r=0 R4_r=P0 R10=fp0 refs=2
+  mark_precise: frame0: last_idx 18 first_idx 17 subseq_idx 5
+  mark_precise: frame0: regs=r4 stack= before 18: (95) exit
+  mark_precise: frame0: last_idx 5 first_idx 5 subseq_idx -1
+  mark_precise: frame0: parent state regs=r1 stack=:  R1_r=P10 R2_r=func() R3_r=0 R4_r=P0 R10=fp0 refs=2
+  mark_precise: frame0: last_idx 18 first_idx 17 subseq_idx 5
+  mark_precise: frame0: regs=r1 stack= before 18: (95) exit
+  6: R0_w=scalar() R10=fp0 refs=2
+  ; return 0; @ dynptr_fail.c:134
+  6: (b4) w0 = 0                        ; R0_w=0 refs=2
+  7: (95) exit
+  Unreleased reference id=2 alloc_insn=16
+  BPF_EXIT instruction in main prog would lead to reference leak
+  processed 19 insns (limit 1000000) max_states_per_insn 1 total_states 3 peak_states 3 mark_read 1
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"Unreleased reference id\")\nint ringbuf_missing_release_callback(void *ctx)\n{\n\tbpf_loop(10, missing_release_callback_fn, NULL, 0);\n\treturn 0;\n}\n\n/* Can't call bpf_ringbuf_submit/discard_dynptr on a non-initialized dynptr */"

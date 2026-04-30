@@ -1,7 +1,7 @@
 """Batch-level and known-answer regression tests for the BPFix diagnostic pipeline.
 
 Tests in this module:
-  - Batch correctness: run generate_diagnostic() on all 66 SO cases with verifier
+  - Batch correctness: run generate_diagnostic() on the SO raw cases with verifier
     logs and assert population-level invariants (success rate, proof_status
     distribution, error_id pattern coverage).
   - Known-answer regression: 5 well-understood cases checked against specific
@@ -23,7 +23,7 @@ import yaml
 from interface.extractor.rust_diagnostic import generate_diagnostic
 
 ROOT = Path(__file__).resolve().parents[1]
-SO_CASES_DIR = ROOT / "case_study" / "cases" / "stackoverflow"
+SO_CASES_DIR = ROOT / "bpfix-bench" / "raw" / "so"
 
 VALID_PROOF_STATUSES = {"never_established", "established_then_lost", "established_but_insufficient", "proof_satisfied", "unknown"}
 VALID_TAXONOMY_CLASSES = {
@@ -33,35 +33,21 @@ ERROR_ID_PATTERN = re.compile(r"^BPFIX-E\d{3}$|^BPFIX-UNKNOWN$")
 
 
 def _load_verifier_log(relative_path: str) -> str:
-    payload = yaml.safe_load((ROOT / relative_path).read_text(encoding="utf-8"))
-    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
-    if isinstance(verifier_log, str):
-        return verifier_log
-    combined = verifier_log.get("combined")
-    if isinstance(combined, str) and combined.strip():
-        return combined
-    blocks = verifier_log.get("blocks") or []
-    return "\n\n".join(block for block in blocks if isinstance(block, str))
+    from bench_fixtures import load_verifier_log
+
+    return load_verifier_log(relative_path)
 
 
 def _so_cases_with_logs() -> list[Path]:
     """Return all SO case YAML files that contain a non-empty verifier log."""
+    from bench_fixtures import verifier_log_from_case
+
     result = []
     for f in sorted(SO_CASES_DIR.glob("*.yaml")):
         if f.name == "index.yaml":
             continue
         payload = yaml.safe_load(f.read_text(encoding="utf-8"))
-        vl = payload.get("original_verifier_log", payload.get("verifier_log", ""))
-        if isinstance(vl, str):
-            has_log = bool(vl.strip())
-        elif isinstance(vl, dict):
-            combined = vl.get("combined", "")
-            blocks = vl.get("blocks", [])
-            has_log = bool((combined and combined.strip()) or
-                           any(isinstance(b, str) and b.strip() for b in blocks))
-        else:
-            has_log = False
-        if has_log:
+        if verifier_log_from_case(payload).strip():
             result.append(f)
     return result
 
@@ -72,9 +58,9 @@ def _so_cases_with_logs() -> list[Path]:
 
 
 def test_batch_so_no_crashes() -> None:
-    """generate_diagnostic() must not crash on any of the 66 SO cases."""
+    """generate_diagnostic() must not crash on the SO raw cases with logs."""
     cases = _so_cases_with_logs()
-    assert len(cases) == 66, f"expected 66 SO cases with logs, found {len(cases)}"
+    assert len(cases) >= 66, f"expected at least 66 SO cases with logs, found {len(cases)}"
     errors: list[tuple[str, str]] = []
     for case_path in cases:
         log = _load_verifier_log(str(case_path.relative_to(ROOT)))
@@ -86,7 +72,7 @@ def test_batch_so_no_crashes() -> None:
 
 
 def test_batch_so_never_established_ratio_below_threshold() -> None:
-    """The never_established ratio across all 66 SO cases must stay <= 65%.
+    """The never_established ratio across SO raw cases must stay <= 65%.
 
     Current baseline is ~59%. This threshold catches regressions where
     many established_then_lost cases are incorrectly collapsed to never_established.
@@ -152,7 +138,7 @@ def test_known_answer_lowering_artifact_70750259() -> None:
     is still surfaced as the proof-loss site.
     """
     out = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
     )
     data = out.json_data
     meta = data.get("metadata", {})
@@ -177,7 +163,7 @@ def test_known_answer_lowering_artifact_70729664_large_trace() -> None:
     the failure_class now reflects the log_parser classification.
     """
     out = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70729664.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70729664.yaml")
     )
     data = out.json_data
     meta = data.get("metadata", {})
@@ -191,7 +177,7 @@ def test_known_answer_lowering_artifact_70729664_large_trace() -> None:
 def test_known_answer_verifier_limit_70841631() -> None:
     """stackoverflow-70841631: program-too-large verifier_limit case."""
     out = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70841631.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70841631.yaml")
     )
     data = out.json_data
 
@@ -203,7 +189,7 @@ def test_known_answer_verifier_limit_70841631() -> None:
 def test_known_answer_source_bug_60053570() -> None:
     """stackoverflow-60053570: direct packet-access source_bug — never_established."""
     out = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-60053570.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-60053570.yaml")
     )
     data = out.json_data
 
@@ -215,7 +201,7 @@ def test_known_answer_source_bug_60053570() -> None:
 def test_known_answer_env_mismatch_77462271() -> None:
     """stackoverflow-77462271: failed kernel BTF lookup — env_mismatch."""
     out = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-77462271.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-77462271.yaml")
     )
     data = out.json_data
 

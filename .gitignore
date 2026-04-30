@@ -19,10 +19,6 @@ dist/
 # Local outputs and artifacts
 out/
 .cache/qemu/
-eval/results/
-case_study/cases/*/
-!case_study/cases/*/index.yaml
-case_study/.cache/
 *.log
 *.jsonl
 

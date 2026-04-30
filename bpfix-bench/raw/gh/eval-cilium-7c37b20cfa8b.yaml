@@ -1,0 +1,67 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-7c37b20cfa8b
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/7c37b20cfa8b6c603f62ccfac3445195bf048476
+  title: 'bpf: set TUNNEL_PROTOCOL_GENEVE for XDP complexity tests with DSR-GENEVE'
+  repository: https://github.com/cilium/cilium
+  commit: 7c37b20cfa8b6c603f62ccfac3445195bf048476
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-7c37b20cfa8b.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-7c37b20cfa8b
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: 7c37b20cfa8b6c603f62ccfac3445195bf048476
+  commit_message: 'bpf: set TUNNEL_PROTOCOL_GENEVE for XDP complexity tests with DSR-GENEVE'
+  commit_date: '2023-05-29'
+  fix_type: loop_rewrite
+  buggy_code: "// FILE: bpf/node_config.h\n// CONTEXT: DEFINE_IPV6(ROUTER_IP, 0xbe,\
+    \ 0xef, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0x0,\n#ifndef HOST_IP\nDEFINE_IPV6(HOST_IP,\
+    \ 0xbe, 0xef, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0xa, 0x0, 0x2, 0xf, 0xff,\
+    \ 0xff);\n#endif\n\n#ifndef SECCTX_FROM_IPCACHE\n DEFINE_U32(SECCTX_FROM_IPCACHE,\
+    \ 1);\n #define SECCTX_FROM_IPCACHE fetch_u32(SECCTX_FROM_IPCACHE)\n#endif\n\n\
+    #define TUNNEL_PORT 8472\n#define TUNNEL_PROTOCOL_VXLAN 1\n#define TUNNEL_PROTOCOL_GENEVE\
+    \ 2\n#define TUNNEL_PROTOCOL 1\n\n#define HOST_ID 1\n#define WORLD_ID 2\n#define\
+    \ UNMANAGED_ID 3\n#define HEALTH_ID 4\n#define INIT_ID 5\n#define LOCAL_NODE_ID\
+    \ 6\n#define REMOTE_NODE_ID 6\n#define KUBE_APISERVER_NODE_ID 7\n#define HOST_IFINDEX_MAC\
+    \ { .addr = { 0xce, 0x72, 0xa7, 0x03, 0x88, 0x56 } }\n#define NODEPORT_PORT_MIN\
+    \ 30000\n#define NODEPORT_PORT_MAX 32767"
+  fixed_code: "// FILE: bpf/node_config.h\n// CONTEXT: DEFINE_IPV6(ROUTER_IP, 0xbe,\
+    \ 0xef, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0x0,\n#ifndef HOST_IP\nDEFINE_IPV6(HOST_IP,\
+    \ 0xbe, 0xef, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0xa, 0x0, 0x2, 0xf, 0xff,\
+    \ 0xff);\n#endif\n\n#ifndef SECCTX_FROM_IPCACHE\n DEFINE_U32(SECCTX_FROM_IPCACHE,\
+    \ 1);\n #define SECCTX_FROM_IPCACHE fetch_u32(SECCTX_FROM_IPCACHE)\n#endif\n\n\
+    #define TUNNEL_PORT 8472\n#define TUNNEL_PROTOCOL_VXLAN 1\n#define TUNNEL_PROTOCOL_GENEVE\
+    \ 2\n#ifndef TUNNEL_PROTOCOL\n#define TUNNEL_PROTOCOL TUNNEL_PROTOCOL_VXLAN\n\
+    #endif\n\n#define HOST_ID 1\n#define WORLD_ID 2\n#define UNMANAGED_ID 3\n#define\
+    \ HEALTH_ID 4\n#define INIT_ID 5\n#define LOCAL_NODE_ID 6\n#define REMOTE_NODE_ID\
+    \ 6\n#define KUBE_APISERVER_NODE_ID 7\n#define HOST_IFINDEX_MAC { .addr = { 0xce,\
+    \ 0x72, 0xa7, 0x03, 0x88, 0x56 } }\n#define NODEPORT_PORT_MIN 30000\n#define NODEPORT_PORT_MAX\
+    \ 32767"
+  diff_summary: 'bpf/node_config.h:
+
+    - Reworked loop or branch structure to reduce verifier complexity and keep the
+    path bounded.
+
+    - Affected context: DEFINE_IPV6(ROUTER_IP, 0xbe, 0xef, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x1, 0x0, 0x0, 0x0,.
+
+    - Commit subject: bpf: set TUNNEL_PROTOCOL_GENEVE for XDP complexity tests with
+    DSR-GENEVE.'
+

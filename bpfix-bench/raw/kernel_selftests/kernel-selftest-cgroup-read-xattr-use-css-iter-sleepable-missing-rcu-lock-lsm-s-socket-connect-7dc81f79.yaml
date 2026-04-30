@@ -1,0 +1,19 @@
+case_id: kernel-selftest-cgroup-read-xattr-use-css-iter-sleepable-missing-rcu-lock-lsm-s-socket-connect-7dc81f79
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/cgroup_read_xattr.c
+  section: lsm.s/socket_connect
+  function: use_css_iter_sleepable_missing_rcu_lock
+  description: use_css_iter_sleepable_missing_rcu_lock
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - kernel func bpf_iter_css_new requires RCU critical section protection
+  unprivileged: []
+  combined:
+  - kernel func bpf_iter_css_new requires RCU critical section protection
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/cgroup_read_xattr.c
+  code: "SEC(\"lsm.s/socket_connect\")\n__failure __msg(\"kernel func bpf_iter_css_new requires RCU critical section protection\")\nint BPF_PROG(use_css_iter_sleepable_missing_rcu_lock)\n{\n\tu64 cgrp_id = bpf_get_current_cgroup_id();\n\tstruct cgroup_subsys_state *css;\n\tstruct cgroup *cgrp;\n\n\tcgrp = bpf_cgroup_from_id(cgrp_id);\n\tif (!cgrp)\n\t\treturn 0;\n\n\tbpf_for_each(css, css, &cgrp->self, BPF_CGROUP_ITER_ANCESTORS_UP)\n\t\tread_xattr(css->cgroup);\n\n\tbpf_cgroup_release(cgrp);\n\treturn 0;\n}"

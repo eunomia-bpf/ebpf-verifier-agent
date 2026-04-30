@@ -55,19 +55,14 @@ def _insn(
 
 
 def _load_case(relative_path: str) -> dict:
-    path = ROOT / relative_path
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+    from bench_fixtures import load_case
 
+    return load_case(relative_path)
 
 def _verifier_log(case_path: str) -> str:
-    payload = _load_case(case_path)
-    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
-    if isinstance(verifier_log, str):
-        return verifier_log
-    combined = verifier_log.get("combined")
-    if isinstance(combined, str) and combined.strip():
-        return combined
-    return "\n".join(b for b in verifier_log.get("blocks", []) if isinstance(b, str))
+    from bench_fixtures import load_verifier_log
+
+    return load_verifier_log(case_path)
 
 
 # ---------------------------------------------------------------------------
@@ -403,7 +398,7 @@ class TestComputeDataSlice:
 class TestRealCase:
     """Integration test on a real verifier trace."""
 
-    CASE_PATH = "case_study/cases/stackoverflow/stackoverflow-70750259.yaml"
+    CASE_PATH = "bpfix-bench/raw/so/stackoverflow-70750259.yaml"
 
     @pytest.fixture(scope="class")
     def chain_and_trace(self):

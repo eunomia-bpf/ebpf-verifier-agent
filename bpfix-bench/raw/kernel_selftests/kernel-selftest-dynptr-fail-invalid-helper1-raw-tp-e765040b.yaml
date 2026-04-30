@@ -1,0 +1,165 @@
+case_id: kernel-selftest-dynptr-fail-invalid-helper1-raw-tp-e765040b
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: invalid_helper1
+  description: invalid_helper1
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - invalid read from stack
+  unprivileged: []
+  combined:
+  - invalid read from stack
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (b4) w1 = 0
+    1: .1........ (63) *(u32 *)(r10 -4) = r1
+    2: .......... (bf) r6 = r10
+    3: ......6... (07) r6 += -4
+    4: ......6... (18) r1 = 0xffff8d4dc9a92c00
+    6: .1....6... (bf) r2 = r6
+    7: .12...6... (18) r3 = 0xffffd10b7152a000
+    9: .123..6... (b7) r4 = 0
+   10: .1234.6... (85) call bpf_map_update_elem#2
+   11: ......6... (18) r1 = 0xffff8d4dc9a92c00
+   13: .1....6... (bf) r2 = r6
+   14: .12....... (85) call bpf_map_lookup_elem#1
+   15: 0......... (15) if r0 == 0x0 goto pc+6
+   16: 0......... (bf) r4 = r10
+   17: 0...4..... (07) r4 += -24
+   18: 0...4..... (bf) r1 = r0
+   19: .1..4..... (b4) w2 = 4
+   20: .12.4..... (b7) r3 = 0
+   21: .1234..... (85) call bpf_dynptr_from_mem#197
+   22: .......... (bf) r1 = r10
+   23: .1........ (07) r1 += -24
+   24: .1........ (b4) w2 = 16
+   25: .12....... (18) r3 = 0xffff8d4dc9a93d08
+   27: .123...... (85) call bpf_strncmp#182
+   28: .......... (b4) w0 = 0
+   29: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int invalid_helper1(void *ctx) @ dynptr_fail.c:402
+  0: (b4) w1 = 0                        ; R1_w=0
+  ; __u32 key = 0, *map_val; @ dynptr_fail.c:64
+  1: (63) *(u32 *)(r10 -4) = r1
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r1 stack= before 0: (b4) w1 = 0
+  2: R1_w=0 R10=fp0 fp-8=0000????
+  2: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ;  @ dynptr_fail.c:0
+  3: (07) r6 += -4                      ; R6_w=fp-4
+  ; bpf_map_update_elem(&array_map3, &key, &val, 0); @ dynptr_fail.c:66
+  4: (18) r1 = 0xffff8d4dc9a92c00       ; R1_w=map_ptr(map=array_map3,ks=4,vs=4)
+  6: (bf) r2 = r6                       ; R2_w=fp-4 R6_w=fp-4
+  7: (18) r3 = 0xffffd10b7152a000       ; R3_w=map_value(map=dynptr_f.bss,ks=4,vs=28)
+  9: (b7) r4 = 0                        ; R4_w=0
+  10: (85) call bpf_map_update_elem#2   ; R0_w=scalar()
+  ; map_val = bpf_map_lookup_elem(&array_map3, &key); @ dynptr_fail.c:68
+  11: (18) r1 = 0xffff8d4dc9a92c00      ; R1_w=map_ptr(map=array_map3,ks=4,vs=4)
+  13: (bf) r2 = r6                      ; R2_w=fp-4 R6_w=fp-4
+  14: (85) call bpf_map_lookup_elem#1   ; R0=map_value(map=array_map3,ks=4,vs=4)
+  ; if (!map_val) @ dynptr_fail.c:69
+  15: (15) if r0 == 0x0 goto pc+6       ; R0=map_value(map=array_map3,ks=4,vs=4)
+  16: (bf) r4 = r10                     ; R4_w=fp0 R10=fp0
+  ; bpf_dynptr_from_mem(map_val, sizeof(*map_val), 0, ptr); @ dynptr_fail.c:72
+  17: (07) r4 += -24                    ; R4_w=fp-24
+  18: (bf) r1 = r0                      ; R0=map_value(map=array_map3,ks=4,vs=4) R1_w=map_value(map=array_map3,ks=4,vs=4)
+  19: (b4) w2 = 4                       ; R2_w=4
+  20: (b7) r3 = 0                       ; R3_w=0
+  21: (85) call bpf_dynptr_from_mem#197
+  mark_precise: frame0: last_idx 21 first_idx 15 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 20: (b7) r3 = 0
+  mark_precise: frame0: regs=r2 stack= before 19: (b4) w2 = 4
+  22: R0_w=scalar() fp-24_w=dynptr_local(id=1,dynptr_id=1)
+  22: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
+  ; bpf_strncmp((const char *)&ptr, sizeof(ptr), "hello!"); @ dynptr_fail.c:409
+  23: (07) r1 += -24                    ; R1_w=fp-24
+  24: (b4) w2 = 16                      ; R2_w=16
+  25: (18) r3 = 0xffff8d4dc9a93d08      ; R3_w=map_value(map=.rodata.str1.1,ks=4,vs=7)
+  27: (85) call bpf_strncmp#182
+  invalid read from stack R1 off -24+0 size 16
+  processed 24 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (b4) w1 = 0
+    1: .1........ (63) *(u32 *)(r10 -4) = r1
+    2: .......... (bf) r6 = r10
+    3: ......6... (07) r6 += -4
+    4: ......6... (18) r1 = 0xffff8f016e5b4c00
+    6: .1....6... (bf) r2 = r6
+    7: .12...6... (18) r3 = 0xffffd2b8de15a004
+    9: .123..6... (b7) r4 = 0
+   10: .1234.6... (85) call bpf_map_update_elem#2
+   11: ......6... (18) r1 = 0xffff8f016e5b4c00
+   13: .1....6... (bf) r2 = r6
+   14: .12....... (85) call bpf_map_lookup_elem#1
+   15: 0......... (15) if r0 == 0x0 goto pc+6
+   16: 0......... (bf) r4 = r10
+   17: 0...4..... (07) r4 += -24
+   18: 0...4..... (bf) r1 = r0
+   19: .1..4..... (b7) r2 = 4
+   20: .12.4..... (b7) r3 = 0
+   21: .1234..... (85) call bpf_dynptr_from_mem#197
+   22: .......... (bf) r1 = r10
+   23: .1........ (07) r1 += -24
+   24: .1........ (b4) w2 = 16
+   25: .12....... (18) r3 = 0xffff8f016e5b5308
+   27: .123...... (85) call bpf_strncmp#182
+   28: .......... (b4) w0 = 0
+   29: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int invalid_helper1(void *ctx) @ prog.c:92
+  0: (b4) w1 = 0                        ; R1_w=0
+  ; __u32 key = 0, *map_val; @ prog.c:74
+  1: (63) *(u32 *)(r10 -4) = r1
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r1 stack= before 0: (b4) w1 = 0
+  2: R1_w=0 R10=fp0 fp-8=0000????
+  2: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ;  @ prog.c:0
+  3: (07) r6 += -4                      ; R6_w=fp-4
+  ; bpf_map_update_elem(&array_map3, &key, &val, 0); @ prog.c:76
+  4: (18) r1 = 0xffff8f016e5b4c00       ; R1_w=map_ptr(map=array_map3,ks=4,vs=4)
+  6: (bf) r2 = r6                       ; R2_w=fp-4 R6_w=fp-4
+  7: (18) r3 = 0xffffd2b8de15a004       ; R3_w=map_value(map=prog.bss,ks=4,vs=24,off=4)
+  9: (b7) r4 = 0                        ; R4_w=0
+  10: (85) call bpf_map_update_elem#2   ; R0_w=scalar()
+  ; map_val = bpf_map_lookup_elem(&array_map3, &key); @ prog.c:78
+  11: (18) r1 = 0xffff8f016e5b4c00      ; R1_w=map_ptr(map=array_map3,ks=4,vs=4)
+  13: (bf) r2 = r6                      ; R2_w=fp-4 R6_w=fp-4
+  14: (85) call bpf_map_lookup_elem#1   ; R0=map_value(map=array_map3,ks=4,vs=4)
+  ; if (!map_val) @ prog.c:79
+  15: (15) if r0 == 0x0 goto pc+6       ; R0=map_value(map=array_map3,ks=4,vs=4)
+  16: (bf) r4 = r10                     ; R4_w=fp0 R10=fp0
+  ; bpf_dynptr_from_mem(map_val, sizeof(*map_val), 0, ptr); @ prog.c:82
+  17: (07) r4 += -24                    ; R4_w=fp-24
+  18: (bf) r1 = r0                      ; R0=map_value(map=array_map3,ks=4,vs=4) R1_w=map_value(map=array_map3,ks=4,vs=4)
+  19: (b7) r2 = 4                       ; R2_w=4
+  20: (b7) r3 = 0                       ; R3_w=0
+  21: (85) call bpf_dynptr_from_mem#197
+  mark_precise: frame0: last_idx 21 first_idx 15 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 20: (b7) r3 = 0
+  mark_precise: frame0: regs=r2 stack= before 19: (b7) r2 = 4
+  22: R0_w=scalar() fp-24_w=dynptr_local(id=1,dynptr_id=1)
+  22: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
+  ; bpf_strncmp((const char *)&ptr, sizeof(ptr), "hello!"); @ prog.c:99
+  23: (07) r1 += -24                    ; R1_w=fp-24
+  24: (b4) w2 = 16                      ; R2_w=16
+  25: (18) r3 = 0xffff8f016e5b5308      ; R3_w=map_value(map=.rodata.str1.1,ks=4,vs=7)
+  27: (85) call bpf_strncmp#182
+  invalid read from stack R1 off -24+0 size 16
+  processed 24 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"invalid read from stack\")\nint invalid_helper1(void *ctx)\n{\n\tstruct bpf_dynptr ptr;\n\n\tget_map_val_dynptr(&ptr);\n\n\t/* this should fail */\n\tbpf_strncmp((const char *)&ptr, sizeof(ptr), \"hello!\");\n\n\treturn 0;\n}\n\n/* A dynptr can't be passed into a helper function at a non-zero offset */"

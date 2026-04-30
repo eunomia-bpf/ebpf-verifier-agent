@@ -1,0 +1,178 @@
+case_id: kernel-selftest-cpumask-failure-test-insert-remove-no-release-tp-btf-task-newtask-24314756
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/cpumask_failure.c
+  section: tp_btf/task_newtask
+  function: test_insert_remove_no_release
+  description: test_insert_remove_no_release
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - Unreleased reference
+  unprivileged: []
+  combined:
+  - Unreleased reference
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (85) call bpf_cpumask_create#71422
+    1: 0......... (bf) r6 = r0
+    2: ......6... (55) if r6 != 0x0 goto pc+5
+    3: .......... (18) r1 = 0xffffd10b70937000
+    5: .1........ (b4) w2 = 1
+    6: .12....... (63) *(u32 *)(r1 +0) = r2
+    7: .......... (05) goto pc+10
+    8: ......6... (bf) r1 = r6
+    9: .1....6... (85) call bpf_cpumask_empty#71424
+   10: 0.....6... (54) w0 &= 1
+   11: 0.....6... (56) if w0 != 0x0 goto pc+8
+   12: ......6... (18) r1 = 0xffffd10b70937000
+   14: .1....6... (b4) w2 = 2
+   15: .12...6... (63) *(u32 *)(r1 +0) = r2
+   16: ......6... (bf) r1 = r6
+   17: .1........ (85) call bpf_cpumask_release#71436
+   18: .......... (b4) w0 = 0
+   19: 0......... (95) exit
+   20: ......6... (b4) w1 = 0
+   21: .1....6... (63) *(u32 *)(r10 -12) = r1
+   22: ......6... (b7) r1 = 0
+   23: .1....6... (7b) *(u64 *)(r10 -8) = r1
+   24: ......6... (bf) r2 = r10
+   25: ..2...6... (07) r2 += -12
+   26: ..2...6... (bf) r3 = r10
+   27: ..23..6... (07) r3 += -8
+   28: ..23..6... (18) r1 = 0xffff8d474fdd0c00
+   30: .123..6... (b7) r4 = 0
+   31: .1234.6... (85) call bpf_map_update_elem#2
+   32: 0.....6... (bf) r7 = r0
+   33: ......67.. (55) if r7 != 0x0 goto pc+12
+   34: ......6... (bf) r2 = r10
+   35: ..2...6... (07) r2 += -12
+   36: ..2...6... (18) r1 = 0xffff8d474fdd0c00
+   38: .12...6... (85) call bpf_map_lookup_elem#1
+   39: 0.....6... (15) if r0 == 0x0 goto pc-24
+   40: 0.....6... (bf) r1 = r0
+   41: .1....6... (bf) r2 = r6
+   42: .12....... (85) call bpf_kptr_xchg#194
+   43: 0......... (bf) r6 = r0
+   44: ......6... (55) if r6 != 0x0 goto pc-29
+   45: .......... (05) goto pc+3
+   46: ......67.. (bf) r1 = r6
+   47: .1.....7.. (85) call bpf_cpumask_release#71436
+   48: .......7.. (56) if w7 != 0x0 goto pc-31
+   49: .......... (b4) w1 = 0
+   50: .1........ (63) *(u32 *)(r10 -8) = r1
+   51: .......... (bf) r2 = r10
+   52: ..2....... (07) r2 += -8
+   53: ..2....... (18) r1 = 0xffff8d474fdd0c00
+   55: .12....... (85) call bpf_map_lookup_elem#1
+   56: 0......... (15) if r0 == 0x0 goto pc-39
+   57: 0......... (bf) r1 = r0
+   58: .1........ (b7) r2 = 0
+   59: .12....... (85) call bpf_kptr_xchg#194
+   60: .......... (05) goto pc-43
+  0: R1=ctx() R10=fp0
+  ; cpumask = bpf_cpumask_create(); @ cpumask_common.h:78
+  0: (85) call bpf_cpumask_create#71422         ; R0_w=ptr_or_null_bpf_cpumask(id=2,ref_obj_id=2) refs=2
+  1: (bf) r6 = r0                       ; R0_w=ptr_or_null_bpf_cpumask(id=2,ref_obj_id=2) R6_w=ptr_or_null_bpf_cpumask(id=2,ref_obj_id=2) refs=2
+  ; if (!cpumask) { @ cpumask_common.h:79
+  2: (55) if r6 != 0x0 goto pc+5        ; R6_w=0
+  ; err = 1; @ cpumask_common.h:80
+  3: (18) r1 = 0xffffd10b70937000       ; R1_w=map_value(map=cpumask_.bss,ks=4,vs=4)
+  5: (b4) w2 = 1                        ; R2_w=1
+  6: (63) *(u32 *)(r1 +0) = r2          ; R1_w=map_value(map=cpumask_.bss,ks=4,vs=4) R2_w=1
+  7: (05) goto pc+10
+  ; int BPF_PROG(test_insert_remove_no_release, struct task_struct *task, u64 clone_flags) @ cpumask_failure.c:87
+  18: (b4) w0 = 0                       ; R0_w=0
+  19: (95) exit
+
+  from 2 to 8: R0_w=ptr_bpf_cpumask(ref_obj_id=2) R6_w=ptr_bpf_cpumask(ref_obj_id=2) R10=fp0 refs=2
+  8: R0_w=ptr_bpf_cpumask(ref_obj_id=2) R6_w=ptr_bpf_cpumask(ref_obj_id=2) R10=fp0 refs=2
+  ; if (!bpf_cpumask_empty(cast(cpumask))) { @ cpumask_common.h:84
+  8: (bf) r1 = r6                       ; R1_w=ptr_bpf_cpumask(ref_obj_id=2) R6_w=ptr_bpf_cpumask(ref_obj_id=2) refs=2
+  9: (85) call bpf_cpumask_empty#71424          ; R0_w=scalar() refs=2
+  10: (54) w0 &= 1                      ; R0_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=1,var_off=(0x0; 0x1)) refs=2
+  11: (56) if w0 != 0x0 goto pc+8       ; R0_w=0 refs=2
+  ; err = 2; @ cpumask_common.h:85
+  12: (18) r1 = 0xffffd10b70937000      ; R1_w=map_value(map=cpumask_.bss,ks=4,vs=4) refs=2
+  14: (b4) w2 = 2                       ; R2_w=2 refs=2
+  15: (63) *(u32 *)(r1 +0) = r2         ; R1=map_value(map=cpumask_.bss,ks=4,vs=4) R2=2 refs=2
+  ;  @ cpumask_failure.c:0
+  16: (bf) r1 = r6                      ; R1_w=ptr_bpf_cpumask(ref_obj_id=2) R6=ptr_bpf_cpumask(ref_obj_id=2) refs=2
+  17: (85) call bpf_cpumask_release#71436
+  18: safe
+
+  from 11 to 20: R0_w=1 R6_w=ptr_bpf_cpumask(ref_obj_id=2) R10=fp0 refs=2
+  20: R0_w=1 R6_w=ptr_bpf_cpumask(ref_obj_id=2) R10=fp0 refs=2
+  ; int BPF_PROG(test_insert_remove_no_release, struct task_struct *task, u64 clone_flags) @ cpumask_failure.c:87
+  20: (b4) w1 = 0                       ; R1_w=0 refs=2
+  ; u32 key = 0; @ cpumask_common.h:105
+  21: (63) *(u32 *)(r10 -12) = r1
+  mark_precise: frame0: last_idx 21 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r1 stack= before 20: (b4) w1 = 0
+  22: R1_w=0 R10=fp0 fp-16=0000???? refs=2
+  22: (b7) r1 = 0                       ; R1_w=0 refs=2
+  ; local.cpumask = NULL; @ cpumask_common.h:107
+  23: (7b) *(u64 *)(r10 -8) = r1        ; R1_w=0 R10=fp0 fp-8_w=0 refs=2
+  24: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0 refs=2
+  ;  @ cpumask_failure.c:0
+  25: (07) r2 += -12                    ; R2_w=fp-12 refs=2
+  26: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0 refs=2
+  27: (07) r3 += -8                     ; R3_w=fp-8 refs=2
+  ; status = bpf_map_update_elem(&__cpumask_map, &key, &local, 0); @ cpumask_common.h:108
+  28: (18) r1 = 0xffff8d474fdd0c00      ; R1_w=map_ptr(map=__cpumask_map,ks=4,vs=8) refs=2
+  30: (b7) r4 = 0                       ; R4_w=0 refs=2
+  31: (85) call bpf_map_update_elem#2   ; R0=scalar() refs=2
+  32: (bf) r7 = r0                      ; R0=scalar(id=3) R7_w=scalar(id=3) refs=2
+  ; if (status) { @ cpumask_common.h:109
+  33: (55) if r7 != 0x0 goto pc+12      ; R7_w=0 refs=2
+  34: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0 refs=2
+  ; v = bpf_map_lookup_elem(&__cpumask_map, &key); @ cpumask_common.h:114
+  35: (07) r2 += -12                    ; R2_w=fp-12 refs=2
+  36: (18) r1 = 0xffff8d474fdd0c00      ; R1_w=map_ptr(map=__cpumask_map,ks=4,vs=8) refs=2
+  38: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value(map=__cpumask_map,ks=4,vs=8) refs=2
+  ; if (!v) { @ cpumask_common.h:115
+  39: (15) if r0 == 0x0 goto pc-24      ; R0_w=map_value(map=__cpumask_map,ks=4,vs=8) refs=2
+  ; old = bpf_kptr_xchg(&v->cpumask, mask); @ cpumask_common.h:120
+  40: (bf) r1 = r0                      ; R0_w=map_value(map=__cpumask_map,ks=4,vs=8) R1_w=map_value(map=__cpumask_map,ks=4,vs=8) refs=2
+  41: (bf) r2 = r6                      ; R2_w=ptr_bpf_cpumask(ref_obj_id=2) R6=ptr_bpf_cpumask(ref_obj_id=2) refs=2
+  42: (85) call bpf_kptr_xchg#194       ; R0=ptr_or_null_bpf_cpumask(id=5,ref_obj_id=5) refs=5
+  43: (bf) r6 = r0                      ; R0=ptr_or_null_bpf_cpumask(id=5,ref_obj_id=5) R6_w=ptr_or_null_bpf_cpumask(id=5,ref_obj_id=5) refs=5
+  ; if (old) { @ cpumask_common.h:121
+  44: (55) if r6 != 0x0 goto pc-29      ; R6_w=0
+  45: (05) goto pc+3
+  ; if (cpumask_map_insert(cpumask)) @ cpumask_failure.c:96
+  49: (b4) w1 = 0                       ; R1_w=0
+  ; u32 key = 0; @ cpumask_common.h:95
+  50: (63) *(u32 *)(r10 -8) = r1        ; R1_w=0 R10=fp0 fp-8=mmmm0
+  51: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+  ;  @ cpumask_common.h:0
+  52: (07) r2 += -8                     ; R2_w=fp-8
+  ; return bpf_map_lookup_elem(&__cpumask_map, &key); @ cpumask_common.h:97
+  53: (18) r1 = 0xffff8d474fdd0c00      ; R1_w=map_ptr(map=__cpumask_map,ks=4,vs=8)
+  55: (85) call bpf_map_lookup_elem#1
+  mark_precise: frame0: last_idx 55 first_idx 43 subseq_idx -1
+  mark_precise: frame0: regs= stack=-8 before 53: (18) r1 = 0xffff8d474fdd0c00
+  mark_precise: frame0: regs= stack=-8 before 52: (07) r2 += -8
+  mark_precise: frame0: regs= stack=-8 before 51: (bf) r2 = r10
+  mark_precise: frame0: regs= stack=-8 before 50: (63) *(u32 *)(r10 -8) = r1
+  mark_precise: frame0: regs=r1 stack= before 49: (b4) w1 = 0
+  56: R0=map_value(map=__cpumask_map,ks=4,vs=8)
+  ; if (!v) @ cpumask_failure.c:100
+  56: (15) if r0 == 0x0 goto pc-39      ; R0=map_value(map=__cpumask_map,ks=4,vs=8)
+  ; cpumask = bpf_kptr_xchg(&v->cpumask, NULL); @ cpumask_failure.c:103
+  57: (bf) r1 = r0                      ; R0=map_value(map=__cpumask_map,ks=4,vs=8) R1_w=map_value(map=__cpumask_map,ks=4,vs=8)
+  58: (b7) r2 = 0                       ; R2_w=0
+  59: (85) call bpf_kptr_xchg#194       ; R0_w=ptr_or_null_bpf_cpumask(id=7,ref_obj_id=7) refs=7
+  60: (05) goto pc-43
+  ; int BPF_PROG(test_insert_remove_no_release, struct task_struct *task, u64 clone_flags) @ cpumask_failure.c:87
+  18: (b4) w0 = 0                       ; R0_w=0 refs=7
+  19: (95) exit
+  Unreleased reference id=7 alloc_insn=59
+  BPF_EXIT instruction in main prog would lead to reference leak
+  processed 56 insns (limit 1000000) max_states_per_insn 1 total_states 5 peak_states 5 mark_read 2
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/cpumask_failure.c
+  code: "SEC(\"tp_btf/task_newtask\")\n__failure __msg(\"Unreleased reference\")\nint BPF_PROG(test_insert_remove_no_release, struct task_struct *task, u64 clone_flags)\n{\n\tstruct bpf_cpumask *cpumask;\n\tstruct __cpumask_map_value *v;\n\n\tcpumask = create_cpumask();\n\tif (!cpumask)\n\t\treturn 0;\n\n\tif (cpumask_map_insert(cpumask))\n\t\treturn 0;\n\n\tv = cpumask_map_value_lookup();\n\tif (!v)\n\t\treturn 0;\n\n\tcpumask = bpf_kptr_xchg(&v->cpumask, NULL);\n\n\t/* cpumask is never released. */\n\treturn 0;\n}"

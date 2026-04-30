@@ -1,0 +1,123 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-aya-ca0c32d1076a
+source_kind: github_commit
+source:
+  url: https://github.com/aya-rs/aya/commit/ca0c32d1076af81349a52235a4b6fb3937a697b3
+  title: 'fix(aya): Fill bss maps with zeros'
+  repository: https://github.com/aya-rs/aya
+  commit: ca0c32d1076af81349a52235a4b6fb3937a697b3
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-aya-ca0c32d1076a.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-aya-ca0c32d1076a
+  source: eval_commits
+  repository: https://github.com/aya-rs/aya
+  commit_hash: ca0c32d1076af81349a52235a4b6fb3937a697b3
+  commit_message: 'fix(aya): Fill bss maps with zeros'
+  commit_date: '2024-11-01'
+  fix_type: other
+  buggy_code: "// FILE: aya-obj/src/obj.rs\n//! Object file loading, parsing, and\
+    \ relocation.\n\nuse alloc::{\n    borrow::ToOwned,\n    collections::BTreeMap,\n\
+    \    ffi::CString,\n    string::{String, ToString},\n    vec::Vec,\n};\nuse core::{ffi::CStr,\
+    \ mem, ptr, slice::from_raw_parts_mut, str::FromStr};\n\nuse log::debug;\nuse\
+    \ object::{\n    read::{Object as ElfObject, ObjectSection, Section as ObjSection},\n\
+    \    Endianness, ObjectSymbol, ObjectSymbolTable, RelocationTarget, SectionIndex,\
+    \ SectionKind,\n    SymbolKind,\n};\n\n#[cfg(not(feature = \"std\"))]\n\n// CONTEXT:\
+    \ fn get_map_field(btf: &Btf, type_id: u32) -> Result<u32, BtfError> {\n     \
+    \       return Err(BtfError::UnexpectedBtfType {\n                type_id: other.btf_type().unwrap_or(0),\n\
+    \            })\n        }\n    };\n    Ok(arr.len)\n}\n\n// Parsed '.bss' '.data'\
+    \ and '.rodata' sections. These sections are arrays of\n// bytes and are relocated\
+    \ based on their section index.\nfn parse_data_map_section(section: &Section)\
+    \ -> Result<Map, ParseError> {\n    let (def, data) = match section.kind {\n \
+    \       EbpfSectionKind::Bss | EbpfSectionKind::Data | EbpfSectionKind::Rodata\
+    \ => {\n            let def = bpf_map_def {\n                map_type: BPF_MAP_TYPE_ARRAY\
+    \ as u32,\n                key_size: mem::size_of::<u32>() as u32,\n         \
+    \       // We need to use section.size here since\n                // .bss will\
+    \ always have data.len() == 0\n                value_size: section.size as u32,\n\
+    \                max_entries: 1,\n                map_flags: if section.kind ==\
+    \ EbpfSectionKind::Rodata {\n                    BPF_F_RDONLY_PROG\n         \
+    \       } else {\n                    0\n                },\n                ..Default::default()\n\
+    \            };\n            (def, section.data.to_vec())\n        }\n       \
+    \ _ => unreachable!(),\n    };\n    Ok(Map::Legacy(LegacyMap {\n        section_index:\
+    \ section.index.0,\n        section_kind: section.kind,\n        // Data maps\
+    \ don't require symbols to be relocated\n        symbol_index: None,\n       \
+    \ def,\n        data,\n    }))\n}\n\n// FILE: aya/src/maps/mod.rs\n// CONTEXT:\
+    \ impl MapData {\n                let map = Self::create(obj, name, btf_fd)?;\n\
+    \                map.pin(&path).map_err(|error| MapError::PinError {\n       \
+    \             name: Some(name.into()),\n                    error,\n         \
+    \       })?;\n                Ok(map)\n            }\n        }\n    }\n\n   \
+    \ pub(crate) fn finalize(&mut self) -> Result<(), MapError> {\n        let Self\
+    \ { obj, fd } = self;\n        if !obj.data().is_empty() && obj.section_kind()\
+    \ != EbpfSectionKind::Bss {\n            bpf_map_update_elem_ptr(fd.as_fd(), &0\
+    \ as *const _, obj.data_mut().as_mut_ptr(), 0)\n                .map_err(|(_,\
+    \ io_error)| SyscallError {\n                    call: \"bpf_map_update_elem\"\
+    ,\n                    io_error,\n                })\n                .map_err(MapError::from)?;\n\
+    \        }\n        if obj.section_kind() == EbpfSectionKind::Rodata {\n     \
+    \       bpf_map_freeze(fd.as_fd())\n                .map_err(|(_, io_error)| SyscallError\
+    \ {\n                    call: \"bpf_map_freeze\",\n                    io_error,"
+  fixed_code: "// FILE: aya-obj/src/obj.rs\n//! Object file loading, parsing, and\
+    \ relocation.\n\nuse alloc::{\n    borrow::ToOwned,\n    collections::BTreeMap,\n\
+    \    ffi::CString,\n    string::{String, ToString},\n    vec,\n    vec::Vec,\n\
+    };\nuse core::{ffi::CStr, mem, ptr, slice::from_raw_parts_mut, str::FromStr};\n\
+    \nuse log::debug;\nuse object::{\n    read::{Object as ElfObject, ObjectSection,\
+    \ Section as ObjSection},\n    Endianness, ObjectSymbol, ObjectSymbolTable, RelocationTarget,\
+    \ SectionIndex, SectionKind,\n    SymbolKind,\n};\n\n#[cfg(not(feature = \"std\"\
+    ))]\n\n// CONTEXT: fn get_map_field(btf: &Btf, type_id: u32) -> Result<u32, BtfError>\
+    \ {\n            return Err(BtfError::UnexpectedBtfType {\n                type_id:\
+    \ other.btf_type().unwrap_or(0),\n            })\n        }\n    };\n    Ok(arr.len)\n\
+    }\n\n// Parsed '.bss' '.data' and '.rodata' sections. These sections are arrays\
+    \ of\n// bytes and are relocated based on their section index.\nfn parse_data_map_section(section:\
+    \ &Section) -> Result<Map, ParseError> {\n    let (def, data) = match section.kind\
+    \ {\n        EbpfSectionKind::Data | EbpfSectionKind::Rodata => {\n          \
+    \  let def = bpf_map_def {\n                map_type: BPF_MAP_TYPE_ARRAY as u32,\n\
+    \                key_size: mem::size_of::<u32>() as u32,\n                // We\
+    \ need to use section.size here since\n                // .bss will always have\
+    \ data.len() == 0\n                value_size: section.size as u32,\n        \
+    \        max_entries: 1,\n                map_flags: if section.kind == EbpfSectionKind::Rodata\
+    \ {\n                    BPF_F_RDONLY_PROG\n                } else {\n       \
+    \             0\n                },\n                ..Default::default()\n  \
+    \          };\n            (def, section.data.to_vec())\n        }\n        EbpfSectionKind::Bss\
+    \ => {\n            let def = bpf_map_def {\n                map_type: BPF_MAP_TYPE_ARRAY\
+    \ as u32,\n                key_size: mem::size_of::<u32>() as u32,\n         \
+    \       value_size: section.size as u32,\n                max_entries: 1,\n  \
+    \              map_flags: 0,\n                ..Default::default()\n         \
+    \   };\n            (def, vec![0; section.size as usize])\n        }\n       \
+    \ _ => unreachable!(),\n    };\n    Ok(Map::Legacy(LegacyMap {\n        section_index:\
+    \ section.index.0,\n        section_kind: section.kind,\n        // Data maps\
+    \ don't require symbols to be relocated\n        symbol_index: None,\n       \
+    \ def,\n        data,\n    }))\n}\n\n// FILE: aya/src/maps/mod.rs\n// CONTEXT:\
+    \ impl MapData {\n                let map = Self::create(obj, name, btf_fd)?;\n\
+    \                map.pin(&path).map_err(|error| MapError::PinError {\n       \
+    \             name: Some(name.into()),\n                    error,\n         \
+    \       })?;\n                Ok(map)\n            }\n        }\n    }\n\n   \
+    \ pub(crate) fn finalize(&mut self) -> Result<(), MapError> {\n        let Self\
+    \ { obj, fd } = self;\n        if !obj.data().is_empty() {\n            bpf_map_update_elem_ptr(fd.as_fd(),\
+    \ &0 as *const _, obj.data_mut().as_mut_ptr(), 0)\n                .map_err(|(_,\
+    \ io_error)| SyscallError {\n                    call: \"bpf_map_update_elem\"\
+    ,\n                    io_error,\n                })\n                .map_err(MapError::from)?;\n\
+    \        }\n        if obj.section_kind() == EbpfSectionKind::Rodata {\n     \
+    \       bpf_map_freeze(fd.as_fd())\n                .map_err(|(_, io_error)| SyscallError\
+    \ {\n                    call: \"bpf_map_freeze\",\n                    io_error,"
+  diff_summary: 'aya-obj/src/obj.rs, aya/src/maps/mod.rs:
+
+    - Materialized `.bss` maps as zero-filled buffers instead of empty data and always
+    finalized data-bearing maps.
+
+    - Eliminated verifier failures caused by loader-side `.bss` maps being left effectively
+    uninitialized.'
+

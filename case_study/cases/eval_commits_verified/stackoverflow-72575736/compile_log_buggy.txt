@@ -1,7 +1,0 @@
-/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-72575736/buggy.c:14:6: error: invalid preprocessing directive
-   14 |     #[xdp]
-      |      ^
-/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/stackoverflow-72575736/buggy.c:15:5: error: use of undeclared identifier 'unsafe'
-   15 |     unsafe fn xdp_test(ctx: XdpContext) -> XdpResult {
-      |     ^
-2 errors generated.

@@ -1,0 +1,47 @@
+case_id: kernel-selftest-dynptr-fail-dynptr-adjust-invalid-raw-tp-6e40976e
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: dynptr_adjust_invalid
+  description: dynptr_adjust_invalid
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - 'Expected an initialized dynptr as arg #0'
+  unprivileged: []
+  combined:
+  - 'Expected an initialized dynptr as arg #0'
+verifier_log: |
+  func#0 @0
+  Live regs before insn:
+    0: .......... (b7) r1 = 0
+    1: .1........ (7b) *(u64 *)(r10 -8) = r1
+    2: .1........ (7b) *(u64 *)(r10 -16) = r1
+    3: .......... (bf) r1 = r10
+    4: .1........ (07) r1 += -16
+    5: .1........ (b4) w2 = 1
+    6: .12....... (b4) w3 = 2
+    7: .123...... (85) call bpf_dynptr_adjust#71537
+    8: .......... (b4) w0 = 0
+    9: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int dynptr_adjust_invalid(void *ctx) @ dynptr_fail.c:1411
+  0: (b7) r1 = 0                        ; R1_w=0
+  ; struct bpf_dynptr ptr = {}; @ dynptr_fail.c:1413
+  1: (7b) *(u64 *)(r10 -8) = r1         ; R1_w=0 R10=fp0 fp-8_w=0
+  2: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=0 R10=fp0 fp-16_w=0
+  3: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+  4: (07) r1 += -16                     ; R1_w=fp-16
+  ; bpf_dynptr_adjust(&ptr, 1, 2); @ dynptr_fail.c:1416
+  5: (b4) w2 = 1                        ; R2_w=1
+  6: (b4) w3 = 2                        ; R3_w=2
+  7: (85) call bpf_dynptr_adjust#71537
+  Expected an initialized dynptr as arg #0
+  processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"Expected an initialized dynptr as arg #0\")\nint dynptr_adjust_invalid(void *ctx)\n{\n\tstruct bpf_dynptr ptr = {};\n\n\t/* this should fail */\n\tbpf_dynptr_adjust(&ptr, 1, 2);\n\n\treturn 0;\n}\n\n/* bpf_dynptr_is_null can only be called on initialized dynptrs */"

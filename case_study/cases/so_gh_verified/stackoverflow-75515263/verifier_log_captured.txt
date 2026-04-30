@@ -1,7 +1,0 @@
-libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-75515263/prog.o
-libbpf: elf: section(3) tracepoint/syscalls/sys_enter_execve, size 160, link 0, flags 6, type=1
-libbpf: sec 'tracepoint/syscalls/sys_enter_execve': found program 'read_lookup' at insn offset 0 (0 bytes), code size 20 insns (160 bytes)
-libbpf: elf: section(4) .reltracepoint/syscalls/sys_enter_execve, size 16, link 27, flags 40, type=9
-libbpf: elf: section(5) maps, size 20, link 0, flags 3, type=1
-libbpf: elf: legacy map definitions in 'maps' section are not supported by libbpf v1.0+
-Error: failed to open object file

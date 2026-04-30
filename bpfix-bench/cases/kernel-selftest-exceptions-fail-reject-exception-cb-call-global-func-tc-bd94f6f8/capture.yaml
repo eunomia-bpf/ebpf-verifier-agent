@@ -4,8 +4,7 @@ case_id: kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc
 environment_id: kernel-6.15.11-clang-18-log2
 imported_at: '2026-04-29T22:43:52+00:00'
 source_artifact:
-  path: case_study/cases/kernel_selftests_verified/kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8
-  status_file: verification_status.txt
+  path: bpfix-bench/cases/kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8
   source_file: tools/testing/selftests/bpf/progs/exceptions_fail.c
   target_function: reject_exception_cb_call_global_func
   section: ?tc
@@ -13,6 +12,7 @@ source_artifact:
   load_attempted: true
   verifier_rejected: true
   verifier_log_captured: true
+  source_record: bpfix-bench/raw/kernel_selftests/kernel-selftest-exceptions-fail-reject-exception-cb-call-global-func-tc-bd94f6f8.yaml
 replay:
   build_command: make
   load_command: make replay-verify

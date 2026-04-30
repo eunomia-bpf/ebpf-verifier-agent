@@ -1,0 +1,92 @@
+case_id: kernel-selftest-dynptr-fail-use-after-invalid-raw-tp-d3324c3e
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: use_after_invalid
+  description: use_after_invalid
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - 'Expected an initialized dynptr as arg #2'
+  unprivileged: []
+  combined:
+  - 'Expected an initialized dynptr as arg #2'
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r6 = r10
+    1: ......6... (07) r6 += -16
+    2: ......6... (18) r1 = 0xffff8d475ee72700
+    4: .1....6... (b4) w2 = 64
+    5: .12...6... (b7) r3 = 0
+    6: .123..6... (bf) r4 = r6
+    7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+    8: ......6... (bf) r7 = r10
+    9: ......67.. (07) r7 += -80
+   10: ......67.. (bf) r1 = r7
+   11: .1....67.. (b4) w2 = 64
+   12: .12...67.. (bf) r3 = r6
+   13: .123..67.. (b4) w4 = 0
+   14: .1234.67.. (b7) r5 = 0
+   15: .1234567.. (85) call bpf_dynptr_read#201
+   16: ......67.. (bf) r1 = r6
+   17: .1....67.. (b7) r2 = 0
+   18: .12...67.. (85) call bpf_ringbuf_submit_dynptr#199
+   19: ......67.. (bf) r1 = r7
+   20: .1....6... (b4) w2 = 64
+   21: .12...6... (bf) r3 = r6
+   22: .123...... (b4) w4 = 0
+   23: .1234..... (b7) r5 = 0
+   24: .12345.... (85) call bpf_dynptr_read#201
+   25: .......... (b4) w0 = 0
+   26: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int use_after_invalid(void *ctx) @ dynptr_fail.c:153
+  0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, sizeof(read_data), 0, &ptr); @ dynptr_fail.c:158
+  1: (07) r6 += -16                     ; R6_w=fp-16
+  2: (18) r1 = 0xffff8d475ee72700       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 64                       ; R2_w=64
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16
+  7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  8: (bf) r7 = r10                      ; R7_w=fp0 R10=fp0 refs=2
+  9: (07) r7 += -80                     ; R7_w=fp-80 refs=2
+  ; bpf_dynptr_read(read_data, sizeof(read_data), &ptr, 0, 0); @ dynptr_fail.c:160
+  10: (bf) r1 = r7                      ; R1_w=fp-80 R7_w=fp-80 refs=2
+  11: (b4) w2 = 64                      ; R2_w=64 refs=2
+  12: (bf) r3 = r6                      ; R3_w=fp-16 R6_w=fp-16 refs=2
+  13: (b4) w4 = 0                       ; R4_w=0 refs=2
+  14: (b7) r5 = 0                       ; R5_w=0 refs=2
+  15: (85) call bpf_dynptr_read#201
+  mark_precise: frame0: last_idx 15 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 14: (b7) r5 = 0
+  mark_precise: frame0: regs=r2 stack= before 13: (b4) w4 = 0
+  mark_precise: frame0: regs=r2 stack= before 12: (bf) r3 = r6
+  mark_precise: frame0: regs=r2 stack= before 11: (b4) w2 = 64
+  16: R0=scalar() fp-16=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) fp-24=mmmmmmmm fp-32=mmmmmmmm fp-40=mmmmmmmm fp-48=mmmmmmmm fp-56=mmmmmmmm fp-64=mmmmmmmm fp-72=mmmmmmmm fp-80=mmmmmmmm refs=2
+  ; bpf_ringbuf_submit_dynptr(&ptr, 0); @ dynptr_fail.c:162
+  16: (bf) r1 = r6                      ; R1_w=fp-16 R6=fp-16 refs=2
+  17: (b7) r2 = 0                       ; R2_w=0 refs=2
+  18: (85) call bpf_ringbuf_submit_dynptr#199   ;
+  ; bpf_dynptr_read(read_data, sizeof(read_data), &ptr, 0, 0); @ dynptr_fail.c:165
+  19: (bf) r1 = r7                      ; R1_w=fp-80 R7=fp-80
+  20: (b4) w2 = 64                      ; R2_w=64
+  21: (bf) r3 = r6                      ; R3_w=fp-16 R6=fp-16
+  22: (b4) w4 = 0                       ; R4_w=0
+  23: (b7) r5 = 0                       ; R5_w=0
+  24: (85) call bpf_dynptr_read#201
+  mark_precise: frame0: last_idx 24 first_idx 16 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 23: (b7) r5 = 0
+  mark_precise: frame0: regs=r2 stack= before 22: (b4) w4 = 0
+  mark_precise: frame0: regs=r2 stack= before 21: (bf) r3 = r6
+  mark_precise: frame0: regs=r2 stack= before 20: (b4) w2 = 64
+  Expected an initialized dynptr as arg #2
+  processed 24 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"Expected an initialized dynptr as arg #2\")\nint use_after_invalid(void *ctx)\n{\n\tstruct bpf_dynptr ptr;\n\tchar read_data[64];\n\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, sizeof(read_data), 0, &ptr);\n\n\tbpf_dynptr_read(read_data, sizeof(read_data), &ptr, 0, 0);\n\n\tbpf_ringbuf_submit_dynptr(&ptr, 0);\n\n\t/* this should fail */\n\tbpf_dynptr_read(read_data, sizeof(read_data), &ptr, 0, 0);\n\n\treturn 0;\n}\n\n/* Can't call non-dynptr ringbuf APIs on a dynptr ringbuf sample */"

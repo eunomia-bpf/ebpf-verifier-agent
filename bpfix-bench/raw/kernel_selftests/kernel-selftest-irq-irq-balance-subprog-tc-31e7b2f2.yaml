@@ -1,0 +1,21 @@
+case_id: kernel-selftest-irq-irq-balance-subprog-tc-31e7b2f2
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/irq.c
+  section: ?tc
+  function: irq_balance_subprog
+  description: irq_balance_subprog
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - sleepable helper bpf_copy_from_user#
+  - kernel func bpf_copy_from_user_str is sleepable within IRQ-disabled region
+  unprivileged: []
+  combined:
+  - sleepable helper bpf_copy_from_user#
+  - kernel func bpf_copy_from_user_str is sleepable within IRQ-disabled region
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/irq.c
+  code: "SEC(\"?tc\")\n__success\nint irq_balance_subprog(struct __sk_buff *ctx)\n{\n\tlocal_irq_balance();\n\treturn 0;\n}\n\nSEC(\"?fentry.s/\" SYS_PREFIX \"sys_getpgid\")\n__failure __msg(\"sleepable helper bpf_copy_from_user#\")\nint irq_sleepable_helper(void *ctx)\n{\n\tunsigned long flags;\n\tu32 data;\n\n\tlocal_irq_save(&flags);\n\tbpf_copy_from_user(&data, sizeof(data), NULL);\n\tlocal_irq_restore(&flags);\n\treturn 0;\n}\n\nSEC(\"?fentry.s/\" SYS_PREFIX \"sys_getpgid\")\n__failure __msg(\"kernel func bpf_copy_from_user_str is sleepable within IRQ-disabled region\")\nint irq_sleepable_kfunc(void *ctx)\n{\n\tunsigned long flags;\n\tu32 data;\n\n\tlocal_irq_save(&flags);\n\tbpf_copy_from_user_str(&data, sizeof(data), NULL, 0);\n\tlocal_irq_restore(&flags);\n\treturn 0;\n}\n\nint __noinline global_local_irq_balance(void)\n{\n\tlocal_irq_balance_n();\n\treturn 0;\n}"

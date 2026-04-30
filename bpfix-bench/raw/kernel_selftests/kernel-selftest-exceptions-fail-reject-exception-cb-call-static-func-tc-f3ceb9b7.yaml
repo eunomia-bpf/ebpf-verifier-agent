@@ -1,0 +1,107 @@
+case_id: kernel-selftest-exceptions-fail-reject-exception-cb-call-static-func-tc-f3ceb9b7
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  section: ?tc
+  function: reject_exception_cb_call_static_func
+  description: reject_exception_cb_call_static_func
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - cannot call exception cb directly
+  unprivileged: []
+  combined:
+  - cannot call exception cb directly
+original_verifier_log: |
+  func#0 @0
+  func#1 @2
+  func#2 @5
+  Live regs before insn:
+    0: .12345.... (85) call pc+1
+    1: 0......... (95) exit
+    2: .12345.... (79) r1 = *(u64 *)(r1 +152)
+    3: .12345.... (85) call pc+1
+    4: 0......... (95) exit
+    5: .1........ (bf) r0 = r1
+    6: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; return static_func(ctx); @ exceptions_fail.c:284
+  0: (85) call pc+1
+  caller:
+   R10=fp0
+  callee:
+   frame1: R1=ctx() R10=fp0
+  2: frame1: R1=ctx() R10=fp0
+  ; return exception_cb1(ctx->tstamp); @ exceptions_fail.c:255
+  2: (79) r1 = *(u64 *)(r1 +152)        ; frame1: R1_w=scalar()
+  3: (85) call pc+1
+  Func#2 ('exception_cb1') is global and assumed valid.
+  4: frame1: R0_w=scalar()
+  4: (95) exit
+  returning from callee:
+   frame1: R0_w=scalar() R10=fp0
+  to caller at 1:
+   R0_w=scalar() R10=fp0
+
+  from 4 to 1: R0_w=scalar() R10=fp0
+  ; return static_func(ctx); @ exceptions_fail.c:284
+  1: (95) exit
+  Validating exception_cb1() func#2...
+  5: R1=scalar() R10=fp0
+  ; __noinline int exception_cb1(u64 c) @ exceptions_fail.c:243
+  5: (bf) r0 = r1                       ; R0_w=scalar(id=1) R1=scalar(id=1)
+  ; return c; @ exceptions_fail.c:245
+  6: (95) exit
+  Func#2 ('exception_cb1') is safe for any args that match its prototype
+  insn 3 cannot call exception cb directly
+  processed 7 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log: |-
+  func#0 @0
+  func#1 @2
+  func#2 @5
+  Live regs before insn:
+    0: .12345.... (85) call pc+1
+    1: 0......... (95) exit
+    2: .12345.... (79) r1 = *(u64 *)(r1 +152)
+    3: .12345.... (85) call pc+1
+    4: 0......... (95) exit
+    5: .1........ (bf) r0 = r1
+    6: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; return static_func(ctx); @ prog.c:50
+  0: (85) call pc+1
+  caller:
+   R10=fp0
+  callee:
+   frame1: R1=ctx() R10=fp0
+  2: frame1: R1=ctx() R10=fp0
+  ; return exception_cb1(ctx->tstamp); @ prog.c:42
+  2: (79) r1 = *(u64 *)(r1 +152)        ; frame1: R1_w=scalar()
+  3: (85) call pc+1
+  Func#2 ('exception_cb1') is global and assumed valid.
+  4: frame1: R0_w=scalar()
+  4: (95) exit
+  returning from callee:
+   frame1: R0_w=scalar() R10=fp0
+  to caller at 1:
+   R0_w=scalar() R10=fp0
+
+  from 4 to 1: R0_w=scalar() R10=fp0
+  ; return static_func(ctx); @ prog.c:50
+  1: (95) exit
+  Validating exception_cb1() func#2...
+  5: R1=scalar() R10=fp0
+  ; __noinline int exception_cb1(u64 c) @ prog.c:35
+  5: (bf) r0 = r1                       ; R0_w=scalar(id=1) R1=scalar(id=1)
+  ; return c; @ prog.c:37
+  6: (95) exit
+  Func#2 ('exception_cb1') is safe for any args that match its prototype
+  insn 3 cannot call exception cb directly
+  processed 7 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  code: "SEC(\"?tc\")\n__exception_cb(exception_cb1)\n__failure __msg(\"cannot call exception cb directly\")\nint reject_exception_cb_call_static_func(struct __sk_buff *ctx)\n{\n\treturn static_func(ctx);\n}"

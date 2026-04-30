@@ -1,0 +1,115 @@
+case_id: kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/cpumask_failure.c
+  section: tp_btf/task_newtask
+  function: test_global_mask_rcu_no_null_check
+  description: test_global_mask_rcu_no_null_check
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - Possibly NULL pointer passed to helper arg2
+  unprivileged: []
+  combined:
+  - Possibly NULL pointer passed to helper arg2
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (85) call bpf_cpumask_create#71422
+    1: 0......... (15) if r0 == 0x0 goto pc+19
+    2: 0......... (18) r6 = 0xffff8d476cab9508
+    4: 0.....6... (18) r1 = 0xffff8d476cab9508
+    6: 01....6... (bf) r2 = r0
+    7: .12...6... (85) call bpf_kptr_xchg#194
+    8: 0.....6... (15) if r0 == 0x0 goto pc+2
+    9: 0.....6... (bf) r1 = r0
+   10: .1....6... (85) call bpf_cpumask_release#71436
+   11: ......6... (85) call bpf_rcu_read_lock#73012
+   12: ......6... (79) r2 = *(u64 *)(r6 +0)
+   13: ..2....... (18) r1 = 0xffff8d476cab9508
+   15: .12....... (85) call bpf_kptr_xchg#194
+   16: 0......... (bf) r6 = r0
+   17: ......6... (85) call bpf_rcu_read_unlock#73013
+   18: ......6... (15) if r6 == 0x0 goto pc+2
+   19: ......6... (bf) r1 = r6
+   20: .1........ (85) call bpf_cpumask_release#71436
+   21: .......... (b4) w0 = 0
+   22: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; curr = bpf_cpumask_create(); @ cpumask_failure.c:187
+  0: (85) call bpf_cpumask_create#71422         ; R0_w=ptr_or_null_bpf_cpumask(id=2,ref_obj_id=2) refs=2
+  ; if (!curr) @ cpumask_failure.c:188
+  1: (15) if r0 == 0x0 goto pc+19       ; R0_w=ptr_bpf_cpumask(ref_obj_id=2) refs=2
+  ; prev = bpf_kptr_xchg(&global_mask, curr); @ cpumask_failure.c:191
+  2: (18) r6 = 0xffff8d476cab9508       ; R6_w=map_value(map=.bss.MASK,ks=4,vs=8) refs=2
+  4: (18) r1 = 0xffff8d476cab9508       ; R1_w=map_value(map=.bss.MASK,ks=4,vs=8) refs=2
+  6: (bf) r2 = r0                       ; R0_w=ptr_bpf_cpumask(ref_obj_id=2) R2_w=ptr_bpf_cpumask(ref_obj_id=2) refs=2
+  7: (85) call bpf_kptr_xchg#194        ; R0_w=ptr_or_null_bpf_cpumask(id=4,ref_obj_id=4) refs=4
+  ; if (prev) @ cpumask_failure.c:192
+  8: (15) if r0 == 0x0 goto pc+2        ; R0_w=ptr_bpf_cpumask(ref_obj_id=4) refs=4
+  ; bpf_cpumask_release(prev); @ cpumask_failure.c:193
+  9: (bf) r1 = r0                       ; R0_w=ptr_bpf_cpumask(ref_obj_id=4) R1_w=ptr_bpf_cpumask(ref_obj_id=4) refs=4
+  10: (85) call bpf_cpumask_release#71436       ;
+  ; bpf_rcu_read_lock(); @ cpumask_failure.c:195
+  11: (85) call bpf_rcu_read_lock#73012         ;
+  ; curr = global_mask; @ cpumask_failure.c:196
+  12: (79) r2 = *(u64 *)(r6 +0)         ; R2_w=rcu_ptr_or_null_bpf_cpumask(id=5) R6=map_value(map=.bss.MASK,ks=4,vs=8)
+  ; prev = bpf_kptr_xchg(&global_mask, curr); @ cpumask_failure.c:198
+  13: (18) r1 = 0xffff8d476cab9508      ; R1_w=map_value(map=.bss.MASK,ks=4,vs=8)
+  15: (85) call bpf_kptr_xchg#194
+  Possibly NULL pointer passed to helper arg2
+  processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (85) call bpf_cpumask_create#71422
+    1: 0......... (15) if r0 == 0x0 goto pc+19
+    2: 0......... (18) r6 = 0xffff8f16cc476708
+    4: 0.....6... (18) r1 = 0xffff8f16cc476708
+    6: 01....6... (bf) r2 = r0
+    7: .12...6... (85) call bpf_kptr_xchg#194
+    8: 0.....6... (15) if r0 == 0x0 goto pc+2
+    9: 0.....6... (bf) r1 = r0
+   10: .1....6... (85) call bpf_cpumask_release#71436
+   11: ......6... (85) call bpf_rcu_read_lock#73012
+   12: ......6... (79) r2 = *(u64 *)(r6 +0)
+   13: ..2....... (18) r1 = 0xffff8f16cc476708
+   15: .12....... (85) call bpf_kptr_xchg#194
+   16: 0......... (bf) r6 = r0
+   17: ......6... (85) call bpf_rcu_read_unlock#73013
+   18: ......6... (15) if r6 == 0x0 goto pc+2
+   19: ......6... (bf) r1 = r6
+   20: .1........ (85) call bpf_cpumask_release#71436
+   21: .......... (b4) w0 = 0
+   22: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; curr = bpf_cpumask_create(); @ prog.c:34
+  0: (85) call bpf_cpumask_create#71422         ; R0_w=ptr_or_null_bpf_cpumask(id=2,ref_obj_id=2) refs=2
+  ; if (!curr) @ prog.c:35
+  1: (15) if r0 == 0x0 goto pc+19       ; R0_w=ptr_bpf_cpumask(ref_obj_id=2) refs=2
+  ; prev = bpf_kptr_xchg(&global_mask, curr); @ prog.c:38
+  2: (18) r6 = 0xffff8f16cc476708       ; R6_w=map_value(map=.bss.MASK,ks=4,vs=8) refs=2
+  4: (18) r1 = 0xffff8f16cc476708       ; R1_w=map_value(map=.bss.MASK,ks=4,vs=8) refs=2
+  6: (bf) r2 = r0                       ; R0_w=ptr_bpf_cpumask(ref_obj_id=2) R2_w=ptr_bpf_cpumask(ref_obj_id=2) refs=2
+  7: (85) call bpf_kptr_xchg#194        ; R0_w=ptr_or_null_bpf_cpumask(id=4,ref_obj_id=4) refs=4
+  ; if (prev) @ prog.c:39
+  8: (15) if r0 == 0x0 goto pc+2        ; R0_w=ptr_bpf_cpumask(ref_obj_id=4) refs=4
+  ; bpf_cpumask_release(prev); @ prog.c:40
+  9: (bf) r1 = r0                       ; R0_w=ptr_bpf_cpumask(ref_obj_id=4) R1_w=ptr_bpf_cpumask(ref_obj_id=4) refs=4
+  10: (85) call bpf_cpumask_release#71436       ;
+  ; bpf_rcu_read_lock(); @ prog.c:42
+  11: (85) call bpf_rcu_read_lock#73012         ;
+  ; curr = global_mask; @ prog.c:43
+  12: (79) r2 = *(u64 *)(r6 +0)         ; R2_w=rcu_ptr_or_null_bpf_cpumask(id=5) R6=map_value(map=.bss.MASK,ks=4,vs=8)
+  ; prev = bpf_kptr_xchg(&global_mask, curr); @ prog.c:45
+  13: (18) r1 = 0xffff8f16cc476708      ; R1_w=map_value(map=.bss.MASK,ks=4,vs=8)
+  15: (85) call bpf_kptr_xchg#194
+  Possibly NULL pointer passed to helper arg2
+  processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/cpumask_failure.c
+  code: "SEC(\"tp_btf/task_newtask\")\n__failure __msg(\"Possibly NULL pointer passed to helper arg2\")\nint BPF_PROG(test_global_mask_rcu_no_null_check, struct task_struct *task, u64 clone_flags)\n{\n\tstruct bpf_cpumask *prev, *curr;\n\n\tcurr = bpf_cpumask_create();\n\tif (!curr)\n\t\treturn 0;\n\n\tprev = bpf_kptr_xchg(&global_mask, curr);\n\tif (prev)\n\t\tbpf_cpumask_release(prev);\n\n\tbpf_rcu_read_lock();\n\tcurr = global_mask;\n\t/* PTR_TO_BTF_ID | PTR_MAYBE_NULL | MEM_RCU passed to bpf_kptr_xchg() */\n\tprev = bpf_kptr_xchg(&global_mask, curr);\n\tbpf_rcu_read_unlock();\n\tif (prev)\n\t\tbpf_cpumask_release(prev);\n\n\treturn 0;\n}"

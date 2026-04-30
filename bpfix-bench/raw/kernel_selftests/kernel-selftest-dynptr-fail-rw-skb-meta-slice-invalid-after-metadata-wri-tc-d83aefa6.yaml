@@ -1,0 +1,19 @@
+case_id: kernel-selftest-dynptr-fail-rw-skb-meta-slice-invalid-after-metadata-wri-tc-d83aefa6
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?tc
+  function: rw_skb_meta_slice_invalid_after_metadata_write
+  description: rw_skb_meta_slice_invalid_after_metadata_write
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - invalid mem access 'scalar'
+  unprivileged: []
+  combined:
+  - invalid mem access 'scalar'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"invalid mem access 'scalar'\")\nint rw_skb_meta_slice_invalid_after_metadata_write(struct __sk_buff *skb)\n{\n\tstruct bpf_dynptr meta;\n\t__u8 *md;\n\n\tbpf_dynptr_from_skb_meta(skb, 0, &meta);\n\n\tmd = bpf_dynptr_slice_rdwr(&meta, 0, NULL, sizeof(*md));\n\tif (!md)\n\t\treturn SK_DROP;\n\n\tbpf_dynptr_write(&meta, 0, \"x\", 1, 0);\n\n\t/* this should fail */\n\t*md = 42;\n\n\treturn SK_PASS;\n}\n\n/* The read-only data slice is invalidated whenever a helper changes packet data */"

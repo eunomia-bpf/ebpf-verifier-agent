@@ -1,0 +1,19 @@
+case_id: kernel-selftest-dynptr-fail-data-slice-out-of-bounds-skb-meta-tc-420f28c1
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?tc
+  function: data_slice_out_of_bounds_skb_meta
+  description: data_slice_out_of_bounds_skb_meta
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - value is outside of the allowed memory range
+  unprivileged: []
+  combined:
+  - value is outside of the allowed memory range
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"value is outside of the allowed memory range\")\nint data_slice_out_of_bounds_skb_meta(struct __sk_buff *skb)\n{\n\tstruct bpf_dynptr meta;\n\t__u8 *md;\n\n\tbpf_dynptr_from_skb_meta(skb, 0, &meta);\n\n\tmd = bpf_dynptr_slice_rdwr(&meta, 0, NULL, sizeof(*md));\n\tif (!md)\n\t\treturn SK_DROP;\n\n\t/* this should fail */\n\t*(md + 1) = 42;\n\n\treturn SK_PASS;\n}"

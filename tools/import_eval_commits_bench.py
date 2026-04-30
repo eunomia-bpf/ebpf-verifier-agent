@@ -19,7 +19,6 @@ if str(ROOT) not in sys.path:
 
 from tools.replay_case import parse_verifier_log, replay_case
 
-DEFAULT_SOURCE_ROOT = ROOT / "case_study" / "cases" / "eval_commits_verified"
 DEFAULT_BENCH_ROOT = ROOT / "bpfix-bench"
 ENVIRONMENT_ID_FALLBACK = "kernel-6.15.11-clang-18-log2"
 VARIANTS = ("buggy", "fixed")
@@ -27,7 +26,7 @@ VARIANTS = ("buggy", "fixed")
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source-root", type=Path, default=DEFAULT_SOURCE_ROOT)
+    parser.add_argument("--source-root", type=Path, required=True)
     parser.add_argument("--bench-root", type=Path, default=DEFAULT_BENCH_ROOT)
     parser.add_argument("--case-id", action="append", default=[])
     parser.add_argument("--variant", choices=VARIANTS, action="append")
@@ -316,7 +315,7 @@ def build_case_yaml(
             "build_command": "make",
             "object_path": "prog.o",
             "load_command": "make replay-verify",
-            "notes": "Imported from eval_commits_verified; replay log is written to replay-verifier.log.",
+            "notes": "Imported from an explicit commit-derived artifact; replay log is generated as replay-verifier.log.",
         },
         "capture": {
             "capture_id": capture_id,

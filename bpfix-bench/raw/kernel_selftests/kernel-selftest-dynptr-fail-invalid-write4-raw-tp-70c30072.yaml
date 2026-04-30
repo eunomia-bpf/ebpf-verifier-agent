@@ -1,0 +1,89 @@
+case_id: kernel-selftest-dynptr-fail-invalid-write4-raw-tp-70c30072
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: invalid_write4
+  description: invalid_write4
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - cannot overwrite referenced dynptr
+  unprivileged: []
+  combined:
+  - cannot overwrite referenced dynptr
+verifier_log: |-
+  func#0 @0
+  func#1 @19
+  Live regs before insn:
+    0: .......... (bf) r6 = r10
+    1: ......6... (07) r6 += -16
+    2: ......6... (18) r1 = 0xffff8d475ee72a00
+    4: .1....6... (b4) w2 = 64
+    5: .12...6... (b7) r3 = 0
+    6: .123..6... (bf) r4 = r6
+    7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+    8: ......6... (b4) w1 = 10
+    9: .1....6... (18) r2 = 0x9
+   11: .12...6... (bf) r3 = r6
+   12: .123..6... (b7) r4 = 0
+   13: .1234.6... (85) call bpf_loop#181
+   14: ......6... (bf) r1 = r6
+   15: .1........ (b7) r2 = 0
+   16: .12....... (85) call bpf_ringbuf_submit_dynptr#199
+   17: .......... (b4) w0 = 0
+   18: 0......... (95) exit
+   19: ..2....... (b4) w1 = 123
+   20: .12....... (63) *(u32 *)(r2 +0) = r1
+   21: .......... (b4) w0 = 0
+   22: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int invalid_write4(void *ctx) @ dynptr_fail.c:511
+  0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &ptr); @ dynptr_fail.c:515
+  1: (07) r6 += -16                     ; R6_w=fp-16
+  2: (18) r1 = 0xffff8d475ee72a00       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 64                       ; R2_w=64
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16
+  7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  ; bpf_loop(10, invalid_write4_callback, &ptr, 0); @ dynptr_fail.c:517
+  8: (b4) w1 = 10                       ; R1_w=10 refs=2
+  9: (18) r2 = 0x9                      ; R2_w=func() refs=2
+  11: (bf) r3 = r6                      ; R3_w=fp-16 R6_w=fp-16 refs=2
+  12: (b7) r4 = 0                       ; R4=0 refs=2
+  13: (85) call bpf_loop#181
+  mark_precise: frame0: last_idx 13 first_idx 13 subseq_idx -1
+  mark_precise: frame0: parent state regs=r4 stack=:  R0_w=scalar() R1_rw=10 R2_rw=func() R3_rw=fp-16 R4_rw=P0 R6_w=fp-16 R10=fp0 fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  mark_precise: frame0: last_idx 12 first_idx 0 subseq_idx 13
+  mark_precise: frame0: regs=r4 stack= before 12: (b7) r4 = 0
+  mark_precise: frame0: last_idx 13 first_idx 13 subseq_idx -1
+  mark_precise: frame0: parent state regs=r1 stack=:  R0_w=scalar() R1_rw=P10 R2_rw=func() R3_rw=fp-16 R4_rw=P0 R6_w=fp-16 R10=fp0 fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  mark_precise: frame0: last_idx 12 first_idx 0 subseq_idx 13
+  mark_precise: frame0: regs=r1 stack= before 12: (b7) r4 = 0
+  mark_precise: frame0: regs=r1 stack= before 11: (bf) r3 = r6
+  mark_precise: frame0: regs=r1 stack= before 9: (18) r2 = 0x9
+  mark_precise: frame0: regs=r1 stack= before 8: (b4) w1 = 10
+  14: R0_w=scalar() R6=fp-16 R10=fp0 fp-16=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  ; bpf_ringbuf_submit_dynptr(&ptr, 0); @ dynptr_fail.c:520
+  14: (bf) r1 = r6                      ; R1_w=fp-16 R6=fp-16 refs=2
+  15: (b7) r2 = 0                       ; R2_w=0 refs=2
+  16: (85) call bpf_ringbuf_submit_dynptr#199   ;
+  ; return 0; @ dynptr_fail.c:522
+  17: (b4) w0 = 0                       ; R0_w=0
+  18: (95) exit
+
+  from 13 to 19: frame1: R1=scalar() R2=fp[0]-16 R10=fp0 refs=2 cb
+  19: frame1: R1=scalar() R2=fp[0]-16 R10=fp0 refs=2 cb
+  ; static int invalid_write4_callback(__u32 index, void *data) @ dynptr_fail.c:499
+  19: (b4) w1 = 123                     ; frame1: R1_w=123 refs=2 cb
+  ; *(__u32 *)data = 123; @ dynptr_fail.c:501
+  20: (63) *(u32 *)(r2 +0) = r1
+  cannot overwrite referenced dynptr
+  processed 19 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"cannot overwrite referenced dynptr\")\nint invalid_write4(void *ctx)\n{\n\tstruct bpf_dynptr ptr;\n\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &ptr);\n\n\tbpf_loop(10, invalid_write4_callback, &ptr, 0);\n\n\t/* this should fail */\n\tbpf_ringbuf_submit_dynptr(&ptr, 0);\n\n\treturn 0;\n}\n\n/* A globally-defined bpf_dynptr can't be used (it must reside as a stack frame) */\nstruct bpf_dynptr global_dynptr;"

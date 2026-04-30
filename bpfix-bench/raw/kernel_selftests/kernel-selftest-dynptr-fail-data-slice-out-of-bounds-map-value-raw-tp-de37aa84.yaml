@@ -1,0 +1,193 @@
+case_id: kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: data_slice_out_of_bounds_map_value
+  description: data_slice_out_of_bounds_map_value
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - value is outside of the allowed memory range
+  unprivileged: []
+  combined:
+  - value is outside of the allowed memory range
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (b4) w1 = 0
+    1: .1........ (63) *(u32 *)(r10 -4) = r1
+    2: .......... (bf) r6 = r10
+    3: ......6... (07) r6 += -4
+    4: ......6... (18) r1 = 0xffff8d475ffd0800
+    6: .1....6... (bf) r2 = r6
+    7: .12...6... (18) r3 = 0xffffd10b70f96000
+    9: .123..6... (b7) r4 = 0
+   10: .1234.6... (85) call bpf_map_update_elem#2
+   11: ......6... (18) r1 = 0xffff8d475ffd0800
+   13: .1....6... (bf) r2 = r6
+   14: .12....... (85) call bpf_map_lookup_elem#1
+   15: 0......... (15) if r0 == 0x0 goto pc+6
+   16: 0......... (bf) r4 = r10
+   17: 0...4..... (07) r4 += -24
+   18: 0...4..... (bf) r1 = r0
+   19: .1..4..... (b4) w2 = 4
+   20: .12.4..... (b7) r3 = 0
+   21: .1234..... (85) call bpf_dynptr_from_mem#197
+   22: .......... (bf) r1 = r10
+   23: .1........ (07) r1 += -24
+   24: .1........ (b4) w2 = 0
+   25: .12....... (b4) w3 = 4
+   26: .123...... (85) call bpf_dynptr_data#203
+   27: 0......... (15) if r0 == 0x0 goto pc+6
+   28: 0......... (71) r1 = *(u8 *)(r0 +5)
+   29: .1........ (64) w1 <<= 24
+   30: .1........ (c4) w1 s>>= 24
+   31: .1........ (18) r2 = 0xffffd10b70f96000
+   33: .12....... (63) *(u32 *)(r2 +0) = r1
+   34: .......... (b4) w0 = 0
+   35: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int data_slice_out_of_bounds_map_value(void *ctx) @ dynptr_fail.c:274
+  0: (b4) w1 = 0                        ; R1_w=0
+  ; __u32 key = 0, *map_val; @ dynptr_fail.c:64
+  1: (63) *(u32 *)(r10 -4) = r1
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r1 stack= before 0: (b4) w1 = 0
+  2: R1_w=0 R10=fp0 fp-8=0000????
+  2: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ;  @ dynptr_fail.c:0
+  3: (07) r6 += -4                      ; R6_w=fp-4
+  ; bpf_map_update_elem(&array_map3, &key, &val, 0); @ dynptr_fail.c:66
+  4: (18) r1 = 0xffff8d475ffd0800       ; R1_w=map_ptr(map=array_map3,ks=4,vs=4)
+  6: (bf) r2 = r6                       ; R2_w=fp-4 R6_w=fp-4
+  7: (18) r3 = 0xffffd10b70f96000       ; R3_w=map_value(map=dynptr_f.bss,ks=4,vs=28)
+  9: (b7) r4 = 0                        ; R4_w=0
+  10: (85) call bpf_map_update_elem#2   ; R0_w=scalar()
+  ; map_val = bpf_map_lookup_elem(&array_map3, &key); @ dynptr_fail.c:68
+  11: (18) r1 = 0xffff8d475ffd0800      ; R1_w=map_ptr(map=array_map3,ks=4,vs=4)
+  13: (bf) r2 = r6                      ; R2_w=fp-4 R6_w=fp-4
+  14: (85) call bpf_map_lookup_elem#1   ; R0=map_value(map=array_map3,ks=4,vs=4)
+  ; if (!map_val) @ dynptr_fail.c:69
+  15: (15) if r0 == 0x0 goto pc+6       ; R0=map_value(map=array_map3,ks=4,vs=4)
+  16: (bf) r4 = r10                     ; R4_w=fp0 R10=fp0
+  ; bpf_dynptr_from_mem(map_val, sizeof(*map_val), 0, ptr); @ dynptr_fail.c:72
+  17: (07) r4 += -24                    ; R4_w=fp-24
+  18: (bf) r1 = r0                      ; R0=map_value(map=array_map3,ks=4,vs=4) R1_w=map_value(map=array_map3,ks=4,vs=4)
+  19: (b4) w2 = 4                       ; R2_w=4
+  20: (b7) r3 = 0                       ; R3_w=0
+  21: (85) call bpf_dynptr_from_mem#197
+  mark_precise: frame0: last_idx 21 first_idx 15 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 20: (b7) r3 = 0
+  mark_precise: frame0: regs=r2 stack= before 19: (b4) w2 = 4
+  22: R0_w=scalar() fp-24_w=dynptr_local(id=1,dynptr_id=1)
+  22: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
+  ; data  = bpf_dynptr_data(&ptr, 0, sizeof(map_val)); @ dynptr_fail.c:282
+  23: (07) r1 += -24                    ; R1_w=fp-24
+  24: (b4) w2 = 0                       ; R2_w=0
+  25: (b4) w3 = 4                       ; R3_w=4
+  26: (85) call bpf_dynptr_data#203
+  mark_precise: frame0: last_idx 26 first_idx 15 subseq_idx -1
+  mark_precise: frame0: regs=r3 stack= before 25: (b4) w3 = 4
+  27: R0=mem_or_null(id=2,sz=4) fp-24=dynptr_local(id=1,dynptr_id=1)
+  ; if (!data) @ dynptr_fail.c:283
+  27: (15) if r0 == 0x0 goto pc+6       ; R0=mem(sz=4)
+  ; val = *((char *)data + (sizeof(map_val) + 1)); @ dynptr_fail.c:287
+  28: (71) r1 = *(u8 *)(r0 +5)
+  invalid access to memory, mem_size=4 off=5 size=1
+  R0 min value is outside of the allowed memory range
+  processed 26 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (b4) w1 = 0
+    1: .1........ (63) *(u32 *)(r10 -4) = r1
+    2: .......... (bf) r6 = r10
+    3: ......6... (07) r6 += -4
+    4: ......6... (18) r1 = 0xffff8f0cc70de000
+    6: .1....6... (bf) r2 = r6
+    7: .12...6... (18) r3 = 0xffffd2b8ce787000
+    9: .123..6... (b7) r4 = 0
+   10: .1234.6... (85) call bpf_map_update_elem#2
+   11: ......6... (18) r1 = 0xffff8f0cc70de000
+   13: .1....6... (bf) r2 = r6
+   14: .12....... (85) call bpf_map_lookup_elem#1
+   15: 0......... (15) if r0 == 0x0 goto pc+6
+   16: 0......... (bf) r4 = r10
+   17: 0...4..... (07) r4 += -24
+   18: 0...4..... (bf) r1 = r0
+   19: .1..4..... (b7) r2 = 4
+   20: .12.4..... (b7) r3 = 0
+   21: .1234..... (85) call bpf_dynptr_from_mem#197
+   22: .......... (bf) r1 = r10
+   23: .1........ (07) r1 += -24
+   24: .1........ (b7) r2 = 0
+   25: .12....... (b7) r3 = 4
+   26: .123...... (85) call bpf_dynptr_data#203
+   27: 0......... (15) if r0 == 0x0 goto pc+6
+   28: 0......... (71) r1 = *(u8 *)(r0 +5)
+   29: .1........ (64) w1 <<= 24
+   30: .1........ (c4) w1 s>>= 24
+   31: .1........ (18) r2 = 0xffffd2b8ce787000
+   33: .12....... (63) *(u32 *)(r2 +0) = r1
+   34: .......... (b4) w0 = 0
+   35: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int data_slice_out_of_bounds_map_value(void *ctx) @ prog.c:89
+  0: (b4) w1 = 0                        ; R1_w=0
+  ; __u32 key = 0, *map_val; @ prog.c:74
+  1: (63) *(u32 *)(r10 -4) = r1
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r1 stack= before 0: (b4) w1 = 0
+  2: R1_w=0 R10=fp0 fp-8=0000????
+  2: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ;  @ prog.c:0
+  3: (07) r6 += -4                      ; R6_w=fp-4
+  ; bpf_map_update_elem(&array_map3, &key, &val, 0); @ prog.c:76
+  4: (18) r1 = 0xffff8f0cc70de000       ; R1_w=map_ptr(map=array_map3,ks=4,vs=4)
+  6: (bf) r2 = r6                       ; R2_w=fp-4 R6_w=fp-4
+  7: (18) r3 = 0xffffd2b8ce787000       ; R3_w=map_value(map=prog.bss,ks=4,vs=24)
+  9: (b7) r4 = 0                        ; R4_w=0
+  10: (85) call bpf_map_update_elem#2   ; R0_w=scalar()
+  ; map_val = bpf_map_lookup_elem(&array_map3, &key); @ prog.c:78
+  11: (18) r1 = 0xffff8f0cc70de000      ; R1_w=map_ptr(map=array_map3,ks=4,vs=4)
+  13: (bf) r2 = r6                      ; R2_w=fp-4 R6_w=fp-4
+  14: (85) call bpf_map_lookup_elem#1   ; R0=map_value(map=array_map3,ks=4,vs=4)
+  ; if (!map_val) @ prog.c:79
+  15: (15) if r0 == 0x0 goto pc+6       ; R0=map_value(map=array_map3,ks=4,vs=4)
+  16: (bf) r4 = r10                     ; R4_w=fp0 R10=fp0
+  ; bpf_dynptr_from_mem(map_val, sizeof(*map_val), 0, ptr); @ prog.c:82
+  17: (07) r4 += -24                    ; R4_w=fp-24
+  18: (bf) r1 = r0                      ; R0=map_value(map=array_map3,ks=4,vs=4) R1_w=map_value(map=array_map3,ks=4,vs=4)
+  19: (b7) r2 = 4                       ; R2_w=4
+  20: (b7) r3 = 0                       ; R3_w=0
+  21: (85) call bpf_dynptr_from_mem#197
+  mark_precise: frame0: last_idx 21 first_idx 15 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 20: (b7) r3 = 0
+  mark_precise: frame0: regs=r2 stack= before 19: (b7) r2 = 4
+  22: R0_w=scalar() fp-24_w=dynptr_local(id=1,dynptr_id=1)
+  22: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
+  ; data  = bpf_dynptr_data(&ptr, 0, sizeof(map_val)); @ prog.c:97
+  23: (07) r1 += -24                    ; R1_w=fp-24
+  24: (b7) r2 = 0                       ; R2_w=0
+  25: (b7) r3 = 4                       ; R3_w=4
+  26: (85) call bpf_dynptr_data#203
+  mark_precise: frame0: last_idx 26 first_idx 15 subseq_idx -1
+  mark_precise: frame0: regs=r3 stack= before 25: (b7) r3 = 4
+  27: R0=mem_or_null(id=2,sz=4) fp-24=dynptr_local(id=1,dynptr_id=1)
+  ; if (!data) @ prog.c:98
+  27: (15) if r0 == 0x0 goto pc+6       ; R0=mem(sz=4)
+  ; val = *((char *)data + (sizeof(map_val) + 1)); @ prog.c:102
+  28: (71) r1 = *(u8 *)(r0 +5)
+  invalid access to memory, mem_size=4 off=5 size=1
+  R0 min value is outside of the allowed memory range
+  processed 26 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"value is outside of the allowed memory range\")\nint data_slice_out_of_bounds_map_value(void *ctx)\n{\n\t__u32 map_val;\n\tstruct bpf_dynptr ptr;\n\tvoid *data;\n\n\tget_map_val_dynptr(&ptr);\n\n\tdata  = bpf_dynptr_data(&ptr, 0, sizeof(map_val));\n\tif (!data)\n\t\treturn 0;\n\n\t/* can't index out of bounds of the data slice */\n\tval = *((char *)data + (sizeof(map_val) + 1));\n\n\treturn 0;\n}\n\n/* A data slice can't be used after it has been released */"

@@ -1,0 +1,20 @@
+case_id: kernel-selftest-iters-iters-raw-tp-ea8b0945
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/iters.c
+  section: ?raw_tp
+  function: ''
+  description: iters
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - R1 type=scalar expected=fp
+  unprivileged: []
+  combined:
+  - R1 type=scalar expected=fp
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/iters.c
+  code: "SEC(\"?raw_tp\")\n__failure\n__msg(\"R1 type=scalar expected=fp\")\n__naked int delayed_read_mark(void)\n{\n\t/* This is equivalent to C program below.\n\t * The call to bpf_iter_num_next() is reachable with r7 values &fp[-16] and 0xdead.\n\t * State with r7=&fp[-16] is visited first and follows r6 != 42 ... continue branch.\n\t * At this point iterator next() call is reached with r7 that has no read mark.\n\t * Loop body with r7=0xdead would only be visited if verifier would decide to continue\n\t * with second loop iteration. Absence of read mark on r7 might affect state\n\t * equivalent logic used for iterator convergence tracking.\n\t *\n\t * r7 = &fp[-16]\n\t * fp[-16] = 0\n\t * r6 = bpf_get_prandom_u32()\n\t * bpf_iter_num_new(&fp[-8], 0, 10)\n\t * while (bpf_iter_num_next(&fp[-8])) {\n\t *   r6++\n\t *   if (r6 != 42) {\n\t *     r7 = 0xdead\n\t *     continue;\n\t *   }\n\t *   bpf_probe_read_user(r7, 8, 0xdeadbeef); // this is not safe\n\t * }\n\t * bpf_iter_num_destroy(&fp[-8])\n\
+    \t * return 0\n\t */\n\tasm volatile (\n\t\t\"r7 = r10;\"\n\t\t\"r7 += -16;\"\n\t\t\"r0 = 0;\"\n\t\t\"*(u64 *)(r7 + 0) = r0;\"\n\t\t\"call %[bpf_get_prandom_u32];\"\n\t\t\"r6 = r0;\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"r2 = 0;\"\n\t\t\"r3 = 10;\"\n\t\t\"call %[bpf_iter_num_new];\"\n\t\"1:\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"call %[bpf_iter_num_next];\"\n\t\t\"if r0 == 0 goto 2f;\"\n\t\t\"r6 += 1;\"\n\t\t\"if r6 != 42 goto 3f;\"\n\t\t\"r7 = 0xdead;\"\n\t\t\"goto 1b;\"\n\t\"3:\"\n\t\t\"r1 = r7;\"\n\t\t\"r2 = 8;\"\n\t\t\"r3 = 0xdeadbeef;\"\n\t\t\"call %[bpf_probe_read_user];\"\n\t\t\"goto 1b;\"\n\t\"2:\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"call %[bpf_iter_num_destroy];\"\n\t\t\"r0 = 0;\"\n\t\t\"exit;\"\n\t\t:\n\t\t: __imm(bpf_get_prandom_u32),\n\t\t  __imm(bpf_iter_num_new),\n\t\t  __imm(bpf_iter_num_next),\n\t\t  __imm(bpf_iter_num_destroy),\n\t\t  __imm(bpf_probe_read_user)\n\t\t: __clobber_all\n\t);\n}"

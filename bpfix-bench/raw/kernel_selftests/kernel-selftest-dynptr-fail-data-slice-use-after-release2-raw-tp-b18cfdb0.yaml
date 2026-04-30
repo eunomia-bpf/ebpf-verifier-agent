@@ -1,0 +1,104 @@
+case_id: kernel-selftest-dynptr-fail-data-slice-use-after-release2-raw-tp-b18cfdb0
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: data_slice_use_after_release2
+  description: data_slice_use_after_release2
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - invalid mem access 'scalar'
+  unprivileged: []
+  combined:
+  - invalid mem access 'scalar'
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r4 = r10
+    1: ....4..... (07) r4 += -16
+    2: ....4..... (18) r1 = 0xffff8d50b37b7e00
+    4: .1..4..... (b4) w2 = 64
+    5: .12.4..... (b7) r3 = 0
+    6: .1234..... (85) call bpf_ringbuf_reserve_dynptr#198
+    7: .......... (bf) r6 = r10
+    8: ......6... (07) r6 += -32
+    9: ......6... (18) r1 = 0xffff8d50b37b7e00
+   11: .1....6... (b4) w2 = 32
+   12: .12...6... (b7) r3 = 0
+   13: .123..6... (bf) r4 = r6
+   14: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+   15: ......6... (bf) r1 = r6
+   16: .1........ (b4) w2 = 0
+   17: .12....... (b4) w3 = 32
+   18: .123...... (85) call bpf_dynptr_data#203
+   19: 0......... (15) if r0 == 0x0 goto pc+13
+   20: 0......... (b4) w6 = 23
+   21: 0.....6... (63) *(u32 *)(r0 +0) = r6
+   22: 0.....6... (bf) r1 = r10
+   23: 01....6... (07) r1 += -32
+   24: 01....6... (b7) r2 = 0
+   25: 012...6... (bf) r7 = r0
+   26: .12...67.. (85) call bpf_ringbuf_submit_dynptr#199
+   27: ......67.. (63) *(u32 *)(r7 +0) = r6
+   28: .......... (bf) r1 = r10
+   29: .1........ (07) r1 += -16
+   30: .1........ (b7) r2 = 0
+   31: .12....... (85) call bpf_ringbuf_submit_dynptr#199
+   32: .......... (05) goto pc+8
+   33: .......... (bf) r1 = r10
+   34: .1........ (07) r1 += -32
+   35: .1........ (b7) r2 = 0
+   36: .12....... (85) call bpf_ringbuf_discard_dynptr#200
+   37: .......... (bf) r1 = r10
+   38: .1........ (07) r1 += -16
+   39: .1........ (b7) r2 = 0
+   40: .12....... (85) call bpf_ringbuf_discard_dynptr#200
+   41: .......... (b4) w0 = 0
+   42: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int data_slice_use_after_release2(void *ctx) @ dynptr_fail.c:327
+  0: (bf) r4 = r10                      ; R4_w=fp0 R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &ptr1); @ dynptr_fail.c:332
+  1: (07) r4 += -16                     ; R4_w=fp-16
+  2: (18) r1 = 0xffff8d50b37b7e00       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 64                       ; R2_w=64
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  7: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0 refs=2
+  8: (07) r6 += -32                     ; R6_w=fp-32 refs=2
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, sizeof(*sample), 0, &ptr2); @ dynptr_fail.c:333
+  9: (18) r1 = 0xffff8d50b37b7e00       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0) refs=2
+  11: (b4) w2 = 32                      ; R2_w=32 refs=2
+  12: (b7) r3 = 0                       ; R3_w=0 refs=2
+  13: (bf) r4 = r6                      ; R4_w=fp-32 R6_w=fp-32 refs=2
+  14: (85) call bpf_ringbuf_reserve_dynptr#198          ; R0=scalar() fp-32=dynptr_ringbuf(id=3,ref_id=4,dynptr_id=1) refs=2,4
+  ; sample = bpf_dynptr_data(&ptr2, 0, sizeof(*sample)); @ dynptr_fail.c:335
+  15: (bf) r1 = r6                      ; R1_w=fp-32 R6=fp-32 refs=2,4
+  16: (b4) w2 = 0                       ; R2_w=0 refs=2,4
+  17: (b4) w3 = 32                      ; R3_w=32 refs=2,4
+  18: (85) call bpf_dynptr_data#203
+  mark_precise: frame0: last_idx 18 first_idx 15 subseq_idx -1
+  mark_precise: frame0: regs=r3 stack= before 17: (b4) w3 = 32
+  19: R0_w=mem_or_null(id=5,ref_obj_id=4,sz=32) fp-32=dynptr_ringbuf(id=3,ref_id=4,dynptr_id=1) refs=2,4
+  ; if (!sample) @ dynptr_fail.c:336
+  19: (15) if r0 == 0x0 goto pc+13      ; R0_w=mem(ref_obj_id=4,sz=32) refs=2,4
+  20: (b4) w6 = 23                      ; R6_w=23 refs=2,4
+  ; sample->pid = 23; @ dynptr_fail.c:339
+  21: (63) *(u32 *)(r0 +0) = r6         ; R0_w=mem(ref_obj_id=4,sz=32) R6_w=23 refs=2,4
+  22: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0 refs=2,4
+  23: (07) r1 += -32                    ; R1_w=fp-32 refs=2,4
+  ; bpf_ringbuf_submit_dynptr(&ptr2, 0); @ dynptr_fail.c:341
+  24: (b7) r2 = 0                       ; R2_w=0 refs=2,4
+  25: (bf) r7 = r0                      ; R0_w=mem(ref_obj_id=4,sz=32) R7_w=mem(ref_obj_id=4,sz=32) refs=2,4
+  26: (85) call bpf_ringbuf_submit_dynptr#199   ; refs=2
+  ; sample->pid = 23; @ dynptr_fail.c:344
+  27: (63) *(u32 *)(r7 +0) = r6
+  R7 invalid mem access 'scalar'
+  processed 26 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"invalid mem access 'scalar'\")\nint data_slice_use_after_release2(void *ctx)\n{\n\tstruct bpf_dynptr ptr1, ptr2;\n\tstruct sample *sample;\n\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &ptr1);\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, sizeof(*sample), 0, &ptr2);\n\n\tsample = bpf_dynptr_data(&ptr2, 0, sizeof(*sample));\n\tif (!sample)\n\t\tgoto done;\n\n\tsample->pid = 23;\n\n\tbpf_ringbuf_submit_dynptr(&ptr2, 0);\n\n\t/* this should fail */\n\tsample->pid = 23;\n\n\tbpf_ringbuf_submit_dynptr(&ptr1, 0);\n\n\treturn 0;\n\ndone:\n\tbpf_ringbuf_discard_dynptr(&ptr2, 0);\n\tbpf_ringbuf_discard_dynptr(&ptr1, 0);\n\treturn 0;\n}\n\n/* A data slice must be first checked for NULL */"

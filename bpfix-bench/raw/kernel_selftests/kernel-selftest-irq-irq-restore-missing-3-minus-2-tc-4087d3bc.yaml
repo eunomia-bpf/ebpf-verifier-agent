@@ -1,0 +1,67 @@
+case_id: kernel-selftest-irq-irq-restore-missing-3-minus-2-tc-4087d3bc
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/irq.c
+  section: ?tc
+  function: irq_restore_missing_3_minus_2
+  description: irq_restore_missing_3_minus_2
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region
+  unprivileged: []
+  combined:
+  - BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region
+verifier_log: |
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r1 = r10
+    1: .1........ (07) r1 += -8
+    2: .1........ (85) call bpf_local_irq_save#72094
+    3: .......... (bf) r6 = r10
+    4: ......6... (07) r6 += -16
+    5: ......6... (bf) r1 = r6
+    6: .1....6... (85) call bpf_local_irq_save#72094
+    7: ......6... (bf) r7 = r10
+    8: ......67.. (07) r7 += -24
+    9: ......67.. (bf) r1 = r7
+   10: .1....67.. (85) call bpf_local_irq_save#72094
+   11: ......67.. (bf) r1 = r7
+   12: .1....6... (85) call bpf_local_irq_restore#72093
+   13: ......6... (bf) r1 = r6
+   14: .1........ (85) call bpf_local_irq_restore#72093
+   15: .......... (b4) w0 = 0
+   16: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int irq_restore_missing_3_minus_2(struct __sk_buff *ctx) @ irq.c:61
+  0: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+  ; bpf_local_irq_save(&flags1); @ irq.c:67
+  1: (07) r1 += -8                      ; R1_w=fp-8
+  2: (85) call bpf_local_irq_save#72094         ; fp-8_w=ffffffff refs=1
+  3: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0 refs=1
+  4: (07) r6 += -16                     ; R6_w=fp-16 refs=1
+  ; bpf_local_irq_save(&flags2); @ irq.c:68
+  5: (bf) r1 = r6                       ; R1_w=fp-16 R6_w=fp-16 refs=1
+  6: (85) call bpf_local_irq_save#72094         ; fp-16=ffffffff refs=1,2
+  7: (bf) r7 = r10                      ; R7_w=fp0 R10=fp0 refs=1,2
+  ; bpf_local_irq_save(&flags1); @ irq.c:67
+  8: (07) r7 += -24                     ; R7_w=fp-24 refs=1,2
+  ; bpf_local_irq_save(&flags3); @ irq.c:69
+  9: (bf) r1 = r7                       ; R1_w=fp-24 R7_w=fp-24 refs=1,2
+  10: (85) call bpf_local_irq_save#72094        ; fp-24_w=ffffffff refs=1,2,3
+  ; bpf_local_irq_restore(&flags3); @ irq.c:70
+  11: (bf) r1 = r7                      ; R1_w=fp-24 R7_w=fp-24 refs=1,2,3
+  12: (85) call bpf_local_irq_restore#72093     ; refs=1,2
+  ; bpf_local_irq_restore(&flags2); @ irq.c:71
+  13: (bf) r1 = r6                      ; R1_w=fp-16 R6=fp-16 refs=1,2
+  14: (85) call bpf_local_irq_restore#72093     ; refs=1
+  ; return 0; @ irq.c:72
+  15: (b4) w0 = 0                       ; R0_w=0 refs=1
+  16: (95) exit
+  BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region
+  processed 17 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/irq.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"BPF_EXIT instruction in main prog cannot be used inside bpf_local_irq_save-ed region\")\nint irq_restore_missing_3_minus_2(struct __sk_buff *ctx)\n{\n\tunsigned long flags1;\n\tunsigned long flags2;\n\tunsigned long flags3;\n\n\tbpf_local_irq_save(&flags1);\n\tbpf_local_irq_save(&flags2);\n\tbpf_local_irq_save(&flags3);\n\tbpf_local_irq_restore(&flags3);\n\tbpf_local_irq_restore(&flags2);\n\treturn 0;\n}\n\nstatic __noinline void local_irq_save(unsigned long *flags)\n{\n\tbpf_local_irq_save(flags);\n}\n\nstatic __noinline void local_irq_restore(unsigned long *flags)\n{\n\tbpf_local_irq_restore(flags);\n}"

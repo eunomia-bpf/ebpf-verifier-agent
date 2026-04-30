@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 CLANG ?= clang
 BPFTool ?= sudo bpftool
-CFLAGS ?= -target bpf -O2 -g -I /usr/include
+CFLAGS ?= -target bpf -O2 -g -I /usr/include -D__TARGET_ARCH_x86
 PIN ?= /sys/fs/bpf/$(notdir $(CURDIR))
 LOG_LIMIT ?= 8000000
 

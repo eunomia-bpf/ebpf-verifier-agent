@@ -64,4 +64,3 @@ reporting:
   representative: true
   intentional_negative_test: true
   notes: Kernel selftest replay-valid case.
-

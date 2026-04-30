@@ -1,0 +1,82 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-0b4ddce50b57
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/0b4ddce50b5745ca0a67be6a38743e475b2123dc
+  title: 'bpf: Fix default configuration of bpf/'
+  repository: https://github.com/cilium/cilium
+  commit: 0b4ddce50b5745ca0a67be6a38743e475b2123dc
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-0b4ddce50b57.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-0b4ddce50b57
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: 0b4ddce50b5745ca0a67be6a38743e475b2123dc
+  commit_message: 'bpf: Fix default configuration of bpf/'
+  commit_date: '2018-12-19'
+  fix_type: helper_switch
+  buggy_code: "// FILE: bpf/lib/common.h\n */\n#ifndef __LIB_COMMON_H_\n#define __LIB_COMMON_H_\n\
+    \n#include <bpf_features.h>\n#include <bpf/api.h>\n#include <linux/if_ether.h>\n\
+    #include <linux/ipv6.h>\n#include <linux/in.h>\n#include <stdint.h>\n#include\
+    \ <stdbool.h>\n\n#if defined LXC_NAT46 && defined LXC_IP\n#define ENABLE_NAT46\n\
+    #endif\n\n// FIXME: GH-3239 LRU logic is not handling timeouts gracefully enough\n\
+    // #ifndef HAVE_LRU_MAP_TYPE\n// #define NEEDS_TIMEOUT 1\n// #endif\n#define NEEDS_TIMEOUT\
+    \ 1\n\n#ifndef EVENT_SOURCE\n#define EVENT_SOURCE 0\n#endif\n\n#define __inline__\
+    \ __attribute__((always_inline))\n\n// FILE: bpf/netdev_config.h\n *  You should\
+    \ have received a copy of the GNU General Public License\n *  along with this\
+    \ program; if not, write to the Free Software\n *  Foundation, Inc., 51 Franklin\
+    \ St, Fifth Floor, Boston, MA  02110-1301  USA\n */\n/*\n * This is just a dummy\
+    \ header with dummy values to allow for test\n * compilation without the full\
+    \ code generation engine backend.\n */\n#define DROP_NOTIFY\n#ifndef SKIP_DEBUG\n\
+    #define DEBUG\n#endif\n#define ENABLE_IPV4\n#define HANDLE_NS\n#define FROM_HOST\n\
+    #define ENCAP_IFINDEX 1\n#define POLICY_MAP cilium_policy_foo"
+  fixed_code: "// FILE: bpf/lib/common.h\n */\n#ifndef __LIB_COMMON_H_\n#define __LIB_COMMON_H_\n\
+    \n#include <bpf_features.h>\n#include <bpf/api.h>\n#include <linux/if_ether.h>\n\
+    #include <linux/ipv6.h>\n#include <linux/in.h>\n#include <stdint.h>\n#include\
+    \ <stdbool.h>\n\n#if defined DISABLE_NAT46\n#undef ENABLE_NAT46\n#elif defined\
+    \ LXC_NAT46 && defined LXC_IP\n#define ENABLE_NAT46\n#endif\n\n#if defined DISABLE_IPV4\n\
+    #undef ENABLE_IPV4\n#elif !defined ENABLE_IPV4\n#define ENABLE_IPV4\n#endif\n\n\
+    #if defined DISABLE_IPV6\n#undef ENABLE_IPV6\n#elif !defined ENABLE_IPV6\n#define\
+    \ ENABLE_IPV6\n#endif\n\n// FIXME: GH-3239 LRU logic is not handling timeouts\
+    \ gracefully enough\n// #ifndef HAVE_LRU_MAP_TYPE\n// #define NEEDS_TIMEOUT 1\n\
+    // #endif\n#define NEEDS_TIMEOUT 1\n\n#ifndef EVENT_SOURCE\n#define EVENT_SOURCE\
+    \ 0\n#endif\n\n#define __inline__ __attribute__((always_inline))\n\n// FILE: bpf/netdev_config.h\n\
+    \ *  You should have received a copy of the GNU General Public License\n *  along\
+    \ with this program; if not, write to the Free Software\n *  Foundation, Inc.,\
+    \ 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA\n */\n/*\n * This is\
+    \ just a dummy header with dummy values to allow for test\n * compilation without\
+    \ the full code generation engine backend.\n */\n#define DROP_NOTIFY\n#ifndef\
+    \ SKIP_DEBUG\n#define DEBUG\n#endif\n#define HANDLE_NS\n#define FROM_HOST\n#define\
+    \ ENCAP_IFINDEX 1\n#define POLICY_MAP cilium_policy_foo"
+  diff_summary: 'bpf/lib/common.h:
+
+    - Gated or switched helper usage so unsupported helpers do not reach kernels that
+    reject them.
+
+    - Affected context: the touched section.
+
+    bpf/netdev_config.h:
+
+    - Gated or switched helper usage so unsupported helpers do not reach kernels that
+    reject them.
+
+    - Affected context: the touched section.
+
+    - Commit subject: bpf: Fix default configuration of bpf/.'
+

@@ -1,0 +1,73 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-bcc-2070a2aefb0b
+source_kind: github_commit
+source:
+  url: https://github.com/iovisor/bcc/commit/2070a2aefb0bb30f675d0ebdfb804b5873bb0200
+  title: 'cc: Work around verifier error when reading USDT probe arguments'
+  repository: https://github.com/iovisor/bcc
+  commit: 2070a2aefb0bb30f675d0ebdfb804b5873bb0200
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-bcc-2070a2aefb0b.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: attempted_unknown
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: verification_status_unclear
+  verifier_status: null
+  captured_error: null
+  verifier_error_match: null
+raw:
+  case_id: eval-bcc-2070a2aefb0b
+  source: eval_commits
+  repository: https://github.com/iovisor/bcc
+  commit_hash: 2070a2aefb0bb30f675d0ebdfb804b5873bb0200
+  commit_message: 'cc: Work around verifier error when reading USDT probe arguments'
+  commit_date: '2017-05-03'
+  fix_type: inline_hint
+  buggy_code: "// FILE: src/cc/usdt.cc\n// CONTEXT: std::string Probe::largest_arg_type(size_t\
+    \ arg_n) {\n\nbool Probe::usdt_getarg(std::ostream &stream) {\n  const size_t\
+    \ arg_count = locations_[0].arguments_.size();\n\n  if (!attached_to_)\n    return\
+    \ false;\n\n  if (arg_count == 0)\n    return true;\n\n  for (size_t arg_n = 0;\
+    \ arg_n < arg_count; ++arg_n) {\n    std::string ctype = largest_arg_type(arg_n);\n\
+    \    std::string cptr = tfm::format(\"*((%s *)dest)\", ctype);\n\n    tfm::format(stream,\n\
+    \                \"static inline int _bpf_readarg_%s_%d(\"\n                \"\
+    struct pt_regs *ctx, void *dest, size_t len) {\\n\"\n                \"  if (len\
+    \ != sizeof(%s)) return -1;\\n\",\n                attached_to_.value(), arg_n\
+    \ + 1, ctype);\n\n    if (locations_.size() == 1) {\n      Location &location\
+    \ = locations_.front();\n      stream << \"  \";\n      if (!location.arguments_[arg_n].assign_to_local(stream,\
+    \ cptr, bin_path_,\n                                                      pid_))\n\
+    \        return false;\n      stream << \"\\n  return 0;\\n}\\n\";\n    } else\
+    \ {"
+  fixed_code: "// FILE: src/cc/usdt.cc\n// CONTEXT: std::string Probe::largest_arg_type(size_t\
+    \ arg_n) {\n\nbool Probe::usdt_getarg(std::ostream &stream) {\n  const size_t\
+    \ arg_count = locations_[0].arguments_.size();\n\n  if (!attached_to_)\n    return\
+    \ false;\n\n  if (arg_count == 0)\n    return true;\n\n  for (size_t arg_n = 0;\
+    \ arg_n < arg_count; ++arg_n) {\n    std::string ctype = largest_arg_type(arg_n);\n\
+    \    std::string cptr = tfm::format(\"*((volatile %s *)dest)\", ctype);\n\n  \
+    \  tfm::format(stream,\n                \"static __always_inline int _bpf_readarg_%s_%d(\"\
+    \n                \"struct pt_regs *ctx, void *dest, size_t len) {\\n\"\n    \
+    \            \"  if (len != sizeof(%s)) return -1;\\n\",\n                attached_to_.value(),\
+    \ arg_n + 1, ctype);\n\n    if (locations_.size() == 1) {\n      Location &location\
+    \ = locations_.front();\n      stream << \"  \";\n      if (!location.arguments_[arg_n].assign_to_local(stream,\
+    \ cptr, bin_path_,\n                                                      pid_))\n\
+    \        return false;\n      stream << \"\\n  return 0;\\n}\\n\";\n    } else\
+    \ {"
+  diff_summary: 'src/cc/usdt.cc:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: std::string Probe::largest_arg_type(size_t arg_n) {.
+
+    - Commit subject: cc: Work around verifier error when reading USDT probe arguments.'
+

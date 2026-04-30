@@ -1,0 +1,36 @@
+case_id: kernel-selftest-exceptions-fail-reject-with-rcu-read-lock-tc-10876c08
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  section: ?tc
+  function: reject_with_rcu_read_lock
+  description: reject_with_rcu_read_lock
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - BPF_EXIT instruction in main prog cannot be used inside bpf_rcu_read_lock-ed region
+  unprivileged: []
+  combined:
+  - BPF_EXIT instruction in main prog cannot be used inside bpf_rcu_read_lock-ed region
+verifier_log: |
+  func#0 @0
+  Live regs before insn:
+    0: .......... (85) call bpf_rcu_read_lock#73012
+    1: .......... (b7) r1 = 0
+    2: .1........ (85) call bpf_throw#73439
+    3: .......... (b4) w0 = 0
+    4: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; bpf_rcu_read_lock(); @ exceptions_fail.c:137
+  0: (85) call bpf_rcu_read_lock#73012          ;
+  ; bpf_throw(0); @ exceptions_fail.c:138
+  1: (b7) r1 = 0                        ; R1_w=0
+  2: (85) call bpf_throw#73439
+  JIT does not support calling kfunc bpf_throw#73439
+  processed 3 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"BPF_EXIT instruction in main prog cannot be used inside bpf_rcu_read_lock-ed region\")\nint reject_with_rcu_read_lock(void *ctx)\n{\n\tbpf_rcu_read_lock();\n\tbpf_throw(0);\n\treturn 0;\n}\n\n__noinline static int throwing_subprog(struct __sk_buff *ctx)\n{\n\tif (ctx->len)\n\t\tbpf_throw(0);\n\treturn 0;\n}"

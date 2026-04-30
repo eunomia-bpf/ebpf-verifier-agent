@@ -1,0 +1,64 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-caf84595d9cb
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/caf84595d9cb34db3c6084e5cce40c6c78083e3b
+  title: 'bpf: Force passing ctx to mock_fib_lookup'
+  repository: https://github.com/cilium/cilium
+  commit: caf84595d9cb34db3c6084e5cce40c6c78083e3b
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-caf84595d9cb.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-caf84595d9cb
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: caf84595d9cb34db3c6084e5cce40c6c78083e3b
+  commit_message: 'bpf: Force passing ctx to mock_fib_lookup'
+  commit_date: '2024-08-27'
+  fix_type: other
+  buggy_code: "// FILE: bpf/tests/tc_nodeport_lb4_nat_lb.c\n// CONTEXT: struct mock_settings\
+    \ {\n        bool fail_fib;\n};\n\nstruct {\n        __uint(type, BPF_MAP_TYPE_ARRAY);\n\
+    \        __uint(key_size, sizeof(__u32));\n        __uint(value_size, sizeof(struct\
+    \ mock_settings));\n        __uint(max_entries, 1);\n} settings_map __section_maps_btf;\n\
+    \n#define fib_lookup mock_fib_lookup\n\nlong mock_fib_lookup(__maybe_unused struct\
+    \ __ctx_buff *ctx, struct bpf_fib_lookup *params,\n                     __maybe_unused\
+    \ int plen, __maybe_unused __u32 flags)\n{\n        __u32 key = 0;\n        struct\
+    \ mock_settings *settings = map_lookup_elem(&settings_map, &key);\n\n        /*\
+    \ Verifier doesn't know that params is not NULL when verifying this\n        \
+    \ * function separately (see btf_prepare_func_args in kernel/bpf/btf.c).\n   \
+    \      * There is no appropriate EINVAL-like error code in this helper, so\n \
+    \        * return some arbitrary error.\n         */\n        if (!params)\n \
+    \               return BPF_FIB_LKUP_RET_BLACKHOLE;"
+  fixed_code: "// FILE: bpf/tests/tc_nodeport_lb4_nat_lb.c\n// CONTEXT: struct mock_settings\
+    \ {\n        bool fail_fib;\n};\n\nstruct {\n        __uint(type, BPF_MAP_TYPE_ARRAY);\n\
+    \        __uint(key_size, sizeof(__u32));\n        __uint(value_size, sizeof(struct\
+    \ mock_settings));\n        __uint(max_entries, 1);\n} settings_map __section_maps_btf;\n\
+    \n#define fib_lookup mock_fib_lookup\n\nlong mock_fib_lookup(__maybe_unused struct\
+    \ __ctx_buff * volatile ctx, struct bpf_fib_lookup *params,\n                \
+    \     __maybe_unused int plen, __maybe_unused __u32 flags)\n{\n        __u32 key\
+    \ = 0;\n        struct mock_settings *settings = map_lookup_elem(&settings_map,\
+    \ &key);\n\n        /* Verifier doesn't know that params is not NULL when verifying\
+    \ this\n         * function separately (see btf_prepare_func_args in kernel/bpf/btf.c).\n\
+    \         * There is no appropriate EINVAL-like error code in this helper, so\n\
+    \         * return some arbitrary error.\n         */\n        if (!params)\n\
+    \                return BPF_FIB_LKUP_RET_BLACKHOLE;"
+  diff_summary: 'bpf/tests/tc_nodeport_lb4_nat_lb.c:
+
+    - Marked the `ctx` argument to `mock_fib_lookup()` as `volatile` so Clang keeps
+    passing the real context pointer.'
+

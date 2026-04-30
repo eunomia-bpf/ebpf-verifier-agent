@@ -1,0 +1,79 @@
+case_id: kernel-selftest-irq-irq-restore-invalid-tc-e1f743bf
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/irq.c
+  section: ?tc
+  function: irq_restore_invalid
+  description: irq_restore_invalid
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - expected an initialized
+  unprivileged: []
+  combined:
+  - expected an initialized
+original_verifier_log: |
+  func#0 @0
+  Live regs before insn:
+    0: .......... (18) r1 = 0xfaceb00c
+    2: .1........ (7b) *(u64 *)(r10 -16) = r1
+    3: .......... (bf) r1 = r10
+    4: .1........ (07) r1 += -8
+    5: .1........ (85) call bpf_local_irq_save#72094
+    6: .......... (bf) r1 = r10
+    7: .1........ (07) r1 += -16
+    8: .1........ (85) call bpf_local_irq_restore#72093
+    9: .......... (b4) w0 = 0
+   10: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int irq_restore_invalid(struct __sk_buff *ctx) @ irq.c:328
+  0: (18) r1 = 0xfaceb00c               ; R1_w=0xfaceb00c
+  ; unsigned long flags = 0xfaceb00c; @ irq.c:331
+  2: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=0xfaceb00c R10=fp0 fp-16_w=0xfaceb00c
+  3: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+  4: (07) r1 += -8                      ; R1_w=fp-8
+  ; bpf_local_irq_save(&flags1); @ irq.c:333
+  5: (85) call bpf_local_irq_save#72094         ; fp-8_w=ffffffff refs=1
+  6: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=1
+  ; unsigned long flags = 0xfaceb00c; @ irq.c:331
+  7: (07) r1 += -16                     ; R1_w=fp-16 refs=1
+  ; bpf_local_irq_restore(&flags); @ irq.c:334
+  8: (85) call bpf_local_irq_restore#72093
+  expected an initialized irq flag as arg#0
+  processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (18) r1 = 0xfaceb00c
+    2: .1........ (7b) *(u64 *)(r10 -16) = r1
+    3: .......... (bf) r1 = r10
+    4: .1........ (07) r1 += -8
+    5: .1........ (85) call bpf_local_irq_save#72094
+    6: .......... (bf) r1 = r10
+    7: .1........ (07) r1 += -16
+    8: .1........ (85) call bpf_local_irq_restore#72093
+    9: .......... (b4) w0 = 0
+   10: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int irq_restore_invalid(struct __sk_buff *ctx) @ prog.c:22
+  0: (18) r1 = 0xfaceb00c               ; R1_w=0xfaceb00c
+  ; unsigned long flags = 0xfaceb00c; @ prog.c:25
+  2: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=0xfaceb00c R10=fp0 fp-16_w=0xfaceb00c
+  3: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+  4: (07) r1 += -8                      ; R1_w=fp-8
+  ; bpf_local_irq_save(&flags1); @ prog.c:27
+  5: (85) call bpf_local_irq_save#72094         ; fp-8_w=ffffffff refs=1
+  6: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=1
+  ; unsigned long flags = 0xfaceb00c; @ prog.c:25
+  7: (07) r1 += -16                     ; R1_w=fp-16 refs=1
+  ; bpf_local_irq_restore(&flags); @ prog.c:28
+  8: (85) call bpf_local_irq_restore#72093
+  expected an initialized irq flag as arg#0
+  processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/irq.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"expected an initialized\")\nint irq_restore_invalid(struct __sk_buff *ctx)\n{\n\tunsigned long flags1;\n\tunsigned long flags = 0xfaceb00c;\n\n\tbpf_local_irq_save(&flags1);\n\tbpf_local_irq_restore(&flags);\n\treturn 0;\n}"

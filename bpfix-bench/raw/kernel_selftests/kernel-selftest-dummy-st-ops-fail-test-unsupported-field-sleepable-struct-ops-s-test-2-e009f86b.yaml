@@ -1,0 +1,23 @@
+case_id: kernel-selftest-dummy-st-ops-fail-test-unsupported-field-sleepable-struct-ops-s-test-2-e009f86b
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dummy_st_ops_fail.c
+  section: struct_ops.s/test_2
+  function: test_unsupported_field_sleepable
+  description: test_unsupported_field_sleepable
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - attach to unsupported member test_2 of struct bpf_dummy_ops
+  unprivileged: []
+  combined:
+  - attach to unsupported member test_2 of struct bpf_dummy_ops
+verifier_log: |
+  func#0 @0
+  attach to unsupported member test_2 of struct bpf_dummy_ops
+  processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dummy_st_ops_fail.c
+  code: "SEC(\"struct_ops.s/test_2\")\n__failure __msg(\"attach to unsupported member test_2 of struct bpf_dummy_ops\")\nint BPF_PROG(test_unsupported_field_sleepable,\n\t     struct bpf_dummy_ops_state *state, int a1, unsigned short a2,\n\t     char a3, unsigned long a4)\n{\n\t/* Tries to mark an unsleepable field in struct bpf_dummy_ops as sleepable. */\n\treturn 0;\n}"

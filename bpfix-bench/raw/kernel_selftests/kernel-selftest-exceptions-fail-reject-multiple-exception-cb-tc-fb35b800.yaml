@@ -1,0 +1,22 @@
+case_id: kernel-selftest-exceptions-fail-reject-multiple-exception-cb-tc-fb35b800
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  section: ?tc
+  function: reject_multiple_exception_cb
+  description: reject_multiple_exception_cb
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - multiple exception callback tags for main subprog
+  unprivileged: []
+  combined:
+  - multiple exception callback tags for main subprog
+verifier_log: |
+  multiple exception callback tags for main subprog
+  processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  code: "SEC(\"?tc\")\n__exception_cb(exception_cb1)\n__exception_cb(exception_cb2)\n__failure __msg(\"multiple exception callback tags for main subprog\")\nint reject_multiple_exception_cb(struct __sk_buff *ctx)\n{\n\tbpf_throw(0);\n\treturn 16;\n}\n\n__noinline int exception_cb_bad_ret(u64 c)\n{\n\treturn c;\n}"

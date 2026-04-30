@@ -1,0 +1,19 @@
+case_id: kernel-selftest-file-reader-fail-xdp-no-dynptr-type-xdp-80447925
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/file_reader_fail.c
+  section: xdp
+  function: xdp_no_dynptr_type
+  description: xdp_no_dynptr_type
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - 'Expected an initialized dynptr as arg #0'
+  unprivileged: []
+  combined:
+  - 'Expected an initialized dynptr as arg #0'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/file_reader_fail.c
+  code: "SEC(\"xdp\")\n__failure\n__msg(\"Expected an initialized dynptr as arg #0\")\nint xdp_no_dynptr_type(struct xdp_md *xdp)\n{\n\tstruct bpf_dynptr dynptr;\n\n\tbpf_dynptr_file_discard(&dynptr);\n\treturn 0;\n}"

@@ -321,19 +321,14 @@ def test_diamond_ipdom() -> None:
 
 
 def _load_case(relative_path: str) -> dict:
-    path = ROOT / relative_path
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+    from bench_fixtures import load_case
 
+    return load_case(relative_path)
 
 def _verifier_log(case_path: str) -> str:
-    payload = _load_case(case_path)
-    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
-    if isinstance(verifier_log, str):
-        return verifier_log
-    combined = verifier_log.get("combined")
-    if isinstance(combined, str) and combined.strip():
-        return combined
-    return "\n".join(b for b in verifier_log.get("blocks", []) if isinstance(b, str))
+    from bench_fixtures import load_verifier_log
+
+    return load_verifier_log(case_path)
 
 
 def test_real_case_smoke() -> None:
@@ -346,7 +341,7 @@ def test_real_case_smoke() -> None:
     - All instruction indices in ipdom are actual instruction indices (no
       spurious virtual nodes in the public result).
     """
-    case_path = "case_study/cases/stackoverflow/stackoverflow-70750259.yaml"
+    case_path = "bpfix-bench/raw/so/stackoverflow-70750259.yaml"
     try:
         log = _verifier_log(case_path)
     except FileNotFoundError:

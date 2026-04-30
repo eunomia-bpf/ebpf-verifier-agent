@@ -1,0 +1,211 @@
+case_id: kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?xdp
+  function: xdp_invalid_data_slice1
+  description: xdp_invalid_data_slice1
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - invalid mem access 'scalar'
+  unprivileged: []
+  combined:
+  - invalid mem access 'scalar'
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (bf) r6 = r1
+    1: ......6... (b4) w7 = 0
+    2: ......67.. (6b) *(u16 *)(r10 -20) = r7
+    3: ......67.. (63) *(u32 *)(r10 -24) = r7
+    4: ......67.. (b7) r1 = 0
+    5: .1....67.. (7b) *(u64 *)(r10 -32) = r1
+    6: ......67.. (bf) r8 = r10
+    7: ......678. (07) r8 += -16
+    8: ......678. (bf) r1 = r6
+    9: .1....678. (b7) r2 = 0
+   10: .12...678. (bf) r3 = r8
+   11: .123..678. (85) call bpf_dynptr_from_xdp#71553
+   12: ......678. (bf) r3 = r10
+   13: ...3..678. (07) r3 += -32
+   14: ...3..678. (bf) r1 = r8
+   15: .1.3..67.. (b4) w2 = 0
+   16: .123..67.. (b4) w4 = 14
+   17: .1234.67.. (85) call bpf_dynptr_slice#71567
+   18: 0.....67.. (bf) r8 = r0
+   19: ......678. (15) if r8 == 0x0 goto pc+18
+   20: ......6.8. (71) r1 = *(u8 *)(r8 +12)
+   21: .1....6.8. (71) r2 = *(u8 *)(r8 +13)
+   22: .12...6.8. (64) w2 <<= 8
+   23: .12...6.8. (4c) w2 |= w1
+   24: ..2...6.8. (18) r9 = 0xffffd10b71f3a000
+   26: ..2...6.89 (63) *(u32 *)(r9 +0) = r2
+   27: ......6.89 (bf) r1 = r6
+   28: .1......89 (b4) w2 = -14
+   29: .12.....89 (85) call bpf_xdp_adjust_head#44
+   30: 0.......89 (b4) w7 = 1
+   31: 0......789 (55) if r0 != 0x0 goto pc+6
+   32: ........89 (71) r1 = *(u8 *)(r8 +12)
+   33: .1......89 (71) r2 = *(u8 *)(r8 +13)
+   34: .12......9 (64) w2 <<= 8
+   35: .12......9 (4c) w2 |= w1
+   36: ..2......9 (63) *(u32 *)(r9 +0) = r2
+   37: .......... (b4) w7 = 2
+   38: .......7.. (bc) w0 = w7
+   39: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int xdp_invalid_data_slice1(struct xdp_md *xdp) @ dynptr_fail.c:1198
+  0: (bf) r6 = r1                       ; R1=ctx() R6_w=ctx()
+  1: (b4) w7 = 0                        ; R7_w=0
+  ; char buffer[sizeof(*hdr)] = {}; @ dynptr_fail.c:1202
+  2: (6b) *(u16 *)(r10 -20) = r7
+  mark_precise: frame0: last_idx 2 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r7 stack= before 1: (b4) w7 = 0
+  3: R7_w=0 R10=fp0 fp-24=??00????
+  3: (63) *(u32 *)(r10 -24) = r7        ; R7_w=0 R10=fp0 fp-24=??000
+  4: (b7) r1 = 0                        ; R1_w=0
+  5: (7b) *(u64 *)(r10 -32) = r1        ; R1_w=0 R10=fp0 fp-32_w=0
+  6: (bf) r8 = r10                      ; R8_w=fp0 R10=fp0
+  ;  @ dynptr_fail.c:0
+  7: (07) r8 += -16                     ; R8_w=fp-16
+  ; bpf_dynptr_from_xdp(xdp, 0, &ptr); @ dynptr_fail.c:1204
+  8: (bf) r1 = r6                       ; R1_w=ctx() R6_w=ctx()
+  9: (b7) r2 = 0                        ; R2_w=0
+  10: (bf) r3 = r8                      ; R3_w=fp-16 R8_w=fp-16
+  11: (85) call bpf_dynptr_from_xdp#71553       ; R0_w=scalar() fp-16_w=dynptr_xdp(id=1,dynptr_id=1)
+  12: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0
+  ;  @ dynptr_fail.c:0
+  13: (07) r3 += -32                    ; R3_w=fp-32
+  ; hdr = bpf_dynptr_slice(&ptr, 0, buffer, sizeof(buffer)); @ dynptr_fail.c:1205
+  14: (bf) r1 = r8                      ; R1_w=fp-16 R8_w=fp-16
+  15: (b4) w2 = 0                       ; R2_w=0
+  16: (b4) w4 = 14                      ; R4_w=14
+  17: (85) call bpf_dynptr_slice#71567
+  mark_precise: frame0: last_idx 17 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 16: (b4) w4 = 14
+  mark_precise: frame0: last_idx 17 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 16: (b4) w4 = 14
+  18: R0=rdonly_mem_or_null(id=2,sz=14) fp-16=dynptr_xdp(id=1,dynptr_id=1)
+  18: (bf) r8 = r0                      ; R0=rdonly_mem_or_null(id=2,sz=14) R8_w=rdonly_mem_or_null(id=2,sz=14)
+  ; if (!hdr) @ dynptr_fail.c:1206
+  19: (15) if r8 == 0x0 goto pc+18      ; R8_w=rdonly_mem(sz=14)
+  ; val = hdr->h_proto; @ dynptr_fail.c:1209
+  20: (71) r1 = *(u8 *)(r8 +12)         ; R1_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R8_w=rdonly_mem(sz=14)
+  21: (71) r2 = *(u8 *)(r8 +13)         ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R8_w=rdonly_mem(sz=14)
+  22: (64) w2 <<= 8                     ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff00,var_off=(0x0; 0xff00))
+  23: (4c) w2 |= w1                     ; R1_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+  24: (18) r9 = 0xffffd10b71f3a000      ; R9_w=map_value(map=dynptr_f.bss,ks=4,vs=28)
+  26: (63) *(u32 *)(r9 +0) = r2         ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R9_w=map_value(map=dynptr_f.bss,ks=4,vs=28)
+  ; if (bpf_xdp_adjust_head(xdp, 0 - (int)sizeof(*hdr))) @ dynptr_fail.c:1211
+  27: (bf) r1 = r6                      ; R1_w=ctx() R6=ctx()
+  28: (b4) w2 = -14                     ; R2_w=0xfffffff2
+  29: (85) call bpf_xdp_adjust_head#44          ; R0=scalar()
+  30: (b4) w7 = 1                       ; R7_w=1
+  31: (55) if r0 != 0x0 goto pc+6       ; R0=0
+  ; val = hdr->h_proto; @ dynptr_fail.c:1215
+  32: (71) r1 = *(u8 *)(r8 +12)
+  R8 invalid mem access 'scalar'
+  processed 32 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (bf) r6 = r1
+    1: ......6... (b4) w7 = 0
+    2: ......67.. (6b) *(u16 *)(r10 -20) = r7
+    3: ......67.. (63) *(u32 *)(r10 -24) = r7
+    4: ......67.. (b7) r1 = 0
+    5: .1....67.. (7b) *(u64 *)(r10 -32) = r1
+    6: ......67.. (bf) r8 = r10
+    7: ......678. (07) r8 += -16
+    8: ......678. (bf) r1 = r6
+    9: .1....678. (b7) r2 = 0
+   10: .12...678. (bf) r3 = r8
+   11: .123..678. (85) call bpf_dynptr_from_xdp#71553
+   12: ......678. (bf) r3 = r10
+   13: ...3..678. (07) r3 += -32
+   14: ...3..678. (bf) r1 = r8
+   15: .1.3..67.. (b7) r2 = 0
+   16: .123..67.. (b7) r4 = 14
+   17: .1234.67.. (85) call bpf_dynptr_slice#71567
+   18: 0.....67.. (bf) r8 = r0
+   19: ......678. (15) if r8 == 0x0 goto pc+18
+   20: ......6.8. (71) r1 = *(u8 *)(r8 +12)
+   21: .1....6.8. (71) r2 = *(u8 *)(r8 +13)
+   22: .12...6.8. (64) w2 <<= 8
+   23: .12...6.8. (4c) w2 |= w1
+   24: ..2...6.8. (18) r9 = 0xffffd2b8de802000
+   26: ..2...6.89 (63) *(u32 *)(r9 +0) = r2
+   27: ......6.89 (bf) r1 = r6
+   28: .1......89 (b4) w2 = -14
+   29: .12.....89 (85) call bpf_xdp_adjust_head#44
+   30: 0.......89 (b4) w7 = 1
+   31: 0......789 (55) if r0 != 0x0 goto pc+6
+   32: ........89 (71) r1 = *(u8 *)(r8 +12)
+   33: .1......89 (71) r2 = *(u8 *)(r8 +13)
+   34: .12......9 (64) w2 <<= 8
+   35: .12......9 (4c) w2 |= w1
+   36: ..2......9 (63) *(u32 *)(r9 +0) = r2
+   37: .......... (b4) w7 = 2
+   38: .......7.. (bc) w0 = w7
+   39: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int xdp_invalid_data_slice1(struct xdp_md *xdp) @ prog.c:78
+  0: (bf) r6 = r1                       ; R1=ctx() R6_w=ctx()
+  1: (b4) w7 = 0                        ; R7_w=0
+  ; char buffer[sizeof(*hdr)] = {}; @ prog.c:82
+  2: (6b) *(u16 *)(r10 -20) = r7
+  mark_precise: frame0: last_idx 2 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r7 stack= before 1: (b4) w7 = 0
+  3: R7_w=0 R10=fp0 fp-24=??00????
+  3: (63) *(u32 *)(r10 -24) = r7        ; R7_w=0 R10=fp0 fp-24=??000
+  4: (b7) r1 = 0                        ; R1_w=0
+  5: (7b) *(u64 *)(r10 -32) = r1        ; R1_w=0 R10=fp0 fp-32_w=0
+  6: (bf) r8 = r10                      ; R8_w=fp0 R10=fp0
+  ;  @ prog.c:0
+  7: (07) r8 += -16                     ; R8_w=fp-16
+  ; bpf_dynptr_from_xdp(xdp, 0, &ptr); @ prog.c:84
+  8: (bf) r1 = r6                       ; R1_w=ctx() R6_w=ctx()
+  9: (b7) r2 = 0                        ; R2_w=0
+  10: (bf) r3 = r8                      ; R3_w=fp-16 R8_w=fp-16
+  11: (85) call bpf_dynptr_from_xdp#71553       ; R0_w=scalar() fp-16_w=dynptr_xdp(id=1,dynptr_id=1)
+  12: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0
+  ;  @ prog.c:0
+  13: (07) r3 += -32                    ; R3_w=fp-32
+  ; hdr = bpf_dynptr_slice(&ptr, 0, buffer, sizeof(buffer)); @ prog.c:85
+  14: (bf) r1 = r8                      ; R1_w=fp-16 R8_w=fp-16
+  15: (b7) r2 = 0                       ; R2_w=0
+  16: (b7) r4 = 14                      ; R4_w=14
+  17: (85) call bpf_dynptr_slice#71567
+  mark_precise: frame0: last_idx 17 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 16: (b7) r4 = 14
+  mark_precise: frame0: last_idx 17 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 16: (b7) r4 = 14
+  18: R0=rdonly_mem_or_null(id=2,sz=14) fp-16=dynptr_xdp(id=1,dynptr_id=1)
+  18: (bf) r8 = r0                      ; R0=rdonly_mem_or_null(id=2,sz=14) R8_w=rdonly_mem_or_null(id=2,sz=14)
+  ; if (!hdr) @ prog.c:86
+  19: (15) if r8 == 0x0 goto pc+18      ; R8_w=rdonly_mem(sz=14)
+  ; val = hdr->h_proto; @ prog.c:89
+  20: (71) r1 = *(u8 *)(r8 +12)         ; R1_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R8_w=rdonly_mem(sz=14)
+  21: (71) r2 = *(u8 *)(r8 +13)         ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R8_w=rdonly_mem(sz=14)
+  22: (64) w2 <<= 8                     ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xff00,var_off=(0x0; 0xff00))
+  23: (4c) w2 |= w1                     ; R1_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=255,var_off=(0x0; 0xff)) R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+  24: (18) r9 = 0xffffd2b8de802000      ; R9_w=map_value(map=prog.bss,ks=4,vs=24)
+  26: (63) *(u32 *)(r9 +0) = r2         ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R9_w=map_value(map=prog.bss,ks=4,vs=24)
+  ; if (bpf_xdp_adjust_head(xdp, 0 - (int)sizeof(*hdr))) @ prog.c:91
+  27: (bf) r1 = r6                      ; R1_w=ctx() R6=ctx()
+  28: (b4) w2 = -14                     ; R2_w=0xfffffff2
+  29: (85) call bpf_xdp_adjust_head#44          ; R0=scalar()
+  30: (b4) w7 = 1                       ; R7_w=1
+  31: (55) if r0 != 0x0 goto pc+6       ; R0=0
+  ; val = hdr->h_proto; @ prog.c:95
+  32: (71) r1 = *(u8 *)(r8 +12)
+  R8 invalid mem access 'scalar'
+  processed 32 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?xdp\")\n__failure __msg(\"invalid mem access 'scalar'\")\nint xdp_invalid_data_slice1(struct xdp_md *xdp)\n{\n\tstruct bpf_dynptr ptr;\n\tstruct ethhdr *hdr;\n\tchar buffer[sizeof(*hdr)] = {};\n\n\tbpf_dynptr_from_xdp(xdp, 0, &ptr);\n\thdr = bpf_dynptr_slice(&ptr, 0, buffer, sizeof(buffer));\n\tif (!hdr)\n\t\treturn SK_DROP;\n\n\tval = hdr->h_proto;\n\n\tif (bpf_xdp_adjust_head(xdp, 0 - (int)sizeof(*hdr)))\n\t\treturn XDP_DROP;\n\n\t/* this should fail */\n\tval = hdr->h_proto;\n\n\treturn XDP_PASS;\n}\n\n/* The read-write data slice is invalidated whenever a helper changes packet data */"

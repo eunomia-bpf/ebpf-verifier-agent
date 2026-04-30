@@ -1,0 +1,20 @@
+case_id: kernel-selftest-iters-iters-raw-tp-bd99cf85
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/iters.c
+  section: ?raw_tp
+  function: ''
+  description: iters
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - misaligned stack access off 0+-31+0 size 8
+  unprivileged: []
+  combined:
+  - misaligned stack access off 0+-31+0 size 8
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/iters.c
+  code: "SEC(\"?raw_tp\")\n__flag(BPF_F_TEST_STATE_FREQ)\n__failure __msg(\"misaligned stack access off 0+-31+0 size 8\")\n__naked int absent_mark_in_the_middle_state2(void)\n{\n\t/* This is equivalent to C program below.\n\t *\n\t *     r8 = bpf_get_prandom_u32();\n\t *     r6 = -32;\n\t *     bpf_iter_num_new(&fp[-8], 0, 10);\n\t *     if (unlikely(bpf_get_prandom_u32())) {\n\t *       r6 = -31;\n\t * jump_into_loop:\n\t *       goto +0;\n\t *       goto loop;\n\t *     }\n\t *     if (unlikely(bpf_get_prandom_u32()))\n\t *       goto jump_into_loop;\n\t * loop:\n\t *     while (bpf_iter_num_next(&fp[-8])) {\n\t *       if (unlikely(bpf_get_prandom_u32()))\n\t *         *(fp + r6) = 7;\n\t *     }\n\t *     bpf_iter_num_destroy(&fp[-8])\n\t *     return 0\n\t */\n\tasm volatile (\n\t\t\"call %[bpf_get_prandom_u32];\"\n\t\t\"r8 = r0;\"\n\t\t\"r7 = 0;\"\n\t\t\"r6 = -32;\"\n\t\t\"r0 = 0;\"\n\t\t\"*(u64 *)(r10 - 16) = r0;\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"r2 = 0;\"\n\t\t\"r3 =\
+    \ 10;\"\n\t\t\"call %[bpf_iter_num_new];\"\n\t\t\"call %[bpf_get_prandom_u32];\"\n\t\t\"if r0 == r8 goto change_r6_%=;\"\n\t\t\"call %[bpf_get_prandom_u32];\"\n\t\t\"if r0 == r8 goto jump_into_loop_%=;\"\n\t\"loop_%=:\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"call %[bpf_iter_num_next];\"\n\t\t\"if r0 == 0 goto loop_end_%=;\"\n\t\t\"call %[bpf_get_prandom_u32];\"\n\t\t\"if r0 == r8 goto use_r6_%=;\"\n\t\t\"goto loop_%=;\"\n\t\"loop_end_%=:\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"call %[bpf_iter_num_destroy];\"\n\t\t\"r0 = 0;\"\n\t\t\"exit;\"\n\t\"use_r6_%=:\"\n\t\t\"r0 = r10;\"\n\t\t\"r0 += r6;\"\n\t\t\"r1 = 7;\"\n\t\t\"*(u64 *)(r0 + 0) = r1;\"\n\t\t\"goto loop_%=;\"\n\t\"change_r6_%=:\"\n\t\t\"r6 = -31;\"\n\t\"jump_into_loop_%=: \"\n\t\t\"goto +0;\"\n\t\t\"goto loop_%=;\"\n\t\t:\n\t\t: __imm(bpf_iter_num_new),\n\t\t  __imm(bpf_iter_num_next),\n\t\t  __imm(bpf_iter_num_destroy),\n\t\t  __imm(bpf_get_prandom_u32)\n\t\t: __clobber_all\n\t);\n}"

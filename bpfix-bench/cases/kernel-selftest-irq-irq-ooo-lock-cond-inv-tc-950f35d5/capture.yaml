@@ -4,8 +4,7 @@ case_id: kernel-selftest-irq-irq-ooo-lock-cond-inv-tc-950f35d5
 environment_id: kernel-6.15.11-clang-18-log2
 imported_at: '2026-04-29T22:43:54+00:00'
 source_artifact:
-  path: case_study/cases/kernel_selftests_verified/kernel-selftest-irq-irq-ooo-lock-cond-inv-tc-950f35d5
-  status_file: verification_status.txt
+  path: bpfix-bench/cases/kernel-selftest-irq-irq-ooo-lock-cond-inv-tc-950f35d5
   source_file: tools/testing/selftests/bpf/progs/irq.c
   target_function: irq_ooo_lock_cond_inv
   section: ?tc
@@ -13,6 +12,7 @@ source_artifact:
   load_attempted: true
   verifier_rejected: true
   verifier_log_captured: true
+  source_record: bpfix-bench/raw/kernel_selftests/kernel-selftest-irq-irq-ooo-lock-cond-inv-tc-950f35d5.yaml
 replay:
   build_command: make
   load_command: make replay-verify

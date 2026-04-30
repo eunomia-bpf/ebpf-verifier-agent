@@ -1,0 +1,368 @@
+schema_version: bpfix.raw_external/v1
+raw_id: stackoverflow-53136145
+source_kind: stackoverflow
+source:
+  url: https://stackoverflow.com/questions/53136145/how-to-solve-the-r0-invalid-mem-access-inv-error-when-loading-an-ebpf-file-o
+  title: How to solve the &quot;R0 invalid mem access &#39;inv&#39;&quot; error when
+    loading an eBPF file object
+  repository: null
+  commit: null
+  collected_at: '2026-03-11T16:02:44+00:00'
+collector:
+  original_path: bpfix-bench/raw/so/stackoverflow-53136145.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: true
+  verifier_log_block_count: 1
+  source_snippet_count: 1
+  has_buggy_code: false
+  has_fixed_code: false
+  has_fix_description: false
+reproduction:
+  status: replay_valid
+  case_id: stackoverflow-53136145
+  case_path: cases/stackoverflow-53136145
+  artifact_path: cases/stackoverflow-53136145
+  reason: admitted_to_bpfix_bench_cases
+raw:
+  case_id: stackoverflow-53136145
+  source: stackoverflow
+  collected_at: '2026-03-11T16:02:44+00:00'
+  question:
+    question_id: 53136145
+    title: How to solve the &quot;R0 invalid mem access &#39;inv&#39;&quot; error
+      when loading an eBPF file object
+    url: https://stackoverflow.com/questions/53136145/how-to-solve-the-r0-invalid-mem-access-inv-error-when-loading-an-ebpf-file-o
+    tags:
+    - linux-kernel
+    - clang
+    - jit
+    - bpf
+    score: 3
+    answer_count: 1
+    is_answered: true
+  original_verifier_log:
+    blocks:
+    - "105: (bf) r4 = r0\n106: (07) r4 += 8\n107: (b7) r8 = 1\n108: (2d) if r4 > r3\
+      \ goto pc+4\n R0=inv40 R1=inv0 R2=inv(id=0,umax_value=4294967295,var_off=(0x0;\
+      \ 0xffffffff)) R3=pkt_end(id=0,off=0,imm=0) R4=inv48 R5=inv512 R6=inv1 R7=inv17\
+      \ R8=inv1 R10=fp0,call_-1 fp-16=0 fp-32=0 fp-40=0\n109: (69) r3 = *(u16 *)(r0\
+      \ +2)\nR0 invalid mem access 'inv'"
+    combined: "105: (bf) r4 = r0\n106: (07) r4 += 8\n107: (b7) r8 = 1\n108: (2d) if\
+      \ r4 > r3 goto pc+4\n R0=inv40 R1=inv0 R2=inv(id=0,umax_value=4294967295,var_off=(0x0;\
+      \ 0xffffffff)) R3=pkt_end(id=0,off=0,imm=0) R4=inv48 R5=inv512 R6=inv1 R7=inv17\
+      \ R8=inv1 R10=fp0,call_-1 fp-16=0 fp-32=0 fp-40=0\n109: (69) r3 = *(u16 *)(r0\
+      \ +2)\nR0 invalid mem access 'inv'"
+  verifier_log:
+    blocks:
+    - "105: (bf) r4 = r0\n106: (07) r4 += 8\n107: (b7) r8 = 1\n108: (2d) if r4 > r3\
+      \ goto pc+4\n R0=inv40 R1=inv0 R2=inv(id=0,umax_value=4294967295,var_off=(0x0;\
+      \ 0xffffffff)) R3=pkt_end(id=0,off=0,imm=0) R4=inv48 R5=inv512 R6=inv1 R7=inv17\
+      \ R8=inv1 R10=fp0,call_-1 fp-16=0 fp-32=0 fp-40=0\n109: (69) r3 = *(u16 *)(r0\
+      \ +2)\nR0 invalid mem access 'inv'"
+    combined: "libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-53136145/prog.o\n\
+      libbpf: elf: section(3) xdp, size 160, link 0, flags 6, type=1\nlibbpf: sec\
+      \ 'xdp': found program 'entry_point' at insn offset 0 (0 bytes), code size 20\
+      \ insns (160 bytes)\nlibbpf: elf: section(4) .relxdp, size 32, link 26, flags\
+      \ 40, type=9\nlibbpf: elf: section(5) .maps, size 64, link 0, flags 3, type=1\n\
+      libbpf: elf: section(6) license, size 4, link 0, flags 3, type=1\nlibbpf: license\
+      \ of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-53136145/prog.o\
+      \ is GPL\nlibbpf: elf: section(16) .BTF, size 1305, link 0, flags 0, type=1\n\
+      libbpf: elf: section(18) .BTF.ext, size 224, link 0, flags 0, type=1\nlibbpf:\
+      \ elf: section(26) .symtab, size 384, link 1, flags 0, type=2\nlibbpf: looking\
+      \ for externs among 16 symbols...\nlibbpf: collected 0 externs total\nlibbpf:\
+      \ map 'globals_map': at sec_idx 5, offset 0.\nlibbpf: map 'globals_map': found\
+      \ type = 2.\nlibbpf: map 'globals_map': found key [2], sz = 4.\nlibbpf: map\
+      \ 'globals_map': found value [9], sz = 4.\nlibbpf: map 'globals_map': found\
+      \ max_entries = 1.\nlibbpf: map 'some_map': at sec_idx 5, offset 32.\nlibbpf:\
+      \ map 'some_map': found type = 1.\nlibbpf: map 'some_map': found key [17], sz\
+      \ = 4.\nlibbpf: map 'some_map': found value [19], sz = 1.\nlibbpf: map 'some_map':\
+      \ found max_entries = 1024.\nlibbpf: sec '.relxdp': collecting relocation for\
+      \ section(3) 'xdp'\nlibbpf: sec '.relxdp': relo #0: insn #4 against 'globals_map'\n\
+      libbpf: prog 'entry_point': found map 0 (globals_map, sec 5, off 0) for insn\
+      \ #4\nlibbpf: sec '.relxdp': relo #1: insn #12 against 'some_map'\nlibbpf: prog\
+      \ 'entry_point': found map 1 (some_map, sec 5, off 32) for insn #12\nlibbpf:\
+      \ object 'prog': failed (-95) to create BPF token from '/sys/fs/bpf', skipping\
+      \ optional step...\nlibbpf: map 'globals_map': created successfully, fd=4\n\
+      libbpf: map 'some_map': created successfully, fd=5\nlibbpf: prog 'entry_point':\
+      \ -- BEGIN PROG LOAD LOG --\nfunc#0 @0\nLive regs before insn:\n  0: ..........\
+      \ (b7) r6 = 0\n  1: ......6... (63) *(u32 *)(r10 -4) = r6\n  2: ......6... (bf)\
+      \ r2 = r10\n  3: ..2...6... (07) r2 += -4\n  4: ..2...6... (18) r1 = 0xffff8f27108e4000\n\
+      \  6: .12...6... (85) call bpf_map_lookup_elem#1\n  7: 0.....6... (15) if r0\
+      \ == 0x0 goto pc+10\n  8: .......... (b7) r1 = 0\n  9: .1........ (63) *(u32\
+      \ *)(r10 -8) = r1\n 10: .......... (bf) r2 = r10\n 11: ..2....... (07) r2 +=\
+      \ -8\n 12: ..2....... (18) r1 = 0xffff8f27126f3400\n 14: .12....... (85) call\
+      \ bpf_map_lookup_elem#1\n 15: 0......... (b7) r6 = 2\n 16: 0.....6... (15) if\
+      \ r0 == 0x0 goto pc+1\n 17: .......... (b7) r6 = 1\n 18: ......6... (bf) r0\
+      \ = r6\n 19: 0......... (95) exit\n0: R1=ctx() R10=fp0\n; int entry_point(struct\
+      \ xdp_md *ctx) @ prog.c:239\n0: (b7) r6 = 0                        ; R6_w=0\n\
+      ; int rc, i = 0; @ prog.c:242\n1: (63) *(u32 *)(r10 -4) = r6\nmark_precise:\
+      \ frame0: last_idx 1 first_idx 0 subseq_idx -1\nmark_precise: frame0: regs=r6\
+      \ stack= before 0: (b7) r6 = 0\n2: R6_w=0 R10=fp0 fp-8=0000????\n2: (bf) r2\
+      \ = r10                      ; R2_w=fp0 R10=fp0\n;  @ prog.c:0\n3: (07) r2 +=\
+      \ -4                      ; R2_w=fp-4\n; globals = bpf_map_lookup_elem(&globals_map,\
+      \ &i); @ prog.c:248\n4: (18) r1 = 0xffff8f27108e4000       ; R1_w=map_ptr(map=globals_map,ks=4,vs=4)\n\
+      6: (85) call bpf_map_lookup_elem#1    ; R0_w=map_value(map=globals_map,ks=4,vs=4)\n\
+      ; if (!globals) @ prog.c:249\n7: (15) if r0 == 0x0 goto pc+10       ; R0_w=map_value(map=globals_map,ks=4,vs=4)\n\
+      8: (b7) r1 = 0                        ; R1_w=0\n; addr = key.dst_ip; @ prog.c:253\n\
+      9: (63) *(u32 *)(r10 -8) = r1         ; R1_w=0 R10=fp0 fp-8=00000\n10: (bf)\
+      \ r2 = r10                     ; R2_w=fp0 R10=fp0\n;  @ prog.c:0\n11: (07) r2\
+      \ += -8                     ; R2_w=fp-8\n; temp = bpf_map_lookup_elem(&some_map,\
+      \ &addr); @ prog.c:254\n12: (18) r1 = 0xffff8f27126f3400      ; R1_w=map_ptr(map=some_map,ks=4,vs=1)\n\
+      14: (85) call bpf_map_lookup_elem#1   ; R0=map_value_or_null(id=1,map=some_map,ks=4,vs=1)\n\
+      15: (b7) r6 = 2                       ; R6_w=2\n; switch (rc) { @ prog.c:256\n\
+      16: (15) if r0 == 0x0 goto pc+1       ; R0=map_value(map=some_map,ks=4,vs=1)\n\
+      17: (b7) r6 = 1                       ; R6_w=1\n; } @ prog.c:266\n18: (bf) r0\
+      \ = r6                      ; R0_w=1 R6_w=1\n19: (95) exit\n\nfrom 16 to 18:\
+      \ R0=0 R6_w=2 R10=fp0 fp-8=00000\n18: R0=0 R6_w=2 R10=fp0 fp-8=00000\n18: (bf)\
+      \ r0 = r6                      ; R0_w=2 R6_w=2\n19: (95) exit\nverification\
+      \ time 74 usec\nstack depth 8\nprocessed 20 insns (limit 1000000) max_states_per_insn\
+      \ 0 total_states 1 peak_states 1 mark_read 1\n-- END PROG LOAD LOG --"
+  verifier_log_source: captured_on_6.15.11
+  verifier_log_captured_at: '2026-03-20'
+  source_snippets:
+  - "SEC(\"entry_point_prog\")\nint entry_point(struct xdp_md *ctx)\n{\n    int act\
+    \ = XDP_DROP;\n    int rc, i = 0;\n    struct global_vars *globals;\n    struct\
+    \ ip_addr addr = {};\n    struct some_key key = {};\n    void *temp;\n\n    globals\
+    \ = bpf_map_lookup_elem(&globals_map, &i);\n    if (!globals)\n        return\
+    \ XDP_ABORTED;\n\n    rc = some_inlined_func(ctx, &key);\n\n    addr = key.dst_ip;\n\
+    \    temp = bpf_map_lookup_elem(&some_map, &addr);\n\n    switch(rc)\n    {\n\
+    \    case 0:\n        if(temp)\n        {\n            // no rocket science here\
+    \ ...\n        } else\n            act = XDP_PASS;\n        break;\n    default:\n\
+    \        break;\n    }\n\n    return act;  // this gives the error\n    //return\
+    \ XDP_<whatever>;  // this works fine\n}"
+  question_body_text: 'I''m trying to load an eBPF object in the kernel with libbpf,
+    with no success, getting the error specified in the title. But let me show how
+    simple my BPF *_kern.c is.
+
+    SEC("entry_point_prog")
+
+    int entry_point(struct xdp_md *ctx)
+
+    {
+
+    int act = XDP_DROP;
+
+    int rc, i = 0;
+
+    struct global_vars *globals;
+
+    struct ip_addr addr = {};
+
+    struct some_key key = {};
+
+    void *temp;
+
+    globals = bpf_map_lookup_elem(&globals_map, &i);
+
+    if (!globals)
+
+    return XDP_ABORTED;
+
+    rc = some_inlined_func(ctx, &key);
+
+    addr = key.dst_ip;
+
+    temp = bpf_map_lookup_elem(&some_map, &addr);
+
+    switch(rc)
+
+    {
+
+    case 0:
+
+    if(temp)
+
+    {
+
+    // no rocket science here ...
+
+    } else
+
+    act = XDP_PASS;
+
+    break;
+
+    default:
+
+    break;
+
+    }
+
+    return act; // this gives the error
+
+    //return XDP_<whatever>; // this works fine
+
+    }
+
+    More precisely, the libbpf error log is the following:
+
+    105: (bf) r4 = r0
+
+    106: (07) r4 += 8
+
+    107: (b7) r8 = 1
+
+    108: (2d) if r4 > r3 goto pc+4
+
+    R0=inv40 R1=inv0 R2=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff))
+    R3=pkt_end(id=0,off=0,imm=0) R4=inv48 R5=inv512 R6=inv1 R7=inv17 R8=inv1 R10=fp0,call_-1
+    fp-16=0 fp-32=0 fp-40=0
+
+    109: (69) r3 = *(u16 *)(r0 +2)
+
+    R0 invalid mem access ''inv''
+
+    I really don''t see any problem here. I mean, this is so so simple, and yet it
+    breaks. Why shouldn''t this work? What am I missing? Either the verifier went
+    crazy, or I''m doing something very stupid.'
+  selected_answer:
+    answer_id: 53157973
+    url: https://stackoverflow.com/questions/53136145/how-to-solve-the-r0-invalid-mem-access-inv-error-when-loading-an-ebpf-file-o#53157973
+    is_accepted: true
+    score: 8
+    body_text: 'Ok, so, after 3 days, more precisely 3 x 8 hrs = 24 hrs, worth of
+      code hunting, I think I''ve finally found the itching problem.
+
+      The problem was in the some_inlined_func() all along, it was more tricky then
+      challenging. I''m writing down here a code template explaining the issue, so
+      others could see and hopefully spend less then 24 hrs of headache; I went through
+      hell for this, so stay focused.
+
+      __alwais_inline static
+
+      int some_inlined_func(struct xdp_md *ctx, /* other non important args */)
+
+      {
+
+      if (!ctx)
+
+      return AN_ERROR_CODE;
+
+      void *data = (void *)(long)ctx->data;
+
+      void *data_end = (void *)(long)ctx->data_end;
+
+      struct ethhdr *eth;
+
+      struct iphdr *ipv4_hdr = NULL;
+
+      struct ipv6hdr *ipv6_hdr = NULL;
+
+      struct udphdr *udph;
+
+      uint16_t ethertype;
+
+      eth = (struct ethhdr *)data;
+
+      if (eth + 1 > data_end)
+
+      return AN_ERROR_CODE;
+
+      ethertype = __constant_ntohs(eth->h_proto);
+
+      if (ethertype == ETH_P_IP)
+
+      {
+
+      ipv4_hdr = (void *)eth + ETH_HLEN;
+
+      if (ipv4_hdr + 1 > data_end)
+
+      return AN_ERROR_CODE;
+
+      // stuff non related to the issue ...
+
+      } else if (ethertype == ETH_P_IPV6)
+
+      {
+
+      ipv6_hdr = (void *)eth + ETH_HLEN;
+
+      if (ipv6_hdr + 1 > data_end)
+
+      return AN_ERROR_CODE;
+
+      // stuff non related to the issue ...
+
+      } else
+
+      return A_RET_CODE_1;
+
+      /* here''s the problem, but ... */
+
+      udph = (ipv4_hdr) ? ((void *)ipv4_hdr + sizeof(*ipv4_hdr)) :
+
+      ((void *)ipv6_hdr + sizeof(*ipv6_hdr));
+
+      if (udph + 1 > data_end)
+
+      return AN_ERROR_CODE;
+
+      /* it actually breaks HERE, when dereferencing ''udph'' */
+
+      uint16_t dst_port = __constant_ntohs(udph->dest);
+
+      // blablabla other stuff here unrelated to the problem ...
+
+      return A_RET_CODE_2;
+
+      }
+
+      So, why it breaks at that point? I think it''s because the verifier assumes
+      ipv6_hdr could potentially be NULL, which is utterly WRONG because if the execution
+      ever gets to that point, that''s only because either ipv4_hdr or ipv6_hdr has
+      been set (i.e. the execution dies before this point if it''s the case of neither
+      IPv4 nor IPv6). So, apparently, the verifier isn''t able to infer that. However,
+      there''s a catch, it is happy if the validity of also ipv6_hdr is explicitly
+      checked, like this:
+
+      if (ipv4_hdr)
+
+      udph = (void *)ipv4_hdr + sizeof(*ipv4_hdr);
+
+      else if (ipv6_hdr)
+
+      udph = (void *)ipv6_hdr + sizeof(*ipv6_hdr);
+
+      else return A_RET_CODE_1; // this is redundant
+
+      It also works if we do this:
+
+      // "(ethertype == ETH_P_IP)" instead of "(ipv4_hdr)"
+
+      udph = (ethertype == ETH_P_IP) ? ((void *)ipv4_hdr + sizeof(*ipv4_hdr)) :
+
+      ((void *)ipv6_hdr + sizeof(*ipv6_hdr));
+
+      So, it seems to me there''s something strange about the verifier here, because
+      it''s not smart enough (maybe neither it needs to be?) to realize that if it
+      ever gets to this point, it''s only because ctx refers either an IPv4 or IPv6
+      packet.
+
+      How does all of this explain the complaining over return act; within the entry_point()?
+      Simple, just bear with me. The some_inlined_func() isn''t changing ctx, and
+      its remaining args aren''t used either by entry_point(). Thus, in case of returning
+      act, as it depends on the some_inlined_func() outcome, the some_inlined_func()
+      gets executed, with the verifier complaining at that point. But, in case of
+      returning XDP_<whatever>, as the switch-case body, and neither the some_inlined_func(),
+      doesn''t change the internal state of the entry_point() program/function, the
+      compiler (with O2) is smart enough to realize that there''s no point in producing
+      assembly for some_inlined_func() and the whole switch-case (that''s the O2 optimization
+      over here). Therefore, to conclude, in case of returning XDP_<whatever>, the
+      verifier was happy as the problem actually lies into some_inlined_func() but
+      the actual produced BPF assembly doesn''t have anything of that, so the verifier
+      didn''t checked some_inlined_func() because there wasn''t any in the first place.
+      Makes sense?
+
+      Is such BPF "limitation" known? Is out there any document at all stating such
+      known limitations? Because I didn''t found any.'
+    fix_description: 'So, why it breaks at that point? I think it''s because the verifier
+      assumes ipv6_hdr could potentially be NULL, which is utterly WRONG because if
+      the execution ever gets to that point, that''s only because either ipv4_hdr
+      or ipv6_hdr has been set (i.e. the execution dies before this point if it''s
+      the case of neither IPv4 nor IPv6). So, apparently, the verifier isn''t able
+      to infer that. However, there''s a catch, it is happy if the validity of also
+      ipv6_hdr is explicitly checked, like this: So, it seems to me there''s something
+      strange about the verifier here, because it''s not smart enough (mayb...'
+

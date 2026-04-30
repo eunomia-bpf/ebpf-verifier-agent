@@ -15,19 +15,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _load_verifier_log(relative_path: str) -> str:
-    payload = yaml.safe_load((ROOT / relative_path).read_text(encoding="utf-8"))
-    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
-    if isinstance(verifier_log, str):
-        return verifier_log
-    combined = verifier_log.get("combined")
-    if isinstance(combined, str):
-        return combined
-    blocks = verifier_log.get("blocks") or []
-    return "\n\n".join(block for block in blocks if isinstance(block, str))
+    from bench_fixtures import load_verifier_log
+
+    return load_verifier_log(relative_path)
 
 
 def test_baseline_produces_valid_output_on_real_log() -> None:
-    log = _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+    log = _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
 
     output = generate_baseline_diagnostic(log)
 
@@ -132,7 +126,7 @@ bpf_test.go:170: verifier error: load program: operation not supported:
 
 def test_baseline_output_matches_bpfix_schema() -> None:
     schema = json.loads((ROOT / "interface" / "schema" / "diagnostic.json").read_text(encoding="utf-8"))
-    log = _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+    log = _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
 
     baseline_output = generate_baseline_diagnostic(log)
     bpfix_output = generate_diagnostic(log)

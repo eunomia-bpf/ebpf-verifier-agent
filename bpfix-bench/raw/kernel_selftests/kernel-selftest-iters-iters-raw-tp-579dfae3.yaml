@@ -1,0 +1,22 @@
+case_id: kernel-selftest-iters-iters-raw-tp-579dfae3
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/iters.c
+  section: ?raw_tp
+  function: ''
+  description: iters
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - math between fp pointer and register with unbounded
+  unprivileged: []
+  combined:
+  - math between fp pointer and register with unbounded
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/iters.c
+  code: "SEC(\"?raw_tp\")\n__failure\n__msg(\"math between fp pointer and register with unbounded\")\n__flag(BPF_F_TEST_STATE_FREQ)\n__naked int loop_state_deps1(void)\n{\n\t/* This is equivalent to C program below.\n\t *\n\t * The case turns out to be tricky in a sense that:\n\t * - states with c=-25 are explored only on a second iteration\n\t *   of the outer loop;\n\t * - states with read+precise mark on c are explored only on\n\t *   second iteration of the inner loop and in a state which\n\t *   is pushed to states stack first.\n\t *\n\t * Depending on the details of iterator convergence logic\n\t * verifier might stop states traversal too early and miss\n\t * unsafe c=-25 memory access.\n\t *\n\t *   j = iter_new();\t\t // fp[-16]\n\t *   a = 0;\t\t\t // r6\n\t *   b = 0;\t\t\t // r7\n\t *   c = -24;\t\t\t // r8\n\t *   while (iter_next(j)) {\n\t *     i = iter_new();\t\t // fp[-8]\n\t *     a = 0;\t\t\t // r6\n\t *     b = 0;\t\t\t // r7\n\t *     while (iter_next(i)) {\n\t *\t if\
+    \ (a == 1) {\n\t *\t   a = 0;\n\t *\t   b = 1;\n\t *\t } else if (a == 0) {\n\t *\t   a = 1;\n\t *\t   if (random() == 42)\n\t *\t     continue;\n\t *\t   if (b == 1) {\n\t *\t     *(r10 + c) = 7;  // this is not safe\n\t *\t     iter_destroy(i);\n\t *\t     iter_destroy(j);\n\t *\t     return;\n\t *\t   }\n\t *\t }\n\t *     }\n\t *     iter_destroy(i);\n\t *     a = 0;\n\t *     b = 0;\n\t *     c = -25;\n\t *   }\n\t *   iter_destroy(j);\n\t *   return;\n\t */\n\tasm volatile (\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -16;\"\n\t\t\"r2 = 0;\"\n\t\t\"r3 = 10;\"\n\t\t\"call %[bpf_iter_num_new];\"\n\t\t\"r6 = 0;\"\n\t\t\"r7 = 0;\"\n\t\t\"r8 = -24;\"\n\t\"j_loop_%=:\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -16;\"\n\t\t\"call %[bpf_iter_num_next];\"\n\t\t\"if r0 == 0 goto j_loop_end_%=;\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"r2 = 0;\"\n\t\t\"r3 = 10;\"\n\t\t\"call %[bpf_iter_num_new];\"\n\t\t\"r6 = 0;\"\n\t\t\"r7 = 0;\"\n\t\"i_loop_%=:\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"call %[bpf_iter_num_next];\"\
+    \n\t\t\"if r0 == 0 goto i_loop_end_%=;\"\n\t\"check_one_r6_%=:\"\n\t\t\"if r6 != 1 goto check_zero_r6_%=;\"\n\t\t\"r6 = 0;\"\n\t\t\"r7 = 1;\"\n\t\t\"goto i_loop_%=;\"\n\t\"check_zero_r6_%=:\"\n\t\t\"if r6 != 0 goto i_loop_%=;\"\n\t\t\"r6 = 1;\"\n\t\t\"call %[bpf_get_prandom_u32];\"\n\t\t\"if r0 != 42 goto check_one_r7_%=;\"\n\t\t\"goto i_loop_%=;\"\n\t\"check_one_r7_%=:\"\n\t\t\"if r7 != 1 goto i_loop_%=;\"\n\t\t\"r0 = r10;\"\n\t\t\"r0 += r8;\"\n\t\t\"r1 = 7;\"\n\t\t\"*(u64 *)(r0 + 0) = r1;\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"call %[bpf_iter_num_destroy];\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -16;\"\n\t\t\"call %[bpf_iter_num_destroy];\"\n\t\t\"r0 = 0;\"\n\t\t\"exit;\"\n\t\"i_loop_end_%=:\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"call %[bpf_iter_num_destroy];\"\n\t\t\"r6 = 0;\"\n\t\t\"r7 = 0;\"\n\t\t\"r8 = -25;\"\n\t\t\"goto j_loop_%=;\"\n\t\"j_loop_end_%=:\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -16;\"\n\t\t\"call %[bpf_iter_num_destroy];\"\n\t\t\"r0 = 0;\"\n\t\t\"exit;\"\n\t\t\
+    :\n\t\t: __imm(bpf_get_prandom_u32),\n\t\t  __imm(bpf_iter_num_new),\n\t\t  __imm(bpf_iter_num_next),\n\t\t  __imm(bpf_iter_num_destroy)\n\t\t: __clobber_all\n\t);\n}"

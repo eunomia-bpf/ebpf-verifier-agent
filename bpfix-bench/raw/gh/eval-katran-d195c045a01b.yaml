@@ -1,0 +1,176 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-katran-d195c045a01b
+source_kind: github_commit
+source:
+  url: https://github.com/facebookincubator/katran/commit/d195c045a01b1cb1255857d9012f873124bac180
+  title: Katran reload bpf (#96)
+  repository: https://github.com/facebookincubator/katran
+  commit: d195c045a01b1cb1255857d9012f873124bac180
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-katran-d195c045a01b.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: attempted_unknown
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: verification_status_unclear
+  verifier_status: null
+  captured_error: null
+  verifier_error_match: null
+raw:
+  case_id: eval-katran-d195c045a01b
+  source: eval_commits
+  repository: https://github.com/facebookincubator/katran
+  commit_hash: d195c045a01b1cb1255857d9012f873124bac180
+  commit_message: Katran reload bpf (#96)
+  commit_date: '2020-09-21'
+  fix_type: inline_hint
+  buggy_code: "// FILE: katran/lib/bpf/balancer_helpers.h\n// CONTEXT: static inline\
+    \ void submit_event(struct xdp_md *ctx, void *map,\n  } else {\n    md.data_len\
+    \ = min_helper(size, MAX_EVENT_SIZE);\n    flags |= (__u64) md.data_len << 32;\n\
+    \  }\n  bpf_perf_event_output(ctx, map, flags, &md, sizeof(struct event_metadata));\n\
+    }\n#endif\n\n#ifdef INLINE_DECAP_GENERIC\n__attribute__((__always_inline__))\n\
+    static inline int recirculate(struct xdp_md *ctx) {\n  int i = RECIRCULATION_INDEX;\n\
+    \  bpf_tail_call(ctx, &katran_subprograms, i);\n  // we should never hit this\n\
+    \  return XDP_PASS;\n}\n#endif // of INLINE_DECAP_GENERIC\n\n__attribute__((__always_inline__))\n\
+    static inline int decrement_ttl(void *data, void *data_end, int offset, bool is_ipv6)\
+    \ {\n  struct iphdr *iph;\n  struct ipv6hdr *ip6h;\n\n  if (is_ipv6) {\n    if\
+    \ ((data + offset + sizeof(struct ipv6hdr)) > data_end) {\n\n// FILE: katran/lib/bpf/balancer_kern.c\n\
+    // CONTEXT: static inline int process_packet(void *data, __u64 off, void *data_end,\n\
+    \    } else {\n      quic_stats->v1 += 1;\n    }\n  }\n\n  if (!dst) {\n    if\
+    \ ((vip_info->flags & F_HASH_NO_SRC_PORT)) {\n      // service, where diff src\
+    \ port, but same ip must go to the same real,\n      // e.g. gfs\n      pckt.flow.port16[0]\
+    \ = 0;\n    }\n    __u32 cpu_num = bpf_get_smp_processor_id();\n    void *lru_map\
+    \ = bpf_map_lookup_elem(&lru_maps_mapping, &cpu_num);\n    if (!lru_map) {\n \
+    \     lru_map = &fallback_lru_cache;\n      __u32 lru_stats_key = MAX_VIPS + FALLBACK_LRU_CNTR;\n\
+    \      struct lb_stats *lru_stats = bpf_map_lookup_elem(&stats, &lru_stats_key);\n\
+    \      if (!lru_stats) {\n        return XDP_DROP;\n      }\n      // we weren't\
+    \ able to retrieve per cpu/core lru and falling back to\n      // default one.\
+    \ this counter should never be anything except 0 in prod.\n      // we are going\
+    \ to use it for monitoring.\n      lru_stats->v1 += 1;\n    }\n\n    if (!(pckt.flags\
+    \ & F_SYN_SET) &&\n\n// FILE: katran/lib/bpf/balancer_maps.h\n// map, which contains\
+    \ all the vips for which we are doing load balancing\nstruct bpf_map_def SEC(\"\
+    maps\") vip_map = {\n  .type = BPF_MAP_TYPE_HASH,\n  .key_size = sizeof(struct\
+    \ vip_definition),\n  .value_size = sizeof(struct vip_meta),\n  .max_entries =\
+    \ MAX_VIPS,\n  .map_flags = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(vip_map, struct\
+    \ vip_definition, struct vip_meta);\n\n\n// map which contains cpu core to lru\
+    \ mapping\nstruct bpf_map_def SEC(\"maps\") lru_maps_mapping = {\n  .type = BPF_MAP_TYPE_ARRAY_OF_MAPS,\n\
+    \  .key_size = sizeof(__u32),\n  .value_size = sizeof(__u32),\n  .max_entries\
+    \ = MAX_SUPPORTED_CPUS,\n  .map_flags = NO_FLAGS,\n};\n\n// fallback lru. we should\
+    \ never hit this one outside of unittests\nstruct bpf_map_def SEC(\"maps\") fallback_lru_cache\
+    \ = {\n  .type = BPF_MAP_TYPE_LRU_HASH,\n  .key_size = sizeof(struct flow_key),\n\
+    \  .value_size = sizeof(struct real_pos_lru),\n  .max_entries = DEFAULT_LRU_SIZE,\n\
+    \  .map_flags = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(fallback_lru_cache, struct\
+    \ flow_key, struct real_pos_lru);\n\n// map which contains all vip to real mappings\n\
+    struct bpf_map_def SEC(\"maps\") ch_rings = {\n  .type = BPF_MAP_TYPE_ARRAY,\n\
+    \  .key_size = sizeof(__u32),\n  .value_size = sizeof(__u32),\n  .max_entries\
+    \ = CH_RINGS_SIZE,\n  .map_flags = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(ch_rings,\
+    \ __u32, __u32);\n\n// map which contains opaque real's id to real mapping\n\n\
+    // FILE: katran/lib/bpf/control_data_maps.h\n// CONTEXT: BPF_ANNOTATE_KV_PAIR(event_pipe,\
+    \ int, __u32);\n#endif\n\n#ifdef INLINE_DECAP_GENERIC\nstruct bpf_map_def SEC(\"\
+    maps\") decap_dst = {\n    .type = BPF_MAP_TYPE_HASH,\n    .key_size = sizeof(struct\
+    \ address),\n    .value_size = sizeof(__u32),\n    .max_entries = MAX_VIPS,\n\
+    \    .map_flags = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(decap_dst, struct address,\
+    \ __u32);\n\nstruct bpf_map_def SEC(\"maps\") katran_subprograms = {\n    .type\
+    \ = BPF_MAP_TYPE_PROG_ARRAY,\n    .key_size = sizeof(__u32),\n    .value_size\
+    \ = sizeof(__u32),\n    .max_entries = SUBPROGRAMS_ARRAY_SIZE,\n};\nBPF_ANNOTATE_KV_PAIR(katran_subprograms,\
+    \ __u32, __u32);\n#endif\n\n#ifdef GUE_ENCAP\n// map which src ip address for\
+    \ outer ip packet while using GUE encap\n// NOTE: This is not a stable API. This\
+    \ is to be reworked when static\n// variables will be available in mainline kernels\n\
+    struct bpf_map_def SEC(\"maps\") pckt_srcs = {\n    .type = BPF_MAP_TYPE_ARRAY,\n\
+    \    .key_size = sizeof(__u32),\n    .value_size = sizeof(struct real_definition),\n\
+    \    .max_entries = 2,\n    .map_flags = NO_FLAGS,"
+  fixed_code: "// FILE: katran/lib/bpf/balancer_helpers.h\n// CONTEXT: static inline\
+    \ void submit_event(struct xdp_md *ctx, void *map,\n  } else {\n    md.data_len\
+    \ = min_helper(size, MAX_EVENT_SIZE);\n    flags |= (__u64) md.data_len << 32;\n\
+    \  }\n  bpf_perf_event_output(ctx, map, flags, &md, sizeof(struct event_metadata));\n\
+    }\n#endif\n\n#ifdef INLINE_DECAP_GENERIC\n__attribute__((__always_inline__))\n\
+    static inline int recirculate(struct xdp_md *ctx) {\n  int i = RECIRCULATION_INDEX;\n\
+    \  bpf_tail_call(ctx, &subprograms, i);\n  // we should never hit this\n  return\
+    \ XDP_PASS;\n}\n#endif // of INLINE_DECAP_GENERIC\n\n__attribute__((__always_inline__))\n\
+    static inline int decrement_ttl(void *data, void *data_end, int offset, bool is_ipv6)\
+    \ {\n  struct iphdr *iph;\n  struct ipv6hdr *ip6h;\n\n  if (is_ipv6) {\n    if\
+    \ ((data + offset + sizeof(struct ipv6hdr)) > data_end) {\n\n// FILE: katran/lib/bpf/balancer_kern.c\n\
+    // CONTEXT: static inline int process_packet(void *data, __u64 off, void *data_end,\n\
+    \    } else {\n      quic_stats->v1 += 1;\n    }\n  }\n\n  if (!dst) {\n    if\
+    \ ((vip_info->flags & F_HASH_NO_SRC_PORT)) {\n      // service, where diff src\
+    \ port, but same ip must go to the same real,\n      // e.g. gfs\n      pckt.flow.port16[0]\
+    \ = 0;\n    }\n    __u32 cpu_num = bpf_get_smp_processor_id();\n    void *lru_map\
+    \ = bpf_map_lookup_elem(&lru_mapping, &cpu_num);\n    if (!lru_map) {\n      lru_map\
+    \ = &fallback_cache;\n      __u32 lru_stats_key = MAX_VIPS + FALLBACK_LRU_CNTR;\n\
+    \      struct lb_stats *lru_stats = bpf_map_lookup_elem(&stats, &lru_stats_key);\n\
+    \      if (!lru_stats) {\n        return XDP_DROP;\n      }\n      // we weren't\
+    \ able to retrieve per cpu/core lru and falling back to\n      // default one.\
+    \ this counter should never be anything except 0 in prod.\n      // we are going\
+    \ to use it for monitoring.\n      lru_stats->v1 += 1;\n    }\n\n    if (!(pckt.flags\
+    \ & F_SYN_SET) &&\n\n// FILE: katran/lib/bpf/balancer_maps.h\n// map, which contains\
+    \ all the vips for which we are doing load balancing\nstruct bpf_map_def SEC(\"\
+    maps\") vip_map = {\n  .type = BPF_MAP_TYPE_HASH,\n  .key_size = sizeof(struct\
+    \ vip_definition),\n  .value_size = sizeof(struct vip_meta),\n  .max_entries =\
+    \ MAX_VIPS,\n  .map_flags = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(vip_map, struct\
+    \ vip_definition, struct vip_meta);\n\n\n// map which contains cpu core to lru\
+    \ mapping\nstruct bpf_map_def SEC(\"maps\") lru_mapping = {\n  .type = BPF_MAP_TYPE_ARRAY_OF_MAPS,\n\
+    \  .key_size = sizeof(__u32),\n  .value_size = sizeof(__u32),\n  .max_entries\
+    \ = MAX_SUPPORTED_CPUS,\n  .map_flags = NO_FLAGS,\n};\n\n// fallback lru. we should\
+    \ never hit this one outside of unittests\nstruct bpf_map_def SEC(\"maps\") fallback_cache\
+    \ = {\n  .type = BPF_MAP_TYPE_LRU_HASH,\n  .key_size = sizeof(struct flow_key),\n\
+    \  .value_size = sizeof(struct real_pos_lru),\n  .max_entries = DEFAULT_LRU_SIZE,\n\
+    \  .map_flags = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(fallback_cache, struct flow_key,\
+    \ struct real_pos_lru);\n\n// map which contains all vip to real mappings\nstruct\
+    \ bpf_map_def SEC(\"maps\") ch_rings = {\n  .type = BPF_MAP_TYPE_ARRAY,\n  .key_size\
+    \ = sizeof(__u32),\n  .value_size = sizeof(__u32),\n  .max_entries = CH_RINGS_SIZE,\n\
+    \  .map_flags = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(ch_rings, __u32, __u32);\n\
+    \n// map which contains opaque real's id to real mapping\n\n// FILE: katran/lib/bpf/control_data_maps.h\n\
+    // CONTEXT: BPF_ANNOTATE_KV_PAIR(event_pipe, int, __u32);\n#endif\n\n#ifdef INLINE_DECAP_GENERIC\n\
+    struct bpf_map_def SEC(\"maps\") decap_dst = {\n    .type = BPF_MAP_TYPE_HASH,\n\
+    \    .key_size = sizeof(struct address),\n    .value_size = sizeof(__u32),\n \
+    \   .max_entries = MAX_VIPS,\n    .map_flags = NO_FLAGS,\n};\nBPF_ANNOTATE_KV_PAIR(decap_dst,\
+    \ struct address, __u32);\n\nstruct bpf_map_def SEC(\"maps\") subprograms = {\n\
+    \    .type = BPF_MAP_TYPE_PROG_ARRAY,\n    .key_size = sizeof(__u32),\n    .value_size\
+    \ = sizeof(__u32),\n    .max_entries = SUBPROGRAMS_ARRAY_SIZE,\n};\nBPF_ANNOTATE_KV_PAIR(subprograms,\
+    \ __u32, __u32);\n#endif\n\n#ifdef GUE_ENCAP\n// map which src ip address for\
+    \ outer ip packet while using GUE encap\n// NOTE: This is not a stable API. This\
+    \ is to be reworked when static\n// variables will be available in mainline kernels\n\
+    struct bpf_map_def SEC(\"maps\") pckt_srcs = {\n    .type = BPF_MAP_TYPE_ARRAY,\n\
+    \    .key_size = sizeof(__u32),\n    .value_size = sizeof(struct real_definition),\n\
+    \    .max_entries = 2,\n    .map_flags = NO_FLAGS,"
+  diff_summary: 'katran/lib/bpf/balancer_helpers.h:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: static inline void submit_event(struct xdp_md *ctx, void *map,.
+
+    katran/lib/bpf/balancer_kern.c:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: static inline int process_packet(void *data, __u64 off, void
+    *data_end,.
+
+    katran/lib/bpf/balancer_maps.h:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: the touched section.
+
+    katran/lib/bpf/control_data_maps.h:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: BPF_ANNOTATE_KV_PAIR(event_pipe, int, __u32);.
+
+    - Commit subject: Katran reload bpf (#96).'
+

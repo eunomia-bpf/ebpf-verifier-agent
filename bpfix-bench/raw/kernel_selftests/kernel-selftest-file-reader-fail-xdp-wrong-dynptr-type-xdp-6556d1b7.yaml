@@ -1,0 +1,19 @@
+case_id: kernel-selftest-file-reader-fail-xdp-wrong-dynptr-type-xdp-6556d1b7
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/file_reader_fail.c
+  section: xdp
+  function: xdp_wrong_dynptr_type
+  description: xdp_wrong_dynptr_type
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - 'Expected a dynptr of type file as arg #0'
+  unprivileged: []
+  combined:
+  - 'Expected a dynptr of type file as arg #0'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/file_reader_fail.c
+  code: "SEC(\"xdp\")\n__failure\n__msg(\"Expected a dynptr of type file as arg #0\")\nint xdp_wrong_dynptr_type(struct xdp_md *xdp)\n{\n\tstruct bpf_dynptr dynptr;\n\n\tbpf_dynptr_from_xdp(xdp, 0, &dynptr);\n\tbpf_dynptr_file_discard(&dynptr);\n\treturn 0;\n}"

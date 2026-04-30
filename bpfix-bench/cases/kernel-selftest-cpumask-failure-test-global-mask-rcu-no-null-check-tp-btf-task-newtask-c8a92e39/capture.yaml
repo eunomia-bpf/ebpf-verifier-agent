@@ -4,8 +4,7 @@ case_id: kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-b
 environment_id: kernel-6.15.11-clang-18-log2
 imported_at: '2026-04-29T22:44:40+00:00'
 source_artifact:
-  path: case_study/cases/kernel_selftests_verified/kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39
-  status_file: verification_status.txt
+  path: bpfix-bench/cases/kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39
   source_file: tools/testing/selftests/bpf/progs/cpumask_failure.c
   target_function: test_global_mask_rcu_no_null_check
   section: tp_btf/task_newtask
@@ -13,6 +12,7 @@ source_artifact:
   load_attempted: true
   verifier_rejected: true
   verifier_log_captured: true
+  source_record: bpfix-bench/raw/kernel_selftests/kernel-selftest-cpumask-failure-test-global-mask-rcu-no-null-check-tp-btf-task-newtask-c8a92e39.yaml
 replay:
   build_command: make
   load_command: make replay-verify

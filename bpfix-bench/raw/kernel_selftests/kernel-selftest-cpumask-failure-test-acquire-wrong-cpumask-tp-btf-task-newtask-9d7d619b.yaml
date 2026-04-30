@@ -1,0 +1,38 @@
+case_id: kernel-selftest-cpumask-failure-test-acquire-wrong-cpumask-tp-btf-task-newtask-9d7d619b
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/cpumask_failure.c
+  section: tp_btf/task_newtask
+  function: test_acquire_wrong_cpumask
+  description: test_acquire_wrong_cpumask
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - must be referenced
+  unprivileged: []
+  combined:
+  - must be referenced
+verifier_log: |
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (79) r1 = *(u64 *)(r1 +0)
+    1: .1........ (79) r1 = *(u64 *)(r1 +1312)
+    2: .1........ (85) call bpf_cpumask_acquire#71408
+    3: 0......... (7b) *(u64 *)(r10 -8) = r0
+    4: .......... (b4) w0 = 0
+    5: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int BPF_PROG(test_acquire_wrong_cpumask, struct task_struct *task, u64 clone_flags) @ cpumask_failure.c:64
+  0: (79) r1 = *(u64 *)(r1 +0)
+  func 'task_newtask' arg0 has btf_id 115 type STRUCT 'task_struct'
+  1: R1_w=trusted_ptr_task_struct()
+  ; cpumask = bpf_cpumask_acquire((struct bpf_cpumask *)task->cpus_ptr); @ cpumask_failure.c:69
+  1: (79) r1 = *(u64 *)(r1 +1312)       ; R1_w=rcu_ptr_cpumask()
+  2: (85) call bpf_cpumask_acquire#71408
+  R1 must be referenced or trusted
+  processed 3 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/cpumask_failure.c
+  code: "SEC(\"tp_btf/task_newtask\")\n__failure __msg(\"must be referenced\")\nint BPF_PROG(test_acquire_wrong_cpumask, struct task_struct *task, u64 clone_flags)\n{\n\tstruct bpf_cpumask *cpumask;\n\n\t/* Can't acquire a non-struct bpf_cpumask. */\n\tcpumask = bpf_cpumask_acquire((struct bpf_cpumask *)task->cpus_ptr);\n\t__sink(cpumask);\n\n\treturn 0;\n}"

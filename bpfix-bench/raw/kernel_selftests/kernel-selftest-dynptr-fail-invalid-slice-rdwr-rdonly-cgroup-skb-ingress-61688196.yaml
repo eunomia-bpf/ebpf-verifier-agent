@@ -1,0 +1,125 @@
+case_id: kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly-cgroup-skb-ingress-61688196
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: cgroup_skb/ingress
+  function: invalid_slice_rdwr_rdonly
+  description: invalid_slice_rdwr_rdonly
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - the prog does not allow writes to packet data
+  unprivileged: []
+  combined:
+  - the prog does not allow writes to packet data
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (b4) w2 = 0
+    1: .12....... (6b) *(u16 *)(r10 -4) = r2
+    2: .12....... (63) *(u32 *)(r10 -8) = r2
+    3: .1........ (b7) r2 = 0
+    4: .12....... (7b) *(u64 *)(r10 -16) = r2
+    5: .12....... (bf) r6 = r10
+    6: .12...6... (07) r6 += -32
+    7: .12...6... (bf) r3 = r6
+    8: .123..6... (85) call bpf_dynptr_from_skb#71549
+    9: ......6... (bf) r3 = r10
+   10: ...3..6... (07) r3 += -16
+   11: ...3..6... (bf) r1 = r6
+   12: .1.3...... (b4) w2 = 0
+   13: .123...... (b4) w4 = 14
+   14: .1234..... (85) call bpf_dynptr_slice_rdwr#71568
+   15: 0......... (7b) *(u64 *)(r10 -40) = r0
+   16: .......... (b4) w0 = 0
+   17: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int invalid_slice_rdwr_rdonly(struct __sk_buff *skb) @ dynptr_fail.c:1391
+  0: (b4) w2 = 0                        ; R2_w=0
+  ; char buffer[sizeof(struct ethhdr)] = {}; @ dynptr_fail.c:1393
+  1: (6b) *(u16 *)(r10 -4) = r2
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 0: (b4) w2 = 0
+  2: R2_w=0 R10=fp0 fp-8=??00????
+  2: (63) *(u32 *)(r10 -8) = r2         ; R2_w=0 R10=fp0 fp-8=??000
+  3: (b7) r2 = 0                        ; R2_w=0
+  4: (7b) *(u64 *)(r10 -16) = r2        ; R2_w=0 R10=fp0 fp-16_w=0
+  5: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ;  @ dynptr_fail.c:0
+  6: (07) r6 += -32                     ; R6_w=fp-32
+  ; bpf_dynptr_from_skb(skb, 0, &ptr); @ dynptr_fail.c:1397
+  7: (bf) r3 = r6                       ; R3_w=fp-32 R6_w=fp-32
+  8: (85) call bpf_dynptr_from_skb#71549        ; R0_w=scalar() fp-32_w=dynptr_skb(id=1,dynptr_id=1)
+  9: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+  ;  @ dynptr_fail.c:0
+  10: (07) r3 += -16                    ; R3_w=fp-16
+  ; hdr = bpf_dynptr_slice_rdwr(&ptr, 0, buffer, sizeof(buffer)); @ dynptr_fail.c:1402
+  11: (bf) r1 = r6                      ; R1_w=fp-32 R6_w=fp-32
+  12: (b4) w2 = 0                       ; R2_w=0
+  13: (b4) w4 = 14                      ; R4_w=14
+  14: (85) call bpf_dynptr_slice_rdwr#71568
+  mark_precise: frame0: last_idx 14 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 13: (b4) w4 = 14
+  mark_precise: frame0: last_idx 14 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 13: (b4) w4 = 14
+  the prog does not allow writes to packet data
+  processed 15 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (b4) w2 = 0
+    1: .12....... (6b) *(u16 *)(r10 -4) = r2
+    2: .12....... (63) *(u32 *)(r10 -8) = r2
+    3: .1........ (b7) r2 = 0
+    4: .12....... (7b) *(u64 *)(r10 -16) = r2
+    5: .12....... (bf) r6 = r10
+    6: .12...6... (07) r6 += -32
+    7: .12...6... (bf) r3 = r6
+    8: .123..6... (85) call bpf_dynptr_from_skb#71549
+    9: ......6... (bf) r3 = r10
+   10: ...3..6... (07) r3 += -16
+   11: ...3..6... (bf) r1 = r6
+   12: .1.3...... (b7) r2 = 0
+   13: .123...... (b7) r4 = 14
+   14: .1234..... (85) call bpf_dynptr_slice_rdwr#71568
+   15: 0......... (7b) *(u64 *)(r10 -40) = r0
+   16: .......... (b4) w0 = 0
+   17: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int invalid_slice_rdwr_rdonly(struct __sk_buff *skb) @ prog.c:82
+  0: (b4) w2 = 0                        ; R2_w=0
+  ; char buffer[sizeof(struct ethhdr)] = {}; @ prog.c:84
+  1: (6b) *(u16 *)(r10 -4) = r2
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 0: (b4) w2 = 0
+  2: R2_w=0 R10=fp0 fp-8=??00????
+  2: (63) *(u32 *)(r10 -8) = r2         ; R2_w=0 R10=fp0 fp-8=??000
+  3: (b7) r2 = 0                        ; R2_w=0
+  4: (7b) *(u64 *)(r10 -16) = r2        ; R2_w=0 R10=fp0 fp-16_w=0
+  5: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ;  @ prog.c:0
+  6: (07) r6 += -32                     ; R6_w=fp-32
+  ; bpf_dynptr_from_skb(skb, 0, &ptr); @ prog.c:88
+  7: (bf) r3 = r6                       ; R3_w=fp-32 R6_w=fp-32
+  8: (85) call bpf_dynptr_from_skb#71549        ; R0_w=scalar() fp-32_w=dynptr_skb(id=1,dynptr_id=1)
+  9: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+  ;  @ prog.c:0
+  10: (07) r3 += -16                    ; R3_w=fp-16
+  ; hdr = bpf_dynptr_slice_rdwr(&ptr, 0, buffer, sizeof(buffer)); @ prog.c:93
+  11: (bf) r1 = r6                      ; R1_w=fp-32 R6_w=fp-32
+  12: (b7) r2 = 0                       ; R2_w=0
+  13: (b7) r4 = 14                      ; R4_w=14
+  14: (85) call bpf_dynptr_slice_rdwr#71568
+  mark_precise: frame0: last_idx 14 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 13: (b7) r4 = 14
+  mark_precise: frame0: last_idx 14 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 13: (b7) r4 = 14
+  the prog does not allow writes to packet data
+  processed 15 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"cgroup_skb/ingress\")\n__failure __msg(\"the prog does not allow writes to packet data\")\nint invalid_slice_rdwr_rdonly(struct __sk_buff *skb)\n{\n\tchar buffer[sizeof(struct ethhdr)] = {};\n\tstruct bpf_dynptr ptr;\n\tstruct ethhdr *hdr;\n\n\tbpf_dynptr_from_skb(skb, 0, &ptr);\n\n\t/* this should fail since cgroup_skb doesn't allow\n\t * changing packet data\n\t */\n\thdr = bpf_dynptr_slice_rdwr(&ptr, 0, buffer, sizeof(buffer));\n\t__sink(hdr);\n\n\treturn 0;\n}\n\n/* bpf_dynptr_adjust can only be called on initialized dynptrs */"

@@ -1,0 +1,104 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-bcc-feadea6d789f
+source_kind: github_commit
+source:
+  url: https://github.com/iovisor/bcc/commit/feadea6d789f54e304e9c2f570ed87299e6f4e5e
+  title: Support a BPF program larger than BPF_MAXINSNS
+  repository: https://github.com/iovisor/bcc
+  commit: feadea6d789f54e304e9c2f570ed87299e6f4e5e
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-bcc-feadea6d789f.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: attempted_unknown
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: verification_status_unclear
+  verifier_status: null
+  captured_error: null
+  verifier_error_match: null
+raw:
+  case_id: eval-bcc-feadea6d789f
+  source: eval_commits
+  repository: https://github.com/iovisor/bcc
+  commit_hash: feadea6d789f54e304e9c2f570ed87299e6f4e5e
+  commit_message: Support a BPF program larger than BPF_MAXINSNS
+  commit_date: '2019-11-30'
+  fix_type: bounds_check
+  buggy_code: "// FILE: src/cc/libbpf.c\n// CONTEXT: int bpf_prog_get_tag(int fd,\
+    \ unsigned long long *ptag)\n}\n\nint bcc_prog_load_xattr(struct bpf_load_program_attr\
+    \ *attr, int prog_len,\n                        char *log_buf, unsigned log_buf_size,\
+    \ bool allow_rlimit)\n{\n  unsigned name_len = attr->name ? strlen(attr->name)\
+    \ : 0;\n  char *tmp_log_buf = NULL, *attr_log_buf = NULL;\n  unsigned tmp_log_buf_size\
+    \ = 0, attr_log_buf_size = 0;\n  int ret = 0, name_offset = 0;\n  char prog_name[BPF_OBJ_NAME_LEN]\
+    \ = {};\n\n  unsigned insns_cnt = prog_len / sizeof(struct bpf_insn);\n  if (insns_cnt\
+    \ > BPF_MAXINSNS) {\n    errno = EINVAL;\n    fprintf(stderr,\n            \"\
+    bpf: %s. Program %s too large (%u insns), at most %d insns\\n\\n\",\n        \
+    \    strerror(errno), attr->name, insns_cnt, BPF_MAXINSNS);\n    return -1;\n\
+    \  }\n  attr->insns_cnt = insns_cnt;\n\n  if (attr->log_level > 0) {\n    if (log_buf_size\
+    \ > 0) {\n      // Use user-provided log buffer if availiable.\n      log_buf[0]\
+    \ = 0;\n      attr_log_buf = log_buf;\n      attr_log_buf_size = log_buf_size;\n\
+    \    } else {\n      // Create and use temporary log buffer if user didn't provide\
+    \ one.\n      tmp_log_buf_size = LOG_BUF_SIZE;\n      tmp_log_buf = malloc(tmp_log_buf_size);\n\
+    \n// CONTEXT: int bcc_prog_load_xattr(struct bpf_load_program_attr *attr, int\
+    \ prog_len,\n    // mem for the user, so an accurate calculation of how much memory\
+    \ to lock\n    // for this new program is difficult to calculate. As a hack, bump\
+    \ the limit\n    // to unlimited. If program load fails again, return the error.\n\
+    \    struct rlimit rl = {};\n    if (getrlimit(RLIMIT_MEMLOCK, &rl) == 0) {\n\
+    \      rl.rlim_max = RLIM_INFINITY;\n      rl.rlim_cur = rl.rlim_max;\n      if\
+    \ (setrlimit(RLIMIT_MEMLOCK, &rl) == 0)\n        ret = bpf_load_program_xattr(attr,\
+    \ attr_log_buf, attr_log_buf_size);\n    }\n  }\n\n  // The load has failed. Handle\
+    \ log message.\n  if (ret < 0) {\n    // User has provided a log buffer.\n   \
+    \ if (log_buf_size) {\n      // If logging is not already enabled, enable it and\
+    \ do the syscall again.\n      if (attr->log_level == 0) {\n        attr->log_level\
+    \ = 1;\n        ret = bpf_load_program_xattr(attr, log_buf, log_buf_size);\n \
+    \     }\n      // Print the log message and return.\n      bpf_print_hints(ret,\
+    \ log_buf);\n      if (errno == ENOSPC)"
+  fixed_code: "// FILE: src/cc/libbpf.c\n// CONTEXT: int bpf_prog_get_tag(int fd,\
+    \ unsigned long long *ptag)\n}\n\nint bcc_prog_load_xattr(struct bpf_load_program_attr\
+    \ *attr, int prog_len,\n                        char *log_buf, unsigned log_buf_size,\
+    \ bool allow_rlimit)\n{\n  unsigned name_len = attr->name ? strlen(attr->name)\
+    \ : 0;\n  char *tmp_log_buf = NULL, *attr_log_buf = NULL;\n  unsigned tmp_log_buf_size\
+    \ = 0, attr_log_buf_size = 0;\n  int ret = 0, name_offset = 0;\n  char prog_name[BPF_OBJ_NAME_LEN]\
+    \ = {};\n\n  unsigned insns_cnt = prog_len / sizeof(struct bpf_insn);\n  attr->insns_cnt\
+    \ = insns_cnt;\n\n  if (attr->log_level > 0) {\n    if (log_buf_size > 0) {\n\
+    \      // Use user-provided log buffer if availiable.\n      log_buf[0] = 0;\n\
+    \      attr_log_buf = log_buf;\n      attr_log_buf_size = log_buf_size;\n    }\
+    \ else {\n      // Create and use temporary log buffer if user didn't provide\
+    \ one.\n      tmp_log_buf_size = LOG_BUF_SIZE;\n      tmp_log_buf = malloc(tmp_log_buf_size);\n\
+    \n// CONTEXT: int bcc_prog_load_xattr(struct bpf_load_program_attr *attr, int\
+    \ prog_len,\n    // mem for the user, so an accurate calculation of how much memory\
+    \ to lock\n    // for this new program is difficult to calculate. As a hack, bump\
+    \ the limit\n    // to unlimited. If program load fails again, return the error.\n\
+    \    struct rlimit rl = {};\n    if (getrlimit(RLIMIT_MEMLOCK, &rl) == 0) {\n\
+    \      rl.rlim_max = RLIM_INFINITY;\n      rl.rlim_cur = rl.rlim_max;\n      if\
+    \ (setrlimit(RLIMIT_MEMLOCK, &rl) == 0)\n        ret = bpf_load_program_xattr(attr,\
+    \ attr_log_buf, attr_log_buf_size);\n    }\n  }\n\n  if (ret < 0 && errno == E2BIG)\
+    \ {\n    fprintf(stderr,\n            \"bpf: %s. Program %s too large (%u insns),\
+    \ at most %d insns\\n\\n\",\n            strerror(errno), attr->name, insns_cnt,\
+    \ BPF_MAXINSNS);\n    return -1;\n  }\n\n  // The load has failed. Handle log\
+    \ message.\n  if (ret < 0) {\n    // User has provided a log buffer.\n    if (log_buf_size)\
+    \ {\n      // If logging is not already enabled, enable it and do the syscall\
+    \ again.\n      if (attr->log_level == 0) {\n        attr->log_level = 1;\n  \
+    \      ret = bpf_load_program_xattr(attr, log_buf, log_buf_size);\n      }\n \
+    \     // Print the log message and return.\n      bpf_print_hints(ret, log_buf);\n\
+    \      if (errno == ENOSPC)"
+  diff_summary: 'src/cc/libbpf.c:
+
+    - Added explicit bounds or range guards so the verifier can prove the access size
+    and offset.
+
+    - Affected context: int bpf_prog_get_tag(int fd, unsigned long long *ptag), int
+    bcc_prog_load_xattr(struct bpf_load_program_attr *attr, int prog_len,.
+
+    - Commit subject: Support a BPF program larger than BPF_MAXINSNS.'
+

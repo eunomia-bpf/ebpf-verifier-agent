@@ -1,0 +1,19 @@
+case_id: kernel-selftest-dynptr-fail-skb-meta-invalid-ctx-raw-tp-0ccc9e53
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: skb_meta_invalid_ctx
+  description: skb_meta_invalid_ctx
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - calling kernel function bpf_dynptr_from_skb_meta is not allowed
+  unprivileged: []
+  combined:
+  - calling kernel function bpf_dynptr_from_skb_meta is not allowed
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"calling kernel function bpf_dynptr_from_skb_meta is not allowed\")\nint skb_meta_invalid_ctx(void *ctx)\n{\n\tstruct bpf_dynptr meta;\n\n\t/* this should fail */\n\tbpf_dynptr_from_skb_meta(ctx, 0, &meta);\n\n\treturn 0;\n}"

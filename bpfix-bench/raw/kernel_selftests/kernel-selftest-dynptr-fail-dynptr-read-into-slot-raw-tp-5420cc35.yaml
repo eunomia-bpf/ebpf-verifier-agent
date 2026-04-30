@@ -1,0 +1,99 @@
+case_id: kernel-selftest-dynptr-fail-dynptr-read-into-slot-raw-tp-5420cc35
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: dynptr_read_into_slot
+  description: dynptr_read_into_slot
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - potential write to dynptr at off=-16
+  unprivileged: []
+  combined:
+  - potential write to dynptr at off=-16
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r6 = r10
+    1: ......6... (07) r6 += -16
+    2: ......6... (18) r1 = 0xffff8d47455cda00
+    4: .1....6... (b4) w2 = 64
+    5: .12...6... (b7) r3 = 0
+    6: .123..6... (bf) r4 = r6
+    7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+    8: ......6... (bf) r1 = r10
+    9: .1....6... (07) r1 += -64
+   10: .1....6... (b4) w2 = 64
+   11: .12...6... (bf) r3 = r6
+   12: .123...... (b4) w4 = 0
+   13: .1234..... (b7) r5 = 0
+   14: .12345.... (85) call bpf_dynptr_read#201
+   15: .......... (b4) w0 = 0
+   16: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &data.ptr); @ dynptr_fail.c:1064
+  0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  1: (07) r6 += -16                     ; R6_w=fp-16
+  2: (18) r1 = 0xffff8d47455cda00       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 64                       ; R2_w=64
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16
+  7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  8: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=2
+  9: (07) r1 += -64                     ; R1_w=fp-64 refs=2
+  ; bpf_dynptr_read(data.buf, sizeof(data.buf), &data.ptr, 0, 0); @ dynptr_fail.c:1066
+  10: (b4) w2 = 64                      ; R2_w=64 refs=2
+  11: (bf) r3 = r6                      ; R3_w=fp-16 R6_w=fp-16 refs=2
+  12: (b4) w4 = 0                       ; R4_w=0 refs=2
+  13: (b7) r5 = 0                       ; R5_w=0 refs=2
+  14: (85) call bpf_dynptr_read#201
+  potential write to dynptr at off=-16 disallowed
+  processed 14 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r6 = r10
+    1: ......6... (07) r6 += -16
+    2: ......6... (18) r1 = 0xffff8f01868d8500
+    4: .1....6... (b4) w2 = 64
+    5: .12...6... (b7) r3 = 0
+    6: .123..6... (bf) r4 = r6
+    7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+    8: ......6... (bf) r1 = r10
+    9: .1....6... (07) r1 += -64
+   10: .1....6... (b7) r2 = 64
+   11: .12...6... (bf) r3 = r6
+   12: .123...... (b7) r4 = 0
+   13: .1234..... (b7) r5 = 0
+   14: .12345.... (85) call bpf_dynptr_read#201
+   15: .......... (b4) w0 = 0
+   16: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &data.ptr); @ prog.c:88
+  0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  1: (07) r6 += -16                     ; R6_w=fp-16
+  2: (18) r1 = 0xffff8f01868d8500       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 64                       ; R2_w=64
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16
+  7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  8: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0 refs=2
+  9: (07) r1 += -64                     ; R1_w=fp-64 refs=2
+  ; bpf_dynptr_read(data.buf, sizeof(data.buf), &data.ptr, 0, 0); @ prog.c:90
+  10: (b7) r2 = 64                      ; R2_w=64 refs=2
+  11: (bf) r3 = r6                      ; R3_w=fp-16 R6_w=fp-16 refs=2
+  12: (b7) r4 = 0                       ; R4_w=0 refs=2
+  13: (b7) r5 = 0                       ; R5_w=0 refs=2
+  14: (85) call bpf_dynptr_read#201
+  potential write to dynptr at off=-16 disallowed
+  processed 14 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"potential write to dynptr at off=-16\")\nint dynptr_read_into_slot(void *ctx)\n{\n\tunion {\n\t\tstruct {\n\t\t\tchar _pad[48];\n\t\t\tstruct bpf_dynptr ptr;\n\t\t};\n\t\tchar buf[64];\n\t} data;\n\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &data.ptr);\n\t/* this should fail */\n\tbpf_dynptr_read(data.buf, sizeof(data.buf), &data.ptr, 0, 0);\n\n\treturn 0;\n}\n\n/* bpf_dynptr_slice()s are read-only and cannot be written to */"

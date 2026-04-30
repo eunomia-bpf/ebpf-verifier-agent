@@ -15,13 +15,14 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_expected_files_exist() -> None:
     expected = [
         ROOT / "pyproject.toml",
-        ROOT / "case_study" / "schema.yaml",
+        ROOT / "bpfix-bench" / "manifest.yaml",
+        ROOT / "bpfix-bench" / "raw" / "index.yaml",
         ROOT / "taxonomy" / "taxonomy.yaml",
         ROOT / "interface" / "schema" / "diagnostic.json",
-        ROOT / "case_study" / "collect.py",
-        ROOT / "case_study" / "reproduce.py",
+        ROOT / "tools" / "validate_benchmark.py",
+        ROOT / "tools" / "sync_external_raw_bench.py",
         ROOT / "agent" / "repair_loop.py",
-        ROOT / "eval" / "metrics.py",
+        ROOT / "agent" / "metrics.py",
         ROOT / "README.md",
         ROOT / "requirements.txt",
         ROOT / ".gitignore",
@@ -30,26 +31,28 @@ def test_expected_files_exist() -> None:
     assert not missing, f"missing expected files: {missing}"
 
 
-def test_benchmark_schema_has_expected_fields() -> None:
-    payload = yaml.safe_load((ROOT / "case_study" / "schema.yaml").read_text(encoding="utf-8"))
-    expected_fields = {
-        "case_id",
-        "source",
-        "title",
-        "url",
-        "failure_class",
-        "source_code",
-        "compile_args",
-        "target_kernel",
-        "verifier_log",
-        "root_cause",
-        "fix_patch",
-        "semantic_test",
-        "tags",
-        "difficulty",
-    }
-    assert expected_fields.issubset(payload["fields"].keys())
-    assert set(payload["required"]) == expected_fields - {"url"}
+def test_benchmark_manifest_has_expected_fields() -> None:
+    payload = yaml.safe_load((ROOT / "bpfix-bench" / "manifest.yaml").read_text(encoding="utf-8"))
+    assert payload["schema_version"] == "bpfix.benchmark/v1"
+    assert payload["benchmark_id"] == "bpfix-bench-v1"
+    assert isinstance(payload["cases"], list)
+    assert len(payload["cases"]) >= 100
+
+    first = payload["cases"][0]
+    assert {"case_id", "path", "source_kind", "capture_id"}.issubset(first)
+
+
+def test_replayable_case_manifest_has_expected_fields() -> None:
+    payload = yaml.safe_load(
+        (ROOT / "bpfix-bench" / "cases" / "stackoverflow-60053570" / "case.yaml").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert payload["schema_version"] == "bpfix.case/v1"
+    assert payload["capture"]["load_status"] == "verifier_reject"
+    assert payload["capture"]["verifier_pass"] is False
+    assert payload["reproducer"]["build_command"]
+    assert payload["reproducer"]["load_command"]
 
 
 def test_taxonomy_defines_all_five_classes() -> None:
@@ -73,7 +76,7 @@ def test_diagnostic_schema_accepts_minimal_example() -> None:
         "failure_class": "source_bug",
         "message": "packet access requires a dominating bounds check",
         "source_span": {
-            "path": "case_study/cases/so-12345/prog.bpf.c",
+            "path": "bpfix-bench/cases/so-12345/prog.bpf.c",
             "line_start": 12,
             "line_end": 14
         },
@@ -84,10 +87,10 @@ def test_diagnostic_schema_accepts_minimal_example() -> None:
 
 def test_cli_help_commands_work() -> None:
     scripts = [
-        ROOT / "case_study" / "collect.py",
-        ROOT / "case_study" / "reproduce.py",
+        ROOT / "tools" / "validate_benchmark.py",
+        ROOT / "tools" / "sync_external_raw_bench.py",
         ROOT / "agent" / "repair_loop.py",
-        ROOT / "eval" / "metrics.py",
+        ROOT / "agent" / "metrics.py",
     ]
     for script in scripts:
         result = subprocess.run(

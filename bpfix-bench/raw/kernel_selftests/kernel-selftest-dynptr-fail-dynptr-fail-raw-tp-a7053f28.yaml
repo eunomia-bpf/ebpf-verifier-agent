@@ -1,0 +1,19 @@
+case_id: kernel-selftest-dynptr-fail-dynptr-fail-raw-tp-a7053f28
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: ''
+  description: dynptr_fail
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - R{{[0-9]+}} type=scalar expected=percpu_ptr_
+  unprivileged: []
+  combined:
+  - R{{[0-9]+}} type=scalar expected=percpu_ptr_
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"R{{[0-9]+}} type=scalar expected=percpu_ptr_\")\nint dynptr_invalidate_slice_or_null(void *ctx)\n{\n\tstruct bpf_dynptr ptr;\n\t__u8 *p;\n\n\tif (get_map_val_dynptr(&ptr))\n\t\treturn 0;\n\n\tp = bpf_dynptr_data(&ptr, 0, 1);\n\t*(__u8 *)&ptr = 0;\n\t/* this should fail */\n\tbpf_this_cpu_ptr(p);\n\treturn 0;\n}\n\n/* Destruction of dynptr should also any slices obtained from it */"

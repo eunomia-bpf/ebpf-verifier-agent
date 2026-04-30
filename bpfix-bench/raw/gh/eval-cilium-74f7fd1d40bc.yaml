@@ -1,0 +1,179 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-74f7fd1d40bc
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/74f7fd1d40bc62dd294efce61da905867e390603
+  title: 'bpf: tests: Minimise calls to ctx_data{,_end}() in prep for inline asm'
+  repository: https://github.com/cilium/cilium
+  commit: 74f7fd1d40bc62dd294efce61da905867e390603
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-74f7fd1d40bc.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-74f7fd1d40bc
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: 74f7fd1d40bc62dd294efce61da905867e390603
+  commit_message: 'bpf: tests: Minimise calls to ctx_data{,_end}() in prep for inline
+    asm'
+  commit_date: '2023-05-09'
+  fix_type: refactor
+  buggy_code: "// FILE: bpf/tests/ipv6_test.c\n// CONTEXT: int ipv6_without_extension_header_pktgen(struct\
+    \ __ctx_buff *ctx)\n        return 0;\n}\n\nSETUP(\"xdp\", \"ipv6_without_extension_header\"\
+    )\nint ipv6_without_extension_header_setup(__maybe_unused struct __ctx_buff *ctx)\n\
+    {\n        return 123;\n}\n\nCHECK(\"xdp\", \"ipv6_without_extension_header\"\
+    )\nint ipv6_without_extension_header_check(struct __ctx_buff *ctx)\n{\n      \
+    \  struct ethhdr *l2;\n        struct ipv6hdr *l3;\n        __u32 *status_code;\n\
+    \        __u8 nexthdr;\n\n        test_init();\n\n        if (ctx_data(ctx) +\
+    \ sizeof(__u32) > ctx_data_end(ctx))\n                test_fatal(\"status code\
+    \ out of bounds\");\n\n        status_code = ctx_data(ctx);\n        assert(*status_code\
+    \ == 123);\n\n        xdp_adjust_head(ctx, 4);\n        l2 = ctx_data(ctx);\n\
+    \        if ((void *)(l2 + 1) > ctx_data_end(ctx))\n                test_fatal(\"\
+    l2 out of bounds\");\n\n        assert(l2->h_proto == __bpf_htons(ETH_P_IPV6));\n\
+    \n        l3 = (void *)l2 + ETH_HLEN;\n        if ((void *)(l3 + 1) > ctx_data_end(ctx))\n\
+    \                test_fatal(\"l3 out of bounds\");\n\n        nexthdr = l3->nexthdr;\n\
+    \        assert(ipv6_hdrlen(ctx, &nexthdr) > 0);\n        assert(nexthdr == IPPROTO_TCP);\n\
+    \n        test_finish();\n}\n\nstruct ipv6_authhdr {\n        struct ipv6_opt_hdr\
+    \ opt;\n        __u16 reserved;\n\n// CONTEXT: int ipv6_with_hop_auth_tcp_pktgen(struct\
+    \ __ctx_buff *ctx)\n        return 0;\n}\n\nSETUP(\"xdp\", \"ipv6_with_auth_hop_tcp\"\
+    )\nint ipv6_with_hop_auth_tcp_setup(__maybe_unused struct __ctx_buff *ctx)\n{\n\
+    \        return 1234;\n}\n\nCHECK(\"xdp\", \"ipv6_with_auth_hop_tcp\")\nint ipv6_with_hop_auth_tcp_check(struct\
+    \ __ctx_buff *ctx)\n{\n        struct ethhdr *l2;\n        struct ipv6hdr *l3;\n\
+    \        __u32 *status_code;\n        __u8 nexthdr;\n\n        test_init();\n\n\
+    \        if (ctx_data(ctx) + sizeof(__u32) > ctx_data_end(ctx))\n            \
+    \    test_fatal(\"status code out of bounds\");\n\n        status_code = ctx_data(ctx);\n\
+    \        assert(*status_code == 1234);\n\n        xdp_adjust_head(ctx, 4);\n \
+    \       l2 = ctx_data(ctx);\n        if ((void *)(l2 + 1) > ctx_data_end(ctx))\n\
+    \                test_fatal(\"l2 out of bounds\");\n\n        assert(l2->h_proto\
+    \ == __bpf_htons(ETH_P_IPV6));\n\n        l3 = (void *)l2 + ETH_HLEN;\n      \
+    \  if ((void *)(l3 + 1) > ctx_data_end(ctx))\n                test_fatal(\"l3\
+    \ out of bounds\");\n\n        nexthdr = l3->nexthdr;\n        assert(ipv6_hdrlen(ctx,\
+    \ &nexthdr) > 0);\n        assert(nexthdr == IPPROTO_TCP);\n\n        test_finish();\n\
+    }\n\nCHECK(\"xdp\", \"ipv6\")\nint bpf_test(__maybe_unused struct xdp_md *ctx)\n\
+    {\n\n// FILE: bpf/tests/pktgen.h\n// CONTEXT: int pktgen__free_layer(const struct\
+    \ pktgen *builder)\n\n        return -1;\n}\n\n/* Push an empty ethernet header\
+    \ onto the packet */\nstatic __always_inline\n__attribute__((warn_unused_result))\n\
+    struct ethhdr *pktgen__push_ethhdr(struct pktgen *builder)\n{\n        struct\
+    \ __ctx_buff *ctx = builder->ctx;\n        struct ethhdr *layer;\n        int\
+    \ layer_idx;\n\n        /* Request additional tailroom, and check that we got\
+    \ it. */\n        ctx_adjust_troom(ctx, builder->cur_off + sizeof(struct ethhdr)\
+    \ - ctx_full_len(ctx));\n        if (ctx_data(ctx) + builder->cur_off + sizeof(struct\
+    \ ethhdr) > ctx_data_end(ctx))\n                return 0;\n\n        /* Check\
+    \ that any value within the struct will not exceed a u16 which\n         * is\
+    \ the max allowed offset within a packet from ctx->data.\n         */\n      \
+    \  if (builder->cur_off >= MAX_PACKET_OFF - sizeof(struct ethhdr))\n         \
+    \       return 0;\n\n        layer = ctx_data(ctx) + builder->cur_off;\n     \
+    \   layer_idx = pktgen__free_layer(builder);\n\n        if (layer_idx < 0)\n \
+    \               return 0;\n\n        builder->layers[layer_idx] = PKT_LAYER_ETH;\n\
+    \        builder->layer_offsets[layer_idx] = builder->cur_off;\n        builder->cur_off\
+    \ += sizeof(struct ethhdr);\n\n        return layer;\n}\n\n\n// CONTEXT: void\
+    \ ethhdr__set_macs(struct ethhdr *l2, unsigned char *src, unsigned char *dst)\n\
+    {\n        memcpy(l2->h_source, src, ETH_ALEN);\n        memcpy(l2->h_dest, dst,\
+    \ ETH_ALEN);\n}\n\n/* Push an empty IPv4 header onto the packet */\nstatic __always_inline\n\
+    __attribute__((warn_unused_result))\nstruct iphdr *pktgen__push_iphdr(struct pktgen\
+    \ *builder, __u32 option_bytes)\n{\n        __u32 length = sizeof(struct iphdr)\
+    \ + option_bytes;\n        struct __ctx_buff *ctx = builder->ctx;\n        struct\
+    \ iphdr *layer;\n        int layer_idx;\n\n        if (option_bytes > MAX_IPOPTLEN)\n\
+    \                return 0;\n\n        /* Request additional tailroom, and check\
+    \ that we got it. */\n        ctx_adjust_troom(ctx, builder->cur_off + length\
+    \ - ctx_full_len(ctx));\n        if (ctx_data(ctx) + builder->cur_off + length\
+    \ > ctx_data_end(ctx))\n                return 0;\n\n        /* Check that any\
+    \ value within the struct will not exceed a u16 which\n         * is the max allowed\
+    \ offset within a packet from ctx->data.\n         */\n        if (builder->cur_off\
+    \ >= MAX_PACKET_OFF - length)\n                return 0;\n\n        layer = ctx_data(ctx)\
+    \ + builder->cur_off;\n        layer_idx = pktgen__free_layer(builder);\n\n  \
+    \      if (layer_idx < 0)\n                return 0;\n\n        builder->layers[layer_idx]\
+    \ = PKT_LAYER_IPV4;\n        builder->layer_offsets[layer_idx] = builder->cur_off;\n\
+    \        builder->cur_off += length;\n\n        return layer;\n}"
+  fixed_code: "// FILE: bpf/tests/ipv6_test.c\n// CONTEXT: int ipv6_without_extension_header_pktgen(struct\
+    \ __ctx_buff *ctx)\n        return 0;\n}\n\nSETUP(\"xdp\", \"ipv6_without_extension_header\"\
+    )\nint ipv6_without_extension_header_setup(__maybe_unused struct __ctx_buff *ctx)\n\
+    {\n        return 123;\n}\n\nCHECK(\"xdp\", \"ipv6_without_extension_header\"\
+    )\nint ipv6_without_extension_header_check(struct __ctx_buff *ctx)\n{\n      \
+    \  void *data, *data_end;\n        struct ethhdr *l2;\n        struct ipv6hdr\
+    \ *l3;\n        __u32 *status_code;\n        __u8 nexthdr;\n\n        test_init();\n\
+    \n        data = ctx_data(ctx);\n        data_end = ctx_data_end(ctx);\n\n   \
+    \     if (data + sizeof(__u32) > data_end)\n                test_fatal(\"status\
+    \ code out of bounds\");\n\n        status_code = data;\n        assert(*status_code\
+    \ == 123);\n\n        xdp_adjust_head(ctx, 4);\n\n        data = ctx_data(ctx);\n\
+    \        data_end = ctx_data_end(ctx);\n\n        l2 = data;\n        if ((void\
+    \ *)(l2 + 1) > data_end)\n                test_fatal(\"l2 out of bounds\");\n\n\
+    \        assert(l2->h_proto == __bpf_htons(ETH_P_IPV6));\n\n        l3 = (void\
+    \ *)l2 + ETH_HLEN;\n        if ((void *)(l3 + 1) > data_end)\n               \
+    \ test_fatal(\"l3 out of bounds\");\n\n        nexthdr = l3->nexthdr;\n      \
+    \  assert(ipv6_hdrlen(ctx, &nexthdr) > 0);\n        assert(nexthdr == IPPROTO_TCP);\n\
+    \n        test_finish();\n}\n\nstruct ipv6_authhdr {\n        struct ipv6_opt_hdr\
+    \ opt;\n        __u16 reserved;\n\n// CONTEXT: int ipv6_with_hop_auth_tcp_pktgen(struct\
+    \ __ctx_buff *ctx)\n        return 0;\n}\n\nSETUP(\"xdp\", \"ipv6_with_auth_hop_tcp\"\
+    )\nint ipv6_with_hop_auth_tcp_setup(__maybe_unused struct __ctx_buff *ctx)\n{\n\
+    \        return 1234;\n}\n\nCHECK(\"xdp\", \"ipv6_with_auth_hop_tcp\")\nint ipv6_with_hop_auth_tcp_check(struct\
+    \ __ctx_buff *ctx)\n{\n        void *data, *data_end;\n        struct ethhdr *l2;\n\
+    \        struct ipv6hdr *l3;\n        __u32 *status_code;\n        __u8 nexthdr;\n\
+    \n        test_init();\n\n        data = ctx_data(ctx);\n        data_end = ctx_data_end(ctx);\n\
+    \n        if (data + sizeof(__u32) > data_end)\n                test_fatal(\"\
+    status code out of bounds\");\n\n        status_code = data;\n        assert(*status_code\
+    \ == 1234);\n\n        xdp_adjust_head(ctx, 4);\n\n        data = ctx_data(ctx);\n\
+    \        data_end = ctx_data_end(ctx);\n\n        l2 = data;\n        if ((void\
+    \ *)(l2 + 1) > data_end)\n                test_fatal(\"l2 out of bounds\");\n\n\
+    \        assert(l2->h_proto == __bpf_htons(ETH_P_IPV6));\n\n        l3 = (void\
+    \ *)l2 + ETH_HLEN;\n        if ((void *)(l3 + 1) > data_end)\n               \
+    \ test_fatal(\"l3 out of bounds\");\n\n        nexthdr = l3->nexthdr;\n      \
+    \  assert(ipv6_hdrlen(ctx, &nexthdr) > 0);\n        assert(nexthdr == IPPROTO_TCP);\n\
+    \n        test_finish();\n}\n\nCHECK(\"xdp\", \"ipv6\")\nint bpf_test(__maybe_unused\
+    \ struct xdp_md *ctx)\n{\n\n// FILE: bpf/tests/pktgen.h\n// CONTEXT: int pktgen__free_layer(const\
+    \ struct pktgen *builder)\n\n        return -1;\n}\n\n/* Push an empty ethernet\
+    \ header onto the packet */\nstatic __always_inline\n__attribute__((warn_unused_result))\n\
+    struct ethhdr *pktgen__push_ethhdr(struct pktgen *builder)\n{\n        struct\
+    \ __ctx_buff *ctx = builder->ctx;\n        struct ethhdr *layer;\n        int\
+    \ layer_idx;\n        void *data;\n\n        /* Request additional tailroom, and\
+    \ check that we got it. */\n        ctx_adjust_troom(ctx, builder->cur_off + sizeof(struct\
+    \ ethhdr) - ctx_full_len(ctx));\n        data = ctx_data(ctx);\n        if (data\
+    \ + builder->cur_off + sizeof(struct ethhdr) > ctx_data_end(ctx))\n          \
+    \      return 0;\n\n        /* Check that any value within the struct will not\
+    \ exceed a u16 which\n         * is the max allowed offset within a packet from\
+    \ ctx->data.\n         */\n        if (builder->cur_off >= MAX_PACKET_OFF - sizeof(struct\
+    \ ethhdr))\n                return 0;\n\n        layer = data + builder->cur_off;\n\
+    \        layer_idx = pktgen__free_layer(builder);\n\n        if (layer_idx < 0)\n\
+    \                return 0;\n\n        builder->layers[layer_idx] = PKT_LAYER_ETH;\n\
+    \        builder->layer_offsets[layer_idx] = builder->cur_off;\n        builder->cur_off\
+    \ += sizeof(struct ethhdr);\n\n        return layer;\n}\n\n\n// CONTEXT: void\
+    \ ethhdr__set_macs(struct ethhdr *l2, unsigned char *src, unsigned char *dst)\n\
+    {\n        memcpy(l2->h_source, src, ETH_ALEN);\n        memcpy(l2->h_dest, dst,\
+    \ ETH_ALEN);\n}\n\n/* Push an empty IPv4 header onto the packet */\nstatic __always_inline\n\
+    __attribute__((warn_unused_result))\nstruct iphdr *pktgen__push_iphdr(struct pktgen\
+    \ *builder, __u32 option_bytes)\n{\n        __u32 length = sizeof(struct iphdr)\
+    \ + option_bytes;\n        struct __ctx_buff *ctx = builder->ctx;\n        void\
+    \ *data, *data_end;\n        struct iphdr *layer;\n        int layer_idx;\n\n\
+    \        if (option_bytes > MAX_IPOPTLEN)\n                return 0;\n\n     \
+    \   /* Request additional tailroom, and check that we got it. */\n        ctx_adjust_troom(ctx,\
+    \ builder->cur_off + length - ctx_full_len(ctx));\n        data = ctx_data(ctx);\n\
+    \        data_end = ctx_data_end(ctx);\n        if (data + builder->cur_off +\
+    \ length > data_end)\n                return 0;\n\n        /* Check that any value\
+    \ within the struct will not exceed a u16 which\n         * is the max allowed\
+    \ offset within a packet from ctx->data.\n         */\n        if (builder->cur_off\
+    \ >= MAX_PACKET_OFF - length)\n                return 0;\n\n        layer = data\
+    \ + builder->cur_off;\n        layer_idx = pktgen__free_layer(builder);\n\n  \
+    \      if (layer_idx < 0)\n                return 0;\n\n        builder->layers[layer_idx]\
+    \ = PKT_LAYER_IPV4;\n        builder->layer_offsets[layer_idx] = builder->cur_off;\n\
+    \        builder->cur_off += length;\n\n        return layer;\n}"
+  diff_summary: 'bpf/tests/ipv6_test.c, bpf/tests/pktgen.h:
+
+    - Cached `ctx_data()` and `ctx_data_end()` results in locals.
+
+    - Reused those locals for packet construction and validation so inline-asm-based
+    context access does not reset verifier packet-pointer tracking.'
+

@@ -1,0 +1,136 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-847014aa62f9
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/847014aa62f94e5a53178670cad1eacea455b227
+  title: 'bpf: Avoid 32bit assignment of packet pointer'
+  repository: https://github.com/cilium/cilium
+  commit: 847014aa62f94e5a53178670cad1eacea455b227
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-847014aa62f9.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-847014aa62f9
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: 847014aa62f94e5a53178670cad1eacea455b227
+  commit_message: 'bpf: Avoid 32bit assignment of packet pointer'
+  commit_date: '2022-02-03'
+  fix_type: refactor
+  buggy_code: "// FILE: bpf/include/bpf/ctx/common.h\n#ifndef __BPF_CTX_COMMON_H_\n\
+    #define __BPF_CTX_COMMON_H_\n\n#include <linux/types.h>\n#include <linux/bpf.h>\n\
+    \n#include \"../compiler.h\"\n#include \"../errno.h\"\n\n#define __ctx_skb   \
+    \            1\n#define __ctx_xdp               2\n\nstatic __always_inline void\
+    \ *ctx_data(const struct __ctx_buff *ctx)\n{\n        return (void *)(unsigned\
+    \ long)ctx->data;\n}\n\nstatic __always_inline void *ctx_data_meta(const struct\
+    \ __ctx_buff *ctx)\n{\n        return (void *)(unsigned long)ctx->data_meta;\n\
+    }\n\nstatic __always_inline void *ctx_data_end(const struct __ctx_buff *ctx)\n\
+    {\n        return (void *)(unsigned long)ctx->data_end;\n}\n\nstatic __always_inline\
+    \ bool ctx_no_room(const void *needed, const void *limit)\n{\n        return unlikely(needed\
+    \ > limit);\n}\n\n#endif /* __BPF_CTX_COMMON_H_ */\n\n// FILE: bpf/include/bpf/ctx/skb.h\n\
+    \n#define ctx_event_output        skb_event_output\n\n#define ctx_adjust_meta\
+    \         ({ -ENOTSUPP; })\n\n/* Avoid expensive calls into the kernel flow dissector\
+    \ if it's not an L4\n * hash. We currently only use the hash for debugging. If\
+    \ needed later, we\n * can map it to BPF_FUNC(get_hash_recalc) to get the L4 hash.\n\
+    \ */\n#define get_hash(ctx)           ctx->hash\n#define get_hash_recalc(ctx)\
+    \    get_hash(ctx)\n\nstatic __always_inline __maybe_unused int\nctx_redirect(const\
+    \ struct __sk_buff *ctx __maybe_unused, int ifindex, __u32 flags)\n{\n       \
+    \ return redirect(ifindex, flags);\n}\n\nstatic __always_inline __maybe_unused\
+    \ int\nctx_redirect_peer(const struct __sk_buff *ctx __maybe_unused, int ifindex,\
+    \ __u32 flags)\n{\n        return redirect_peer(ifindex, flags);\n}\n\n// FILE:\
+    \ bpf/include/bpf/ctx/xdp.h\n// CONTEXT: xdp_store_bytes(const struct xdp_md *ctx,\
+    \ __u64 off, const void *from,\n#define ctx_set_tunnel_key              xdp_set_tunnel_key__stub\n\
+    \n#define ctx_get_tunnel_opt              xdp_get_tunnel_opt__stub\n#define ctx_set_tunnel_opt\
+    \              xdp_set_tunnel_opt__stub\n\n#define ctx_event_output          \
+    \      xdp_event_output\n\n#define ctx_adjust_meta                 xdp_adjust_meta\n\
+    \n#define get_hash(ctx)                   ({ 0; })\n#define get_hash_recalc(ctx)\
+    \            get_hash(ctx)\n\nstatic __always_inline __maybe_unused void\n__csum_replace_by_diff(__sum16\
+    \ *sum, __wsum diff)\n{\n        *sum = csum_fold(csum_add(diff, ~csum_unfold(*sum)));\n\
+    }\n\nstatic __always_inline __maybe_unused void\n__csum_replace_by_4(__sum16 *sum,\
+    \ __wsum from, __wsum to)\n{\n        __csum_replace_by_diff(sum, csum_add(~from,\
+    \ to));\n}"
+  fixed_code: "// FILE: bpf/include/bpf/ctx/common.h\n#ifndef __BPF_CTX_COMMON_H_\n\
+    #define __BPF_CTX_COMMON_H_\n\n#include <linux/types.h>\n#include <linux/bpf.h>\n\
+    \n#include \"../compiler.h\"\n#include \"../errno.h\"\n\n#define __ctx_skb   \
+    \            1\n#define __ctx_xdp               2\n\nstatic __always_inline bool\
+    \ ctx_no_room(const void *needed, const void *limit)\n{\n        return unlikely(needed\
+    \ > limit);\n}\n\n#endif /* __BPF_CTX_COMMON_H_ */\n\n// FILE: bpf/include/bpf/ctx/skb.h\n\
+    \n#define ctx_event_output        skb_event_output\n\n#define ctx_adjust_meta\
+    \         ({ -ENOTSUPP; })\n\n/* Avoid expensive calls into the kernel flow dissector\
+    \ if it's not an L4\n * hash. We currently only use the hash for debugging. If\
+    \ needed later, we\n * can map it to BPF_FUNC(get_hash_recalc) to get the L4 hash.\n\
+    \ */\n#define get_hash(ctx)           ctx->hash\n#define get_hash_recalc(ctx)\
+    \    get_hash(ctx)\n\n#define DEFINE_FUNC_CTX_POINTER(FIELD)                 \
+    \                         \\\nstatic __always_inline void *                  \
+    \                                 \\\nctx_ ## FIELD(const struct __sk_buff *ctx)\
+    \                                      \\\n{                                 \
+    \                                              \\\n        void *ptr;        \
+    \                                                      \\\n                  \
+    \                                                              \\\n        /*\
+    \ LLVM may generate u32 assignments of ctx->{data,data_end,data_meta}. \\\n  \
+    \       * With this inline asm, LLVM loses track of the fact this field is on\
+    \  \\\n         * 32 bits.                                                   \
+    \          \\\n         */                                                   \
+    \                  \\\n        asm volatile(\"%0 = *(u32 *)(%1 + %2)\"       \
+    \                            \\\n                     : \"=r\"(ptr)          \
+    \                                      \\\n                     : \"r\"(ctx),\
+    \ \"i\"(offsetof(struct __sk_buff, FIELD)));       \\\n        return ptr;   \
+    \                                                          \\\n}\n/* This defines\
+    \ ctx_data(). */\nDEFINE_FUNC_CTX_POINTER(data)\n/* This defines ctx_data_end().\
+    \ */\nDEFINE_FUNC_CTX_POINTER(data_end)\n/* This defines ctx_data_meta(). */\n\
+    DEFINE_FUNC_CTX_POINTER(data_meta)\n#undef DEFINE_FUNC_CTX_POINTER\n\nstatic __always_inline\
+    \ __maybe_unused int\nctx_redirect(const struct __sk_buff *ctx __maybe_unused,\
+    \ int ifindex, __u32 flags)\n{\n        return redirect(ifindex, flags);\n}\n\n\
+    static __always_inline __maybe_unused int\nctx_redirect_peer(const struct __sk_buff\
+    \ *ctx __maybe_unused, int ifindex, __u32 flags)\n{\n        return redirect_peer(ifindex,\
+    \ flags);\n}\n\n// FILE: bpf/include/bpf/ctx/xdp.h\n// CONTEXT: xdp_store_bytes(const\
+    \ struct xdp_md *ctx, __u64 off, const void *from,\n#define ctx_set_tunnel_key\
+    \              xdp_set_tunnel_key__stub\n\n#define ctx_get_tunnel_opt        \
+    \      xdp_get_tunnel_opt__stub\n#define ctx_set_tunnel_opt              xdp_set_tunnel_opt__stub\n\
+    \n#define ctx_event_output                xdp_event_output\n\n#define ctx_adjust_meta\
+    \                 xdp_adjust_meta\n\n#define get_hash(ctx)                   ({\
+    \ 0; })\n#define get_hash_recalc(ctx)            get_hash(ctx)\n\n#define DEFINE_FUNC_CTX_POINTER(FIELD)\
+    \                                          \\\nstatic __always_inline void * \
+    \                                                  \\\nctx_ ## FIELD(const struct\
+    \ xdp_md *ctx)                                         \\\n{                 \
+    \                                                              \\\n        void\
+    \ *ptr;                                                              \\\n    \
+    \                                                                            \\\
+    \n        /* LLVM may generate u32 assignments of ctx->{data,data_end,data_meta}.\
+    \ \\\n         * With this inline asm, LLVM loses track of the fact this field\
+    \ is on  \\\n         * 32 bits.                                             \
+    \                \\\n         */                                             \
+    \                        \\\n        asm volatile(\"%0 = *(u32 *)(%1 + %2)\" \
+    \                                  \\\n                     : \"=r\"(ptr)    \
+    \                                            \\\n                     : \"r\"\
+    (ctx), \"i\"(offsetof(struct xdp_md, FIELD)));          \\\n        return ptr;\
+    \                                                             \\\n}\n/* This defines\
+    \ ctx_data(). */\nDEFINE_FUNC_CTX_POINTER(data)\n/* This defines ctx_data_end().\
+    \ */\nDEFINE_FUNC_CTX_POINTER(data_end)\n/* This defines ctx_data_meta(). */\n\
+    DEFINE_FUNC_CTX_POINTER(data_meta)\n#undef DEFINE_FUNC_CTX_POINTER\n\nstatic __always_inline\
+    \ __maybe_unused void\n__csum_replace_by_diff(__sum16 *sum, __wsum diff)\n{\n\
+    \        *sum = csum_fold(csum_add(diff, ~csum_unfold(*sum)));\n}\n\nstatic __always_inline\
+    \ __maybe_unused void\n__csum_replace_by_4(__sum16 *sum, __wsum from, __wsum to)\n\
+    {\n        __csum_replace_by_diff(sum, csum_add(~from, to));\n}"
+  diff_summary: 'bpf/include/bpf/ctx/common.h, bpf/include/bpf/ctx/skb.h, bpf/include/bpf/ctx/xdp.h:
+
+    - Replaced the generic ctx pointer helpers with inline-asm field loads in the
+    skb/xdp backends.
+
+    - Prevented LLVM from lowering packet-pointer reads into 32-bit assignments that
+    the verifier could no longer track as packet pointers.'
+

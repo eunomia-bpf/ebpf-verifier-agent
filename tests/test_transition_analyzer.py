@@ -78,21 +78,14 @@ def _make_insn(
 
 
 def _load_case(relative_path: str) -> dict:
-    path = ROOT / relative_path
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+    from bench_fixtures import load_case
 
+    return load_case(relative_path)
 
 def _verifier_log(case_path: str) -> str:
-    payload = _load_case(case_path)
-    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
-    if isinstance(verifier_log, str):
-        return verifier_log
-    combined = verifier_log.get("combined")
-    if isinstance(combined, str) and combined.strip():
-        return combined
-    return "\n".join(
-        block for block in verifier_log.get("blocks", []) if isinstance(block, str)
-    )
+    from bench_fixtures import load_verifier_log
+
+    return load_verifier_log(case_path)
 
 
 # ---------------------------------------------------------------------------
@@ -597,7 +590,7 @@ class TestIntegrationWithRealCases:
         After insn 22 (r0 |= r6), R0 loses its scalar bounds because OR destroys the
         tnum tracking. The verifier then cannot prove r5 += r0 is bounded.
         """
-        log = self._get_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        log = self._get_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
         parsed = parse_trace(log)
 
         chain = analyze_transitions(parsed.instructions, {"R0", "R5"})
@@ -618,7 +611,7 @@ class TestIntegrationWithRealCases:
 
     def test_sni_case_transition_chain_has_reason(self):
         """Every non-neutral transition should have a non-empty reason."""
-        log = self._get_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        log = self._get_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
         parsed = parse_trace(log)
 
         chain = analyze_transitions(parsed.instructions, {"R0", "R5"})
@@ -629,7 +622,7 @@ class TestIntegrationWithRealCases:
 
     def test_sni_case_transition_details_have_insn_idx(self):
         """All transitions should reference valid instruction indices."""
-        log = self._get_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        log = self._get_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
         parsed = parse_trace(log)
         valid_idxs = {insn.insn_idx for insn in parsed.instructions}
 
@@ -642,7 +635,7 @@ class TestIntegrationWithRealCases:
 
     def test_sni_case_establish_point_is_narrowing(self):
         """If establish_point is set, its effect must be NARROWING."""
-        log = self._get_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        log = self._get_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
         parsed = parse_trace(log)
 
         chain = analyze_transitions(parsed.instructions, {"R5"})
@@ -653,7 +646,7 @@ class TestIntegrationWithRealCases:
     def test_packet_case_basic(self):
         """Verify the analyzer runs on a packet bounds case."""
         try:
-            log = self._get_log("case_study/cases/stackoverflow/stackoverflow-70729664.yaml")
+            log = self._get_log("bpfix-bench/raw/so/stackoverflow-70729664.yaml")
         except (FileNotFoundError, KeyError):
             # Skip if file not found
             return

@@ -1,0 +1,129 @@
+case_id: kernel-selftest-dynptr-fail-add-dynptr-to-map2-raw-tp-7a037daf
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: add_dynptr_to_map2
+  description: add_dynptr_to_map2
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - invalid read from stack
+  unprivileged: []
+  combined:
+  - invalid read from stack
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (b4) w1 = 0
+    1: .1........ (63) *(u32 *)(r10 -28) = r1
+    2: .......... (18) r1 = 0xffffd10b70aa2000
+    4: .1........ (61) r2 = *(u32 *)(r1 +0)
+    5: ..2....... (bf) r6 = r10
+    6: ..2...6... (07) r6 += -16
+    7: ..2...6... (18) r1 = 0xffff8d56690ed600
+    9: .12...6... (b7) r3 = 0
+   10: .123..6... (bf) r4 = r6
+   11: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+   12: ......6... (bf) r2 = r10
+   13: ..2...6... (07) r2 += -28
+   14: ..2...6... (bf) r3 = r10
+   15: ..23..6... (07) r3 += -24
+   16: ..23..6... (18) r1 = 0xffff8d4be34db400
+   18: .123..6... (b7) r4 = 0
+   19: .1234.6... (85) call bpf_map_update_elem#2
+   20: ......6... (bf) r1 = r6
+   21: .1........ (b7) r2 = 0
+   22: .12....... (85) call bpf_ringbuf_submit_dynptr#199
+   23: .......... (b4) w0 = 0
+   24: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int add_dynptr_to_map2(void *ctx) @ dynptr_fail.c:214
+  0: (b4) w1 = 0                        ; R1_w=0
+  ; int key = 0; @ dynptr_fail.c:217
+  1: (63) *(u32 *)(r10 -28) = r1
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r1 stack= before 0: (b4) w1 = 0
+  2: R1_w=0 R10=fp0 fp-32=0000????
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, val, 0, &x.ptr); @ dynptr_fail.c:219
+  2: (18) r1 = 0xffffd10b70aa2000       ; R1_w=map_value(map=dynptr_f.bss,ks=4,vs=28)
+  4: (61) r2 = *(u32 *)(r1 +0)          ; R1_w=map_value(map=dynptr_f.bss,ks=4,vs=28) R2_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+  5: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  6: (07) r6 += -16                     ; R6_w=fp-16
+  7: (18) r1 = 0xffff8d56690ed600       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  9: (b7) r3 = 0                        ; R3_w=0
+  10: (bf) r4 = r6                      ; R4_w=fp-16 R6_w=fp-16
+  11: (85) call bpf_ringbuf_reserve_dynptr#198          ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  12: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0 refs=2
+  ; int key = 0; @ dynptr_fail.c:217
+  13: (07) r2 += -28                    ; R2_w=fp-28 refs=2
+  14: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0 refs=2
+  15: (07) r3 += -24                    ; R3_w=fp-24 refs=2
+  ; bpf_map_update_elem(&array_map2, &key, &x, 0); @ dynptr_fail.c:222
+  16: (18) r1 = 0xffff8d4be34db400      ; R1_w=map_ptr(map=array_map2,ks=4,vs=24) refs=2
+  18: (b7) r4 = 0                       ; R4_w=0 refs=2
+  19: (85) call bpf_map_update_elem#2
+  invalid read from stack R3 off -24+8 size 24
+  processed 17 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (b4) w1 = 0
+    1: .1........ (63) *(u32 *)(r10 -28) = r1
+    2: .......... (18) r1 = 0xffffd2b8ce652000
+    4: .1........ (61) r2 = *(u32 *)(r1 +0)
+    5: ..2....... (bf) r6 = r10
+    6: ..2...6... (07) r6 += -16
+    7: ..2...6... (18) r1 = 0xffff8f01868d9500
+    9: .12...6... (b7) r3 = 0
+   10: .123..6... (bf) r4 = r6
+   11: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+   12: ......6... (bf) r2 = r10
+   13: ..2...6... (07) r2 += -28
+   14: ..2...6... (bf) r3 = r10
+   15: ..23..6... (07) r3 += -24
+   16: ..23..6... (18) r1 = 0xffff8f0149fe7400
+   18: .123..6... (b7) r4 = 0
+   19: .1234.6... (85) call bpf_map_update_elem#2
+   20: ......6... (bf) r1 = r6
+   21: .1........ (b7) r2 = 0
+   22: .12....... (85) call bpf_ringbuf_submit_dynptr#199
+   23: .......... (b4) w0 = 0
+   24: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int add_dynptr_to_map2(void *ctx) @ prog.c:75
+  0: (b4) w1 = 0                        ; R1_w=0
+  ; int key = 0; @ prog.c:78
+  1: (63) *(u32 *)(r10 -28) = r1
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r1 stack= before 0: (b4) w1 = 0
+  2: R1_w=0 R10=fp0 fp-32=0000????
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, val, 0, &x.ptr); @ prog.c:80
+  2: (18) r1 = 0xffffd2b8ce652000       ; R1_w=map_value(map=prog.bss,ks=4,vs=24)
+  4: (61) r2 = *(u32 *)(r1 +0)          ; R1_w=map_value(map=prog.bss,ks=4,vs=24) R2_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+  5: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  6: (07) r6 += -16                     ; R6_w=fp-16
+  7: (18) r1 = 0xffff8f01868d9500       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  9: (b7) r3 = 0                        ; R3_w=0
+  10: (bf) r4 = r6                      ; R4_w=fp-16 R6_w=fp-16
+  11: (85) call bpf_ringbuf_reserve_dynptr#198          ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  12: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0 refs=2
+  ; int key = 0; @ prog.c:78
+  13: (07) r2 += -28                    ; R2_w=fp-28 refs=2
+  14: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0 refs=2
+  15: (07) r3 += -24                    ; R3_w=fp-24 refs=2
+  ; bpf_map_update_elem(&array_map2, &key, &x, 0); @ prog.c:83
+  16: (18) r1 = 0xffff8f0149fe7400      ; R1_w=map_ptr(map=array_map2,ks=4,vs=24) refs=2
+  18: (b7) r4 = 0                       ; R4_w=0 refs=2
+  19: (85) call bpf_map_update_elem#2
+  invalid read from stack R3 off -24+8 size 24
+  processed 17 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"invalid read from stack\")\nint add_dynptr_to_map2(void *ctx)\n{\n\tstruct test_info x;\n\tint key = 0;\n\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, val, 0, &x.ptr);\n\n\t/* this should fail */\n\tbpf_map_update_elem(&array_map2, &key, &x, 0);\n\n\tbpf_ringbuf_submit_dynptr(&x.ptr, 0);\n\n\treturn 0;\n}\n\n/* A data slice can't be accessed out of bounds */"

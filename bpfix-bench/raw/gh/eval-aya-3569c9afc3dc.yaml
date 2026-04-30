@@ -1,0 +1,433 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-aya-3569c9afc3dc
+source_kind: github_commit
+source:
+  url: https://github.com/aya-rs/aya/commit/3569c9afc3dc7babb6b44aa071828df7c8864834
+  title: 'aya-ebpf: Take `c_void` instead of `bpf_map_def` in map helpers'
+  repository: https://github.com/aya-rs/aya
+  commit: 3569c9afc3dc7babb6b44aa071828df7c8864834
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-aya-3569c9afc3dc.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-aya-3569c9afc3dc
+  source: eval_commits
+  repository: https://github.com/aya-rs/aya
+  commit_hash: 3569c9afc3dc7babb6b44aa071828df7c8864834
+  commit_message: 'aya-ebpf: Take `c_void` instead of `bpf_map_def` in map helpers'
+  commit_date: '2025-09-07'
+  fix_type: inline_hint
+  buggy_code: "// FILE: ebpf/aya-ebpf/src/lib.rs\n#![warn(clippy::cast_lossless, clippy::cast_sign_loss)]\n\
+    #![no_std]\n\npub use aya_ebpf_bindings::bindings;\n\nmod args;\npub use args::{PtRegs,\
+    \ RawTracepointArgs};\n#[expect(clippy::missing_safety_doc, unsafe_op_in_unsafe_fn)]\n\
+    pub mod helpers;\npub mod maps;\npub mod programs;\n\nuse core::{ffi::c_void,\
+    \ ptr::NonNull};\n\npub use aya_ebpf_cty as cty;\npub use aya_ebpf_macros as macros;\n\
+    use cty::c_long;\nuse helpers::{\n    bpf_get_current_comm, bpf_get_current_pid_tgid,\
+    \ bpf_get_current_uid_gid, bpf_map_delete_elem,\n    bpf_map_lookup_elem, bpf_map_update_elem,\n\
+    };\n\npub const TASK_COMM_LEN: usize = 16;\n\npub trait EbpfContext {\n    fn\
+    \ as_ptr(&self) -> *mut c_void;\n\n    #[inline]\n    fn command(&self) -> Result<[u8;\
+    \ TASK_COMM_LEN], c_long> {\n\n// CONTEXT: pub fn check_bounds_signed(value: i64,\
+    \ lower: i64, upper: i64) -> bool {\n    }\n    // We only need this for doc tests\
+    \ which are compiled for the host target\n    #[cfg(not(target_arch = \"bpf\"\
+    ))]\n    {\n        let _ = value;\n        let _ = lower;\n        let _ = upper;\n\
+    \        unimplemented!()\n    }\n}\n\n#[inline]\nfn insert<K, V>(\n    def: *mut\
+    \ bindings::bpf_map_def,\n    key: &K,\n    value: &V,\n    flags: u64,\n) ->\
+    \ Result<(), c_long> {\n    let key: *const _ = key;\n    let value: *const _\
+    \ = value;\n    match unsafe { bpf_map_update_elem(def.cast(), key.cast(), value.cast(),\
+    \ flags) } {\n        0 => Ok(()),\n        ret => Err(ret),\n    }\n}\n\n#[inline]\n\
+    fn remove<K>(def: *mut bindings::bpf_map_def, key: &K) -> Result<(), c_long> {\n\
+    \    let key: *const _ = key;\n    match unsafe { bpf_map_delete_elem(def.cast(),\
+    \ key.cast()) } {\n        0 => Ok(()),\n        ret => Err(ret),\n    }\n}\n\n\
+    #[inline]\nfn lookup<K, V>(def: *mut bindings::bpf_map_def, key: &K) -> Option<NonNull<V>>\
+    \ {\n    let key: *const _ = key;\n    NonNull::new(unsafe { bpf_map_lookup_elem(def.cast(),\
+    \ key.cast()) }.cast())\n}\n\n// FILE: ebpf/aya-ebpf/src/maps/array.rs\n// CONTEXT:\
+    \ impl<T> Array<T> {\n    #[inline(always)]\n    pub fn get_ptr(&self, index:\
+    \ u32) -> Option<*const T> {\n        unsafe { self.lookup(index).map(|p| p.as_ptr()\
+    \ as *const T) }\n    }\n\n    #[inline(always)]\n    pub fn get_ptr_mut(&self,\
+    \ index: u32) -> Option<*mut T> {\n        unsafe { self.lookup(index).map(|p|\
+    \ p.as_ptr()) }\n    }\n\n    #[inline(always)]\n    unsafe fn lookup(&self, index:\
+    \ u32) -> Option<NonNull<T>> {\n        lookup(self.def.get(), &index)\n    }\n\
+    \n    /// Sets the value of the element at the given index.\n    #[inline(always)]\n\
+    \    pub fn set(&self, index: u32, value: &T, flags: u64) -> Result<(), c_long>\
+    \ {\n        insert(self.def.get(), &index, value, flags)\n    }\n}\n\n// FILE:\
+    \ ebpf/aya-ebpf/src/maps/hash_map.rs\n// CONTEXT: impl<K, V> HashMap<K, V> {\n\
+    \n    /// Retrieve the value associate with `key` from the map.\n    /// The same\
+    \ caveat as `get` applies, and additionally cares should be taken to avoid\n \
+    \   /// concurrent writes, but it's up to the caller to decide whether it's safe\
+    \ to dereference the\n    /// pointer or not.\n    #[inline]\n    pub fn get_ptr_mut(&self,\
+    \ key: &K) -> Option<*mut V> {\n        get_ptr_mut(self.def.get(), key)\n   \
+    \ }\n\n    #[inline]\n    pub fn insert(&self, key: &K, value: &V, flags: u64)\
+    \ -> Result<(), c_long> {\n        insert(self.def.get(), key, value, flags)\n\
+    \    }\n\n    #[inline]\n    pub fn remove(&self, key: &K) -> Result<(), c_long>\
+    \ {\n        remove(self.def.get(), key)\n    }\n}\n\n#[repr(transparent)]\npub\
+    \ struct LruHashMap<K, V> {\n    def: UnsafeCell<bpf_map_def>,\n    _k: PhantomData<K>,\n\
+    \    _v: PhantomData<V>,\n}\n\nunsafe impl<K: Sync, V: Sync> Sync for LruHashMap<K,\
+    \ V> {}\n\n\n// CONTEXT: impl<K, V> LruHashMap<K, V> {\n\n    /// Retrieve the\
+    \ value associate with `key` from the map.\n    /// The same caveat as `get` applies,\
+    \ and additionally cares should be taken to avoid\n    /// concurrent writes,\
+    \ but it's up to the caller to decide whether it's safe to dereference the\n \
+    \   /// pointer or not.\n    #[inline]\n    pub fn get_ptr_mut(&self, key: &K)\
+    \ -> Option<*mut V> {\n        get_ptr_mut(self.def.get(), key)\n    }\n\n   \
+    \ #[inline]\n    pub fn insert(&self, key: &K, value: &V, flags: u64) -> Result<(),\
+    \ c_long> {\n        insert(self.def.get(), key, value, flags)\n    }\n\n    #[inline]\n\
+    \    pub fn remove(&self, key: &K) -> Result<(), c_long> {\n        remove(self.def.get(),\
+    \ key)\n    }\n}\n\n#[repr(transparent)]\npub struct PerCpuHashMap<K, V> {\n \
+    \   def: UnsafeCell<bpf_map_def>,\n    _k: PhantomData<K>,\n    _v: PhantomData<V>,\n\
+    }\n\nunsafe impl<K, V> Sync for PerCpuHashMap<K, V> {}\n\n\n// CONTEXT: impl<K,\
+    \ V> PerCpuHashMap<K, V> {\n\n    /// Retrieve the value associate with `key`\
+    \ from the map.\n    /// The same caveat as `get` applies, and additionally cares\
+    \ should be taken to avoid\n    /// concurrent writes, but it's up to the caller\
+    \ to decide whether it's safe to dereference the\n    /// pointer or not.\n  \
+    \  #[inline]\n    pub fn get_ptr_mut(&self, key: &K) -> Option<*mut V> {\n   \
+    \     get_ptr_mut(self.def.get(), key)\n    }\n\n    #[inline]\n    pub fn insert(&self,\
+    \ key: &K, value: &V, flags: u64) -> Result<(), c_long> {\n        insert(self.def.get(),\
+    \ key, value, flags)\n    }\n\n    #[inline]\n    pub fn remove(&self, key: &K)\
+    \ -> Result<(), c_long> {\n        remove(self.def.get(), key)\n    }\n}\n\n#[repr(transparent)]\n\
+    pub struct LruPerCpuHashMap<K, V> {\n    def: UnsafeCell<bpf_map_def>,\n    _k:\
+    \ PhantomData<K>,\n    _v: PhantomData<V>,\n}\n\nunsafe impl<K, V> Sync for LruPerCpuHashMap<K,\
+    \ V> {}\n\n\n// CONTEXT: impl<K, V> LruPerCpuHashMap<K, V> {\n\n    /// Retrieve\
+    \ the value associate with `key` from the map.\n    /// The same caveat as `get`\
+    \ applies, and additionally cares should be taken to avoid\n    /// concurrent\
+    \ writes, but it's up to the caller to decide whether it's safe to dereference\
+    \ the\n    /// pointer or not.\n    #[inline]\n    pub fn get_ptr_mut(&self, key:\
+    \ &K) -> Option<*mut V> {\n        get_ptr_mut(self.def.get(), key)\n    }\n\n\
+    \    #[inline]\n    pub fn insert(&self, key: &K, value: &V, flags: u64) -> Result<(),\
+    \ c_long> {\n        insert(self.def.get(), key, value, flags)\n    }\n\n    #[inline]\n\
+    \    pub fn remove(&self, key: &K) -> Result<(), c_long> {\n        remove(self.def.get(),\
+    \ key)\n    }\n}\n\nconst fn build_def<K, V>(ty: u32, max_entries: u32, flags:\
+    \ u32, pin: PinningType) -> bpf_map_def {\n    bpf_map_def {\n        type_: ty,\n\
+    \        key_size: mem::size_of::<K>() as u32,\n        value_size: mem::size_of::<V>()\
+    \ as u32,\n        max_entries,\n        map_flags: flags,\n        id: 0,\n \
+    \       pinning: pin as u32,\n    }\n}\n\n#[inline]\nfn get_ptr_mut<K, V>(def:\
+    \ *mut bpf_map_def, key: &K) -> Option<*mut V> {\n    lookup(def, key).map(|p|\
+    \ p.as_ptr())\n}\n\n#[inline]\nfn get_ptr<K, V>(def: *mut bpf_map_def, key: &K)\
+    \ -> Option<*const V> {\n    get_ptr_mut(def, key).map(|p| p as *const V)\n}\n\
+    \n#[inline]\nunsafe fn get<'a, K, V>(def: *mut bpf_map_def, key: &K) -> Option<&'a\
+    \ V> {\n    get_ptr(def, key).map(|p| unsafe { &*p })\n}\n\n// FILE: ebpf/aya-ebpf/src/maps/lpm_trie.rs\n\
+    // CONTEXT: impl<K, V> LpmTrie<K, V> {\n                BPF_MAP_TYPE_LPM_TRIE,\n\
+    \                max_entries,\n                flags,\n                PinningType::ByName,\n\
+    \            )),\n            _k: PhantomData,\n            _v: PhantomData,\n\
+    \        }\n    }\n\n    #[inline]\n    pub fn get(&self, key: &Key<K>) -> Option<&V>\
+    \ {\n        lookup(self.def.get(), key).map(|p| unsafe { p.as_ref() })\n    }\n\
+    \n    #[inline]\n    pub fn insert(&self, key: &Key<K>, value: &V, flags: u64)\
+    \ -> Result<(), c_long> {\n        insert(self.def.get(), key, value, flags)\n\
+    \    }\n\n    #[inline]\n    pub fn remove(&self, key: &Key<K>) -> Result<(),\
+    \ c_long> {\n        remove(self.def.get(), key)\n    }\n}\n\nconst fn build_def<K,\
+    \ V>(ty: u32, max_entries: u32, flags: u32, pin: PinningType) -> bpf_map_def {\n\
+    \    bpf_map_def {\n        type_: ty,\n        key_size: mem::size_of::<Key<K>>()\
+    \ as u32,\n        value_size: mem::size_of::<V>() as u32,\n        max_entries,\n\
+    \        map_flags: flags,\n        id: 0,\n        pinning: pin as u32,\n\n//\
+    \ FILE: ebpf/aya-ebpf/src/maps/per_cpu_array.rs\n// CONTEXT: impl<T> PerCpuArray<T>\
+    \ {\n    #[inline(always)]\n    pub fn get_ptr(&self, index: u32) -> Option<*const\
+    \ T> {\n        unsafe { self.lookup(index).map(|p| p.as_ptr() as *const T) }\n\
+    \    }\n\n    #[inline(always)]\n    pub fn get_ptr_mut(&self, index: u32) ->\
+    \ Option<*mut T> {\n        unsafe { self.lookup(index).map(|p| p.as_ptr()) }\n\
+    \    }\n\n    #[inline(always)]\n    unsafe fn lookup(&self, index: u32) -> Option<NonNull<T>>\
+    \ {\n        lookup(self.def.get(), &index)\n    }\n}\n\n// FILE: ebpf/aya-ebpf/src/maps/sock_hash.rs\n\
+    // CONTEXT: impl<K> SockHash<K> {\n                key as *mut _ as *mut _,\n\
+    \                flags,\n            )\n        }\n    }\n\n    pub fn redirect_sk_lookup(\n\
+    \        &mut self,\n        ctx: &SkLookupContext,\n        key: impl Borrow<K>,\n\
+    \        flags: u64,\n    ) -> Result<(), u32> {\n        let sk = lookup(self.def.get(),\
+    \ key.borrow()).ok_or(1u32)?;\n        let ret = unsafe { bpf_sk_assign(ctx.as_ptr().cast(),\
+    \ sk.as_ptr(), flags) };\n        unsafe { bpf_sk_release(sk.as_ptr()) };\n  \
+    \      match ret {\n            0 => Ok(()),\n            _ret => Err(1),\n  \
+    \      }\n    }\n}\n\n// FILE: ebpf/aya-ebpf/src/maps/sock_map.rs\n// CONTEXT:\
+    \ impl SockMap {\n\n    #[expect(clippy::missing_safety_doc)]\n    pub unsafe\
+    \ fn redirect_skb(&self, ctx: &SkBuffContext, index: u32, flags: u64) -> i64 {\n\
+    \        unsafe { bpf_sk_redirect_map(ctx.as_ptr().cast(), self.def.get().cast(),\
+    \ index, flags) }\n    }\n\n    pub fn redirect_sk_lookup(\n        &mut self,\n\
+    \        ctx: &SkLookupContext,\n        index: u32,\n        flags: u64,\n  \
+    \  ) -> Result<(), u32> {\n        let sk = lookup(self.def.get(), &index).ok_or(1u32)?;\n\
+    \        let ret = unsafe { bpf_sk_assign(ctx.as_ptr().cast(), sk.as_ptr(), flags)\
+    \ };\n        unsafe { bpf_sk_release(sk.as_ptr()) };\n        match ret {\n \
+    \           0 => Ok(()),\n            _ret => Err(1),\n        }\n    }\n}\n\n\
+    // FILE: ebpf/aya-ebpf/src/maps/xdp/dev_map.rs\n// CONTEXT: impl DevMap {\n  \
+    \  /// ```rust,no_run\n    /// use aya_ebpf::{macros::map, maps::DevMap};\n  \
+    \  ///\n    /// #[map]\n    /// static MAP: DevMap = DevMap::with_max_entries(1,\
+    \ 0);\n    ///\n    /// let target_if_index = MAP.get(0).unwrap().if_index;\n\
+    \    ///\n    /// // redirect to if_index\n    /// ```\n    #[inline(always)]\n\
+    \    pub fn get(&self, index: u32) -> Option<DevMapValue> {\n        let value\
+    \ = lookup(self.def.get(), &index)?;\n        let value: &bpf_devmap_val = unsafe\
+    \ { value.as_ref() };\n        Some(DevMapValue {\n            if_index: value.ifindex,\n\
+    \            // SAFETY: map writes use fd, map reads use id.\n            // https://elixir.bootlin.com/linux/v6.2/source/include/uapi/linux/bpf.h#L6136\n\
+    \            prog_id: NonZeroU32::new(unsafe { value.bpf_prog.id }),\n       \
+    \ })\n    }\n\n    /// Redirects the current packet on the interface at `index`.\n\
+    \    ///\n    /// The lower two bits of `flags` are used for the return code if\
+    \ the map lookup fails, which\n\n// FILE: ebpf/aya-ebpf/src/maps/xdp/dev_map_hash.rs\n\
+    // CONTEXT: impl DevMapHash {\n    /// ```rust,no_run\n    /// use aya_ebpf::{macros::map,\
+    \ maps::DevMapHash};\n    ///\n    /// #[map]\n    /// static MAP: DevMapHash\
+    \ = DevMapHash::with_max_entries(1, 0);\n    ///\n    /// let target_if_index\
+    \ = MAP.get(42).unwrap().if_index;\n    ///\n    /// // redirect to ifindex\n\
+    \    /// ```\n    #[inline(always)]\n    pub fn get(&self, key: u32) -> Option<DevMapValue>\
+    \ {\n        let value = lookup(self.def.get(), &key)?;\n        let value: &bpf_devmap_val\
+    \ = unsafe { value.as_ref() };\n        Some(DevMapValue {\n            if_index:\
+    \ value.ifindex,\n            // SAFETY: map writes use fd, map reads use id.\n\
+    \            // https://elixir.bootlin.com/linux/v6.2/source/include/uapi/linux/bpf.h#L6136\n\
+    \            prog_id: NonZeroU32::new(unsafe { value.bpf_prog.id }),\n       \
+    \ })\n    }\n\n    /// Redirects the current packet on the interface at `key`.\n\
+    \    ///\n    /// The lower two bits of `flags` are used for the return code if\
+    \ the map lookup fails, which\n\n// FILE: ebpf/aya-ebpf/src/maps/xdp/xsk_map.rs\n\
+    // CONTEXT: impl XskMap {\n    /// # Examples\n    ///\n    /// ```rust,no_run\n\
+    \    /// use aya_ebpf::{macros::map, maps::XskMap};\n    ///\n    /// #[map]\n\
+    \    /// static SOCKS: XskMap = XskMap::with_max_entries(8, 0);\n    ///\n   \
+    \ /// let queue_id = SOCKS.get(0);\n    /// ```\n    #[inline(always)]\n    pub\
+    \ fn get(&self, index: u32) -> Option<u32> {\n        let value = lookup(self.def.get(),\
+    \ &index)?;\n        let value: &bpf_xdp_sock = unsafe { value.as_ref() };\n \
+    \       Some(value.queue_id)\n    }\n\n    /// Redirects the current packet to\
+    \ the AF_XDP socket at `index`.\n    ///\n    /// The lower two bits of `flags`\
+    \ are used for the return code if the map lookup fails, which\n    /// can be\
+    \ used as the XDP program's return code if a matching socket cannot be found.\n\
+    \    ///\n    /// However, if the socket at `index` is bound to a RX queue which\
+    \ is not the current RX queue,\n    /// the packet will be dropped.\n    ///"
+  fixed_code: "// FILE: ebpf/aya-ebpf/src/lib.rs\n#![warn(clippy::cast_lossless, clippy::cast_sign_loss)]\n\
+    #![no_std]\n\npub use aya_ebpf_bindings::bindings;\n\nmod args;\npub use args::{PtRegs,\
+    \ RawTracepointArgs};\n#[expect(clippy::missing_safety_doc, unsafe_op_in_unsafe_fn)]\n\
+    pub mod helpers;\npub mod maps;\npub mod programs;\n\nuse core::ptr::NonNull;\n\
+    \npub use aya_ebpf_cty as cty;\npub use aya_ebpf_macros as macros;\nuse cty::{c_long,\
+    \ c_void};\nuse helpers::{\n    bpf_get_current_comm, bpf_get_current_pid_tgid,\
+    \ bpf_get_current_uid_gid, bpf_map_delete_elem,\n    bpf_map_lookup_elem, bpf_map_update_elem,\n\
+    };\n\npub const TASK_COMM_LEN: usize = 16;\n\npub trait EbpfContext {\n    fn\
+    \ as_ptr(&self) -> *mut c_void;\n\n    #[inline]\n    fn command(&self) -> Result<[u8;\
+    \ TASK_COMM_LEN], c_long> {\n\n// CONTEXT: pub fn check_bounds_signed(value: i64,\
+    \ lower: i64, upper: i64) -> bool {\n    }\n    // We only need this for doc tests\
+    \ which are compiled for the host target\n    #[cfg(not(target_arch = \"bpf\"\
+    ))]\n    {\n        let _ = value;\n        let _ = lower;\n        let _ = upper;\n\
+    \        unimplemented!()\n    }\n}\n\n#[inline]\nfn insert<K, V>(def: *mut c_void,\
+    \ key: &K, value: &V, flags: u64) -> Result<(), c_long> {\n    let key: *const\
+    \ _ = key;\n    let value: *const _ = value;\n    match unsafe { bpf_map_update_elem(def.cast(),\
+    \ key.cast(), value.cast(), flags) } {\n        0 => Ok(()),\n        ret => Err(ret),\n\
+    \    }\n}\n\n#[inline]\nfn remove<K>(def: *mut c_void, key: &K) -> Result<(),\
+    \ c_long> {\n    let key: *const _ = key;\n    match unsafe { bpf_map_delete_elem(def.cast(),\
+    \ key.cast()) } {\n        0 => Ok(()),\n        ret => Err(ret),\n    }\n}\n\n\
+    #[inline]\nfn lookup<K, V>(def: *mut c_void, key: &K) -> Option<NonNull<V>> {\n\
+    \    let key: *const _ = key;\n    NonNull::new(unsafe { bpf_map_lookup_elem(def.cast(),\
+    \ key.cast()) }.cast())\n}\n\n// FILE: ebpf/aya-ebpf/src/maps/array.rs\n// CONTEXT:\
+    \ impl<T> Array<T> {\n    #[inline(always)]\n    pub fn get_ptr(&self, index:\
+    \ u32) -> Option<*const T> {\n        unsafe { self.lookup(index).map(|p| p.as_ptr()\
+    \ as *const T) }\n    }\n\n    #[inline(always)]\n    pub fn get_ptr_mut(&self,\
+    \ index: u32) -> Option<*mut T> {\n        unsafe { self.lookup(index).map(|p|\
+    \ p.as_ptr()) }\n    }\n\n    #[inline(always)]\n    unsafe fn lookup(&self, index:\
+    \ u32) -> Option<NonNull<T>> {\n        lookup(self.def.get().cast(), &index)\n\
+    \    }\n\n    /// Sets the value of the element at the given index.\n    #[inline(always)]\n\
+    \    pub fn set(&self, index: u32, value: &T, flags: u64) -> Result<(), c_long>\
+    \ {\n        insert(self.def.get().cast(), &index, value, flags)\n    }\n}\n\n\
+    // FILE: ebpf/aya-ebpf/src/maps/hash_map.rs\n// CONTEXT: impl<K, V> HashMap<K,\
+    \ V> {\n\n    /// Retrieve the value associate with `key` from the map.\n    ///\
+    \ The same caveat as `get` applies, and additionally cares should be taken to\
+    \ avoid\n    /// concurrent writes, but it's up to the caller to decide whether\
+    \ it's safe to dereference the\n    /// pointer or not.\n    #[inline]\n    pub\
+    \ fn get_ptr_mut(&self, key: &K) -> Option<*mut V> {\n        get_ptr_mut(self.def.get(),\
+    \ key)\n    }\n\n    #[inline]\n    pub fn insert(&self, key: &K, value: &V, flags:\
+    \ u64) -> Result<(), c_long> {\n        insert(self.def.get().cast(), key, value,\
+    \ flags)\n    }\n\n    #[inline]\n    pub fn remove(&self, key: &K) -> Result<(),\
+    \ c_long> {\n        remove(self.def.get().cast(), key)\n    }\n}\n\n#[repr(transparent)]\n\
+    pub struct LruHashMap<K, V> {\n    def: UnsafeCell<bpf_map_def>,\n    _k: PhantomData<K>,\n\
+    \    _v: PhantomData<V>,\n}\n\nunsafe impl<K: Sync, V: Sync> Sync for LruHashMap<K,\
+    \ V> {}\n\n\n// CONTEXT: impl<K, V> LruHashMap<K, V> {\n\n    /// Retrieve the\
+    \ value associate with `key` from the map.\n    /// The same caveat as `get` applies,\
+    \ and additionally cares should be taken to avoid\n    /// concurrent writes,\
+    \ but it's up to the caller to decide whether it's safe to dereference the\n \
+    \   /// pointer or not.\n    #[inline]\n    pub fn get_ptr_mut(&self, key: &K)\
+    \ -> Option<*mut V> {\n        get_ptr_mut(self.def.get(), key)\n    }\n\n   \
+    \ #[inline]\n    pub fn insert(&self, key: &K, value: &V, flags: u64) -> Result<(),\
+    \ c_long> {\n        insert(self.def.get().cast(), key, value, flags)\n    }\n\
+    \n    #[inline]\n    pub fn remove(&self, key: &K) -> Result<(), c_long> {\n \
+    \       remove(self.def.get().cast(), key)\n    }\n}\n\n#[repr(transparent)]\n\
+    pub struct PerCpuHashMap<K, V> {\n    def: UnsafeCell<bpf_map_def>,\n    _k: PhantomData<K>,\n\
+    \    _v: PhantomData<V>,\n}\n\nunsafe impl<K, V> Sync for PerCpuHashMap<K, V>\
+    \ {}\n\n\n// CONTEXT: impl<K, V> PerCpuHashMap<K, V> {\n\n    /// Retrieve the\
+    \ value associate with `key` from the map.\n    /// The same caveat as `get` applies,\
+    \ and additionally cares should be taken to avoid\n    /// concurrent writes,\
+    \ but it's up to the caller to decide whether it's safe to dereference the\n \
+    \   /// pointer or not.\n    #[inline]\n    pub fn get_ptr_mut(&self, key: &K)\
+    \ -> Option<*mut V> {\n        get_ptr_mut(self.def.get(), key)\n    }\n\n   \
+    \ #[inline]\n    pub fn insert(&self, key: &K, value: &V, flags: u64) -> Result<(),\
+    \ c_long> {\n        insert(self.def.get().cast(), key, value, flags)\n    }\n\
+    \n    #[inline]\n    pub fn remove(&self, key: &K) -> Result<(), c_long> {\n \
+    \       remove(self.def.get().cast(), key)\n    }\n}\n\n#[repr(transparent)]\n\
+    pub struct LruPerCpuHashMap<K, V> {\n    def: UnsafeCell<bpf_map_def>,\n    _k:\
+    \ PhantomData<K>,\n    _v: PhantomData<V>,\n}\n\nunsafe impl<K, V> Sync for LruPerCpuHashMap<K,\
+    \ V> {}\n\n\n// CONTEXT: impl<K, V> LruPerCpuHashMap<K, V> {\n\n    /// Retrieve\
+    \ the value associate with `key` from the map.\n    /// The same caveat as `get`\
+    \ applies, and additionally cares should be taken to avoid\n    /// concurrent\
+    \ writes, but it's up to the caller to decide whether it's safe to dereference\
+    \ the\n    /// pointer or not.\n    #[inline]\n    pub fn get_ptr_mut(&self, key:\
+    \ &K) -> Option<*mut V> {\n        get_ptr_mut(self.def.get(), key)\n    }\n\n\
+    \    #[inline]\n    pub fn insert(&self, key: &K, value: &V, flags: u64) -> Result<(),\
+    \ c_long> {\n        insert(self.def.get().cast(), key, value, flags)\n    }\n\
+    \n    #[inline]\n    pub fn remove(&self, key: &K) -> Result<(), c_long> {\n \
+    \       remove(self.def.get().cast(), key)\n    }\n}\n\nconst fn build_def<K,\
+    \ V>(ty: u32, max_entries: u32, flags: u32, pin: PinningType) -> bpf_map_def {\n\
+    \    bpf_map_def {\n        type_: ty,\n        key_size: mem::size_of::<K>()\
+    \ as u32,\n        value_size: mem::size_of::<V>() as u32,\n        max_entries,\n\
+    \        map_flags: flags,\n        id: 0,\n        pinning: pin as u32,\n   \
+    \ }\n}\n\n#[inline]\nfn get_ptr_mut<K, V>(def: *mut bpf_map_def, key: &K) -> Option<*mut\
+    \ V> {\n    lookup(def.cast(), key).map(|p| p.as_ptr())\n}\n\n#[inline]\nfn get_ptr<K,\
+    \ V>(def: *mut bpf_map_def, key: &K) -> Option<*const V> {\n    get_ptr_mut(def,\
+    \ key).map(|p| p as *const V)\n}\n\n#[inline]\nunsafe fn get<'a, K, V>(def: *mut\
+    \ bpf_map_def, key: &K) -> Option<&'a V> {\n    get_ptr(def, key).map(|p| unsafe\
+    \ { &*p })\n}\n\n// FILE: ebpf/aya-ebpf/src/maps/lpm_trie.rs\n// CONTEXT: impl<K,\
+    \ V> LpmTrie<K, V> {\n                BPF_MAP_TYPE_LPM_TRIE,\n               \
+    \ max_entries,\n                flags,\n                PinningType::ByName,\n\
+    \            )),\n            _k: PhantomData,\n            _v: PhantomData,\n\
+    \        }\n    }\n\n    #[inline]\n    pub fn get(&self, key: &Key<K>) -> Option<&V>\
+    \ {\n        lookup(self.def.get().cast(), key).map(|p| unsafe { p.as_ref() })\n\
+    \    }\n\n    #[inline]\n    pub fn insert(&self, key: &Key<K>, value: &V, flags:\
+    \ u64) -> Result<(), c_long> {\n        insert(self.def.get().cast(), key, value,\
+    \ flags)\n    }\n\n    #[inline]\n    pub fn remove(&self, key: &Key<K>) -> Result<(),\
+    \ c_long> {\n        remove(self.def.get().cast(), key)\n    }\n}\n\nconst fn\
+    \ build_def<K, V>(ty: u32, max_entries: u32, flags: u32, pin: PinningType) ->\
+    \ bpf_map_def {\n    bpf_map_def {\n        type_: ty,\n        key_size: mem::size_of::<Key<K>>()\
+    \ as u32,\n        value_size: mem::size_of::<V>() as u32,\n        max_entries,\n\
+    \        map_flags: flags,\n        id: 0,\n        pinning: pin as u32,\n\n//\
+    \ FILE: ebpf/aya-ebpf/src/maps/per_cpu_array.rs\n// CONTEXT: impl<T> PerCpuArray<T>\
+    \ {\n    #[inline(always)]\n    pub fn get_ptr(&self, index: u32) -> Option<*const\
+    \ T> {\n        unsafe { self.lookup(index).map(|p| p.as_ptr() as *const T) }\n\
+    \    }\n\n    #[inline(always)]\n    pub fn get_ptr_mut(&self, index: u32) ->\
+    \ Option<*mut T> {\n        unsafe { self.lookup(index).map(|p| p.as_ptr()) }\n\
+    \    }\n\n    #[inline(always)]\n    unsafe fn lookup(&self, index: u32) -> Option<NonNull<T>>\
+    \ {\n        lookup(self.def.get().cast(), &index)\n    }\n}\n\n// FILE: ebpf/aya-ebpf/src/maps/sock_hash.rs\n\
+    // CONTEXT: impl<K> SockHash<K> {\n                key as *mut _ as *mut _,\n\
+    \                flags,\n            )\n        }\n    }\n\n    pub fn redirect_sk_lookup(\n\
+    \        &mut self,\n        ctx: &SkLookupContext,\n        key: impl Borrow<K>,\n\
+    \        flags: u64,\n    ) -> Result<(), u32> {\n        let sk = lookup(self.def.get().cast(),\
+    \ key.borrow()).ok_or(1u32)?;\n        let ret = unsafe { bpf_sk_assign(ctx.as_ptr().cast(),\
+    \ sk.as_ptr(), flags) };\n        unsafe { bpf_sk_release(sk.as_ptr()) };\n  \
+    \      match ret {\n            0 => Ok(()),\n            _ret => Err(1),\n  \
+    \      }\n    }\n}\n\n// FILE: ebpf/aya-ebpf/src/maps/sock_map.rs\n// CONTEXT:\
+    \ impl SockMap {\n\n    #[expect(clippy::missing_safety_doc)]\n    pub unsafe\
+    \ fn redirect_skb(&self, ctx: &SkBuffContext, index: u32, flags: u64) -> i64 {\n\
+    \        unsafe { bpf_sk_redirect_map(ctx.as_ptr().cast(), self.def.get().cast(),\
+    \ index, flags) }\n    }\n\n    pub fn redirect_sk_lookup(\n        &mut self,\n\
+    \        ctx: &SkLookupContext,\n        index: u32,\n        flags: u64,\n  \
+    \  ) -> Result<(), u32> {\n        let sk = lookup(self.def.get().cast(), &index).ok_or(1u32)?;\n\
+    \        let ret = unsafe { bpf_sk_assign(ctx.as_ptr().cast(), sk.as_ptr(), flags)\
+    \ };\n        unsafe { bpf_sk_release(sk.as_ptr()) };\n        match ret {\n \
+    \           0 => Ok(()),\n            _ret => Err(1),\n        }\n    }\n}\n\n\
+    // FILE: ebpf/aya-ebpf/src/maps/xdp/dev_map.rs\n// CONTEXT: impl DevMap {\n  \
+    \  /// ```rust,no_run\n    /// use aya_ebpf::{macros::map, maps::DevMap};\n  \
+    \  ///\n    /// #[map]\n    /// static MAP: DevMap = DevMap::with_max_entries(1,\
+    \ 0);\n    ///\n    /// let target_if_index = MAP.get(0).unwrap().if_index;\n\
+    \    ///\n    /// // redirect to if_index\n    /// ```\n    #[inline(always)]\n\
+    \    pub fn get(&self, index: u32) -> Option<DevMapValue> {\n        let value\
+    \ = lookup(self.def.get().cast(), &index)?;\n        let value: &bpf_devmap_val\
+    \ = unsafe { value.as_ref() };\n        Some(DevMapValue {\n            if_index:\
+    \ value.ifindex,\n            // SAFETY: map writes use fd, map reads use id.\n\
+    \            // https://elixir.bootlin.com/linux/v6.2/source/include/uapi/linux/bpf.h#L6136\n\
+    \            prog_id: NonZeroU32::new(unsafe { value.bpf_prog.id }),\n       \
+    \ })\n    }\n\n    /// Redirects the current packet on the interface at `index`.\n\
+    \    ///\n    /// The lower two bits of `flags` are used for the return code if\
+    \ the map lookup fails, which\n\n// FILE: ebpf/aya-ebpf/src/maps/xdp/dev_map_hash.rs\n\
+    // CONTEXT: impl DevMapHash {\n    /// ```rust,no_run\n    /// use aya_ebpf::{macros::map,\
+    \ maps::DevMapHash};\n    ///\n    /// #[map]\n    /// static MAP: DevMapHash\
+    \ = DevMapHash::with_max_entries(1, 0);\n    ///\n    /// let target_if_index\
+    \ = MAP.get(42).unwrap().if_index;\n    ///\n    /// // redirect to ifindex\n\
+    \    /// ```\n    #[inline(always)]\n    pub fn get(&self, key: u32) -> Option<DevMapValue>\
+    \ {\n        let value = lookup(self.def.get().cast(), &key)?;\n        let value:\
+    \ &bpf_devmap_val = unsafe { value.as_ref() };\n        Some(DevMapValue {\n \
+    \           if_index: value.ifindex,\n            // SAFETY: map writes use fd,\
+    \ map reads use id.\n            // https://elixir.bootlin.com/linux/v6.2/source/include/uapi/linux/bpf.h#L6136\n\
+    \            prog_id: NonZeroU32::new(unsafe { value.bpf_prog.id }),\n       \
+    \ })\n    }\n\n    /// Redirects the current packet on the interface at `key`.\n\
+    \    ///\n    /// The lower two bits of `flags` are used for the return code if\
+    \ the map lookup fails, which\n\n// FILE: ebpf/aya-ebpf/src/maps/xdp/xsk_map.rs\n\
+    // CONTEXT: impl XskMap {\n    /// # Examples\n    ///\n    /// ```rust,no_run\n\
+    \    /// use aya_ebpf::{macros::map, maps::XskMap};\n    ///\n    /// #[map]\n\
+    \    /// static SOCKS: XskMap = XskMap::with_max_entries(8, 0);\n    ///\n   \
+    \ /// let queue_id = SOCKS.get(0);\n    /// ```\n    #[inline(always)]\n    pub\
+    \ fn get(&self, index: u32) -> Option<u32> {\n        let value = lookup(self.def.get().cast(),\
+    \ &index)?;\n        let value: &bpf_xdp_sock = unsafe { value.as_ref() };\n \
+    \       Some(value.queue_id)\n    }\n\n    /// Redirects the current packet to\
+    \ the AF_XDP socket at `index`.\n    ///\n    /// The lower two bits of `flags`\
+    \ are used for the return code if the map lookup fails, which\n    /// can be\
+    \ used as the XDP program's return code if a matching socket cannot be found.\n\
+    \    ///\n    /// However, if the socket at `index` is bound to a RX queue which\
+    \ is not the current RX queue,\n    /// the packet will be dropped.\n    ///"
+  diff_summary: 'ebpf/aya-ebpf/src/lib.rs:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: pub fn check_bounds_signed(value: i64, lower: i64, upper:
+    i64) -> bool {.
+
+    ebpf/aya-ebpf/src/maps/array.rs:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: impl<T> Array<T> {.
+
+    ebpf/aya-ebpf/src/maps/hash_map.rs:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: impl<K, V> HashMap<K, V> {, impl<K, V> LruHashMap<K, V> {,
+    impl<K, V> PerCpuHashMap<K, V> {.
+
+    ebpf/aya-ebpf/src/maps/lpm_trie.rs:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: impl<K, V> LpmTrie<K, V> {.
+
+    ebpf/aya-ebpf/src/maps/per_cpu_array.rs:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: impl<T> PerCpuArray<T> {.
+
+    ebpf/aya-ebpf/src/maps/sock_hash.rs:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: impl<K> SockHash<K> {.
+
+    ebpf/aya-ebpf/src/maps/sock_map.rs:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: impl SockMap {.
+
+    ebpf/aya-ebpf/src/maps/xdp/dev_map.rs:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: impl DevMap {.
+
+    ebpf/aya-ebpf/src/maps/xdp/dev_map_hash.rs:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: impl DevMapHash {.
+
+    ebpf/aya-ebpf/src/maps/xdp/xsk_map.rs:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: impl XskMap {.
+
+    - Commit subject: aya-ebpf: Take `c_void` instead of `bpf_map_def` in map helpers.'
+

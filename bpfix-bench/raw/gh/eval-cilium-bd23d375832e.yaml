@@ -1,0 +1,132 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-bd23d375832e
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/bd23d375832e2cdf90ad980f0aef4f486797909f
+  title: 'bpf: Fix complexity issue failing cil_sock{4,6}_connect prog load'
+  repository: https://github.com/cilium/cilium
+  commit: bd23d375832e2cdf90ad980f0aef4f486797909f
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-bd23d375832e.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-bd23d375832e
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: bd23d375832e2cdf90ad980f0aef4f486797909f
+  commit_message: 'bpf: Fix complexity issue failing cil_sock{4,6}_connect prog load'
+  commit_date: '2024-07-10'
+  fix_type: refactor
+  buggy_code: "// FILE: bpf/bpf_sock.c\n// CONTEXT: static __always_inline int __sock4_xlate_fwd(struct\
+    \ bpf_sock_addr *ctx,\n                backend_from_affinity = true;\n\n     \
+    \           if (backend_id != 0) {\n                        backend = __lb4_lookup_backend(backend_id);\n\
+    \                        if (!backend)\n                                /* Backend\
+    \ from the session affinity no longer\n                                 * exists,\
+    \ thus select a new one. Also, remove\n                                 * the\
+    \ affinity, so that if the svc doesn't have\n                                \
+    \ * any backend, a subsequent request to the svc\n                           \
+    \      * doesn't hit the reselection again.\n                                \
+    \ */\n                                backend_id = 0;\n                }\n   \
+    \     }\n\n        if (backend_id == 0) {\n                backend_from_affinity\
+    \ = false;\n\n                key.backend_slot = (sock_select_slot(ctx_full) %\
+    \ svc->count) + 1;\n                backend_slot = __lb4_lookup_backend_slot(&key);\n\
+    \                if (!backend_slot) {\n                        update_metrics(0,\
+    \ METRIC_EGRESS, REASON_LB_NO_BACKEND_SLOT);\n                        return -EHOSTUNREACH;\n\
+    \                }\n\n                backend_id = backend_slot->backend_id;\n\
+    \                backend = __lb4_lookup_backend(backend_id);\n        }\n\n  \
+    \      if (!backend) {\n                update_metrics(0, METRIC_EGRESS, REASON_LB_NO_BACKEND);\n\
+    \                return -EHOSTUNREACH;\n        }\n\n        if (lb4_svc_is_affinity(svc)\
+    \ && !backend_from_affinity)\n                lb4_update_affinity_by_netns(svc,\
+    \ &id, backend_id);\n\n        send_trace_sock_notify4(ctx_full, XLATE_POST_DIRECTION_FWD,\
+    \ backend->address,\n                                bpf_ntohs(backend->port));\n\
+    \n#ifdef ENABLE_L7_LB\nout:\n#endif\n        if (sock4_update_revnat(ctx_full,\
+    \ backend, &orig_key,\n                                svc->rev_nat_index) < 0)\
+    \ {\n\n// CONTEXT: static __always_inline int __sock6_xlate_fwd(struct bpf_sock_addr\
+    \ *ctx,\n                return 0;\n        }\n#endif /* ENABLE_L7_LB */\n\n \
+    \       if (lb6_svc_is_affinity(svc)) {\n                backend_id = lb6_affinity_backend_id_by_netns(svc,\
+    \ &id);\n                backend_from_affinity = true;\n\n                if (backend_id\
+    \ != 0) {\n                        backend = __lb6_lookup_backend(backend_id);\n\
+    \                        if (!backend)\n                                backend_id\
+    \ = 0;\n                }\n        }\n\n        if (backend_id == 0) {\n     \
+    \           backend_from_affinity = false;\n\n                key.backend_slot\
+    \ = (sock_select_slot(ctx) % svc->count) + 1;\n                backend_slot =\
+    \ __lb6_lookup_backend_slot(&key);\n                if (!backend_slot) {\n   \
+    \                     update_metrics(0, METRIC_EGRESS, REASON_LB_NO_BACKEND_SLOT);\n\
+    \                        return -EHOSTUNREACH;\n                }\n\n        \
+    \        backend_id = backend_slot->backend_id;\n                backend = __lb6_lookup_backend(backend_id);\n\
+    \        }\n\n        if (!backend) {\n                update_metrics(0, METRIC_EGRESS,\
+    \ REASON_LB_NO_BACKEND);\n                return -EHOSTUNREACH;\n        }\n\n\
+    \        if (lb6_svc_is_affinity(svc) && !backend_from_affinity)\n           \
+    \     lb6_update_affinity_by_netns(svc, &id, backend_id);\n\n        send_trace_sock_notify6(ctx,\
+    \ XLATE_POST_DIRECTION_FWD, &backend->address,\n                             \
+    \   bpf_ntohs(backend->port));\n\n#ifdef ENABLE_L7_LB\nout:\n#endif\n        if\
+    \ (sock6_update_revnat(ctx, backend, &orig_key,\n                            \
+    \    svc->rev_nat_index) < 0) {"
+  fixed_code: "// FILE: bpf/bpf_sock.c\n// CONTEXT: static __always_inline int __sock4_xlate_fwd(struct\
+    \ bpf_sock_addr *ctx,\n                backend_from_affinity = true;\n\n     \
+    \           if (backend_id != 0) {\n                        backend = __lb4_lookup_backend(backend_id);\n\
+    \                        if (!backend)\n                                /* Backend\
+    \ from the session affinity no longer\n                                 * exists,\
+    \ thus select a new one. Also, remove\n                                 * the\
+    \ affinity, so that if the svc doesn't have\n                                \
+    \ * any backend, a subsequent request to the svc\n                           \
+    \      * doesn't hit the reselection again.\n                                \
+    \ */\n                                backend_id = 0;\n                      \
+    \  barrier();\n                }\n        }\n\n        if (backend_id == 0) {\n\
+    \                backend_from_affinity = false;\n\n                key.backend_slot\
+    \ = (sock_select_slot(ctx_full) % svc->count) + 1;\n                backend_slot\
+    \ = __lb4_lookup_backend_slot(&key);\n                if (!backend_slot) {\n \
+    \                       update_metrics(0, METRIC_EGRESS, REASON_LB_NO_BACKEND_SLOT);\n\
+    \                        return -EHOSTUNREACH;\n                }\n\n        \
+    \        backend_id = backend_slot->backend_id;\n                backend = __lb4_lookup_backend(backend_id);\n\
+    \        }\n\n        if (!backend) {\n                update_metrics(0, METRIC_EGRESS,\
+    \ REASON_LB_NO_BACKEND);\n                return -EHOSTUNREACH;\n        }\n \
+    \       barrier();\n\n        if (lb4_svc_is_affinity(svc) && !backend_from_affinity)\n\
+    \                lb4_update_affinity_by_netns(svc, &id, backend_id);\n\n     \
+    \   send_trace_sock_notify4(ctx_full, XLATE_POST_DIRECTION_FWD, backend->address,\n\
+    \                                bpf_ntohs(backend->port));\n\n#ifdef ENABLE_L7_LB\n\
+    out:\n#endif\n        if (sock4_update_revnat(ctx_full, backend, &orig_key,\n\
+    \                                svc->rev_nat_index) < 0) {\n\n// CONTEXT: static\
+    \ __always_inline int __sock6_xlate_fwd(struct bpf_sock_addr *ctx,\n         \
+    \       return 0;\n        }\n#endif /* ENABLE_L7_LB */\n\n        if (lb6_svc_is_affinity(svc))\
+    \ {\n                backend_id = lb6_affinity_backend_id_by_netns(svc, &id);\n\
+    \                backend_from_affinity = true;\n\n                if (backend_id\
+    \ != 0) {\n                        backend = __lb6_lookup_backend(backend_id);\n\
+    \                        if (!backend)\n                                backend_id\
+    \ = 0;\n                        barrier();\n                }\n        }\n\n \
+    \       if (backend_id == 0) {\n                backend_from_affinity = false;\n\
+    \n                key.backend_slot = (sock_select_slot(ctx) % svc->count) + 1;\n\
+    \                backend_slot = __lb6_lookup_backend_slot(&key);\n           \
+    \     if (!backend_slot) {\n                        update_metrics(0, METRIC_EGRESS,\
+    \ REASON_LB_NO_BACKEND_SLOT);\n                        return -EHOSTUNREACH;\n\
+    \                }\n\n                backend_id = backend_slot->backend_id;\n\
+    \                backend = __lb6_lookup_backend(backend_id);\n        }\n\n  \
+    \      if (!backend) {\n                update_metrics(0, METRIC_EGRESS, REASON_LB_NO_BACKEND);\n\
+    \                return -EHOSTUNREACH;\n        }\n        barrier();\n\n    \
+    \    if (lb6_svc_is_affinity(svc) && !backend_from_affinity)\n               \
+    \ lb6_update_affinity_by_netns(svc, &id, backend_id);\n\n        send_trace_sock_notify6(ctx,\
+    \ XLATE_POST_DIRECTION_FWD, &backend->address,\n                             \
+    \   bpf_ntohs(backend->port));\n\n#ifdef ENABLE_L7_LB\nout:\n#endif\n        if\
+    \ (sock6_update_revnat(ctx, backend, &orig_key,\n                            \
+    \    svc->rev_nat_index) < 0) {"
+  diff_summary: 'bpf/bpf_sock.c:
+
+    - Inserted `barrier()` after backend lookup/null-check points.
+
+    - Prevented compiler reordering that previously exposed pointer arithmetic on
+    `map_value_or_null` before the verifier-visible null check.'
+

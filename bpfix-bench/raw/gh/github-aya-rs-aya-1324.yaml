@@ -1,0 +1,126 @@
+schema_version: bpfix.raw_external/v1
+raw_id: github-aya-rs-aya-1324
+source_kind: github_issue
+source:
+  url: https://github.com/aya-rs/aya/issues/1324
+  title: Bad file descriptor only when EbpfLogger::init is called
+  repository: https://github.com/aya-rs/aya
+  commit: null
+  collected_at: '2026-03-11T16:01:30+00:00'
+collector:
+  original_path: bpfix-bench/raw/gh/github-aya-rs-aya-1324.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: true
+  verifier_log_block_count: 2
+  source_snippet_count: 6
+  has_buggy_code: false
+  has_fixed_code: true
+  has_fix_description: true
+reproduction:
+  status: replay_reject_no_rejected_insn
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: local_reconstruction_rejects_but_lacks_a_rejected_instruction_index
+  verifier_status: rejected
+  captured_error: fd 12 is not pointing to valid bpf_map
+  verifier_error_match: exact
+raw:
+  case_id: github-aya-rs-aya-1324
+  source: github_issues
+  collected_at: '2026-03-11T16:01:30+00:00'
+  issue:
+    repository: aya-rs/aya
+    number: 1324
+    title: Bad file descriptor only when EbpfLogger::init is called
+    url: https://github.com/aya-rs/aya/issues/1324
+    state: closed
+    state_reason: completed
+    labels: []
+    created_at: '2025-08-21T20:37:55Z'
+    updated_at: '2025-09-23T06:54:35Z'
+    author: drosseau-ivision
+  verifier_log:
+    blocks:
+    - "Error: loading\n\nCaused by:\n    0: the BPF_PROG_LOAD syscall failed. Verifier\
+      \ output: fd 12 is not pointing to valid bpf_map\n       verification time 38\
+      \ usec\n       stack depth 0+0+0+0+0\n       processed 0 insns (limit 1000000)\
+      \ max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\n    1: Bad\
+      \ file descriptor (os error 9)"
+    - "0: the BPF_PROG_LOAD syscall failed. Verifier output: fd 12 is not pointing\
+      \ to valid bpf_map\n   verification time 38 usec\n   stack depth 0+0+0+0+0\n\
+      \   processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states\
+      \ 0 mark_read 0"
+    combined: "Error: loading\n\nCaused by:\n    0: the BPF_PROG_LOAD syscall failed.\
+      \ Verifier output: fd 12 is not pointing to valid bpf_map\n       verification\
+      \ time 38 usec\n       stack depth 0+0+0+0+0\n       processed 0 insns (limit\
+      \ 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0\n\n\
+      \    1: Bad file descriptor (os error 9)\n\n0: the BPF_PROG_LOAD syscall failed.\
+      \ Verifier output: fd 12 is not pointing to valid bpf_map\n   verification time\
+      \ 38 usec\n   stack depth 0+0+0+0+0\n   processed 0 insns (limit 1000000) max_states_per_insn\
+      \ 0 total_states 0 peak_states 0 mark_read 0"
+  source_snippets:
+  - "#[tracepoint]\npub fn sys_enter_execve(ctx: TracePointContext) -> u32 {\n   \
+    \ let pidtgid = helpers::bpf_get_current_pid_tgid();\n    let pid = pidtgid as\
+    \ u32;\n    let tgid = (pidtgid >> 32) as u32;\n    let comm = match helpers::bpf_get_current_comm()\
+    \ {\n        Ok(v) => v,\n        Err(_) => [0u8; 16usize],\n    };\n\n    let\
+    \ mut idx = 0;\n    for b in comm {\n        if b == 0u8 {\n            break;\n\
+    \        }\n        idx += 1;\n    }\n\n    let comm_str = unsafe { core::str::from_utf8_unchecked(&comm[0..idx])\
+    \ };\n    info!(\n        &ctx,\n        \"execve(): pid={}, tgid={}, comm={}\"\
+    , pid, tgid, comm_str\n    );\n    0\n}"
+  - "#[tokio::main]\nasync fn main() -> anyhow::Result<()> {\n    TermLogger::init(\n\
+    \        LevelFilter::Debug,\n        ConfigBuilder::new()\n            .set_time_level(LevelFilter::Off)\n\
+    \            .set_thread_level(LevelFilter::Off)\n            .set_target_level(LevelFilter::Off)\n\
+    \            .set_location_level(LevelFilter::Off)\n            .build(),\n  \
+    \      TerminalMode::Stderr,\n        ColorChoice::Auto,\n    )?;\n\n    let mut\
+    \ bpf = Ebpf::load(aya::include_bytes_aligned!(concat!(\n        env!(\"OUT_DIR\"\
+    ),\n        \"/ebpf-execve\"\n    )))?;\n\n    EbpfLogger::init(&mut bpf)?;\n\n\
+    \    let prog: &mut TracePoint = bpf\n        .program_mut(\"sys_enter_execve\"\
+    )\n        .ok_or_else(|| anyhow::Error::msg(\"failed to get program\"))?\n  \
+    \      .try_into()\n        .context(\"converting the program to a TracePoint\"\
+    )?;\n    prog.load().context(\"loading\")?;\n    prog.attach(\"syscalls\", \"\
+    sys_enter_execve\")\n        .context(\"attaching\")?;\n\n    eprintln!(\"Waiting\
+    \ for Ctrl-C...\");\n    signal::ctrl_c().await?;\n    eprintln!(\"Exiting...\"\
+    );\n\n    Ok(())\n}"
+  - "let pidtgid = helpers::bpf_get_current_pid_tgid();\nlet pid = pidtgid as u32;\n\
+    let tgid = (pidtgid >> 32) as u32;\nlet comm = match helpers::bpf_get_current_comm()\
+    \ {\n    Ok(v) => v,\n    Err(_) => [0u8; 16usize],\n};"
+  - "let mut idx = 0;\nfor b in comm {\n    if b == 0u8 {\n        break;\n    }\n\
+    \    idx += 1;\n}"
+  - "let comm_str = unsafe { core::str::from_utf8_unchecked(&comm[0..idx]) };\ninfo!(\n\
+    \    &ctx,\n    \"execve(): pid={}, tgid={}, comm={}\", pid, tgid, comm_str\n\
+    );\n0"
+  - 'eprintln!("Waiting for Ctrl-C...");
+
+    signal::ctrl_c().await?;
+
+    eprintln!("Exiting...");'
+  issue_body_text: 'I''m learning Aya by writing a tracepoint that will look for calls
+    to execve and just log some information about the call. I have the following:
+
+    When I try to run it with my userspace program:
+
+    I get:
+
+    But if I comment out the EbpfLogger::init(&mut bpf)? I don''t get that error and
+    the program runs just fine.
+
+    Running on Fedora.'
+  fix:
+    summary: 'Also your code has the same problem as OP''s. You are not actually consuming
+      the logs. For posterity your init call is here: https://github.com/firezone/firezone/blob/683a190855509df8776f3ff8d37cc638dc272e8c/rust/relay/server/src/ebpf/linux.rs#L47
+      but you drop the returned Logger which is almost certainly what''s leading to
+      your (and OP''s) problems. See https://github.com/aya-rs/aya/tree/main/aya-log#user-space-code.
+      With that, closing this. Please let me know if this doesn''t solve the problem.'
+    selected_comment:
+      kind: comment
+      url: https://github.com/aya-rs/aya/issues/1324#issuecomment-3322473810
+      author: tamird
+      author_association: MEMBER
+      body_text: 'Also your code has the same problem as OP''s. You are not actually
+        consuming the logs. For posterity your init call is here: https://github.com/firezone/firezone/blob/683a190855509df8776f3ff8d37cc638dc272e8c/rust/relay/server/src/ebpf/linux.rs#L47
+        but you drop the returned Logger which is almost certainly what''s leading
+        to your (and OP''s) problems. See https://github.com/aya-rs/aya/tree/main/aya-log#user-space-code.
+        With that, closing this. Please let me know if this doesn''t solve the problem.'
+

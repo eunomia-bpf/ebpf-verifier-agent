@@ -1,0 +1,189 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-2f0275ee3ee2
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/2f0275ee3ee21f5988680f4591684c67966c407f
+  title: 'bpf: inline test functions with ctx as input'
+  repository: https://github.com/cilium/cilium
+  commit: 2f0275ee3ee21f5988680f4591684c67966c407f
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-2f0275ee3ee2.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-2f0275ee3ee2
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: 2f0275ee3ee21f5988680f4591684c67966c407f
+  commit_message: 'bpf: inline test functions with ctx as input'
+  commit_date: '2023-03-30'
+  fix_type: inline_hint
+  buggy_code: "// FILE: bpf/tests/tc_nodeport_lb4_dsr_backend.c\n// CONTEXT: int nodeport_dsr_backend_check(struct\
+    \ __ctx_buff *ctx)\n\n        nat_entry = snat_v4_lookup(&tuple);\n        if\
+    \ (!nat_entry)\n                test_fatal(\"no SNAT entry for DSR found\");\n\
+    \        if (nat_entry->to_saddr != FRONTEND_IP)\n                test_fatal(\"\
+    SNAT entry has wrong address\");\n        if (nat_entry->to_sport != FRONTEND_PORT)\n\
+    \                test_fatal(\"SNAT entry has wrong port\");\n\n        test_finish();\n\
+    }\n\nint build_reply(struct __ctx_buff *ctx)\n{\n        struct pktgen builder;\n\
+    \        struct tcphdr *l4;\n        struct ethhdr *l2;\n        struct iphdr\
+    \ *l3;\n        void *data;\n\n        /* Init packet builder */\n        pktgen__init(&builder,\
+    \ ctx);\n\n        /* Push ethernet header */\n        l2 = pktgen__push_ethhdr(&builder);\n\
+    \n// CONTEXT: int build_reply(struct __ctx_buff *ctx)\n        l4->dest = CLIENT_PORT;\n\
+    \n        data = pktgen__push_data(&builder, default_data, sizeof(default_data));\n\
+    \        if (!data)\n                return TEST_ERROR;\n\n        /* Calc lengths,\
+    \ set protocol fields and calc checksums */\n        pktgen__finish(&builder);\n\
+    \n        return 0;\n}\n\nint check_reply(const struct __ctx_buff *ctx)\n{\n \
+    \       void *data, *data_end;\n        __u32 *status_code;\n        struct tcphdr\
+    \ *l4;\n        struct ethhdr *l2;\n        struct iphdr *l3;\n\n        test_init();\n\
+    \n        data = (void *)(long)ctx_data(ctx);\n        data_end = (void *)(long)ctx->data_end;\n\
+    \n// FILE: bpf/tests/tc_nodeport_lb4_nat_lb.c\n// CONTEXT: int nodeport_nat_fwd_check(__maybe_unused\
+    \ const struct __ctx_buff *ctx)\n\n        if (l4->source == CLIENT_PORT)\n  \
+    \              test_fatal(\"src port hasn't been NATed\");\n\n        if (l4->dest\
+    \ != BACKEND_PORT)\n                test_fatal(\"dst port hasn't been NATed to\
+    \ backend port\");\n\n        nat_source_port = l4->source;\n\n        test_finish();\n\
+    }\n\nint build_reply(struct __ctx_buff *ctx)\n{\n        struct pktgen builder;\n\
+    \        struct tcphdr *l4;\n        struct ethhdr *l2;\n        struct iphdr\
+    \ *l3;\n        void *data;\n\n        /* Init packet builder */\n        pktgen__init(&builder,\
+    \ ctx);\n\n        /* Push ethernet header */\n        l2 = pktgen__push_ethhdr(&builder);\n\
+    \n// CONTEXT: int build_reply(struct __ctx_buff *ctx)\n        l4->dest = nat_source_port;\n\
+    \n        data = pktgen__push_data(&builder, default_data, sizeof(default_data));\n\
+    \        if (!data)\n                return TEST_ERROR;\n\n        /* Calc lengths,\
+    \ set protocol fields and calc checksums */\n        pktgen__finish(&builder);\n\
+    \n        return 0;\n}\n\nint check_reply(const struct __ctx_buff *ctx)\n{\n \
+    \       void *data, *data_end;\n        __u32 *status_code;\n        struct tcphdr\
+    \ *l4;\n        struct ethhdr *l2;\n        struct iphdr *l3;\n\n        test_init();\n\
+    \n        data = (void *)(long)ctx_data(ctx);\n        data_end = (void *)(long)ctx->data_end;\n\
+    \n// FILE: bpf/tests/tc_nodeport_test.c\n// CONTEXT: struct {\n              \
+    \  [0] = &cil_from_container,\n        },\n};\n\n/* Setup for this test:\n * +-------ClusterIP--------+\
+    \    +----------Pod 1---------+\n * | v4_svc_one:tcp_svc_one | -> | v4_pod_one:tcp_svc_one\
+    \ |\n * +------------------------+    +------------------------+\n *         \
+    \   ^                            |\n *            \\---------------------------/\n\
+    \ */\n\nint build_packet(struct __ctx_buff *ctx)\n{\n        struct pktgen builder;\n\
+    \        volatile const __u8 *src = mac_one;\n        volatile const __u8 *dst\
+    \ = mac_two;\n        struct ethhdr *l2;\n        struct iphdr *l3;\n        struct\
+    \ tcphdr *l4;\n        void *data;\n\n        /* Init packet builder */\n    \
+    \    pktgen__init(&builder, ctx);\n\n// FILE: bpf/tests/xdp_nodeport_lb4_nat_lb.c\n\
+    // CONTEXT: int nodeport_nat_fwd_check(__maybe_unused const struct __ctx_buff\
+    \ *ctx)\n\n        if (l4->source == CLIENT_PORT)\n                test_fatal(\"\
+    src port hasn't been NATed\");\n\n        if (l4->dest != BACKEND_PORT)\n    \
+    \            test_fatal(\"dst port hasn't been NATed to backend port\");\n\n \
+    \       nat_source_port = l4->source;\n\n        test_finish();\n}\n\nint build_reply(struct\
+    \ __ctx_buff *ctx)\n{\n        struct pktgen builder;\n        struct tcphdr *l4;\n\
+    \        struct ethhdr *l2;\n        struct iphdr *l3;\n        void *data;\n\n\
+    \        /* Init packet builder */\n        pktgen__init(&builder, ctx);\n\n \
+    \       /* Push ethernet header */\n        l2 = pktgen__push_ethhdr(&builder);\n\
+    \n// CONTEXT: int build_reply(struct __ctx_buff *ctx)\n        l4->dest = nat_source_port;\n\
+    \n        data = pktgen__push_data(&builder, default_data, sizeof(default_data));\n\
+    \        if (!data)\n                return TEST_ERROR;\n\n        /* Calc lengths,\
+    \ set protocol fields and calc checksums */\n        pktgen__finish(&builder);\n\
+    \n        return 0;\n}\n\nint check_reply(const struct __ctx_buff *ctx)\n{\n \
+    \       void *data, *data_end;\n        __u32 *status_code;\n        struct tcphdr\
+    \ *l4;\n        struct ethhdr *l2;\n        struct iphdr *l3;\n\n        test_init();\n\
+    \n        data = (void *)(long)ctx_data(ctx);\n        data_end = (void *)(long)ctx->data_end;\n\
+    \n// FILE: bpf/tests/xdp_nodeport_lb4_test.c\n// CONTEXT: struct {\n        .values\
+    \ = {\n                [0] = &cil_xdp_entry,\n        },\n};\n\n#define FRONTEND_IP\
+    \ 0x0F00010A /* 10.0.1.15 */\n#define FRONTEND_PORT 80\n#define BACKEND_IP 0x0F00020A\
+    \ /* 10.2.0.15 */\n#define BACKEND_PORT 8080\n\nstatic long (*bpf_xdp_adjust_tail)(struct\
+    \ xdp_md *xdp_md, int delta) = (void *)65;\n\nstatic int build_packet(struct __ctx_buff\
+    \ *ctx)\n{\n        /* Create room for our packet to be crafted */\n        unsigned\
+    \ int data_len = ctx->data_end - ctx->data;\n\n        int offset = offset = 4096\
+    \ - 256 - 320 - data_len;\n\n        bpf_xdp_adjust_tail(ctx, offset);\n\n   \
+    \     void *data = (void *)(long)ctx->data;\n        void *data_end = (void *)(long)ctx->data_end;\n\
+    \n        if (data + sizeof(struct ethhdr) > data_end)"
+  fixed_code: "// FILE: bpf/tests/tc_nodeport_lb4_dsr_backend.c\n// CONTEXT: int nodeport_dsr_backend_check(struct\
+    \ __ctx_buff *ctx)\n\n        nat_entry = snat_v4_lookup(&tuple);\n        if\
+    \ (!nat_entry)\n                test_fatal(\"no SNAT entry for DSR found\");\n\
+    \        if (nat_entry->to_saddr != FRONTEND_IP)\n                test_fatal(\"\
+    SNAT entry has wrong address\");\n        if (nat_entry->to_sport != FRONTEND_PORT)\n\
+    \                test_fatal(\"SNAT entry has wrong port\");\n\n        test_finish();\n\
+    }\n\nstatic __always_inline int build_reply(struct __ctx_buff *ctx)\n{\n     \
+    \   struct pktgen builder;\n        struct tcphdr *l4;\n        struct ethhdr\
+    \ *l2;\n        struct iphdr *l3;\n        void *data;\n\n        /* Init packet\
+    \ builder */\n        pktgen__init(&builder, ctx);\n\n        /* Push ethernet\
+    \ header */\n        l2 = pktgen__push_ethhdr(&builder);\n\n// CONTEXT: int build_reply(struct\
+    \ __ctx_buff *ctx)\n        l4->dest = CLIENT_PORT;\n\n        data = pktgen__push_data(&builder,\
+    \ default_data, sizeof(default_data));\n        if (!data)\n                return\
+    \ TEST_ERROR;\n\n        /* Calc lengths, set protocol fields and calc checksums\
+    \ */\n        pktgen__finish(&builder);\n\n        return 0;\n}\n\nstatic __always_inline\
+    \ int check_reply(const struct __ctx_buff *ctx)\n{\n        void *data, *data_end;\n\
+    \        __u32 *status_code;\n        struct tcphdr *l4;\n        struct ethhdr\
+    \ *l2;\n        struct iphdr *l3;\n\n        test_init();\n\n        data = (void\
+    \ *)(long)ctx_data(ctx);\n        data_end = (void *)(long)ctx->data_end;\n\n\
+    // FILE: bpf/tests/tc_nodeport_lb4_nat_lb.c\n// CONTEXT: int nodeport_nat_fwd_check(__maybe_unused\
+    \ const struct __ctx_buff *ctx)\n\n        if (l4->source == CLIENT_PORT)\n  \
+    \              test_fatal(\"src port hasn't been NATed\");\n\n        if (l4->dest\
+    \ != BACKEND_PORT)\n                test_fatal(\"dst port hasn't been NATed to\
+    \ backend port\");\n\n        nat_source_port = l4->source;\n\n        test_finish();\n\
+    }\n\nstatic __always_inline int build_reply(struct __ctx_buff *ctx)\n{\n     \
+    \   struct pktgen builder;\n        struct tcphdr *l4;\n        struct ethhdr\
+    \ *l2;\n        struct iphdr *l3;\n        void *data;\n\n        /* Init packet\
+    \ builder */\n        pktgen__init(&builder, ctx);\n\n        /* Push ethernet\
+    \ header */\n        l2 = pktgen__push_ethhdr(&builder);\n\n// CONTEXT: int build_reply(struct\
+    \ __ctx_buff *ctx)\n        l4->dest = nat_source_port;\n\n        data = pktgen__push_data(&builder,\
+    \ default_data, sizeof(default_data));\n        if (!data)\n                return\
+    \ TEST_ERROR;\n\n        /* Calc lengths, set protocol fields and calc checksums\
+    \ */\n        pktgen__finish(&builder);\n\n        return 0;\n}\n\nstatic __always_inline\
+    \ int check_reply(const struct __ctx_buff *ctx)\n{\n        void *data, *data_end;\n\
+    \        __u32 *status_code;\n        struct tcphdr *l4;\n        struct ethhdr\
+    \ *l2;\n        struct iphdr *l3;\n\n        test_init();\n\n        data = (void\
+    \ *)(long)ctx_data(ctx);\n        data_end = (void *)(long)ctx->data_end;\n\n\
+    // FILE: bpf/tests/tc_nodeport_test.c\n// CONTEXT: struct {\n                [0]\
+    \ = &cil_from_container,\n        },\n};\n\n/* Setup for this test:\n * +-------ClusterIP--------+\
+    \    +----------Pod 1---------+\n * | v4_svc_one:tcp_svc_one | -> | v4_pod_one:tcp_svc_one\
+    \ |\n * +------------------------+    +------------------------+\n *         \
+    \   ^                            |\n *            \\---------------------------/\n\
+    \ */\n\nstatic __always_inline int build_packet(struct __ctx_buff *ctx)\n{\n \
+    \       struct pktgen builder;\n        volatile const __u8 *src = mac_one;\n\
+    \        volatile const __u8 *dst = mac_two;\n        struct ethhdr *l2;\n   \
+    \     struct iphdr *l3;\n        struct tcphdr *l4;\n        void *data;\n\n \
+    \       /* Init packet builder */\n        pktgen__init(&builder, ctx);\n\n//\
+    \ FILE: bpf/tests/xdp_nodeport_lb4_nat_lb.c\n// CONTEXT: int nodeport_nat_fwd_check(__maybe_unused\
+    \ const struct __ctx_buff *ctx)\n\n        if (l4->source == CLIENT_PORT)\n  \
+    \              test_fatal(\"src port hasn't been NATed\");\n\n        if (l4->dest\
+    \ != BACKEND_PORT)\n                test_fatal(\"dst port hasn't been NATed to\
+    \ backend port\");\n\n        nat_source_port = l4->source;\n\n        test_finish();\n\
+    }\n\nstatic __always_inline int build_reply(struct __ctx_buff *ctx)\n{\n     \
+    \   struct pktgen builder;\n        struct tcphdr *l4;\n        struct ethhdr\
+    \ *l2;\n        struct iphdr *l3;\n        void *data;\n\n        /* Init packet\
+    \ builder */\n        pktgen__init(&builder, ctx);\n\n        /* Push ethernet\
+    \ header */\n        l2 = pktgen__push_ethhdr(&builder);\n\n// CONTEXT: int build_reply(struct\
+    \ __ctx_buff *ctx)\n        l4->dest = nat_source_port;\n\n        data = pktgen__push_data(&builder,\
+    \ default_data, sizeof(default_data));\n        if (!data)\n                return\
+    \ TEST_ERROR;\n\n        /* Calc lengths, set protocol fields and calc checksums\
+    \ */\n        pktgen__finish(&builder);\n\n        return 0;\n}\n\nstatic __always_inline\
+    \ int check_reply(const struct __ctx_buff *ctx)\n{\n        void *data, *data_end;\n\
+    \        __u32 *status_code;\n        struct tcphdr *l4;\n        struct ethhdr\
+    \ *l2;\n        struct iphdr *l3;\n\n        test_init();\n\n        data = (void\
+    \ *)(long)ctx_data(ctx);\n        data_end = (void *)(long)ctx->data_end;\n\n\
+    // FILE: bpf/tests/xdp_nodeport_lb4_test.c\n// CONTEXT: struct {\n        .values\
+    \ = {\n                [0] = &cil_xdp_entry,\n        },\n};\n\n#define FRONTEND_IP\
+    \ 0x0F00010A /* 10.0.1.15 */\n#define FRONTEND_PORT 80\n#define BACKEND_IP 0x0F00020A\
+    \ /* 10.2.0.15 */\n#define BACKEND_PORT 8080\n\nstatic long (*bpf_xdp_adjust_tail)(struct\
+    \ xdp_md *xdp_md, int delta) = (void *)65;\n\nstatic __always_inline int build_packet(struct\
+    \ __ctx_buff *ctx)\n{\n        /* Create room for our packet to be crafted */\n\
+    \        unsigned int data_len = ctx->data_end - ctx->data;\n\n        int offset\
+    \ = offset = 4096 - 256 - 320 - data_len;\n\n        bpf_xdp_adjust_tail(ctx,\
+    \ offset);\n\n        void *data = (void *)(long)ctx->data;\n        void *data_end\
+    \ = (void *)(long)ctx->data_end;\n\n        if (data + sizeof(struct ethhdr) >\
+    \ data_end)"
+  diff_summary: 'bpf/tests/tc_nodeport_lb4_dsr_backend.c, bpf/tests/tc_nodeport_lb4_nat_lb.c,
+    bpf/tests/tc_nodeport_test.c, bpf/tests/xdp_nodeport_lb4_nat_lb.c, bpf/tests/xdp_nodeport_lb4_test.c:
+
+    - Marked ctx-taking test helpers `static __always_inline`.
+
+    - Avoided older-kernel verifier rejection of global functions whose arguments
+    lost PTR_TO_CTX typing.'
+

@@ -1,0 +1,73 @@
+case_id: kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  section: ?fentry/bpf_check
+  function: reject_set_exception_cb_bad_ret1
+  description: reject_set_exception_cb_bad_ret1
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - At program exit the register R0 has unknown scalar value should
+  unprivileged: []
+  combined:
+  - At program exit the register R0 has unknown scalar value should
+original_verifier_log: |-
+  func#0 @0
+  func#1 @2
+  Live regs before insn:
+    0: .......... (b4) w0 = 0
+    1: 0......... (95) exit
+    2: .1........ (bf) r0 = r1
+    3: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; return 0; @ exceptions_fail.c:307
+  0: (b4) w0 = 0                        ; R0_w=0
+  1: (95) exit
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r0 stack= before 0: (b4) w0 = 0
+  Validating exception_cb_bad_ret() func#1...
+  2: R1=scalar() R10=fp0
+  ; __noinline int exception_cb_bad_ret(u64 c) @ exceptions_fail.c:297
+  2: (bf) r0 = r1                       ; R0_w=scalar(id=1) R1=scalar(id=1)
+  ; return c; @ exceptions_fail.c:299
+  3: (95) exit
+  mark_precise: frame0: last_idx 3 first_idx 2 subseq_idx -1
+  mark_precise: frame0: regs=r0 stack= before 2: (bf) r0 = r1
+  mark_precise: frame0: falling back to forcing all scalars precise
+  At program exit the register R0 has unknown scalar value should have been in [0, 0]
+  processed 4 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log: |-
+  func#0 @0
+  func#1 @2
+  Live regs before insn:
+    0: .......... (b4) w0 = 0
+    1: 0......... (95) exit
+    2: .1........ (bf) r0 = r1
+    3: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; return 0; @ prog.c:45
+  0: (b4) w0 = 0                        ; R0_w=0
+  1: (95) exit
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r0 stack= before 0: (b4) w0 = 0
+  Validating exception_cb_bad_ret() func#1...
+  2: R1=scalar() R10=fp0
+  ; __noinline int exception_cb_bad_ret(u64 c) @ prog.c:35
+  2: (bf) r0 = r1                       ; R0_w=scalar(id=1) R1=scalar(id=1)
+  ; return c; @ prog.c:37
+  3: (95) exit
+  mark_precise: frame0: last_idx 3 first_idx 2 subseq_idx -1
+  mark_precise: frame0: regs=r0 stack= before 2: (bf) r0 = r1
+  mark_precise: frame0: falling back to forcing all scalars precise
+  At program exit the register R0 has unknown scalar value should have been in [0, 0]
+  processed 4 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  code: "SEC(\"?fentry/bpf_check\")\n__exception_cb(exception_cb_bad_ret)\n__failure __msg(\"At program exit the register R0 has unknown scalar value should\")\nint reject_set_exception_cb_bad_ret1(void *ctx)\n{\n\treturn 0;\n}"

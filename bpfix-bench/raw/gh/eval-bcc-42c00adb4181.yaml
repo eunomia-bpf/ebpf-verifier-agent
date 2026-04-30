@@ -1,0 +1,79 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-bcc-42c00adb4181
+source_kind: github_commit
+source:
+  url: https://github.com/iovisor/bcc/commit/42c00adb4181920d3e52f01e5020686ef470d6ce
+  title: Change clang frontend optimization level from 0 to 2
+  repository: https://github.com/iovisor/bcc
+  commit: 42c00adb4181920d3e52f01e5020686ef470d6ce
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-bcc-42c00adb4181.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-bcc-42c00adb4181
+  source: eval_commits
+  repository: https://github.com/iovisor/bcc
+  commit_hash: 42c00adb4181920d3e52f01e5020686ef470d6ce
+  commit_message: Change clang frontend optimization level from 0 to 2
+  commit_date: '2017-06-11'
+  fix_type: other
+  buggy_code: "// FILE: src/cc/frontends/clang/loader.cc\n// CONTEXT: int ClangLoader::parse(unique_ptr<llvm::Module>\
+    \ *mod, TableStorage &ts, const st\n  if (in_memory) {\n    abs_file = main_path;\n\
+    \    main_buf = llvm::MemoryBuffer::getMemBuffer(file);\n  } else {\n    if (file.substr(0,\
+    \ 1) == \"/\")\n      abs_file = file;\n    else\n      abs_file = string(dstack.cwd())\
+    \ + \"/\" + file;\n  }\n\n  // -fno-color-diagnostics: this is a workaround for\
+    \ a bug in llvm terminalHasColors() as of\n  // 22 Jul 2016. Also see bcc #615.\n\
+    \  vector<const char *> flags_cstr({\"-O0\", \"-emit-llvm\", \"-I\", dstack.cwd(),\n\
+    \                                   \"-Wno-deprecated-declarations\",\n      \
+    \                             \"-Wno-gnu-variable-sized-type-not-at-end\",\n \
+    \                                  \"-Wno-pragma-once-outside-header\",\n    \
+    \                               \"-Wno-address-of-packed-member\",\n         \
+    \                          \"-Wno-unknown-warning-option\",\n                \
+    \                   \"-fno-color-diagnostics\",\n                            \
+    \       \"-fno-unwind-tables\",\n                                   \"-fno-asynchronous-unwind-tables\"\
+    ,\n                                   \"-x\", \"c\", \"-c\", abs_file.c_str()});\n\
+    \n  KBuildHelper kbuild_helper(kdir, kernel_path_info.first);\n  vector<string>\
+    \ kflags;"
+  fixed_code: "// FILE: src/cc/frontends/clang/loader.cc\n// CONTEXT: int ClangLoader::parse(unique_ptr<llvm::Module>\
+    \ *mod, TableStorage &ts, const st\n  if (in_memory) {\n    abs_file = main_path;\n\
+    \    main_buf = llvm::MemoryBuffer::getMemBuffer(file);\n  } else {\n    if (file.substr(0,\
+    \ 1) == \"/\")\n      abs_file = file;\n    else\n      abs_file = string(dstack.cwd())\
+    \ + \"/\" + file;\n  }\n\n  // -fno-color-diagnostics: this is a workaround for\
+    \ a bug in llvm terminalHasColors() as of\n  // 22 Jul 2016. Also see bcc #615.\n\
+    \  // Enable -O2 for clang. In clang 5.0, -O0 may result in funciton marking as\n\
+    \  // noinline and optnone (if not always inlining).\n  // Note that first argument\
+    \ is ignored in clang compilation invocation.\n  vector<const char *> flags_cstr({\"\
+    -O0\", \"-O2\", \"-emit-llvm\", \"-I\", dstack.cwd(),\n                      \
+    \             \"-Wno-deprecated-declarations\",\n                            \
+    \       \"-Wno-gnu-variable-sized-type-not-at-end\",\n                       \
+    \            \"-Wno-pragma-once-outside-header\",\n                          \
+    \         \"-Wno-address-of-packed-member\",\n                               \
+    \    \"-Wno-unknown-warning-option\",\n                                   \"-fno-color-diagnostics\"\
+    ,\n                                   \"-fno-unwind-tables\",\n              \
+    \                     \"-fno-asynchronous-unwind-tables\",\n                 \
+    \                  \"-x\", \"c\", \"-c\", abs_file.c_str()});\n\n  KBuildHelper\
+    \ kbuild_helper(kdir, kernel_path_info.first);\n  vector<string> kflags;"
+  diff_summary: 'src/cc/frontends/clang/loader.cc:
+
+    - Applied a small verifier-related code change captured by the exact before/after
+    snippets below.
+
+    - Affected context: int ClangLoader::parse(unique_ptr<llvm::Module> *mod, TableStorage
+    &ts, const st.
+
+    - Commit subject: Change clang frontend optimization level from 0 to 2.'
+

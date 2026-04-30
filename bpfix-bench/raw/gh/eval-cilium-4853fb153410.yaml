@@ -1,0 +1,325 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-4853fb153410
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/4853fb153410219443d8985442759c1f0ec23d6a
+  title: 'bpf: Use __align_stack_8 on IPv6 structs'
+  repository: https://github.com/cilium/cilium
+  commit: 4853fb153410219443d8985442759c1f0ec23d6a
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-4853fb153410.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-4853fb153410
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: 4853fb153410219443d8985442759c1f0ec23d6a
+  commit_message: 'bpf: Use __align_stack_8 on IPv6 structs'
+  commit_date: '2024-06-03'
+  fix_type: other
+  buggy_code: "// FILE: bpf/bpf_lxc.c\n// CONTEXT: static __always_inline int __per_packet_lb_svc_xlate_4(void\
+    \ *ctx, struct iphdr *\n        }\nskip_service_lookup:\n        /* Store state\
+    \ to be picked up on the continuation tail call. */\n        lb4_ctx_store_state(ctx,\
+    \ &ct_state_new, proxy_port, cluster_id);\n        return tail_call_internal(ctx,\
+    \ CILIUM_CALL_IPV4_CT_EGRESS, ext_err);\n}\n#endif /* ENABLE_IPV4 */\n\n#ifdef\
+    \ ENABLE_IPV6\nstatic __always_inline int __per_packet_lb_svc_xlate_6(void *ctx,\
+    \ struct ipv6hdr *ip6,\n                                                     \
+    \  __s8 *ext_err)\n{\n        struct ipv6_ct_tuple tuple = {};\n        struct\
+    \ ct_state ct_state_new = {};\n        struct lb6_service *svc;\n        struct\
+    \ lb6_key key = {};\n        __u16 proxy_port = 0;\n        int l4_off;\n    \
+    \    int ret = 0;\n\n        ret = lb6_extract_tuple(ctx, ip6, ETH_HLEN, &l4_off,\
+    \ &tuple);\n        if (IS_ERR(ret)) {\n                if (ret == DROP_UNSUPP_SERVICE_PROTO\
+    \ || ret == DROP_UNKNOWN_L4)\n                        goto skip_service_lookup;\n\
+    \                else\n\n// FILE: bpf/lib/lb.h\n// CONTEXT: lb_l4_xlate(struct\
+    \ __ctx_buff *ctx, __u8 nexthdr __maybe_unused, int l4_off,\n                \
+    \        return ret;\n        }\n\n        return CTX_ACT_OK;\n}\n\n#ifdef ENABLE_IPV6\n\
+    static __always_inline int __lb6_rev_nat(struct __ctx_buff *ctx, int l4_off,\n\
+    \                                         struct ipv6_ct_tuple *tuple,\n     \
+    \                                    struct lb6_reverse_nat *nat)\n{\n       \
+    \ struct csum_offset csum_off = {};\n        union v6addr old_saddr;\n       \
+    \ __be32 sum;\n        int ret;\n\n        cilium_dbg_lb(ctx, DBG_LB6_REVERSE_NAT,\
+    \ nat->address.p4, nat->port);\n\n        csum_l4_offset_and_flags(tuple->nexthdr,\
+    \ &csum_off);\n\n        if (nat->port) {\n                ret = reverse_map_l4_port(ctx,\
+    \ tuple->nexthdr, tuple->dport,\n                                          nat->port,\
+    \ l4_off, &csum_off);\n                if (IS_ERR(ret))\n                    \
+    \    return ret;\n\n// FILE: bpf/lib/nodeport.h\n// CONTEXT: static __always_inline\
+    \ int dsr_set_ext6(struct __ctx_buff *ctx,\n                            sizeof(opt),\
+    \ 0) < 0)\n                return DROP_INVALID;\n        return 0;\n}\n#elif DSR_ENCAP_MODE\
+    \ == DSR_ENCAP_GENEVE\nstatic __always_inline int encap_geneve_dsr_opt6(struct\
+    \ __ctx_buff *ctx,\n                                                 struct ipv6hdr\
+    \ *ip6,\n                                                 const union v6addr *svc_addr,\n\
+    \                                                 __be16 svc_port,\n         \
+    \                                        int *ifindex, int *ohead)\n{\n      \
+    \  struct remote_endpoint_info *info;\n        struct ipv6_ct_tuple tuple = {};\n\
+    \        struct geneve_dsr_opt6 gopt;\n        union v6addr *dst;\n        bool\
+    \ need_opt = true;\n        __u16 encap_len = sizeof(struct ipv6hdr) + sizeof(struct\
+    \ udphdr) +\n                sizeof(struct genevehdr) + ETH_HLEN;\n        __u16\
+    \ payload_len = bpf_ntohs(ip6->payload_len) + sizeof(*ip6);\n        __u32 dst_sec_identity;\n\
+    \        __be32 tunnel_endpoint;\n        __u16 total_len = 0;\n        __be16\
+    \ src_port;\n        int l4_off, ret;\n\n\n// CONTEXT: nodeport_rev_dnat_ingress_ipv6(struct\
+    \ __ctx_buff *ctx, struct trace_ctx *trace,\n                               __s8\
+    \ *ext_err)\n{\n#ifdef ENABLE_NAT_46X64_GATEWAY\n        const bool nat_46x64_fib\
+    \ = nat46x64_cb_route(ctx);\n#endif\n        struct bpf_fib_lookup_padded fib_params\
+    \ = {\n                .l = {\n                        .family         = AF_INET6,\n\
+    \                        .ifindex        = ctx_get_ifindex(ctx),\n           \
+    \     },\n        };\n        int ret, l4_off;\n        struct ipv6_ct_tuple tuple\
+    \ = {};\n        struct ct_state ct_state = {};\n        void *data, *data_end;\n\
+    \        struct ipv6hdr *ip6;\n        __u32 tunnel_endpoint __maybe_unused =\
+    \ 0;\n        __u32 dst_sec_identity __maybe_unused = 0;\n        __be16 src_port\
+    \ __maybe_unused = 0;\n        bool allow_neigh_map = true;\n        int ifindex\
+    \ = 0;\n\n        if (!revalidate_data(ctx, &data, &data_end, &ip6))\n       \
+    \         return DROP_INVALID;\n#ifdef ENABLE_NAT_46X64_GATEWAY\n\n// CONTEXT:\
+    \ int tail_nodeport_nat_egress_ipv6(struct __ctx_buff *ctx)\n        const bool\
+    \ nat_46x64 = nat46x64_cb_xlate(ctx);\n        struct bpf_fib_lookup_padded fib_params\
+    \ = {\n                .l = {\n                        .family         = AF_INET6,\n\
+    \                        .ifindex        = ctx_get_ifindex(ctx),\n           \
+    \     },\n        };\n        struct ipv6_nat_target target = {\n            \
+    \    .min_port = NODEPORT_PORT_MIN_NAT,\n                .max_port = NODEPORT_PORT_MAX_NAT,\n\
+    \                .addr = IPV6_DIRECT_ROUTING,\n        };\n        struct ipv6_ct_tuple\
+    \ tuple = {};\n        struct trace_ctx trace = {\n                .reason = (enum\
+    \ trace_reason)CT_NEW,\n                .monitor = TRACE_PAYLOAD_LEN,\n      \
+    \  };\n        int ret, l4_off, oif = 0;\n        void *data, *data_end;\n   \
+    \     struct ipv6hdr *ip6;\n        __s8 ext_err = 0;\n#ifdef TUNNEL_MODE\n  \
+    \      struct remote_endpoint_info *info;\n        __be32 tunnel_endpoint = 0;\n\
+    \        __u32 dst_sec_identity = 0;\n\n// CONTEXT: static __always_inline int\
+    \ nodeport_svc_lb6(struct __ctx_buff *ctx,\n        }\n}\n\n/* See nodeport_lb4().\
+    \ */\nstatic __always_inline int nodeport_lb6(struct __ctx_buff *ctx,\n      \
+    \                                  struct ipv6hdr *ip6,\n                    \
+    \                    __u32 src_sec_identity,\n                               \
+    \         __s8 *ext_err,\n                                        bool __maybe_unused\
+    \ *dsr)\n{\n        bool is_svc_proto __maybe_unused = true;\n        int ret,\
+    \ l3_off = ETH_HLEN, l4_off;\n        struct ipv6_ct_tuple tuple = {};\n     \
+    \   struct lb6_service *svc;\n        struct lb6_key key = {};\n\n        cilium_capture_in(ctx);\n\
+    \n        ret = lb6_extract_tuple(ctx, ip6, ETH_HLEN, &l4_off, &tuple);\n    \
+    \    if (IS_ERR(ret)) {\n                if (ret == DROP_UNSUPP_SERVICE_PROTO)\
+    \ {\n                        is_svc_proto = false;\n                        goto\
+    \ skip_service_lookup;\n                }\n                if (ret == DROP_UNKNOWN_L4)\
+    \ {\n\n// CONTEXT: skip_service_lookup:\n                ctx_store_meta(ctx, CB_SRC_LABEL,\
+    \ src_sec_identity);\n                return tail_call_internal(ctx, CILIUM_CALL_IPV6_NODEPORT_NAT_INGRESS,\n\
+    \                                          ext_err);\n        }\n}\n\nstatic __always_inline\
+    \ int\nnodeport_rev_dnat_fwd_ipv6(struct __ctx_buff *ctx, bool *snat_done,\n \
+    \                          struct trace_ctx *trace, __s8 *ext_err __maybe_unused)\n\
+    {\n        struct bpf_fib_lookup_padded fib_params __maybe_unused = {};\n    \
+    \    struct lb6_reverse_nat *nat_info;\n        struct ipv6_ct_tuple tuple = {};\n\
+    \        void *data, *data_end;\n        struct ipv6hdr *ip6;\n        int ret,\
+    \ l4_off;\n\n        if (!revalidate_data(ctx, &data, &data_end, &ip6))\n    \
+    \            return DROP_INVALID;\n\n        ret = lb6_extract_tuple(ctx, ip6,\
+    \ ETH_HLEN, &l4_off, &tuple);\n        if (ret < 0) {\n                if (ret\
+    \ == DROP_UNSUPP_SERVICE_PROTO || ret == DROP_UNKNOWN_L4)\n                  \
+    \      return CTX_ACT_OK;\n                return ret;\n\n// FILE: bpf/tests/lib/lb.h\n\
+    // CONTEXT: lb_v4_add_backend(__be32 svc_addr, __be16 svc_port, __u16 backend_slot,\n\
+    \                .flags = SVC_FLAG_ROUTABLE,\n        };\n        /* Point the\
+    \ service's backend_slot at the created backend: */\n        map_update_elem(&LB4_SERVICES_MAP_V2,\
+    \ &svc_key, &svc_value, BPF_ANY);\n}\n#endif\n\n#ifdef ENABLE_IPV6\nstatic __always_inline\
+    \ void\n__lb_v6_add_service(const union v6addr *addr, __be16 port, __u16 backend_count,\
+    \ __u16 rev_nat_index,\n                    __u8 flags, __u8 flags2)\n{\n    \
+    \    struct lb6_key svc_key = {\n                .dport = port,\n            \
+    \    .scope = LB_LOOKUP_SCOPE_EXT,\n        };\n        struct lb6_service svc_value\
+    \ = {\n                .count = backend_count,\n                .flags = flags,\n\
+    \                .flags2 = flags2,\n                .rev_nat_index = rev_nat_index,\n\
+    \        };\n\n        memcpy(&svc_key.address, addr, sizeof(*addr));\n      \
+    \  map_update_elem(&LB6_SERVICES_MAP_V2, &svc_key, &svc_value, BPF_ANY);\n   \
+    \     svc_key.scope = LB_LOOKUP_SCOPE_INT;\n        map_update_elem(&LB6_SERVICES_MAP_V2,\
+    \ &svc_key, &svc_value, BPF_ANY);\n\n        /* Insert a reverse NAT entry for\
+    \ the above service */\n        struct lb6_reverse_nat revnat_value = {\n    \
+    \            .port = port,\n        };\n\n        memcpy(&revnat_value.address,\
+    \ addr, sizeof(*addr));\n        map_update_elem(&LB6_REVERSE_NAT_MAP, &rev_nat_index,\
+    \ &revnat_value, BPF_ANY);\n}\n\nstatic __always_inline void\nlb_v6_add_service(const\
+    \ union v6addr *addr, __be16 port, __u16 backend_count,\n                  __u16\
+    \ rev_nat_index)\n{\n        __lb_v6_add_service(addr, port, backend_count, rev_nat_index,\
+    \ SVC_FLAG_ROUTABLE, 0);\n\n// CONTEXT: lb_v6_add_service(const union v6addr *addr,\
+    \ __be16 port, __u16 backend_count,\nstatic __always_inline void\nlb_v6_add_service_with_flags(const\
+    \ union v6addr *addr, __be16 port, __u16 backend_count,\n                    \
+    \         __u16 rev_nat_index, __u8 flags, __u8 flags2)\n{\n        __lb_v6_add_service(addr,\
+    \ port, backend_count, rev_nat_index, flags, flags2);\n}\n\nstatic __always_inline\
+    \ void\nlb_v6_add_backend(const union v6addr *svc_addr, __be16 svc_port, __u16\
+    \ backend_slot,\n                  __u32 backend_id, const union v6addr *backend_addr,\n\
+    \                  __be16 backend_port, __u8 backend_proto, __u8 cluster_id)\n\
+    {\n        struct lb6_key svc_key = {\n                .dport = svc_port,\n  \
+    \              .backend_slot = backend_slot,\n                .scope = LB_LOOKUP_SCOPE_EXT,\n\
+    \        };\n        struct lb6_service svc_value = {\n                .backend_id\
+    \ = backend_id,\n                .flags = SVC_FLAG_ROUTABLE,\n        };\n\n \
+    \       memcpy(&svc_key.address, svc_addr, sizeof(*svc_addr));\n        map_update_elem(&LB6_SERVICES_MAP_V2,\
+    \ &svc_key, &svc_value, BPF_ANY);\n\n        struct lb6_backend backend = {\n\
+    \                .port = backend_port,\n                .proto = backend_proto,\n\
+    \                .flags = BE_STATE_ACTIVE,\n                .cluster_id = cluster_id,\n\
+    \        };\n\n        memcpy(&backend.address, backend_addr, sizeof(*backend_addr));\n\
+    \        map_update_elem(&LB6_BACKEND_MAP, &backend_id, &backend, BPF_ANY);\n\
+    }\n#endif\n\n// FILE: bpf/tests/tc_nodeport_lb6_dsr_backend.c\n// CONTEXT: int\
+    \ nodeport_dsr_backend_check(struct __ctx_buff *ctx)\n\n        if (opt->port\
+    \ != FRONTEND_PORT)\n                test_fatal(\"port in DSR extension has changed\"\
+    )\n        if (!ipv6_addr_equals((union v6addr *)&opt->addr, &frontend_ip))\n\
+    \                test_fatal(\"addr in DSR extension has changed\")\n\n       \
+    \ if (l4->source != CLIENT_PORT)\n                test_fatal(\"src port has changed\"\
+    );\n\n        if (l4->dest != BACKEND_PORT)\n                test_fatal(\"dst\
+    \ port has changed\");\n\n        struct ipv6_ct_tuple tuple;\n        struct\
+    \ ct_entry *ct_entry;\n        int l4_off, ret;\n\n        ret = lb6_extract_tuple(ctx,\
+    \ l3, sizeof(*status_code) + ETH_HLEN,\n                                &l4_off,\
+    \ &tuple);\n        assert(!IS_ERR(ret));\n\n        tuple.flags = TUPLE_F_IN;\n\
+    \        ipv6_ct_tuple_reverse(&tuple);\n\n        ct_entry = map_lookup_elem(get_ct_map6(&tuple),\
+    \ &tuple);\n        if (!ct_entry)"
+  fixed_code: "// FILE: bpf/bpf_lxc.c\n// CONTEXT: static __always_inline int __per_packet_lb_svc_xlate_4(void\
+    \ *ctx, struct iphdr *\n        }\nskip_service_lookup:\n        /* Store state\
+    \ to be picked up on the continuation tail call. */\n        lb4_ctx_store_state(ctx,\
+    \ &ct_state_new, proxy_port, cluster_id);\n        return tail_call_internal(ctx,\
+    \ CILIUM_CALL_IPV4_CT_EGRESS, ext_err);\n}\n#endif /* ENABLE_IPV4 */\n\n#ifdef\
+    \ ENABLE_IPV6\nstatic __always_inline int __per_packet_lb_svc_xlate_6(void *ctx,\
+    \ struct ipv6hdr *ip6,\n                                                     \
+    \  __s8 *ext_err)\n{\n        struct ipv6_ct_tuple tuple __align_stack_8 = {};\n\
+    \        struct ct_state ct_state_new = {};\n        struct lb6_service *svc;\n\
+    \        struct lb6_key key = {};\n        __u16 proxy_port = 0;\n        int\
+    \ l4_off;\n        int ret = 0;\n\n        ret = lb6_extract_tuple(ctx, ip6, ETH_HLEN,\
+    \ &l4_off, &tuple);\n        if (IS_ERR(ret)) {\n                if (ret == DROP_UNSUPP_SERVICE_PROTO\
+    \ || ret == DROP_UNKNOWN_L4)\n                        goto skip_service_lookup;\n\
+    \                else\n\n// FILE: bpf/lib/lb.h\n// CONTEXT: lb_l4_xlate(struct\
+    \ __ctx_buff *ctx, __u8 nexthdr __maybe_unused, int l4_off,\n                \
+    \        return ret;\n        }\n\n        return CTX_ACT_OK;\n}\n\n#ifdef ENABLE_IPV6\n\
+    static __always_inline int __lb6_rev_nat(struct __ctx_buff *ctx, int l4_off,\n\
+    \                                         struct ipv6_ct_tuple *tuple,\n     \
+    \                                    struct lb6_reverse_nat *nat)\n{\n       \
+    \ struct csum_offset csum_off = {};\n        union v6addr old_saddr __align_stack_8;\n\
+    \        __be32 sum;\n        int ret;\n\n        cilium_dbg_lb(ctx, DBG_LB6_REVERSE_NAT,\
+    \ nat->address.p4, nat->port);\n\n        csum_l4_offset_and_flags(tuple->nexthdr,\
+    \ &csum_off);\n\n        if (nat->port) {\n                ret = reverse_map_l4_port(ctx,\
+    \ tuple->nexthdr, tuple->dport,\n                                          nat->port,\
+    \ l4_off, &csum_off);\n                if (IS_ERR(ret))\n                    \
+    \    return ret;\n\n// FILE: bpf/lib/nodeport.h\n// CONTEXT: static __always_inline\
+    \ int dsr_set_ext6(struct __ctx_buff *ctx,\n                            sizeof(opt),\
+    \ 0) < 0)\n                return DROP_INVALID;\n        return 0;\n}\n#elif DSR_ENCAP_MODE\
+    \ == DSR_ENCAP_GENEVE\nstatic __always_inline int encap_geneve_dsr_opt6(struct\
+    \ __ctx_buff *ctx,\n                                                 struct ipv6hdr\
+    \ *ip6,\n                                                 const union v6addr *svc_addr,\n\
+    \                                                 __be16 svc_port,\n         \
+    \                                        int *ifindex, int *ohead)\n{\n      \
+    \  struct remote_endpoint_info *info;\n        struct ipv6_ct_tuple tuple __align_stack_8\
+    \ = {};\n        struct geneve_dsr_opt6 gopt;\n        union v6addr *dst;\n  \
+    \      bool need_opt = true;\n        __u16 encap_len = sizeof(struct ipv6hdr)\
+    \ + sizeof(struct udphdr) +\n                sizeof(struct genevehdr) + ETH_HLEN;\n\
+    \        __u16 payload_len = bpf_ntohs(ip6->payload_len) + sizeof(*ip6);\n   \
+    \     __u32 dst_sec_identity;\n        __be32 tunnel_endpoint;\n        __u16\
+    \ total_len = 0;\n        __be16 src_port;\n        int l4_off, ret;\n\n\n// CONTEXT:\
+    \ nodeport_rev_dnat_ingress_ipv6(struct __ctx_buff *ctx, struct trace_ctx *trace,\n\
+    \                               __s8 *ext_err)\n{\n#ifdef ENABLE_NAT_46X64_GATEWAY\n\
+    \        const bool nat_46x64_fib = nat46x64_cb_route(ctx);\n#endif\n        struct\
+    \ bpf_fib_lookup_padded fib_params = {\n                .l = {\n             \
+    \           .family         = AF_INET6,\n                        .ifindex    \
+    \    = ctx_get_ifindex(ctx),\n                },\n        };\n        int ret,\
+    \ l4_off;\n        struct ipv6_ct_tuple tuple __align_stack_8 = {};\n        struct\
+    \ ct_state ct_state = {};\n        void *data, *data_end;\n        struct ipv6hdr\
+    \ *ip6;\n        __u32 tunnel_endpoint __maybe_unused = 0;\n        __u32 dst_sec_identity\
+    \ __maybe_unused = 0;\n        __be16 src_port __maybe_unused = 0;\n        bool\
+    \ allow_neigh_map = true;\n        int ifindex = 0;\n\n        if (!revalidate_data(ctx,\
+    \ &data, &data_end, &ip6))\n                return DROP_INVALID;\n#ifdef ENABLE_NAT_46X64_GATEWAY\n\
+    \n// CONTEXT: int tail_nodeport_nat_egress_ipv6(struct __ctx_buff *ctx)\n    \
+    \    const bool nat_46x64 = nat46x64_cb_xlate(ctx);\n        struct bpf_fib_lookup_padded\
+    \ fib_params = {\n                .l = {\n                        .family    \
+    \     = AF_INET6,\n                        .ifindex        = ctx_get_ifindex(ctx),\n\
+    \                },\n        };\n        struct ipv6_nat_target target = {\n \
+    \               .min_port = NODEPORT_PORT_MIN_NAT,\n                .max_port\
+    \ = NODEPORT_PORT_MAX_NAT,\n                .addr = IPV6_DIRECT_ROUTING,\n   \
+    \     };\n        struct ipv6_ct_tuple tuple __align_stack_8 = {};\n        struct\
+    \ trace_ctx trace = {\n                .reason = (enum trace_reason)CT_NEW,\n\
+    \                .monitor = TRACE_PAYLOAD_LEN,\n        };\n        int ret, l4_off,\
+    \ oif = 0;\n        void *data, *data_end;\n        struct ipv6hdr *ip6;\n   \
+    \     __s8 ext_err = 0;\n#ifdef TUNNEL_MODE\n        struct remote_endpoint_info\
+    \ *info;\n        __be32 tunnel_endpoint = 0;\n        __u32 dst_sec_identity\
+    \ = 0;\n\n// CONTEXT: static __always_inline int nodeport_svc_lb6(struct __ctx_buff\
+    \ *ctx,\n        }\n}\n\n/* See nodeport_lb4(). */\nstatic __always_inline int\
+    \ nodeport_lb6(struct __ctx_buff *ctx,\n                                     \
+    \   struct ipv6hdr *ip6,\n                                        __u32 src_sec_identity,\n\
+    \                                        __s8 *ext_err,\n                    \
+    \                    bool __maybe_unused *dsr)\n{\n        bool is_svc_proto __maybe_unused\
+    \ = true;\n        int ret, l3_off = ETH_HLEN, l4_off;\n        struct ipv6_ct_tuple\
+    \ tuple __align_stack_8 = {};\n        struct lb6_service *svc;\n        struct\
+    \ lb6_key key = {};\n\n        cilium_capture_in(ctx);\n\n        ret = lb6_extract_tuple(ctx,\
+    \ ip6, ETH_HLEN, &l4_off, &tuple);\n        if (IS_ERR(ret)) {\n             \
+    \   if (ret == DROP_UNSUPP_SERVICE_PROTO) {\n                        is_svc_proto\
+    \ = false;\n                        goto skip_service_lookup;\n              \
+    \  }\n                if (ret == DROP_UNKNOWN_L4) {\n\n// CONTEXT: skip_service_lookup:\n\
+    \                ctx_store_meta(ctx, CB_SRC_LABEL, src_sec_identity);\n      \
+    \          return tail_call_internal(ctx, CILIUM_CALL_IPV6_NODEPORT_NAT_INGRESS,\n\
+    \                                          ext_err);\n        }\n}\n\nstatic __always_inline\
+    \ int\nnodeport_rev_dnat_fwd_ipv6(struct __ctx_buff *ctx, bool *snat_done,\n \
+    \                          struct trace_ctx *trace, __s8 *ext_err __maybe_unused)\n\
+    {\n        struct bpf_fib_lookup_padded fib_params __maybe_unused = {};\n    \
+    \    struct lb6_reverse_nat *nat_info;\n        struct ipv6_ct_tuple tuple __align_stack_8\
+    \ = {};\n        void *data, *data_end;\n        struct ipv6hdr *ip6;\n      \
+    \  int ret, l4_off;\n\n        if (!revalidate_data(ctx, &data, &data_end, &ip6))\n\
+    \                return DROP_INVALID;\n\n        ret = lb6_extract_tuple(ctx,\
+    \ ip6, ETH_HLEN, &l4_off, &tuple);\n        if (ret < 0) {\n                if\
+    \ (ret == DROP_UNSUPP_SERVICE_PROTO || ret == DROP_UNKNOWN_L4)\n             \
+    \           return CTX_ACT_OK;\n                return ret;\n\n// FILE: bpf/tests/lib/lb.h\n\
+    // CONTEXT: lb_v4_add_backend(__be32 svc_addr, __be16 svc_port, __u16 backend_slot,\n\
+    \                .flags = SVC_FLAG_ROUTABLE,\n        };\n        /* Point the\
+    \ service's backend_slot at the created backend: */\n        map_update_elem(&LB4_SERVICES_MAP_V2,\
+    \ &svc_key, &svc_value, BPF_ANY);\n}\n#endif\n\n#ifdef ENABLE_IPV6\nstatic __always_inline\
+    \ void\n__lb_v6_add_service(const union v6addr *addr, __be16 port, __u16 backend_count,\
+    \ __u16 rev_nat_index,\n                    __u8 flags, __u8 flags2)\n{\n    \
+    \    struct lb6_key svc_key __align_stack_8 = {\n                .dport = port,\n\
+    \                .scope = LB_LOOKUP_SCOPE_EXT,\n        };\n        struct lb6_service\
+    \ svc_value = {\n                .count = backend_count,\n                .flags\
+    \ = flags,\n                .flags2 = flags2,\n                .rev_nat_index\
+    \ = rev_nat_index,\n        };\n\n        memcpy(&svc_key.address, addr, sizeof(*addr));\n\
+    \        map_update_elem(&LB6_SERVICES_MAP_V2, &svc_key, &svc_value, BPF_ANY);\n\
+    \        svc_key.scope = LB_LOOKUP_SCOPE_INT;\n        map_update_elem(&LB6_SERVICES_MAP_V2,\
+    \ &svc_key, &svc_value, BPF_ANY);\n\n        /* Insert a reverse NAT entry for\
+    \ the above service */\n        struct lb6_reverse_nat revnat_value __align_stack_8\
+    \ = {\n                .port = port,\n        };\n\n        memcpy(&revnat_value.address,\
+    \ addr, sizeof(*addr));\n        map_update_elem(&LB6_REVERSE_NAT_MAP, &rev_nat_index,\
+    \ &revnat_value, BPF_ANY);\n}\n\nstatic __always_inline void\nlb_v6_add_service(const\
+    \ union v6addr *addr, __be16 port, __u16 backend_count,\n                  __u16\
+    \ rev_nat_index)\n{\n        __lb_v6_add_service(addr, port, backend_count, rev_nat_index,\
+    \ SVC_FLAG_ROUTABLE, 0);\n\n// CONTEXT: lb_v6_add_service(const union v6addr *addr,\
+    \ __be16 port, __u16 backend_count,\nstatic __always_inline void\nlb_v6_add_service_with_flags(const\
+    \ union v6addr *addr, __be16 port, __u16 backend_count,\n                    \
+    \         __u16 rev_nat_index, __u8 flags, __u8 flags2)\n{\n        __lb_v6_add_service(addr,\
+    \ port, backend_count, rev_nat_index, flags, flags2);\n}\n\nstatic __always_inline\
+    \ void\nlb_v6_add_backend(const union v6addr *svc_addr, __be16 svc_port, __u16\
+    \ backend_slot,\n                  __u32 backend_id, const union v6addr *backend_addr,\n\
+    \                  __be16 backend_port, __u8 backend_proto, __u8 cluster_id)\n\
+    {\n        struct lb6_key svc_key __align_stack_8 = {\n                .dport\
+    \ = svc_port,\n                .backend_slot = backend_slot,\n               \
+    \ .scope = LB_LOOKUP_SCOPE_EXT,\n        };\n        struct lb6_service svc_value\
+    \ = {\n                .backend_id = backend_id,\n                .flags = SVC_FLAG_ROUTABLE,\n\
+    \        };\n\n        memcpy(&svc_key.address, svc_addr, sizeof(*svc_addr));\n\
+    \        map_update_elem(&LB6_SERVICES_MAP_V2, &svc_key, &svc_value, BPF_ANY);\n\
+    \n        struct lb6_backend backend __align_stack_8 = {\n                .port\
+    \ = backend_port,\n                .proto = backend_proto,\n                .flags\
+    \ = BE_STATE_ACTIVE,\n                .cluster_id = cluster_id,\n        };\n\n\
+    \        memcpy(&backend.address, backend_addr, sizeof(*backend_addr));\n    \
+    \    map_update_elem(&LB6_BACKEND_MAP, &backend_id, &backend, BPF_ANY);\n}\n#endif\n\
+    \n// FILE: bpf/tests/tc_nodeport_lb6_dsr_backend.c\n// CONTEXT: int nodeport_dsr_backend_check(struct\
+    \ __ctx_buff *ctx)\n\n        if (opt->port != FRONTEND_PORT)\n              \
+    \  test_fatal(\"port in DSR extension has changed\")\n        if (!ipv6_addr_equals((union\
+    \ v6addr *)&opt->addr, &frontend_ip))\n                test_fatal(\"addr in DSR\
+    \ extension has changed\")\n\n        if (l4->source != CLIENT_PORT)\n       \
+    \         test_fatal(\"src port has changed\");\n\n        if (l4->dest != BACKEND_PORT)\n\
+    \                test_fatal(\"dst port has changed\");\n\n        struct ipv6_ct_tuple\
+    \ tuple __align_stack_8;\n        struct ct_entry *ct_entry;\n        int l4_off,\
+    \ ret;\n\n        ret = lb6_extract_tuple(ctx, l3, sizeof(*status_code) + ETH_HLEN,\n\
+    \                                &l4_off, &tuple);\n        assert(!IS_ERR(ret));\n\
+    \n        tuple.flags = TUPLE_F_IN;\n        ipv6_ct_tuple_reverse(&tuple);\n\n\
+    \        ct_entry = map_lookup_elem(get_ct_map6(&tuple), &tuple);\n        if\
+    \ (!ct_entry)"
+  diff_summary: 'bpf/bpf_lxc.c, bpf/lib/lb.h, bpf/lib/nodeport.h, bpf/tests/lib/lb.h,
+    bpf/tests/tc_nodeport_lb6_dsr_backend.c:
+
+    - Applied `__align_stack_8` to IPv6 tuple/address/backend stack objects.
+
+    - Fixed verifier failures caused by LLVM 18 generating 64-bit accesses to only
+    4-byte-aligned stack slots.'
+

@@ -23,9 +23,9 @@ modules_to_check = [
     "interface.extractor.obligation_inference",
     "interface.extractor.obligation_catalog_formal",
     "interface.api",
-    # Eval modules
-    "eval.llm_comparison",
-    "eval.verifier_oracle",
+    # Agent/tool modules
+    "agent.metrics",
+    "tools.verifier_oracle",
 ]
 
 errors = []

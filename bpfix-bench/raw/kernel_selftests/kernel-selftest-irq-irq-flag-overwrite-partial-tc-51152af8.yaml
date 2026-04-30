@@ -1,0 +1,47 @@
+case_id: kernel-selftest-irq-irq-flag-overwrite-partial-tc-51152af8
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/irq.c
+  section: ?tc
+  function: irq_flag_overwrite_partial
+  description: irq_flag_overwrite_partial
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - expected an initialized
+  unprivileged: []
+  combined:
+  - expected an initialized
+verifier_log: |
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r6 = r10
+    1: ......6... (07) r6 += -8
+    2: ......6... (bf) r1 = r6
+    3: .1....6... (85) call bpf_local_irq_save#72094
+    4: ......6... (b4) w1 = 255
+    5: .1....6... (73) *(u8 *)(r10 -7) = r1
+    6: ......6... (bf) r1 = r6
+    7: .1........ (85) call bpf_local_irq_restore#72093
+    8: .......... (b4) w0 = 0
+    9: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int irq_flag_overwrite_partial(struct __sk_buff *ctx) @ irq.c:391
+  0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ; bpf_local_irq_save(&flags); @ irq.c:395
+  1: (07) r6 += -8                      ; R6_w=fp-8
+  2: (bf) r1 = r6                       ; R1_w=fp-8 R6_w=fp-8
+  3: (85) call bpf_local_irq_save#72094         ; fp-8_w=ffffffff refs=1
+  4: (b4) w1 = 255                      ; R1_w=255 refs=1
+  ; *(((char *)&flags) + 1) = 0xff; @ irq.c:396
+  5: (73) *(u8 *)(r10 -7) = r1          ; R1_w=255 R10=fp0 fp-8_w=mmmmmmmm refs=1
+  ; bpf_local_irq_restore(&flags); @ irq.c:397
+  6: (bf) r1 = r6                       ; R1_w=fp-8 R6_w=fp-8 refs=1
+  7: (85) call bpf_local_irq_restore#72093
+  expected an initialized irq flag as arg#0
+  processed 8 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/irq.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"expected an initialized\")\nint irq_flag_overwrite_partial(struct __sk_buff *ctx)\n{\n\tunsigned long flags;\n\n\tbpf_local_irq_save(&flags);\n\t*(((char *)&flags) + 1) = 0xff;\n\tbpf_local_irq_restore(&flags);\n\treturn 0;\n}"

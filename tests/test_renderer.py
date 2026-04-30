@@ -13,15 +13,9 @@ from interface.extractor.source_correlator import SourceSpan
 
 
 def _load_verifier_log(relative_path: str) -> str:
-    payload = yaml.safe_load((ROOT / relative_path).read_text(encoding="utf-8"))
-    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
-    if isinstance(verifier_log, str):
-        return verifier_log
-    combined = verifier_log.get("combined")
-    if isinstance(combined, str):
-        return combined
-    blocks = verifier_log.get("blocks") or []
-    return "\n\n".join(block for block in blocks if isinstance(block, str))
+    from bench_fixtures import load_verifier_log
+
+    return load_verifier_log(relative_path)
 
 
 def _strip_btf_annotations(verifier_log: str) -> str:
@@ -36,7 +30,7 @@ def _proof_spans(output: Any) -> list[dict[str, object]]:
 
 def test_generate_rust_style_lowering_artifact_with_btf_and_backtracking() -> None:
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
     )
 
     assert "error[BPFIX-E005]" in output.text
@@ -62,7 +56,7 @@ def test_generate_rust_style_lowering_artifact_with_btf_and_backtracking() -> No
 
 def test_renderer_serializes_engine_causal_chain_in_metadata() -> None:
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
     )
 
     causal_chain = output.json_data["metadata"]["causal_chain"]
@@ -75,7 +69,7 @@ def test_renderer_serializes_engine_causal_chain_in_metadata() -> None:
 def test_generate_rust_style_source_bug_with_btf() -> None:
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-data-slice-missing-null-check2-raw-tp-8e533162.yaml"
         )
     )
@@ -99,7 +93,7 @@ def test_generate_rust_style_source_bug_with_btf() -> None:
 def test_generate_rust_style_reuses_btf_location_for_multi_insn_call_site() -> None:
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-skb-invalid-ctx-fentry-fentry-skb-tx-error-17cea403.yaml"
         )
     )
@@ -115,7 +109,7 @@ def test_generate_rust_style_reuses_btf_location_for_multi_insn_call_site() -> N
 
 def test_renderer_emits_rejected_span_when_trace_has_no_instructions() -> None:
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-48267671.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-48267671.yaml")
     )
 
     spans = _proof_spans(output)
@@ -162,7 +156,7 @@ def test_renderer_crypto_acquire_b8afbe98_produces_rejected_span() -> None:
     """
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-crypto-basic-crypto-acquire-syscall-b8afbe98.yaml"
         )
     )
@@ -177,7 +171,7 @@ def test_renderer_crypto_acquire_b8afbe98_produces_rejected_span() -> None:
 
 def test_renderer_caps_redundant_spans_at_five() -> None:
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
     )
 
     assert len(_proof_spans(output)) <= 5
@@ -187,7 +181,7 @@ def test_renderer_caps_redundant_spans_at_five() -> None:
 
 def test_renderer_json_output_structure() -> None:
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
     )
 
     data = output.json_data
@@ -223,7 +217,7 @@ def test_renderer_json_output_structure() -> None:
 
 def test_renderer_keeps_dict_like_get_for_json_compatibility() -> None:
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
     )
 
     assert output.get("metadata") == output.json_data["metadata"]
@@ -231,7 +225,7 @@ def test_renderer_keeps_dict_like_get_for_json_compatibility() -> None:
 
 def test_renderer_falls_back_to_bytecode_without_btf_annotations() -> None:
     verifier_log = _strip_btf_annotations(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
     )
     output = generate_diagnostic(verifier_log)
 
@@ -247,7 +241,7 @@ def test_renderer_falls_back_to_bytecode_without_btf_annotations() -> None:
 
 def test_renderer_uses_bpftool_xlated_fallback_without_verifier_btf() -> None:
     verifier_log = _strip_btf_annotations(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70750259.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70750259.yaml")
     )
     bpftool_xlated = """
     int parse_packet(void *data, void *data_end) {
@@ -276,9 +270,9 @@ def test_renderer_uses_bpftool_xlated_fallback_without_verifier_btf() -> None:
 
 def test_renderer_drops_false_satisfied_status_for_round2_zero_trace_cases() -> None:
     cases = (
-        "case_study/cases/stackoverflow/stackoverflow-76994829.yaml",
-        "case_study/cases/stackoverflow/stackoverflow-77713434.yaml",
-        "case_study/cases/stackoverflow/stackoverflow-78591601.yaml",
+        "bpfix-bench/raw/so/stackoverflow-76994829.yaml",
+        "bpfix-bench/raw/so/stackoverflow-77713434.yaml",
+        "bpfix-bench/raw/so/stackoverflow-78591601.yaml",
     )
 
     for case_path in cases:
@@ -295,7 +289,7 @@ def test_renderer_preserves_engine_inferred_obligation_when_formal_analysis_retu
     proof_status='unknown' because no proof lifecycle can be established.
     """
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/github_issues/github-aya-rs-aya-1002.yaml")
+        _load_verifier_log("bpfix-bench/raw/gh/github-aya-rs-aya-1002.yaml")
     )
 
     assert output.json_data["metadata"]["proof_status"] == "unknown"
@@ -318,7 +312,7 @@ def test_renderer_keeps_engine_obligation_when_unknown_engine_status_is_ignored(
     """
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-add-dynptr-to-map1-raw-tp-2b5ac898.yaml"
         )
     )
@@ -334,7 +328,7 @@ def test_renderer_keeps_engine_obligation_when_unknown_engine_status_is_ignored(
 
 def test_renderer_preserves_specific_helper_contract_for_so_61945212() -> None:
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-61945212.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-61945212.yaml")
     )
 
     assert "helper expected a stack pointer" in output.text
@@ -352,7 +346,7 @@ def test_renderer_preserves_specific_helper_contract_for_so_61945212() -> None:
 
 def test_renderer_preserves_specific_helper_contract_for_so_70091221() -> None:
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-70091221.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-70091221.yaml")
     )
 
     assert "helper expected a map pointer" in output.text
@@ -369,7 +363,7 @@ def test_renderer_preserves_specific_helper_contract_for_so_70091221() -> None:
 
 def test_renderer_preserves_specific_kfunc_contract_without_trace() -> None:
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-79045875.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-79045875.yaml")
     )
 
     assert output.json_data["metadata"]["proof_status"] == "unknown"
@@ -389,7 +383,7 @@ def test_renderer_preserves_specific_kfunc_contract_without_trace() -> None:
 def test_renderer_preserves_specific_iterator_protocol_error_from_raw_log() -> None:
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-iters-state-safety-destroy-without-creating-fail-raw-tp-a14b4d3a.yaml"
         )
     )
@@ -403,7 +397,7 @@ def test_renderer_preserves_specific_iterator_protocol_error_from_raw_log() -> N
 def test_renderer_preserves_specific_dynptr_release_error_from_raw_log() -> None:
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-release-twice-raw-tp-3722429d.yaml"
         )
     )
@@ -417,7 +411,7 @@ def test_renderer_preserves_specific_dynptr_release_error_from_raw_log() -> None
 def test_renderer_preserves_specific_lock_context_error_from_raw_log() -> None:
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-exceptions-fail-reject-subprog-with-lock-tc-f038a1b8.yaml"
         )
     )
@@ -431,7 +425,7 @@ def test_renderer_preserves_specific_lock_context_error_from_raw_log() -> None:
 def test_renderer_preserves_specific_dynptr_argument_contract_from_raw_log() -> None:
     output = generate_diagnostic(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9.yaml"
         )
     )
@@ -446,7 +440,7 @@ def test_renderer_preserves_specific_dynptr_argument_contract_from_raw_log() -> 
 
 def test_renderer_preserves_specific_helper_unavailable_error_from_raw_log() -> None:
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/github_issues/github-aya-rs-aya-1233.yaml")
+        _load_verifier_log("bpfix-bench/raw/gh/github-aya-rs-aya-1233.yaml")
     )
 
     assert "does not permit the helper bpf_probe_read#4" in output.text
@@ -459,7 +453,7 @@ def test_renderer_preserves_specific_helper_unavailable_error_from_raw_log() -> 
 
 def test_renderer_preserves_specific_unknown_helper_error_from_raw_log() -> None:
     output = generate_diagnostic(
-        _load_verifier_log("case_study/cases/github_issues/github-aya-rs-aya-864.yaml")
+        _load_verifier_log("bpfix-bench/raw/gh/github-aya-rs-aya-864.yaml")
     )
 
     assert "does not expose the helper bpf_get_current_pid_tgid#14" in output.text

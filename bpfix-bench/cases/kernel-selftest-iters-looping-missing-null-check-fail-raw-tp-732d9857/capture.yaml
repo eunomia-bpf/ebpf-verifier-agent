@@ -4,8 +4,7 @@ case_id: kernel-selftest-iters-looping-missing-null-check-fail-raw-tp-732d9857
 environment_id: kernel-6.15.11-clang-18-log2
 imported_at: '2026-04-30T00:45:33+00:00'
 source_artifact:
-  path: case_study/cases/kernel_selftests_verified/kernel-selftest-iters-looping-missing-null-check-fail-raw-tp-732d9857
-  status_file: verification_status.txt
+  path: bpfix-bench/cases/kernel-selftest-iters-looping-missing-null-check-fail-raw-tp-732d9857
   source_file: tools/testing/selftests/bpf/progs/iters_looping.c
   target_function: missing_null_check_fail
   section: ?raw_tp
@@ -13,9 +12,9 @@ source_artifact:
   load_attempted: true
   verifier_rejected: true
   verifier_log_captured: false
+  source_record: bpfix-bench/raw/kernel_selftests/kernel-selftest-iters-looping-missing-null-check-fail-raw-tp-732d9857.yaml
 replay:
   build_command: make
   load_command: make replay-verify
   verifier_log: replay-verifier.log
   expected_load_status: verifier_reject
-

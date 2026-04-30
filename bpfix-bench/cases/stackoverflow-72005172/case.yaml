@@ -7,7 +7,8 @@ source:
   commit: null
   upstream_file: null
   collected_at: null
-  raw_excerpt_files: []
+  raw_excerpt_files:
+  - bpfix-bench/raw/so/stackoverflow-72005172.yaml
 reproducer:
   status: ready
   reconstruction: reconstructed
@@ -16,8 +17,8 @@ reproducer:
   build_command: make
   object_path: prog.o
   load_command: make replay-verify
-  notes: Imported from case_study/cases/so_gh_verified with replay logs written to
-    replay-verifier.log.
+  notes: Imported from reconstructed external source into bpfix-bench; replay logs
+    are generated as replay-verifier.log.
 capture:
   capture_id: stackoverflow-72005172__kernel-6.15.11-clang-18-log2
   environment_id: kernel-6.15.11-clang-18-log2

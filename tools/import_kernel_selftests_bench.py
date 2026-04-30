@@ -18,17 +18,15 @@ if str(ROOT) not in sys.path:
 
 from tools.replay_case import replay_case
 
-DEFAULT_SOURCE_ROOT = ROOT / "case_study" / "cases" / "kernel_selftests_verified"
 DEFAULT_BENCH_ROOT = ROOT / "bpfix-bench"
-DEFAULT_GROUND_TRUTH = ROOT / "case_study" / "ground_truth.yaml"
 ENVIRONMENT_ID_FALLBACK = "kernel-6.15.11-clang-18-log2"
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source-root", type=Path, default=DEFAULT_SOURCE_ROOT)
+    parser.add_argument("--source-root", type=Path, required=True)
     parser.add_argument("--bench-root", type=Path, default=DEFAULT_BENCH_ROOT)
-    parser.add_argument("--ground-truth", type=Path, default=DEFAULT_GROUND_TRUTH)
+    parser.add_argument("--ground-truth", type=Path)
     parser.add_argument("--case-id", action="append", default=[])
     parser.add_argument("--limit", type=int)
     parser.add_argument("--all", action="store_true")
@@ -42,7 +40,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--timeout-sec", type=int, default=30)
     args = parser.parse_args(argv)
 
-    labels = load_labels(args.ground_truth.resolve())
+    labels = load_labels(args.ground_truth.resolve()) if args.ground_truth else {}
     candidates = discover(args.source_root.resolve(), labels, allow_rebuild_no_log=args.allow_rebuild_no_log)
     selected = select(candidates, set(args.case_id), args.limit)
     print_summary(candidates, selected)

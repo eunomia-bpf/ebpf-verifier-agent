@@ -44,11 +44,10 @@ codex exec --dangerously-bypass-approvals-and-sandbox -C /path/to/dir "your prom
 ebpf-verifier-agent/
 ├── CLAUDE.md                    # This file
 ├── README.md                    # Project overview
-├── case_study/                  # Verifier failure case collection (302 cases)
-│   ├── cases/                   # Individual failure cases (YAML)
-│   ├── schema.yaml              # Case schema definition
-│   ├── collect.py               # Scripts to collect cases from various sources
-│   └── reproduce.py             # Reproduce verifier failures across kernel versions
+├── bpfix-bench/                 # Unified benchmark and raw external corpus
+│   ├── manifest.yaml            # Single entry point for replayable cases
+│   ├── cases/                   # Self-contained local reproducers
+│   └── raw/                     # SO/GH/commit records, reproduced and unreproduced
 ├── taxonomy/                    # Failure taxonomy and error classification
 │   ├── taxonomy.yaml            # The 5-class failure taxonomy
 │   ├── error_catalog.yaml       # Enumerated verifier error types with stable IDs
@@ -65,10 +64,10 @@ ebpf-verifier-agent/
 │   ├── repair_loop.py           # Agent repair loop driver
 │   ├── oracle.py                # Semantic correctness oracle
 │   └── eval.py                  # Evaluation metrics computation
-├── eval/                        # Evaluation infrastructure
-│   ├── metrics.py               # Metric definitions
-│   ├── cross_kernel.py          # Cross-kernel stability evaluation
-│   └── results/                 # Experiment results
+├── tools/                       # Benchmark import, replay, and validation tools
+│   ├── validate_benchmark.py    # Rebuild/load replay validator
+│   ├── replay_case.py           # Per-case replay helper
+│   └── sync_external_raw_bench.py # Raw external audit/index generator
 ├── docs/
 │   ├── research-plan.md         # Master research plan (single hub)
 │   ├── paper-outline.md         # Paper outline
@@ -80,9 +79,10 @@ ebpf-verifier-agent/
 ## Research Phases
 
 ### Phase 1: Case Collection ✅
-- 302 verifier failure cases from kernel selftests (200), Stack Overflow (76), GitHub issues (26)
-- 23 error IDs (BPFIX-E001~E023), 87.1% coverage
-- 5-class taxonomy, 30 cases manually labeled
+- Unified under `bpfix-bench/`
+- 186 replayable verifier-reject cases currently admitted: 85 kernel selftests, 83 Stack Overflow, 18 GitHub issues
+- 736 external SO/GH/commit raw records archived for reproduced/unreproduced audit, plus kernel-selftest raw fixtures
+- 5-class taxonomy with stable error IDs
 
 ### Phase 2: Proof Trace Analysis (CURRENT)
 - Parse verifier verbose logs (per-instruction register state traces)

@@ -1,0 +1,73 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-ccadfc77a635
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/ccadfc77a6352db14ddd7f23a9b3cc3695dca1db
+  title: 'bpf: Increase complexity of lxc_config.h'
+  repository: https://github.com/cilium/cilium
+  commit: ccadfc77a6352db14ddd7f23a9b3cc3695dca1db
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-ccadfc77a635.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-ccadfc77a635
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: ccadfc77a6352db14ddd7f23a9b3cc3695dca1db
+  commit_message: 'bpf: Increase complexity of lxc_config.h'
+  commit_date: '2018-07-31'
+  fix_type: helper_switch
+  buggy_code: "// FILE: bpf/lxc_config.h\n#define LXC_MAC { .addr = { 0xaa, 0xbb,\
+    \ 0xcc, 0xdd, 0xee, 0xff } }\n#define LXC_IP 0xbe, 0xef, 0, 0, 0, 0, 0, 0, 0,\
+    \ 0, 0, 0x1, 0x1, 0x65, 0x82, 0xbc\n#define LXC_IPV4 0x10203040\n#define LXC_ID\
+    \ 0x1010\n#define LXC_ID_NB 0x1010\n#define ENABLE_NAT46\n#ifndef SECLABEL\n#define\
+    \ SECLABEL 0xfffff\n#define SECLABEL_NB 0xfffff\n#endif\n#define POLICY_MAP cilium_policy_foo\n\
+    #define NODE_MAC { .addr = { 0xde, 0xad, 0xbe, 0xef, 0xc0, 0xde } }\n#define DROP_NOTIFY\n\
+    #define TRACE_NOTIFY\n#define CT_MAP6 cilium_ct6_111\n#define CT_MAP4 cilium_ct4_111\n\
+    #define CT_MAP_SIZE 4096\n#define CALLS_MAP cilium_calls_111\n#define LB_L3\n\
+    #define LB_L4\n#define CONNTRACK\n#define POLICY_INGRESS\n#define POLICY_EGRESS\n\
+    #define ENABLE_IPv4\n#define HAVE_L4_POLICY\n\n/* It appears that we can support\
+    \ around the below number of prefixes in an\n * unrolled loop for LPM CIDR handling\
+    \ in older kernels along with the rest of\n * the logic in the datapath, hence\
+    \ the defines below. This number was arrived\n * to by adjusting the number of\
+    \ prefixes and running:\n *\n *    $ make -C bpf && sudo test/bpf/verifier-test.sh\n\
+    \ *"
+  fixed_code: "// FILE: bpf/lxc_config.h\n#define LXC_MAC { .addr = { 0xaa, 0xbb,\
+    \ 0xcc, 0xdd, 0xee, 0xff } }\n#define LXC_IP 0xbe, 0xef, 0, 0, 0, 0, 0, 0, 0,\
+    \ 0, 0, 0x1, 0x1, 0x65, 0x82, 0xbc\n#define LXC_IPV4 0x10203040\n#define LXC_ID\
+    \ 0x1010\n#define LXC_ID_NB 0x1010\n#define ENABLE_NAT46\n#ifndef SECLABEL\n#define\
+    \ SECLABEL 0xfffff\n#define SECLABEL_NB 0xfffff\n#endif\n#define POLICY_MAP cilium_policy_foo\n\
+    #define NODE_MAC { .addr = { 0xde, 0xad, 0xbe, 0xef, 0xc0, 0xde } }\n#ifndef SKIP_DEBUG\n\
+    #define DEBUG\n#endif\n#define DROP_NOTIFY\n#define TRACE_NOTIFY\n#define CT_MAP6\
+    \ cilium_ct6_111\n#define CT_MAP4 cilium_ct4_111\n#define CT_MAP_SIZE 4096\n#define\
+    \ CALLS_MAP cilium_calls_111\n#define LB_L3\n#define LB_L4\n#define CONNTRACK\n\
+    #define CONNTRACK_ACCOUNTING\n#define POLICY_INGRESS\n#define POLICY_EGRESS\n\
+    #define ENABLE_IPv4\n#define HAVE_L4_POLICY\n\n/* It appears that we can support\
+    \ around the below number of prefixes in an\n * unrolled loop for LPM CIDR handling\
+    \ in older kernels along with the rest of\n * the logic in the datapath, hence\
+    \ the defines below. This number was arrived\n * to by adjusting the number of\
+    \ prefixes and running:\n *\n *    $ make -C bpf && sudo test/bpf/verifier-test.sh\n\
+    \ *"
+  diff_summary: 'bpf/lxc_config.h:
+
+    - Gated or switched helper usage so unsupported helpers do not reach kernels that
+    reject them.
+
+    - Affected context: the touched section.
+
+    - Commit subject: bpf: Increase complexity of lxc_config.h.'
+

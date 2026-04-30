@@ -4,8 +4,7 @@ case_id: kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5
 environment_id: kernel-6.15.11-clang-18-log2
 imported_at: '2026-04-29T22:43:51+00:00'
 source_artifact:
-  path: case_study/cases/kernel_selftests_verified/kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5
-  status_file: verification_status.txt
+  path: bpfix-bench/cases/kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5
   source_file: tools/testing/selftests/bpf/progs/dynptr_fail.c
   target_function: xdp_invalid_data_slice1
   section: ?xdp
@@ -13,6 +12,7 @@ source_artifact:
   load_attempted: true
   verifier_rejected: true
   verifier_log_captured: true
+  source_record: bpfix-bench/raw/kernel_selftests/kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5.yaml
 replay:
   build_command: make
   load_command: make replay-verify

@@ -1,275 +1,71 @@
-# BPFix — Proof Trace Analysis for eBPF Verifier Failures
-# Root-level Makefile providing one-command access to all key project operations.
-#
-# Usage:
-#   make help          — list all targets with descriptions
-#   make test          — run the full test suite
-#   make eval-all      — run all non-LLM evaluations
+# BPFix root Makefile.
 
 SHELL := /bin/bash
 CURDIR := $(shell pwd)
 
-# ── Python ─────────────────────────────────────────────────────────────────────
 PYTHON := python3
-PYTEST  := $(PYTHON) -m pytest
+PYTEST := $(PYTHON) -m pytest
 
-# ── Directories ────────────────────────────────────────────────────────────────
-EVAL_DIR    := $(CURDIR)/eval
-RESULTS_DIR := $(CURDIR)/eval/results
-PAPER_DIR   := $(CURDIR)/docs/paper
-TMP_DIR     := $(CURDIR)/docs/tmp
-
-# ── llama-server (20B GPT-OSS model) ───────────────────────────────────────────
-LLAMA_BIN_20B   := /home/yunwei37/workspace/gpu/gpu_ext/workloads/llama.cpp/build/bin/llama-server
-LLAMA_LIB_20B   := /home/yunwei37/workspace/gpu/gpu_ext/workloads/llama.cpp/build/bin
-MODEL_20B       := $(HOME)/.cache/llama.cpp/ggml-org_gpt-oss-20b-GGUF_gpt-oss-20b-mxfp4.gguf
-PORT_20B        := 8080
-
-# ── llama-server (Qwen3.5-122B) ────────────────────────────────────────────────
-LLAMA_BIN_QWEN  := /home/yunwei37/workspace/llama.cpp-latest/build/bin/llama-server
-LLAMA_LIB_QWEN  := /home/yunwei37/workspace/llama.cpp-latest/build/bin
-MODEL_QWEN_HF   := unsloth/Qwen3.5-122B-A10B-GGUF:Q4_K_M
-PORT_QWEN       := 8081
+BENCH_DIR := $(CURDIR)/bpfix-bench
+PAPER_DIR := $(CURDIR)/docs/paper
+TMP_DIR := $(CURDIR)/docs/tmp
 
 .DEFAULT_GOAL := help
 
-# ──────────────────────────────────────────────────────────────────────────────
-# help — list all targets
-# ──────────────────────────────────────────────────────────────────────────────
 .PHONY: help
 help:
 	@echo ""
-	@echo "BPFix — eBPF Verifier Proof Trace Analyzer"
-	@echo "============================================="
+	@echo "BPFix"
+	@echo "====="
 	@echo ""
 	@echo "Testing"
-	@echo "  make test              Run full pytest test suite"
-	@echo "  make test-quick        Run tests, skip slow ones (no slow marker yet — same as test)"
+	@echo "  make test              Run the full pytest suite"
+	@echo "  make test-quick        Run pytest quietly"
 	@echo ""
-	@echo "Batch evaluations (no LLM needed)"
-	@echo "  make eval-baseline     Regex baseline on labeled comparison cases → results/baseline_results.json"
-	@echo "  make eval-batch        Batch diagnostic eval on 302 cases → results/batch_diagnostic_results.json"
-	@echo "  make eval-localization Localization eval against ground-truth insn indices → results/localization_eval.json"
-	@echo "  make eval-fix-type     Fix-type eval against ground-truth repair labels → results/fix_type_eval.json"
-	@echo "  make eval-latency      Latency benchmark → results/latency_benchmark.json"
-	@echo "  make eval-language     Per-language breakdown → results/per_language_eval.json"
-	@echo "  make eval-ablation     Run BPFix/baseline/ablation comparison corpus → results/ablation_results.json"
-	@echo "  make eval-comparison   Build comparison report from ablation results → docs/tmp/comparison-report.md"
-	@echo "  make eval-proof-engine Proof-engine batch eval → results/batch_proof_engine_round3.json"
-	@echo "  make eval-span-coverage Span coverage against ground-truth fixes → results/span_coverage_results.json"
-	@echo "  make eval-root-cause   Root-cause validation against known fixes → results/root_cause_validation.json"
-	@echo "  make eval-taxonomy-coverage Catalog coverage analysis → results/taxonomy_coverage.json"
-	@echo "  make eval-refresh      Consolidated refresh report → docs/tmp/eval-refresh.md"
-	@# eval-formal removed (formal_engine_comparison.py script deleted)
-	@echo "  make eval-all          Run the core non-LLM evaluation pipeline"
-	@echo ""
-	@echo "A/B Repair experiment (requires local LLM server)"
-	@echo "  make eval-repair       Run A/B repair experiment with GPT-OSS 20B (starts server automatically)"
-	@echo "  make eval-repair-20b   Same as eval-repair (explicit alias)"
-	@echo "  make eval-repair-qwen  Run with Qwen3.5-122B on port $(PORT_QWEN)"
-	@echo ""
-	@echo "Local LLM server management"
-	@echo "  make serve-20b         Start llama-server with GPT-OSS 20B on port $(PORT_20B)"
-	@echo "  make serve-qwen        Start llama-server with Qwen3.5-122B on port $(PORT_QWEN)"
+	@echo "Benchmark"
+	@echo "  make bench-validate    Replay and validate all bpfix-bench cases"
+	@echo "  make bench-raw-audit   Regenerate raw external audit index"
 	@echo ""
 	@echo "Paper"
-	@echo "  make paper             Compile LaTeX paper (pdflatex, single pass)"
-	@echo "  make paper-full        Compile paper with bibliography (pdflatex × 2 + bibtex)"
+	@echo "  make paper             Compile LaTeX paper once"
+	@echo "  make paper-full        Compile paper with bibliography"
 	@echo "  make paper-clean       Remove LaTeX build artifacts"
 	@echo ""
 	@echo "Utilities"
-	@echo "  make lint              Run flake8 linter on interface/ and eval/"
-	@echo "  make loc               Count lines of code in interface/extractor/"
-	@echo "  make clean             Remove generated result files and LaTeX artifacts"
+	@echo "  make lint              Run flake8 on active Python code"
+	@echo "  make loc               Count lines of code in active Python modules"
+	@echo "  make clean             Remove generated benchmark and paper artifacts"
 	@echo ""
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Testing
-# ──────────────────────────────────────────────────────────────────────────────
 .PHONY: test
 test:
-	@echo "[test] Running full pytest suite…"
+	@echo "[test] Running full pytest suite..."
 	cd $(CURDIR) && $(PYTEST) tests/ -v
 
 .PHONY: test-quick
 test-quick:
-	@echo "[test-quick] Running pytest (no slow-marker filtering configured yet)…"
-	cd $(CURDIR) && $(PYTEST) tests/ -v
+	@echo "[test-quick] Running pytest..."
+	cd $(CURDIR) && $(PYTEST) tests/ -q
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Batch diagnostic evaluation (no LLM)
-# ──────────────────────────────────────────────────────────────────────────────
-.PHONY: eval-baseline
-eval-baseline:
-	@echo "[eval-baseline] Running regex baseline on labeled comparison cases…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/baseline_eval.py \
-		--results-path $(RESULTS_DIR)/baseline_results.json
+.PHONY: bench-validate
+bench-validate:
+	@echo "[bench-validate] Replaying bpfix-bench..."
+	cd $(CURDIR) && $(PYTHON) tools/validate_benchmark.py --replay bpfix-bench --timeout-sec 60
 
-.PHONY: eval-batch
-eval-batch:
-	@echo "[eval-batch] Running batch diagnostic evaluation on 302 cases…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/batch_diagnostic_eval.py \
-		--results-path $(RESULTS_DIR)/batch_diagnostic_results.json
+.PHONY: bench-raw-audit
+bench-raw-audit:
+	@echo "[bench-raw-audit] Regenerating raw external audit index..."
+	cd $(CURDIR) && $(PYTHON) tools/sync_external_raw_bench.py --apply
 
-.PHONY: eval-localization
-eval-localization:
-	@echo "[eval-localization] Evaluating proof-loss localization against ground truth…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/localization_eval.py \
-		--batch-results-path $(RESULTS_DIR)/batch_diagnostic_results.json \
-		--output-json $(RESULTS_DIR)/localization_eval.json \
-		--output-md $(TMP_DIR)/localization-eval-report.md
-
-.PHONY: eval-fix-type
-eval-fix-type:
-	@echo "[eval-fix-type] Evaluating BPFix repair hints against ground-truth fix types…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/fix_type_eval.py \
-		--batch-results-path $(RESULTS_DIR)/batch_diagnostic_results.json \
-		--output-json $(RESULTS_DIR)/fix_type_eval.json \
-		--output-md $(TMP_DIR)/fix-type-eval-report.md
-
-.PHONY: eval-latency
-eval-latency:
-	@echo "[eval-latency] Running latency benchmark…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/latency_benchmark.py \
-		--results-path $(RESULTS_DIR)/latency_benchmark.json
-
-.PHONY: eval-language
-eval-language:
-	@echo "[eval-language] Running per-language breakdown evaluation…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/per_language_eval.py
-
-.PHONY: eval-ablation
-eval-ablation:
-	@echo "[eval-ablation] Running BPFix, baseline, and ablation variants…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/ablation_eval.py \
-		--results-path $(RESULTS_DIR)/ablation_results.json
-
-.PHONY: eval-comparison
-eval-comparison: eval-ablation
-	@echo "[eval-comparison] Building comparison report from ablation results…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/comparison_report.py \
-		--results-path $(RESULTS_DIR)/ablation_results.json \
-		--report-path $(TMP_DIR)/comparison-report.md
-
-.PHONY: eval-proof-engine
-eval-proof-engine:
-	@echo "[eval-proof-engine] Running batch proof-engine evaluation…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/batch_proof_engine_eval.py \
-		--results-path $(RESULTS_DIR)/batch_proof_engine_round3.json
-
-.PHONY: eval-span-coverage
-eval-span-coverage:
-	@echo "[eval-span-coverage] Evaluating BPFix span coverage…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/span_coverage_eval.py \
-		--results-path $(RESULTS_DIR)/span_coverage_results.json \
-		--report-path $(TMP_DIR)/span-coverage-eval.md
-
-.PHONY: eval-root-cause
-eval-root-cause:
-	@echo "[eval-root-cause] Running root-cause validation…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/root_cause_validation.py \
-		--results-path $(RESULTS_DIR)/root_cause_validation.json \
-		--report-path $(TMP_DIR)/root-cause-validation-results.md
-
-.PHONY: eval-taxonomy-coverage
-eval-taxonomy-coverage:
-	@echo "[eval-taxonomy-coverage] Running taxonomy coverage analysis…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/taxonomy_coverage.py \
-		--json-path $(RESULTS_DIR)/taxonomy_coverage.json \
-		--report-path $(TMP_DIR)/taxonomy-coverage-report.md
-
-.PHONY: eval-refresh
-eval-refresh:
-	@echo "[eval-refresh] Building consolidated evaluation refresh report…"
-	cd $(CURDIR) && $(PYTHON) $(EVAL_DIR)/summarize_eval_refresh.py \
-		--report-path $(TMP_DIR)/eval-refresh.md
-
-# eval-formal target removed: formal_engine_comparison.py no longer exists.
-# To add back: create eval/formal_engine_comparison.py and re-add the target.
-
-.PHONY: eval-all
-eval-all: eval-baseline eval-batch eval-localization eval-fix-type eval-latency eval-language
-	@echo ""
-	@echo "[eval-all] All non-LLM evaluations complete."
-	@echo "  Baseline results: $(RESULTS_DIR)/baseline_results.json"
-	@echo "  Batch results:    $(RESULTS_DIR)/batch_diagnostic_results.json"
-	@echo "  Localization:     $(RESULTS_DIR)/localization_eval.json"
-	@echo "  Fix type:         $(RESULTS_DIR)/fix_type_eval.json"
-	@echo "  Latency results:  $(RESULTS_DIR)/latency_benchmark.json"
-	@echo "  Language eval:    $(RESULTS_DIR)/per_language_eval.json"
-
-# ──────────────────────────────────────────────────────────────────────────────
-# A/B Repair experiment (requires local llama-server)
-# ──────────────────────────────────────────────────────────────────────────────
-.PHONY: eval-repair
-eval-repair: eval-repair-20b
-
-.PHONY: eval-repair-20b
-eval-repair-20b:
-	@echo "[eval-repair-20b] Running A/B repair experiment with GPT-OSS 20B model…"
-	@echo "  Model:  $(MODEL_20B)"
-	@echo "  Port:   $(PORT_20B)"
-	@echo "  Server will be started automatically by the script."
-	cd $(CURDIR) && LD_LIBRARY_PATH=$(LLAMA_LIB_20B):$$LD_LIBRARY_PATH \
-		$(PYTHON) $(EVAL_DIR)/repair_experiment_v3.py \
-		--model $(MODEL_20B) \
-		--port $(PORT_20B) \
-		--results-path $(RESULTS_DIR)/repair_experiment_results_v3.json \
-		--report-path $(TMP_DIR)/repair-experiment-v3-results.md
-
-.PHONY: eval-repair-qwen
-eval-repair-qwen:
-	@echo "[eval-repair-qwen] Running A/B v4 repair experiment with Qwen3.5-122B…"
-	@echo "  Model:  $(MODEL_QWEN_HF) (downloaded via HF)"
-	@echo "  Port:   $(PORT_QWEN)"
-	@echo "  Server will be started automatically by the script."
-	cd $(CURDIR) && LD_LIBRARY_PATH=$(LLAMA_LIB_QWEN):$$LD_LIBRARY_PATH \
-		$(PYTHON) $(EVAL_DIR)/repair_experiment_v4.py \
-		--model-hf $(MODEL_QWEN_HF) \
-		--port $(PORT_QWEN) \
-		--results-path $(RESULTS_DIR)/repair_experiment_results_v4.json \
-		--report-path $(TMP_DIR)/repair-experiment-v4-results.md
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Local LLM server management
-# ──────────────────────────────────────────────────────────────────────────────
-.PHONY: serve-20b
-serve-20b:
-	@echo "[serve-20b] Starting llama-server with GPT-OSS 20B on port $(PORT_20B)…"
-	@echo "  Binary: $(LLAMA_BIN_20B)"
-	@echo "  Model:  $(MODEL_20B)"
-	@echo "  Press Ctrl+C to stop."
-	LD_LIBRARY_PATH=$(LLAMA_LIB_20B):$$LD_LIBRARY_PATH \
-		$(LLAMA_BIN_20B) \
-		--model $(MODEL_20B) \
-		--port $(PORT_20B) \
-		--ctx-size 8192
-
-.PHONY: serve-qwen
-serve-qwen:
-	@echo "[serve-qwen] Starting llama-server with Qwen3.5-122B on port $(PORT_QWEN)…"
-	@echo "  Binary: $(LLAMA_BIN_QWEN)"
-	@echo "  Model:  $(MODEL_QWEN_HF) (HuggingFace pull)"
-	@echo "  Press Ctrl+C to stop."
-	LD_LIBRARY_PATH=$(LLAMA_LIB_QWEN):$$LD_LIBRARY_PATH \
-		$(LLAMA_BIN_QWEN) \
-		-hf $(MODEL_QWEN_HF) \
-		--port $(PORT_QWEN) \
-		--ctx-size 8192 \
-		-ngl 20
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Paper compilation
-# ──────────────────────────────────────────────────────────────────────────────
 .PHONY: paper
 paper:
-	@echo "[paper] Compiling LaTeX paper (single pass)…"
+	@echo "[paper] Compiling LaTeX paper..."
 	cd $(PAPER_DIR) && pdflatex -interaction=nonstopmode main.tex
 	@echo "[paper] Output: $(PAPER_DIR)/main.pdf"
 
 .PHONY: paper-full
 paper-full:
-	@echo "[paper-full] Compiling paper with bibliography…"
+	@echo "[paper-full] Compiling paper with bibliography..."
 	cd $(PAPER_DIR) && pdflatex -interaction=nonstopmode main.tex
 	cd $(PAPER_DIR) && bibtex main || true
 	cd $(PAPER_DIR) && pdflatex -interaction=nonstopmode main.tex
@@ -278,48 +74,33 @@ paper-full:
 
 .PHONY: paper-clean
 paper-clean:
-	@echo "[paper-clean] Removing LaTeX build artifacts…"
+	@echo "[paper-clean] Removing LaTeX build artifacts..."
 	cd $(PAPER_DIR) && rm -f *.aux *.bbl *.blg *.log *.out *.toc *.fls *.fdb_latexmk *.synctex.gz
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Utilities
-# ──────────────────────────────────────────────────────────────────────────────
 .PHONY: lint
 lint:
-	@echo "[lint] Running flake8 on interface/ and eval/…"
+	@echo "[lint] Running flake8 on active Python code..."
 	$(PYTHON) -m flake8 \
 		--max-line-length=120 \
 		--extend-ignore=E203,W503 \
-		$(CURDIR)/interface/ $(CURDIR)/eval/ $(CURDIR)/scripts/
+		$(CURDIR)/agent/ $(CURDIR)/interface/ $(CURDIR)/oblige/ $(CURDIR)/tools/ $(CURDIR)/tests/
 
 .PHONY: loc
 loc:
-	@echo "[loc] Lines of code in interface/extractor/:"
-	@wc -l $(CURDIR)/interface/extractor/*.py | sort -rn
-	@echo ""
-	@echo "[loc] Lines of code in eval/:"
-	@wc -l $(CURDIR)/eval/*.py | sort -rn | tail -1
+	@echo "[loc] Active Python modules:"
+	@find agent interface oblige tools tests -name '*.py' -print0 | xargs -0 wc -l | sort -rn | tail -1
 
 .PHONY: clean
 clean: paper-clean
-	@echo "[clean] Removing generated result files…"
-	@rm -f $(RESULTS_DIR)/baseline_results.json
-	@rm -f $(RESULTS_DIR)/batch_diagnostic_results.json
-	@rm -f $(RESULTS_DIR)/localization_eval.json
-	@rm -f $(RESULTS_DIR)/fix_type_eval.json
-	@rm -f $(RESULTS_DIR)/latency_benchmark.json
-	@rm -f $(RESULTS_DIR)/per_language_eval.json
-	@rm -f $(RESULTS_DIR)/ablation_results.json
-	@rm -f $(RESULTS_DIR)/batch_proof_engine_round3.json
-	@rm -f $(RESULTS_DIR)/span_coverage_results.json
-	@rm -f $(RESULTS_DIR)/root_cause_validation.json
-	@rm -f $(RESULTS_DIR)/taxonomy_coverage.json
-	@rm -f $(TMP_DIR)/batch-diagnostic-eval.md
-	@rm -f $(TMP_DIR)/comparison-report.md
-	@rm -f $(TMP_DIR)/eval-refresh.md
-	@rm -f $(TMP_DIR)/fix-type-eval-report.md
-	@rm -f $(TMP_DIR)/localization-eval-report.md
-	@rm -f $(TMP_DIR)/root-cause-validation-results.md
-	@rm -f $(TMP_DIR)/span-coverage-eval.md
-	@rm -f $(TMP_DIR)/taxonomy-coverage-report.md
+	@echo "[clean] Removing generated benchmark artifacts..."
+	@rm -f $(BENCH_DIR)/replay-report.json
+	@find $(BENCH_DIR)/cases -type f \( \
+		-name '*.o' -o \
+		-name 'replay-verifier.log' -o \
+		-name 'verifier.log' -o \
+		-name 'selftest_prog_loader' -o \
+		-name 'verifier_load_result.json' -o \
+		-name 'replay_load_result.json' \
+	\) -delete
+	@rm -f $(TMP_DIR)/*.md
 	@echo "[clean] Done."

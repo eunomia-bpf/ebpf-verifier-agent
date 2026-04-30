@@ -1,0 +1,57 @@
+case_id: kernel-selftest-dynptr-fail-ringbuf-missing-release1-raw-tp-2f9bfa02
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: ringbuf_missing_release1
+  description: ringbuf_missing_release1
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - Unreleased reference id=2
+  unprivileged: []
+  combined:
+  - Unreleased reference id=2
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (b7) r1 = 0
+    1: .1........ (7b) *(u64 *)(r10 -8) = r1
+    2: .1........ (7b) *(u64 *)(r10 -16) = r1
+    3: .......... (18) r1 = 0xffffd10b7199a000
+    5: .1........ (61) r2 = *(u32 *)(r1 +0)
+    6: ..2....... (bf) r4 = r10
+    7: ..2.4..... (07) r4 += -16
+    8: ..2.4..... (18) r1 = 0xffff8d5e98dfcc00
+   10: .12.4..... (b7) r3 = 0
+   11: .1234..... (85) call bpf_ringbuf_reserve_dynptr#198
+   12: .......... (b4) w0 = 0
+   13: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int ringbuf_missing_release1(void *ctx) @ dynptr_fail.c:82
+  0: (b7) r1 = 0                        ; R1_w=0
+  ; struct bpf_dynptr ptr = {}; @ dynptr_fail.c:84
+  1: (7b) *(u64 *)(r10 -8) = r1         ; R1_w=0 R10=fp0 fp-8_w=0
+  2: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=0 R10=fp0 fp-16_w=0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, val, 0, &ptr); @ dynptr_fail.c:86
+  3: (18) r1 = 0xffffd10b7199a000       ; R1_w=map_value(map=dynptr_f.bss,ks=4,vs=28)
+  5: (61) r2 = *(u32 *)(r1 +0)          ; R1_w=map_value(map=dynptr_f.bss,ks=4,vs=28) R2_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+  6: (bf) r4 = r10                      ; R4_w=fp0 R10=fp0
+  ; struct bpf_dynptr ptr = {}; @ dynptr_fail.c:84
+  7: (07) r4 += -16                     ; R4_w=fp-16
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, val, 0, &ptr); @ dynptr_fail.c:86
+  8: (18) r1 = 0xffff8d5e98dfcc00       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  10: (b7) r3 = 0                       ; R3_w=0
+  11: (85) call bpf_ringbuf_reserve_dynptr#198          ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  ; return 0; @ dynptr_fail.c:90
+  12: (b4) w0 = 0                       ; R0_w=0 refs=2
+  13: (95) exit
+  Unreleased reference id=2 alloc_insn=11
+  BPF_EXIT instruction in main prog would lead to reference leak
+  processed 12 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"Unreleased reference id=2\")\nint ringbuf_missing_release1(void *ctx)\n{\n\tstruct bpf_dynptr ptr = {};\n\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, val, 0, &ptr);\n\n\t/* missing a call to bpf_ringbuf_discard/submit_dynptr */\n\n\treturn 0;\n}"

@@ -1,0 +1,19 @@
+case_id: kernel-selftest-file-reader-fail-on-nanosleep-unreleased-ref-lsm-file-open-f3f82687
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/file_reader_fail.c
+  section: lsm/file_open
+  function: on_nanosleep_unreleased_ref
+  description: on_nanosleep_unreleased_ref
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - Unreleased reference id=
+  unprivileged: []
+  combined:
+  - Unreleased reference id=
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/file_reader_fail.c
+  code: "SEC(\"lsm/file_open\")\n__failure\n__msg(\"Unreleased reference id=\")\nint on_nanosleep_unreleased_ref(void *ctx)\n{\n\tstruct task_struct *task = bpf_get_current_task_btf();\n\tstruct file *file = bpf_get_task_exe_file(task);\n\tstruct bpf_dynptr dynptr;\n\n\tif (!file)\n\t\treturn 0;\n\n\terr = bpf_dynptr_from_file(file, 0, &dynptr);\n\treturn err ? 1 : 0;\n}"

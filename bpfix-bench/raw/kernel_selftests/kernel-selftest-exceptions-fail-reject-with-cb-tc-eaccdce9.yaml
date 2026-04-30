@@ -1,0 +1,65 @@
+case_id: kernel-selftest-exceptions-fail-reject-with-cb-tc-eaccdce9
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  section: ?tc
+  function: reject_with_cb
+  description: reject_with_cb
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - cannot be called from callback
+  unprivileged: []
+  combined:
+  - cannot be called from callback
+verifier_log: |-
+  func#0 @0
+  func#1 @8
+  Live regs before insn:
+    0: .......... (b4) w1 = 5
+    1: .1........ (18) r2 = 0x6
+    3: .12....... (b7) r3 = 0
+    4: .123...... (b7) r4 = 0
+    5: .1234..... (85) call bpf_loop#181
+    6: .......... (b4) w0 = 0
+    7: 0......... (95) exit
+    8: .......... (b7) r1 = 0
+    9: .1........ (85) call bpf_throw#73439
+   10: .......... (b4) w0 = 0
+   11: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; bpf_loop(5, subprog_cb_ref, NULL, 0); @ exceptions_fail.c:226
+  0: (b4) w1 = 5                        ; R1_w=5
+  1: (18) r2 = 0x6                      ; R2_w=func()
+  3: (b7) r3 = 0                        ; R3_w=0
+  4: (b7) r4 = 0                        ; R4=0
+  5: (85) call bpf_loop#181
+  mark_precise: frame0: last_idx 5 first_idx 5 subseq_idx -1
+  mark_precise: frame0: parent state regs=r4 stack=:  R1_rw=5 R2_rw=func() R3_rw=0 R4_rw=P0 R10=fp0
+  mark_precise: frame0: last_idx 4 first_idx 0 subseq_idx 5
+  mark_precise: frame0: regs=r4 stack= before 4: (b7) r4 = 0
+  mark_precise: frame0: last_idx 5 first_idx 5 subseq_idx -1
+  mark_precise: frame0: parent state regs=r1 stack=:  R1_rw=P5 R2_rw=func() R3_rw=0 R4_rw=P0 R10=fp0
+  mark_precise: frame0: last_idx 4 first_idx 0 subseq_idx 5
+  mark_precise: frame0: regs=r1 stack= before 4: (b7) r4 = 0
+  mark_precise: frame0: regs=r1 stack= before 3: (b7) r3 = 0
+  mark_precise: frame0: regs=r1 stack= before 1: (18) r2 = 0x6
+  mark_precise: frame0: regs=r1 stack= before 0: (b4) w1 = 5
+  6: R0_w=scalar() R10=fp0
+  ; return 0; @ exceptions_fail.c:227
+  6: (b4) w0 = 0                        ; R0_w=0
+  7: (95) exit
+
+  from 5 to 8: frame1: R1=scalar() R2=0 R10=fp0 cb
+  8: frame1: R1=scalar() R2=0 R10=fp0 cb
+  ; bpf_throw(0); @ exceptions_fail.c:204
+  8: (b7) r1 = 0                        ; frame1: R1_w=0 cb
+  9: (85) call bpf_throw#73439
+  JIT does not support calling kfunc bpf_throw#73439
+  processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"cannot be called from callback\")\nint reject_with_cb(void *ctx)\n{\n\tbpf_loop(5, subprog_cb_ref, NULL, 0);\n\treturn 0;\n}"

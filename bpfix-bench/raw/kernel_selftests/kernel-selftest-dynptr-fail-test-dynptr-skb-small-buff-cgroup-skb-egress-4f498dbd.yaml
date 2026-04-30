@@ -1,0 +1,149 @@
+case_id: kernel-selftest-dynptr-fail-test-dynptr-skb-small-buff-cgroup-skb-egress-4f498dbd
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?cgroup_skb/egress
+  function: test_dynptr_skb_small_buff
+  description: test_dynptr_skb_small_buff
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - memory, len pair leads to invalid memory access
+  unprivileged: []
+  combined:
+  - memory, len pair leads to invalid memory access
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (b7) r2 = 0
+    1: .12....... (7b) *(u64 *)(r10 -24) = r2
+    2: .12....... (bf) r3 = r10
+    3: .123...... (07) r3 += -16
+    4: .123...... (85) call bpf_dynptr_from_skb#71549
+    5: 0......... (16) if w0 == 0x0 goto pc+5
+    6: .......... (18) r1 = 0xffffd10b71d4a018
+    8: .1........ (b4) w0 = 1
+    9: 01........ (63) *(u32 *)(r1 +0) = r0
+   10: 0......... (05) goto pc+11
+   11: .......... (bf) r1 = r10
+   12: .1........ (07) r1 += -16
+   13: .1........ (bf) r3 = r10
+   14: .1.3...... (07) r3 += -24
+   15: .1.3...... (b4) w2 = 0
+   16: .123...... (b4) w4 = 9
+   17: .1234..... (85) call bpf_dynptr_slice#71567
+   18: 0......... (bf) r1 = r0
+   19: .1........ (b4) w0 = 1
+   20: 01........ (55) if r1 != 0x0 goto pc+1
+   21: .......... (b4) w0 = 0
+   22: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int test_dynptr_skb_small_buff(struct __sk_buff *skb) @ dynptr_fail.c:1698
+  0: (b7) r2 = 0                        ; R2_w=0
+  ; char buffer[8] = {}; @ dynptr_fail.c:1701
+  1: (7b) *(u64 *)(r10 -24) = r2        ; R2_w=0 R10=fp0 fp-24_w=0
+  2: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+  ;  @ dynptr_fail.c:0
+  3: (07) r3 += -16                     ; R3_w=fp-16
+  ; if (bpf_dynptr_from_skb(skb, 0, &ptr)) { @ dynptr_fail.c:1704
+  4: (85) call bpf_dynptr_from_skb#71549        ; R0_w=scalar() fp-16_w=dynptr_skb(id=1,dynptr_id=1)
+  5: (16) if w0 == 0x0 goto pc+5        ; R0_w=scalar(smin=0x8000000000000001,umin=umin32=1)
+  ; err = 1; @ dynptr_fail.c:1705
+  6: (18) r1 = 0xffffd10b71d4a018       ; R1_w=map_value(map=dynptr_f.bss,ks=4,vs=28,off=24)
+  8: (b4) w0 = 1                        ; R0_w=1
+  9: (63) *(u32 *)(r1 +0) = r0          ; R0_w=1 R1_w=map_value(map=dynptr_f.bss,ks=4,vs=28,off=24)
+  10: (05) goto pc+11
+  ; } @ dynptr_fail.c:1713
+  22: (95) exit
+  mark_precise: frame0: last_idx 22 first_idx 22 subseq_idx -1
+  mark_precise: frame0: parent state regs=r0 stack=:  R0_rw=P1 R1_w=map_value(map=dynptr_f.bss,ks=4,vs=28,off=24) R10=fp0 fp-16_w=dynptr_skb(id=1,dynptr_id=1) fp-24_w=0
+  mark_precise: frame0: last_idx 10 first_idx 0 subseq_idx 22
+  mark_precise: frame0: regs=r0 stack= before 10: (05) goto pc+11
+  mark_precise: frame0: regs=r0 stack= before 9: (63) *(u32 *)(r1 +0) = r0
+  mark_precise: frame0: regs=r0 stack= before 8: (b4) w0 = 1
+
+  from 5 to 11: R0_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000)) R10=fp0 fp-16_w=dynptr_skb(id=1,dynptr_id=1) fp-24_w=0
+  11: R0_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000)) R10=fp0 fp-16_w=dynptr_skb(id=1,dynptr_id=1) fp-24_w=0
+  ; err = 1; @ dynptr_fail.c:1705
+  11: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
+  ; data = bpf_dynptr_slice(&ptr, 0, buffer, 9); @ dynptr_fail.c:1710
+  12: (07) r1 += -16                    ; R1_w=fp-16
+  13: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0
+  14: (07) r3 += -24                    ; R3_w=fp-24
+  15: (b4) w2 = 0                       ; R2_w=0
+  16: (b4) w4 = 9                       ; R4_w=9
+  17: (85) call bpf_dynptr_slice#71567
+  invalid read from stack R3 off -24+8 size 9
+  arg#2 arg#3 memory, len pair leads to invalid memory access
+  processed 18 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (b7) r2 = 0
+    1: .12....... (7b) *(u64 *)(r10 -24) = r2
+    2: .12....... (bf) r3 = r10
+    3: .123...... (07) r3 += -16
+    4: .123...... (85) call bpf_dynptr_from_skb#71549
+    5: 0......... (16) if w0 == 0x0 goto pc+5
+    6: .......... (18) r1 = 0xffffd2b8de6c2000
+    8: .1........ (b4) w0 = 1
+    9: 01........ (63) *(u32 *)(r1 +0) = r0
+   10: 0......... (05) goto pc+11
+   11: .......... (bf) r1 = r10
+   12: .1........ (07) r1 += -16
+   13: .1........ (bf) r3 = r10
+   14: .1.3...... (07) r3 += -24
+   15: .1.3...... (b7) r2 = 0
+   16: .123...... (b7) r4 = 9
+   17: .1234..... (85) call bpf_dynptr_slice#71567
+   18: 0......... (bf) r1 = r0
+   19: .1........ (b4) w0 = 1
+   20: 01........ (55) if r1 != 0x0 goto pc+1
+   21: .......... (b4) w0 = 0
+   22: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int test_dynptr_skb_small_buff(struct __sk_buff *skb) @ prog.c:80
+  0: (b7) r2 = 0                        ; R2_w=0
+  ; char buffer[8] = {}; @ prog.c:83
+  1: (7b) *(u64 *)(r10 -24) = r2        ; R2_w=0 R10=fp0 fp-24_w=0
+  2: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+  ;  @ prog.c:0
+  3: (07) r3 += -16                     ; R3_w=fp-16
+  ; if (bpf_dynptr_from_skb(skb, 0, &ptr)) { @ prog.c:86
+  4: (85) call bpf_dynptr_from_skb#71549        ; R0_w=scalar() fp-16_w=dynptr_skb(id=1,dynptr_id=1)
+  5: (16) if w0 == 0x0 goto pc+5        ; R0_w=scalar(smin=0x8000000000000001,umin=umin32=1)
+  ; err = 1; @ prog.c:87
+  6: (18) r1 = 0xffffd2b8de6c2000       ; R1_w=map_value(map=prog.bss,ks=4,vs=24)
+  8: (b4) w0 = 1                        ; R0_w=1
+  9: (63) *(u32 *)(r1 +0) = r0          ; R0_w=1 R1_w=map_value(map=prog.bss,ks=4,vs=24)
+  10: (05) goto pc+11
+  ; } @ prog.c:95
+  22: (95) exit
+  mark_precise: frame0: last_idx 22 first_idx 22 subseq_idx -1
+  mark_precise: frame0: parent state regs=r0 stack=:  R0_rw=P1 R1_w=map_value(map=prog.bss,ks=4,vs=24) R10=fp0 fp-16_w=dynptr_skb(id=1,dynptr_id=1) fp-24_w=0
+  mark_precise: frame0: last_idx 10 first_idx 0 subseq_idx 22
+  mark_precise: frame0: regs=r0 stack= before 10: (05) goto pc+11
+  mark_precise: frame0: regs=r0 stack= before 9: (63) *(u32 *)(r1 +0) = r0
+  mark_precise: frame0: regs=r0 stack= before 8: (b4) w0 = 1
+
+  from 5 to 11: R0_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000)) R10=fp0 fp-16_w=dynptr_skb(id=1,dynptr_id=1) fp-24_w=0
+  11: R0_w=scalar(smax=0x7fffffff00000000,umax=0xffffffff00000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xffffffff00000000)) R10=fp0 fp-16_w=dynptr_skb(id=1,dynptr_id=1) fp-24_w=0
+  ; err = 1; @ prog.c:87
+  11: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
+  ; data = bpf_dynptr_slice(&ptr, 0, buffer, 9); @ prog.c:92
+  12: (07) r1 += -16                    ; R1_w=fp-16
+  13: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0
+  14: (07) r3 += -24                    ; R3_w=fp-24
+  15: (b7) r2 = 0                       ; R2_w=0
+  16: (b7) r4 = 9                       ; R4_w=9
+  17: (85) call bpf_dynptr_slice#71567
+  invalid read from stack R3 off -24+8 size 9
+  arg#2 arg#3 memory, len pair leads to invalid memory access
+  processed 18 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?cgroup_skb/egress\")\n__failure __msg(\"memory, len pair leads to invalid memory access\")\nint test_dynptr_skb_small_buff(struct __sk_buff *skb)\n{\n\tstruct bpf_dynptr ptr;\n\tchar buffer[8] = {};\n\t__u64 *data;\n\n\tif (bpf_dynptr_from_skb(skb, 0, &ptr)) {\n\t\terr = 1;\n\t\treturn 1;\n\t}\n\n\t/* This may return NULL. SKB may require a buffer */\n\tdata = bpf_dynptr_slice(&ptr, 0, buffer, 9);\n\n\treturn !!data;\n}\n\n__noinline long global_call_bpf_dynptr(const struct bpf_dynptr *dynptr)\n{\n\tlong ret = 0;\n\t/* Avoid leaving this global function empty to avoid having the compiler\n\t * optimize away the call to this global function.\n\t */\n\t__sink(ret);\n\treturn ret;\n}"

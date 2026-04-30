@@ -4,9 +4,7 @@ case_id: stackoverflow-69413427
 environment_id: kernel-6.15.11-clang-18-log2
 imported_at: '2026-04-30T00:17:36+00:00'
 source_artifact:
-  path: case_study/cases/so_gh_verified/stackoverflow-69413427
-  status_file: verification_status.txt
-  captured_log_file: verifier_log_captured.txt
+  path: bpfix-bench/cases/stackoverflow-69413427
   source_origin: source_snippets[0] -> wrapped
   source_bucket: stackoverflow
   language: c
@@ -17,6 +15,7 @@ source_artifact:
   compatibility_rewrites:
   - converted legacy SEC("maps") bpf_map_def to BTF SEC(".maps") definition for libbpf
     v1 replay
+  source_record: bpfix-bench/raw/so/stackoverflow-69413427.yaml
 replay:
   build_command: make
   load_command: make replay-verify

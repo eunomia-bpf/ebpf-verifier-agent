@@ -1,0 +1,175 @@
+case_id: kernel-selftest-dynptr-fail-dynptr-slice-var-len2-tc-673ab9e7
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?tc
+  function: dynptr_slice_var_len2
+  description: dynptr_slice_var_len2
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - must be a known constant
+  unprivileged: []
+  combined:
+  - must be a known constant
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (b4) w2 = 0
+    1: .12....... (6b) *(u16 *)(r10 -4) = r2
+    2: .12....... (63) *(u32 *)(r10 -8) = r2
+    3: .1........ (b7) r2 = 0
+    4: .12....... (7b) *(u64 *)(r10 -16) = r2
+    5: .12....... (bf) r3 = r10
+    6: .123...... (07) r3 += -32
+    7: .123...... (85) call bpf_dynptr_from_skb#71549
+    8: .......... (18) r1 = 0xffffd10b71472000
+   10: .1........ (61) r4 = *(u32 *)(r1 +0)
+   11: ....4..... (b4) w1 = 1
+   12: .1..4..... (26) if w4 > 0xe goto pc+12
+   13: ....4..... (bf) r1 = r10
+   14: .1..4..... (07) r1 += -32
+   15: .1..4..... (bf) r3 = r10
+   16: .1.34..... (07) r3 += -16
+   17: .1.34..... (b4) w2 = 0
+   18: .1234..... (85) call bpf_dynptr_slice_rdwr#71568
+   19: 0......... (b4) w1 = 0
+   20: 01........ (15) if r0 == 0x0 goto pc+4
+   21: 01........ (73) *(u8 *)(r0 +13) = r1
+   22: 0......... (b4) w1 = 12
+   23: 01........ (73) *(u8 *)(r0 +12) = r1
+   24: .......... (b4) w1 = 1
+   25: .1........ (bc) w0 = w1
+   26: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int dynptr_slice_var_len2(struct __sk_buff *skb) @ dynptr_fail.c:1335
+  0: (b4) w2 = 0                        ; R2_w=0
+  ; char buffer[sizeof(struct ethhdr)] = {}; @ dynptr_fail.c:1337
+  1: (6b) *(u16 *)(r10 -4) = r2
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 0: (b4) w2 = 0
+  2: R2_w=0 R10=fp0 fp-8=??00????
+  2: (63) *(u32 *)(r10 -8) = r2         ; R2_w=0 R10=fp0 fp-8=??000
+  3: (b7) r2 = 0                        ; R2_w=0
+  4: (7b) *(u64 *)(r10 -16) = r2        ; R2_w=0 R10=fp0 fp-16_w=0
+  5: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+  ;  @ dynptr_fail.c:0
+  6: (07) r3 += -32                     ; R3_w=fp-32
+  ; bpf_dynptr_from_skb(skb, 0, &ptr); @ dynptr_fail.c:1341
+  7: (85) call bpf_dynptr_from_skb#71549        ; R0_w=scalar() fp-32_w=dynptr_skb(id=1,dynptr_id=1)
+  ; if (hdr_size <= sizeof(buffer)) { @ dynptr_fail.c:1343
+  8: (18) r1 = 0xffffd10b71472000       ; R1_w=map_value(map=dynptr_f.data,ks=4,vs=4)
+  10: (61) r4 = *(u32 *)(r1 +0)         ; R1_w=map_value(map=dynptr_f.data,ks=4,vs=4) R4_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+  11: (b4) w1 = 1                       ; R1_w=1
+  12: (26) if w4 > 0xe goto pc+12       ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=14,var_off=(0x0; 0xf))
+  13: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
+  ; hdr = bpf_dynptr_slice_rdwr(&ptr, 0, buffer, hdr_size); @ dynptr_fail.c:1345
+  14: (07) r1 += -32                    ; R1_w=fp-32
+  15: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0
+  16: (07) r3 += -16                    ; R3_w=fp-16
+  17: (b4) w2 = 0                       ; R2_w=0
+  18: (85) call bpf_dynptr_slice_rdwr#71568
+  mark_precise: frame0: last_idx 18 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 17: (b4) w2 = 0
+  mark_precise: frame0: regs=r4 stack= before 16: (07) r3 += -16
+  mark_precise: frame0: regs=r4 stack= before 15: (bf) r3 = r10
+  mark_precise: frame0: regs=r4 stack= before 14: (07) r1 += -32
+  mark_precise: frame0: regs=r4 stack= before 13: (bf) r1 = r10
+  mark_precise: frame0: regs=r4 stack= before 12: (26) if w4 > 0xe goto pc+12
+  mark_precise: frame0: regs=r4 stack= before 11: (b4) w1 = 1
+  mark_precise: frame0: regs=r4 stack= before 10: (61) r4 = *(u32 *)(r1 +0)
+  mark_precise: frame0: last_idx 18 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 17: (b4) w2 = 0
+  mark_precise: frame0: regs=r4 stack= before 16: (07) r3 += -16
+  mark_precise: frame0: regs=r4 stack= before 15: (bf) r3 = r10
+  mark_precise: frame0: regs=r4 stack= before 14: (07) r1 += -32
+  mark_precise: frame0: regs=r4 stack= before 13: (bf) r1 = r10
+  mark_precise: frame0: regs=r4 stack= before 12: (26) if w4 > 0xe goto pc+12
+  mark_precise: frame0: regs=r4 stack= before 11: (b4) w1 = 1
+  mark_precise: frame0: regs=r4 stack= before 10: (61) r4 = *(u32 *)(r1 +0)
+  R4 must be a known constant
+  processed 18 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (b4) w2 = 0
+    1: .12....... (6b) *(u16 *)(r10 -4) = r2
+    2: .12....... (63) *(u32 *)(r10 -8) = r2
+    3: .1........ (b7) r2 = 0
+    4: .12....... (7b) *(u64 *)(r10 -16) = r2
+    5: .12....... (bf) r3 = r10
+    6: .123...... (07) r3 += -32
+    7: .123...... (85) call bpf_dynptr_from_skb#71549
+    8: .......... (18) r1 = 0xffffd2b8de052000
+   10: .1........ (61) r4 = *(u32 *)(r1 +0)
+   11: ....4..... (b4) w1 = 1
+   12: .1..4..... (26) if w4 > 0xe goto pc+12
+   13: ....4..... (bf) r1 = r10
+   14: .1..4..... (07) r1 += -32
+   15: .1..4..... (bf) r3 = r10
+   16: .1.34..... (07) r3 += -16
+   17: .1.34..... (b7) r2 = 0
+   18: .1234..... (85) call bpf_dynptr_slice_rdwr#71568
+   19: 0......... (b4) w1 = 0
+   20: 01........ (15) if r0 == 0x0 goto pc+4
+   21: 01........ (73) *(u8 *)(r0 +13) = r1
+   22: 0......... (b4) w1 = 12
+   23: 01........ (73) *(u8 *)(r0 +12) = r1
+   24: .......... (b4) w1 = 1
+   25: .1........ (bc) w0 = w1
+   26: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int dynptr_slice_var_len2(struct __sk_buff *skb) @ prog.c:80
+  0: (b4) w2 = 0                        ; R2_w=0
+  ; char buffer[sizeof(struct ethhdr)] = {}; @ prog.c:82
+  1: (6b) *(u16 *)(r10 -4) = r2
+  mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 0: (b4) w2 = 0
+  2: R2_w=0 R10=fp0 fp-8=??00????
+  2: (63) *(u32 *)(r10 -8) = r2         ; R2_w=0 R10=fp0 fp-8=??000
+  3: (b7) r2 = 0                        ; R2_w=0
+  4: (7b) *(u64 *)(r10 -16) = r2        ; R2_w=0 R10=fp0 fp-16_w=0
+  5: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+  ;  @ prog.c:0
+  6: (07) r3 += -32                     ; R3_w=fp-32
+  ; bpf_dynptr_from_skb(skb, 0, &ptr); @ prog.c:86
+  7: (85) call bpf_dynptr_from_skb#71549        ; R0_w=scalar() fp-32_w=dynptr_skb(id=1,dynptr_id=1)
+  ; if (hdr_size <= sizeof(buffer)) { @ prog.c:88
+  8: (18) r1 = 0xffffd2b8de052000       ; R1_w=map_value(map=prog.data,ks=4,vs=4)
+  10: (61) r4 = *(u32 *)(r1 +0)         ; R1_w=map_value(map=prog.data,ks=4,vs=4) R4_w=scalar(smin=0,smax=umax=0xffffffff,var_off=(0x0; 0xffffffff))
+  11: (b4) w1 = 1                       ; R1_w=1
+  12: (26) if w4 > 0xe goto pc+12       ; R4_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=14,var_off=(0x0; 0xf))
+  13: (bf) r1 = r10                     ; R1_w=fp0 R10=fp0
+  ; hdr = bpf_dynptr_slice_rdwr(&ptr, 0, buffer, hdr_size); @ prog.c:90
+  14: (07) r1 += -32                    ; R1_w=fp-32
+  15: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0
+  16: (07) r3 += -16                    ; R3_w=fp-16
+  17: (b7) r2 = 0                       ; R2_w=0
+  18: (85) call bpf_dynptr_slice_rdwr#71568
+  mark_precise: frame0: last_idx 18 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 17: (b7) r2 = 0
+  mark_precise: frame0: regs=r4 stack= before 16: (07) r3 += -16
+  mark_precise: frame0: regs=r4 stack= before 15: (bf) r3 = r10
+  mark_precise: frame0: regs=r4 stack= before 14: (07) r1 += -32
+  mark_precise: frame0: regs=r4 stack= before 13: (bf) r1 = r10
+  mark_precise: frame0: regs=r4 stack= before 12: (26) if w4 > 0xe goto pc+12
+  mark_precise: frame0: regs=r4 stack= before 11: (b4) w1 = 1
+  mark_precise: frame0: regs=r4 stack= before 10: (61) r4 = *(u32 *)(r1 +0)
+  mark_precise: frame0: last_idx 18 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r4 stack= before 17: (b7) r2 = 0
+  mark_precise: frame0: regs=r4 stack= before 16: (07) r3 += -16
+  mark_precise: frame0: regs=r4 stack= before 15: (bf) r3 = r10
+  mark_precise: frame0: regs=r4 stack= before 14: (07) r1 += -32
+  mark_precise: frame0: regs=r4 stack= before 13: (bf) r1 = r10
+  mark_precise: frame0: regs=r4 stack= before 12: (26) if w4 > 0xe goto pc+12
+  mark_precise: frame0: regs=r4 stack= before 11: (b4) w1 = 1
+  mark_precise: frame0: regs=r4 stack= before 10: (61) r4 = *(u32 *)(r1 +0)
+  R4 must be a known constant
+  processed 18 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"must be a known constant\")\nint dynptr_slice_var_len2(struct __sk_buff *skb)\n{\n\tchar buffer[sizeof(struct ethhdr)] = {};\n\tstruct bpf_dynptr ptr;\n\tstruct ethhdr *hdr;\n\n\tbpf_dynptr_from_skb(skb, 0, &ptr);\n\n\tif (hdr_size <= sizeof(buffer)) {\n\t\t/* this should fail */\n\t\thdr = bpf_dynptr_slice_rdwr(&ptr, 0, buffer, hdr_size);\n\t\tif (!hdr)\n\t\t\treturn SK_DROP;\n\t\thdr->h_proto = 12;\n\t}\n\n\treturn SK_PASS;\n}\n\nstatic int callback(__u32 index, void *data)\n{\n        *(__u32 *)data = 123;\n\n        return 0;\n}\n\n/* If the dynptr is written into in a callback function, its data\n * slices should be invalidated as well.\n */"

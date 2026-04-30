@@ -98,14 +98,27 @@ def _load_input(raw_input: str) -> tuple[str, dict[str, Any]]:
         return text, {}
 
     payload = yaml.safe_load(text)
-    if not isinstance(payload, dict) or "verifier_log" not in payload:
+    if not isinstance(payload, dict):
+        return text, {}
+
+    if payload.get("schema_version") == "bpfix.raw_external/v1":
+        raw = payload.get("raw")
+        if not isinstance(raw, dict):
+            return text, {}
+        metadata = dict(payload)
+        raw_id = payload.get("raw_id")
+        if isinstance(raw_id, str) and raw_id:
+            metadata.setdefault("case_id", raw_id)
+        return _extract_verifier_log(raw), metadata
+
+    if "verifier_log" not in payload and "original_verifier_log" not in payload:
         return text, {}
 
     return _extract_verifier_log(payload), payload
 
 
 def _extract_verifier_log(payload: dict[str, Any]) -> str:
-    verifier_log = payload["verifier_log"]
+    verifier_log = payload.get("original_verifier_log", payload.get("verifier_log"))
     if isinstance(verifier_log, str):
         return verifier_log
     if isinstance(verifier_log, dict):

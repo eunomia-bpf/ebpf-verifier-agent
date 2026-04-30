@@ -1,0 +1,223 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-bcc-f6c8cfe4244a
+source_kind: github_commit
+source:
+  url: https://github.com/iovisor/bcc/commit/f6c8cfe4244a4f974fac601483ee098e6fa3e405
+  title: 'bpf: fixup btf DataSec size'
+  repository: https://github.com/iovisor/bcc
+  commit: f6c8cfe4244a4f974fac601483ee098e6fa3e405
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-bcc-f6c8cfe4244a.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: attempted_unknown
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: verification_status_unclear
+  verifier_status: null
+  captured_error: null
+  verifier_error_match: null
+raw:
+  case_id: eval-bcc-f6c8cfe4244a
+  source: eval_commits
+  repository: https://github.com/iovisor/bcc
+  commit_hash: f6c8cfe4244a4f974fac601483ee098e6fa3e405
+  commit_message: 'bpf: fixup btf DataSec size'
+  commit_date: '2019-05-26'
+  fix_type: bounds_check
+  buggy_code: "// FILE: src/cc/bcc_btf.cc\n// CONTEXT: int32_t BTFStringTable::addString(std::string\
+    \ S) {\n  // Make sure we do not overflow the string table.\n  if (OrigTblLen\
+    \ + Size + S.size() + 1 >= BTF_MAX_NAME_OFFSET)\n    return -1;\n\n  // Not find,\
+    \ add to the string table.\n  uint32_t Offset = Size;\n  OffsetToIdMap[Offset]\
+    \ = Table.size();\n  Table.push_back(S);\n  Size += S.size() + 1;\n  return Offset;\n\
+    }\n\nBTF::BTF(bool debug) : debug_(debug), btf_(nullptr), btf_ext_(nullptr) {\n\
+    \  if (!debug)\n    libbpf_set_print(NULL);\n}\n\nBTF::~BTF() {\n  btf__free(btf_);\n\
+    \  btf_ext__free(btf_ext_);\n}\n\nvoid BTF::warning(const char *format, ...) {\n\
+    \  va_list args;\n\n  if (!debug_)\n    return;\n\n  va_start(args, format);\n\
+    \  vfprintf(stderr, format, args);\n  va_end(args);\n}\n\n// The compiler doesn't\
+    \ have source code for remapped files.\n// So we modify .BTF and .BTF.ext sections\
+    \ here to add these\n// missing line source codes.\n// The .BTF and .BTF.ext ELF\
+    \ section specification can be\n// found at linux repo: linux/Documentation/bpf/btf.rst.\n\
+    void BTF::adjust(uint8_t *btf_sec, uintptr_t btf_sec_size,\n                 uint8_t\
+    \ *btf_ext_sec, uintptr_t btf_ext_sec_size,\n                 std::map<std::string,\
+    \ std::string> &remapped_sources,\n                 uint8_t **new_btf_sec, uintptr_t\
+    \ *new_btf_sec_size) {\n\n  // Line cache for remapped files\n  std::map<std::string,\
+    \ std::vector<std::string>> LineCaches;\n\n// CONTEXT: void BTF::adjust(uint8_t\
+    \ *btf_sec, uintptr_t btf_sec_size,\n      if (it->second[end] == '\\n' || end\
+    \ == FileBufSize - 1 ||\n          (it->second[end] == '\\r' && it->second[end\
+    \ + 1] == '\\n')) {\n        // Not including the endline\n        LineCache.push_back(std::string(it->second.substr(start,\
+    \ end - start)));\n        if (it->second[end] == '\\r')\n          end++;\n \
+    \       start = end + 1;\n      }\n    }\n    LineCaches[it->first] = std::move(LineCache);\n\
+    \  }\n\n  // Check the LineInfo table and add missing lines\n\n  struct btf_header\
+    \ *hdr = (struct btf_header *)btf_sec;\n  struct btf_ext_header *ehdr = (struct\
+    \ btf_ext_header *)btf_ext_sec;\n\n  char *strings = (char *)(btf_sec + hdr->hdr_len\
+    \ + hdr->str_off);\n  unsigned orig_strings_len = hdr->str_len;\n  unsigned *linfo_s\
+    \ = (unsigned *)(btf_ext_sec + ehdr->hdr_len + ehdr->line_info_off);\n  unsigned\
+    \ lrec_size = *linfo_s;\n  linfo_s++;\n  unsigned linfo_len = ehdr->line_info_len\
+    \ - 4;\n\n  // Go through all line info. For any line number whose line is in\
+    \ the LineCaches,\n  // Correct the line_off and record the corresponding source\
+    \ line in BTFStringTable,\n  // which later will be merged into .BTF string section.\n\
+    \  BTFStringTable new_strings(orig_strings_len);\n  bool overflow = false;\n\n\
+    // FILE: src/cc/bcc_btf.h\n * limitations under the License.\n */\n\n#ifndef BCC_BTF_H\n\
+    #define BCC_BTF_H\n\n#include <stdbool.h>\n#include <stdint.h>\n#include <string>\n\
+    #include <map>\n#include <vector>\n\nstruct btf;\nstruct btf_ext;\n\nnamespace\
+    \ ebpf {\n\nclass BTFStringTable {\n private:\n  uint32_t Size;\n  uint32_t OrigTblLen;\n\
+    \  std::map<uint32_t, uint32_t> OffsetToIdMap;\n  std::vector<std::string> Table;\n\
+    \n public:\n  BTFStringTable(uint32_t TblLen): Size(0), OrigTblLen(TblLen) {}\n\
+    \  uint32_t getSize() { return Size; }\n  std::vector<std::string> &getTable()\
+    \ { return Table; }\n  int32_t addString(std::string Str);\n};\n\nclass BTF {\n\
+    \ public:\n  BTF(bool debug);\n  ~BTF();\n  int load(uint8_t *btf_sec, uintptr_t\
+    \ btf_sec_size,\n           uint8_t *btf_ext_sec, uintptr_t btf_ext_sec_size,\n\
+    \           std::map<std::string, std::string> &remapped_sources);\n  int get_fd();\n\
+    \  int get_btf_info(const char *fname,\n                   void **func_info, unsigned\
+    \ *func_info_cnt,\n                   unsigned *finfo_rec_size,\n            \
+    \       void **line_info, unsigned *line_info_cnt,\n                   unsigned\
+    \ *linfo_rec_size);\n  int get_map_tids(std::string map_name,\n              \
+    \     unsigned expected_ksize, unsigned expected_vsize,\n                   unsigned\
+    \ *key_tid, unsigned *value_tid);\n\n private:\n  void adjust(uint8_t *btf_sec,\
+    \ uintptr_t btf_sec_size,\n              uint8_t *btf_ext_sec, uintptr_t btf_ext_sec_size,\n\
+    \              std::map<std::string, std::string> &remapped_sources,\n       \
+    \       uint8_t **new_btf_sec, uintptr_t *new_btf_sec_size);\n  void warning(const\
+    \ char *format, ...);\n\n private:\n  bool debug_;\n  struct btf *btf_;\n  struct\
+    \ btf_ext *btf_ext_;\n};\n\n} // namespace ebpf\n\n#endif\n\n// FILE: src/cc/bpf_module.cc\n\
+    // CONTEXT: void BPFModule::load_btf(sec_map_def &sections) {\n  // Both .BTF\
+    \ and .BTF.ext ELF sections are present.\n  // The remapped files (the main file\
+    \ and /virtual/include/bcc/helpers.h)\n  // will provide missing source codes\
+    \ in the .BTF.ext line_info table.\n  auto helpers_h = ExportedFiles::headers().find(\"\
+    /virtual/include/bcc/helpers.h\");\n  if (helpers_h == ExportedFiles::headers().end())\
+    \ {\n    fprintf(stderr, \"Internal error: missing bcc/helpers.h\");\n    return;\n\
+    \  }\n  std::map<std::string, std::string> remapped_sources;\n  remapped_sources[\"\
+    /virtual/main.c\"] = mod_src_;\n  remapped_sources[\"/virtual/include/bcc/helpers.h\"\
+    ] = helpers_h->second;\n\n  BTF *btf = new BTF(flags_ & DEBUG_BTF);\n  int ret\
+    \ = btf->load(btf_sec, btf_sec_size, btf_ext_sec, btf_ext_sec_size,\n        \
+    \               remapped_sources);\n  if (ret) {\n    delete btf;\n    return;\n\
+    \  }\n  btf_ = btf;\n}\n\nint BPFModule::load_maps(sec_map_def &sections) {\n\
+    \  // find .maps.<table_name> sections and retrieve all map key/value type id's\n\
+    \  std::map<std::string, std::pair<int, int>> map_tids;"
+  fixed_code: "// FILE: src/cc/bcc_btf.cc\n// CONTEXT: int32_t BTFStringTable::addString(std::string\
+    \ S) {\n  // Make sure we do not overflow the string table.\n  if (OrigTblLen\
+    \ + Size + S.size() + 1 >= BTF_MAX_NAME_OFFSET)\n    return -1;\n\n  // Not find,\
+    \ add to the string table.\n  uint32_t Offset = Size;\n  OffsetToIdMap[Offset]\
+    \ = Table.size();\n  Table.push_back(S);\n  Size += S.size() + 1;\n  return Offset;\n\
+    }\n\nBTF::BTF(bool debug, sec_map_def &sections) : debug_(debug),\n    btf_(nullptr),\
+    \ btf_ext_(nullptr), sections_(sections) {\n  if (!debug)\n    libbpf_set_print(NULL);\n\
+    }\n\nBTF::~BTF() {\n  btf__free(btf_);\n  btf_ext__free(btf_ext_);\n}\n\nvoid\
+    \ BTF::warning(const char *format, ...) {\n  va_list args;\n\n  if (!debug_)\n\
+    \    return;\n\n  va_start(args, format);\n  vfprintf(stderr, format, args);\n\
+    \  va_end(args);\n}\n\n// Adjust datasec types. The compiler is not able to determine\n\
+    // the datasec size, so we need to set the value properly based\n// on actual\
+    \ section size.\nvoid BTF::fixup_datasec(uint8_t *type_sec, uintptr_t type_sec_size,\n\
+    \                        char *strings) {\n  uint8_t *next_type = type_sec;\n\
+    \  uint8_t *end_type = type_sec + type_sec_size;\n  int base_size = sizeof(struct\
+    \ btf_type);\n  char *secname;\n\n  while (next_type < end_type) {\n    struct\
+    \ btf_type *t = (struct btf_type *)next_type;\n    unsigned short vlen = BTF_INFO_VLEN(t->info);\n\
+    \n    next_type += base_size;\n\n    switch(BTF_INFO_KIND(t->info)) {\n    case\
+    \ BTF_KIND_FWD:\n    case BTF_KIND_CONST:\n    case BTF_KIND_VOLATILE:\n    case\
+    \ BTF_KIND_RESTRICT:\n    case BTF_KIND_PTR:\n    case BTF_KIND_TYPEDEF:\n   \
+    \ case BTF_KIND_FUNC:\n      break;\n    case BTF_KIND_INT:\n      next_type +=\
+    \ sizeof(uint32_t);\n      break;\n    case BTF_KIND_ENUM:\n      next_type +=\
+    \ vlen * sizeof(struct btf_enum);\n      break;\n    case BTF_KIND_ARRAY:\n  \
+    \    next_type += sizeof(struct btf_array);\n      break;\n    case BTF_KIND_STRUCT:\n\
+    \    case BTF_KIND_UNION:\n      next_type += vlen * sizeof(struct btf_member);\n\
+    \      break;\n    case BTF_KIND_FUNC_PROTO:\n      next_type += vlen * sizeof(struct\
+    \ btf_param);\n      break;\n    case BTF_KIND_VAR:\n      next_type += sizeof(struct\
+    \ btf_var);\n      break;\n    case BTF_KIND_DATASEC:\n      secname = strings\
+    \ + t->name_off;\n      if (sections_.find(secname) != sections_.end()) {\n  \
+    \      t->size = std::get<1>(sections_[secname]);\n      }\n      next_type +=\
+    \ vlen * sizeof(struct btf_var_secinfo);\n      break;\n    default:\n      //\
+    \ Something not understood\n      return;\n    }\n  }\n}\n\n// The compiler doesn't\
+    \ have source code for remapped files.\n// So we modify .BTF and .BTF.ext sections\
+    \ here to add these\n// missing line source codes.\n// The .BTF and .BTF.ext ELF\
+    \ section specification can be\n// found at linux repo: linux/Documentation/bpf/btf.rst.\n\
+    void BTF::adjust(uint8_t *btf_sec, uintptr_t btf_sec_size,\n                 uint8_t\
+    \ *btf_ext_sec, uintptr_t btf_ext_sec_size,\n                 std::map<std::string,\
+    \ std::string> &remapped_sources,\n                 uint8_t **new_btf_sec, uintptr_t\
+    \ *new_btf_sec_size) {\n\n  // Line cache for remapped files\n  std::map<std::string,\
+    \ std::vector<std::string>> LineCaches;\n\n// CONTEXT: void BTF::adjust(uint8_t\
+    \ *btf_sec, uintptr_t btf_sec_size,\n      if (it->second[end] == '\\n' || end\
+    \ == FileBufSize - 1 ||\n          (it->second[end] == '\\r' && it->second[end\
+    \ + 1] == '\\n')) {\n        // Not including the endline\n        LineCache.push_back(std::string(it->second.substr(start,\
+    \ end - start)));\n        if (it->second[end] == '\\r')\n          end++;\n \
+    \       start = end + 1;\n      }\n    }\n    LineCaches[it->first] = std::move(LineCache);\n\
+    \  }\n\n  struct btf_header *hdr = (struct btf_header *)btf_sec;\n  struct btf_ext_header\
+    \ *ehdr = (struct btf_ext_header *)btf_ext_sec;\n\n  // Fixup datasec.\n  fixup_datasec(btf_sec\
+    \ + hdr->hdr_len + hdr->type_off, hdr->type_len,\n                (char *)(btf_sec\
+    \ + hdr->hdr_len + hdr->str_off));\n\n  // Check the LineInfo table and add missing\
+    \ lines\n  char *strings = (char *)(btf_sec + hdr->hdr_len + hdr->str_off);\n\
+    \  unsigned orig_strings_len = hdr->str_len;\n  unsigned *linfo_s = (unsigned\
+    \ *)(btf_ext_sec + ehdr->hdr_len + ehdr->line_info_off);\n  unsigned lrec_size\
+    \ = *linfo_s;\n  linfo_s++;\n  unsigned linfo_len = ehdr->line_info_len - 4;\n\
+    \n  // Go through all line info. For any line number whose line is in the LineCaches,\n\
+    \  // Correct the line_off and record the corresponding source line in BTFStringTable,\n\
+    \  // which later will be merged into .BTF string section.\n  BTFStringTable new_strings(orig_strings_len);\n\
+    \  bool overflow = false;\n\n// FILE: src/cc/bcc_btf.h\n * limitations under the\
+    \ License.\n */\n\n#ifndef BCC_BTF_H\n#define BCC_BTF_H\n\n#include <stdbool.h>\n\
+    #include <stdint.h>\n#include <string>\n#include <map>\n#include <vector>\n\n\
+    #include \"bpf_module.h\"\n\nstruct btf;\nstruct btf_ext;\n\nnamespace ebpf {\n\
+    \nclass BTFStringTable {\n private:\n  uint32_t Size;\n  uint32_t OrigTblLen;\n\
+    \  std::map<uint32_t, uint32_t> OffsetToIdMap;\n  std::vector<std::string> Table;\n\
+    \n public:\n  BTFStringTable(uint32_t TblLen): Size(0), OrigTblLen(TblLen) {}\n\
+    \  uint32_t getSize() { return Size; }\n  std::vector<std::string> &getTable()\
+    \ { return Table; }\n  int32_t addString(std::string Str);\n};\n\nclass BTF {\n\
+    \ public:\n  BTF(bool debug, sec_map_def &sections);\n  ~BTF();\n  int load(uint8_t\
+    \ *btf_sec, uintptr_t btf_sec_size,\n           uint8_t *btf_ext_sec, uintptr_t\
+    \ btf_ext_sec_size,\n           std::map<std::string, std::string> &remapped_sources);\n\
+    \  int get_fd();\n  int get_btf_info(const char *fname,\n                   void\
+    \ **func_info, unsigned *func_info_cnt,\n                   unsigned *finfo_rec_size,\n\
+    \                   void **line_info, unsigned *line_info_cnt,\n             \
+    \      unsigned *linfo_rec_size);\n  int get_map_tids(std::string map_name,\n\
+    \                   unsigned expected_ksize, unsigned expected_vsize,\n      \
+    \             unsigned *key_tid, unsigned *value_tid);\n\n private:\n  void fixup_datasec(uint8_t\
+    \ *type_sec, uintptr_t type_sec_size, char *strings);\n  void adjust(uint8_t *btf_sec,\
+    \ uintptr_t btf_sec_size,\n              uint8_t *btf_ext_sec, uintptr_t btf_ext_sec_size,\n\
+    \              std::map<std::string, std::string> &remapped_sources,\n       \
+    \       uint8_t **new_btf_sec, uintptr_t *new_btf_sec_size);\n  void warning(const\
+    \ char *format, ...);\n\n private:\n  bool debug_;\n  struct btf *btf_;\n  struct\
+    \ btf_ext *btf_ext_;\n  sec_map_def &sections_;\n};\n\n} // namespace ebpf\n\n\
+    #endif\n\n// FILE: src/cc/bpf_module.cc\n// CONTEXT: void BPFModule::load_btf(sec_map_def\
+    \ &sections) {\n  // Both .BTF and .BTF.ext ELF sections are present.\n  // The\
+    \ remapped files (the main file and /virtual/include/bcc/helpers.h)\n  // will\
+    \ provide missing source codes in the .BTF.ext line_info table.\n  auto helpers_h\
+    \ = ExportedFiles::headers().find(\"/virtual/include/bcc/helpers.h\");\n  if (helpers_h\
+    \ == ExportedFiles::headers().end()) {\n    fprintf(stderr, \"Internal error:\
+    \ missing bcc/helpers.h\");\n    return;\n  }\n  std::map<std::string, std::string>\
+    \ remapped_sources;\n  remapped_sources[\"/virtual/main.c\"] = mod_src_;\n  remapped_sources[\"\
+    /virtual/include/bcc/helpers.h\"] = helpers_h->second;\n\n  BTF *btf = new BTF(flags_\
+    \ & DEBUG_BTF, sections);\n  int ret = btf->load(btf_sec, btf_sec_size, btf_ext_sec,\
+    \ btf_ext_sec_size,\n                       remapped_sources);\n  if (ret) {\n\
+    \    delete btf;\n    return;\n  }\n  btf_ = btf;\n}\n\nint BPFModule::load_maps(sec_map_def\
+    \ &sections) {\n  // find .maps.<table_name> sections and retrieve all map key/value\
+    \ type id's\n  std::map<std::string, std::pair<int, int>> map_tids;"
+  diff_summary: 'src/cc/bcc_btf.cc:
+
+    - Added explicit bounds or range guards so the verifier can prove the access size
+    and offset.
+
+    - Affected context: int32_t BTFStringTable::addString(std::string S) {, void BTF::adjust(uint8_t
+    *btf_sec, uintptr_t btf_sec_size,.
+
+    src/cc/bcc_btf.h:
+
+    - Added explicit bounds or range guards so the verifier can prove the access size
+    and offset.
+
+    - Affected context: the touched section.
+
+    src/cc/bpf_module.cc:
+
+    - Added explicit bounds or range guards so the verifier can prove the access size
+    and offset.
+
+    - Affected context: void BPFModule::load_btf(sec_map_def &sections) {.
+
+    - Commit subject: bpf: fixup btf DataSec size.'
+

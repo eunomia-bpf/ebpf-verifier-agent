@@ -2,7 +2,7 @@
 
 BPFix stands for Obligation-Oriented Diagnostics for eBPF Verifier Failures. The project treats verifier feedback as a systems interface problem: instead of relying on unstable free-text logs, it aims to build a stable, structured diagnostic layer that exposes what proof obligation failed, where it failed, and what kind of repair is appropriate.
 
-The repository contains the current extractor pipeline, taxonomy/catalog data, case-study corpus utilities, and evaluation scripts used to analyze verifier failures.
+The repository contains the current extractor pipeline, taxonomy/catalog data, and the unified `bpfix-bench` corpus used to analyze verifier failures.
 
 ## Install
 
@@ -19,10 +19,10 @@ If you only want the raw dependencies without packaging metadata, `pip install -
 ## Repository Layout
 
 ```text
-case_study/
-  schema.yaml        Benchmark case schema
-  collect.py         Case acquisition utilities
-  reproduce.py       Per-case rerun helpers
+bpfix-bench/
+  manifest.yaml      Single entry point for replayable verifier-reject cases
+  cases/             Self-contained local reproducers admitted to the benchmark
+  raw/               Collected SO/GH/commit material, including unreproduced records
 taxonomy/
   taxonomy.yaml      Five-class failure taxonomy
   error_catalog.yaml Stable verifier error catalog
@@ -35,6 +35,9 @@ interface/schema/
   diagnostic.json    Structured diagnostic output schema
 oblige/
   cli.py             `python -m bpfix` / `bpfix` entry point
+tools/
+  validate_benchmark.py  Replay validator for `bpfix-bench`
+  sync_external_raw_bench.py Raw external audit/index generator
 tests/
   test_*.py          Extractor, renderer, schema, and CLI coverage
 docs/
@@ -56,10 +59,10 @@ Generate JSON instead:
 python -m bpfix path/to/verifier.log --format json
 ```
 
-The CLI also accepts a case-study YAML manifest and extracts its `verifier_log` automatically:
+The CLI also accepts a raw benchmark YAML record and extracts its verifier log automatically:
 
 ```bash
-python -m bpfix case_study/cases/stackoverflow/stackoverflow-60053570.yaml --format both
+python -m bpfix bpfix-bench/raw/so/stackoverflow-60053570.yaml --format both
 ```
 
 You can also pipe a log over stdin:
@@ -98,6 +101,12 @@ Inspect the CLI:
 python -m bpfix --help
 ```
 
+Replay the benchmark validator:
+
+```bash
+python3 tools/validate_benchmark.py --replay bpfix-bench --timeout-sec 60
+```
+
 ## Project Scope
 
-The current focus is the Python-based diagnostic/extraction pipeline plus the corpus and evaluation tooling around it. Some surrounding directories still contain research scripts and experiment harnesses; `docs/tmp/` is intentionally reserved for temporary reports rather than permanent documentation.
+The current focus is the Python-based diagnostic/extraction pipeline plus the unified replayable benchmark. `docs/tmp/` is intentionally reserved for temporary reports rather than permanent documentation.

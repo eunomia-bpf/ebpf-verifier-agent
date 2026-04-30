@@ -1,0 +1,175 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-katran-d4edcd2c5a99
+source_kind: github_commit
+source:
+  url: https://github.com/facebookincubator/katran/commit/d4edcd2c5a9996c894f89b85c9234a992c642d21
+  title: 'Parsing tcp hdr options: replace #pragma unroll with a global function call'
+  repository: https://github.com/facebookincubator/katran
+  commit: d4edcd2c5a9996c894f89b85c9234a992c642d21
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-katran-d4edcd2c5a99.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: attempted_unknown
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: verification_status_unclear
+  verifier_status: null
+  captured_error: null
+  verifier_error_match: null
+raw:
+  case_id: eval-katran-d4edcd2c5a99
+  source: eval_commits
+  repository: https://github.com/facebookincubator/katran
+  commit_hash: d4edcd2c5a9996c894f89b85c9234a992c642d21
+  commit_message: 'Parsing tcp hdr options: replace #pragma unroll with a global function
+    call'
+  commit_date: '2021-10-20'
+  fix_type: inline_hint
+  buggy_code: "// FILE: katran/lib/bpf/balancer_kern.c\n// CONTEXT: static inline\
+    \ int process_packet(struct xdp_md *xdp, __u64 off,\n      lru_stats->v1 += 1;\n\
+    \    }\n#ifdef TCP_SERVER_ID_ROUTING\n    // First try to lookup dst in the tcp_hdr_opt\
+    \ (if enabled)\n    if (pckt.flow.proto == IPPROTO_TCP && !(pckt.flags & F_SYN_SET))\
+    \ {\n      __u32 routing_stats_key = MAX_VIPS + TCP_SERVER_ID_ROUTE_STATS;\n \
+    \     struct lb_stats* routing_stats =\n          bpf_map_lookup_elem(&stats,\
+    \ &routing_stats_key);\n      if (!routing_stats) {\n        return XDP_DROP;\n\
+    \      }\n      if (tcp_hdr_opt_lookup(\n              data,\n              data_end,\n\
+    \              is_ipv6,\n              &dst,\n              &pckt,\n         \
+    \     vip_info->flags & F_LRU_BYPASS,\n              lru_map) == FURTHER_PROCESSING)\
+    \ {\n        routing_stats->v1 += 1;\n      } else {\n        routing_stats->v2\
+    \ += 1;\n      }\n    }\n#endif // TCP_SERVER_ID_ROUTING\n\n// FILE: katran/lib/bpf/pckt_parsing.h\n\
+    \ * parsing etc)\n */\n\n#include <linux/ip.h>\n#include <linux/ipv6.h>\n#include\
+    \ <linux/icmp.h>\n#include <linux/icmpv6.h>\n#include <stddef.h>\n#include <linux/tcp.h>\n\
+    #include <linux/udp.h>\n#include <linux/if_ether.h>\n#include <linux/ptrace.h>\n\
+    #include <stdbool.h>\n\n#include \"balancer_consts.h\"\n#include \"balancer_helpers.h\"\
+    \n#include \"bpf.h\"\n\nstruct quic_long_header {\n  __u8 flags;\n  __u32 version;\n\
+    \  // Pre draft-22: Dest Conn Id Len(4 bits) | Source Conn Id Len(4 bits)\n  //\
+    \ Post draft-22: Dest Conn Id Len (8 bits)\n  __u8 conn_id_lens;\n\n// CONTEXT:\
+    \ static inline bool parse_tcp(void *data, void *data_end,\n  if (!is_icmp) {\n\
+    \    pckt->flow.port16[0] = tcp->source;\n    pckt->flow.port16[1] = tcp->dest;\n\
+    \  } else {\n    // packet_description was created from icmp \"packet too big\"\
+    . hence\n    // we need to invert src/dst ports\n    pckt->flow.port16[0] = tcp->dest;\n\
+    \    pckt->flow.port16[1] = tcp->source;\n  }\n  return true;\n}\n\n#ifdef TCP_SERVER_ID_ROUTING\n\
+    __attribute__((__always_inline__)) static inline int tcp_hdr_opt_lookup(\n   \
+    \ void* data,\n    void* data_end,\n    bool is_ipv6,\n    struct real_definition**\
+    \ real,\n    struct packet_description* pckt,\n    bool bypass_lru,\n    void*\
+    \ lru_map) {\n  struct real_pos_lru* dst_lru;\n  struct tcphdr* tcp_hdr;\n  void*\
+    \ tcp_opt;\n  __u8 tcp_hdr_opt_len = 0;\n  __u8 hdr_bytes_parsed = 0;\n  __u64\
+    \ tcp_offset = 0;\n  __u32 server_id = 0;\n\n  tcp_offset = calc_offset(is_ipv6,\
+    \ false /* is_icmp */);\n  tcp_hdr = (struct tcphdr*)(data + tcp_offset);\n  if\
+    \ (tcp_hdr + 1 > data_end) {\n    return FURTHER_PROCESSING;\n  }\n  tcp_hdr_opt_len\
+    \ = (tcp_hdr->doff * 4) - sizeof(struct tcphdr);\n  if (tcp_hdr_opt_len < TCP_HDR_OPT_LEN_TPR)\
+    \ {\n    return FURTHER_PROCESSING;\n  }\n  tcp_opt = data + tcp_offset + sizeof(struct\
+    \ tcphdr);\n\n#pragma clang loop unroll(full)\n  for (int i = 0; i < TCP_HDR_OPT_MAX_OPT_CHECKS;\
+    \ i++) {\n    if (tcp_opt + 1 > data_end) {\n      return FURTHER_PROCESSING;\n\
+    \    }\n    if (hdr_bytes_parsed + 1 > tcp_hdr_opt_len) {\n      return FURTHER_PROCESSING;\n\
+    \    }\n    __u8* kind = (__u8*)tcp_opt;\n    // 1 byte options\n    if (*kind\
+    \ == TCP_OPT_EOL) {\n      // EOL signifies end of options\n      return FURTHER_PROCESSING;\n\
+    \    }\n    if (*kind == TCP_OPT_NOP) {\n      tcp_opt = (void*)(kind + sizeof(__u8));\n\
+    \      hdr_bytes_parsed += sizeof(__u8);\n      continue;\n    }\n    if (kind\
+    \ + sizeof(__u8) + sizeof(__u8) > data_end) {\n      return FURTHER_PROCESSING;\n\
+    \    }\n    __u8 hdr_len = *(kind + sizeof(__u8));\n    if (kind + hdr_len > data_end)\
+    \ {\n      return FURTHER_PROCESSING;\n    }\n    if (*kind == TCP_HDR_OPT_KIND_TPR)\
+    \ {\n      if (hdr_len != TCP_HDR_OPT_LEN_TPR) {\n        return FURTHER_PROCESSING;\n\
+    \      }\n      __u8* hdr_data_off = kind + sizeof(__u8) + sizeof(__u8);\n   \
+    \   if (hdr_data_off + sizeof(__u32) > data_end) {\n        return FURTHER_PROCESSING;\n\
+    \      }\n      server_id = *((__u32*)(hdr_data_off));\n      break;\n    }\n\
+    \    hdr_bytes_parsed += hdr_len;\n    tcp_opt = (void*)(kind + hdr_len);\n  }\n\
+    \n  if (!server_id) {\n    return FURTHER_PROCESSING;\n  }\n\n  __u32 key = server_id;\n\
+    \  __u32* real_pos = bpf_map_lookup_elem(&server_id_map, &key);\n  if (!real_pos)\
+    \ {\n    return FURTHER_PROCESSING;\n  }\n  key = *real_pos;\n  if (key == 0)\
+    \ {\n    // Since server_id_map is a bpf_map_array all its members are 0-initialized\n\
+    \    // This can lead to a false match for non-existing key to real at index 0.\n\
+    \    // So, just skip key of value 0 to avoid misrouting of packets.\n    return\
+    \ FURTHER_PROCESSING;\n  }\n  pckt->real_index = key;"
+  fixed_code: "// FILE: katran/lib/bpf/balancer_kern.c\n// CONTEXT: static inline\
+    \ int process_packet(struct xdp_md *xdp, __u64 off,\n      lru_stats->v1 += 1;\n\
+    \    }\n#ifdef TCP_SERVER_ID_ROUTING\n    // First try to lookup dst in the tcp_hdr_opt\
+    \ (if enabled)\n    if (pckt.flow.proto == IPPROTO_TCP && !(pckt.flags & F_SYN_SET))\
+    \ {\n      __u32 routing_stats_key = MAX_VIPS + TCP_SERVER_ID_ROUTE_STATS;\n \
+    \     struct lb_stats* routing_stats =\n          bpf_map_lookup_elem(&stats,\
+    \ &routing_stats_key);\n      if (!routing_stats) {\n        return XDP_DROP;\n\
+    \      }\n      if (tcp_hdr_opt_lookup(\n              xdp,\n              is_ipv6,\n\
+    \              &dst,\n              &pckt,\n              vip_info->flags & F_LRU_BYPASS,\n\
+    \              lru_map) == FURTHER_PROCESSING) {\n        routing_stats->v1 +=\
+    \ 1;\n      } else {\n        routing_stats->v2 += 1;\n      }\n    }\n#endif\
+    \ // TCP_SERVER_ID_ROUTING\n\n// FILE: katran/lib/bpf/pckt_parsing.h\n * parsing\
+    \ etc)\n */\n\n#include <linux/ip.h>\n#include <linux/ipv6.h>\n#include <linux/icmp.h>\n\
+    #include <linux/icmpv6.h>\n#include <stddef.h>\n#include <linux/tcp.h>\n#include\
+    \ <linux/udp.h>\n#include <linux/if_ether.h>\n#include <linux/ptrace.h>\n#include\
+    \ <linux/version.h>\n#include <stdbool.h>\n\n#include \"balancer_consts.h\"\n\
+    #include \"balancer_helpers.h\"\n#include \"bpf.h\"\n\nstruct quic_long_header\
+    \ {\n  __u8 flags;\n  __u32 version;\n  // Pre draft-22: Dest Conn Id Len(4 bits)\
+    \ | Source Conn Id Len(4 bits)\n  // Post draft-22: Dest Conn Id Len (8 bits)\n\
+    \  __u8 conn_id_lens;\n\n// CONTEXT: static inline bool parse_tcp(void *data,\
+    \ void *data_end,\n  if (!is_icmp) {\n    pckt->flow.port16[0] = tcp->source;\n\
+    \    pckt->flow.port16[1] = tcp->dest;\n  } else {\n    // packet_description\
+    \ was created from icmp \"packet too big\". hence\n    // we need to invert src/dst\
+    \ ports\n    pckt->flow.port16[0] = tcp->dest;\n    pckt->flow.port16[1] = tcp->source;\n\
+    \  }\n  return true;\n}\n\nstruct hdr_opt_state {\n  __u32 server_id;\n  __u8\
+    \ byte_offset;\n  __u8 hdr_bytes_remaining;\n};\n\n#ifdef TCP_SERVER_ID_ROUTING\n\
+    __attribute__ ((noinline))\nint parse_hdr_opt(const struct xdp_md *xdp, struct\
+    \ hdr_opt_state *state)\n{\n  const void *data = (void *)(long)xdp->data;\n  const\
+    \ void *data_end = (void *)(long)xdp->data_end;\n  __u8 *tcp_opt, kind, hdr_len;\n\
+    \n  // Need this check to satisify the verifier\n  if (!state) {\n    return -1;\n\
+    \  }\n\n  tcp_opt = (__u8*)(data + state->byte_offset);\n  if (tcp_opt + 1 > data_end)\
+    \ {\n    return -1;\n  }\n\n  kind = tcp_opt[0];\n  if (kind == TCP_OPT_EOL) {\n\
+    \    return -1;\n  }\n\n  if (kind == TCP_OPT_NOP) {\n    state->hdr_bytes_remaining--;\n\
+    \    state->byte_offset++;\n    return 0;\n  }\n\n  if (state->hdr_bytes_remaining\
+    \ < 2 ||\n      tcp_opt + sizeof(__u8) + sizeof(__u8) > data_end) {\n    return\
+    \ -1;\n  }\n\n  hdr_len = tcp_opt[1];\n  if (hdr_len > state->hdr_bytes_remaining)\
+    \ {\n    return -1;\n  }\n\n  if (kind == TCP_HDR_OPT_KIND_TPR) {\n    if (hdr_len\
+    \ != TCP_HDR_OPT_LEN_TPR) {\n      return -1;\n    }\n\n    if (tcp_opt + TCP_HDR_OPT_LEN_TPR\
+    \ > data_end) {\n      return -1;\n    }\n\n    state->server_id = *(__u32 *)&tcp_opt[2];\n\
+    \    return 1;\n  }\n\n  state->hdr_bytes_remaining -= hdr_len;\n  state->byte_offset\
+    \ += hdr_len;\n  return 0;\n}\n\n__attribute__((__always_inline__)) static inline\
+    \ int tcp_hdr_opt_lookup(\n    const struct xdp_md *xdp,\n    bool is_ipv6,\n\
+    \    struct real_definition** real,\n    struct packet_description* pckt,\n  \
+    \  bool bypass_lru,\n    void* lru_map) {\n  const void *data = (void *)(long)xdp->data;\n\
+    \  const void *data_end = (void *)(long)xdp->data_end;\n  struct real_pos_lru*\
+    \ dst_lru;\n  struct tcphdr* tcp_hdr;\n  __u8 tcp_hdr_opt_len = 0;\n  __u64 tcp_offset\
+    \ = 0;\n  struct hdr_opt_state opt_state = {};\n  int err = 0;\n\n  tcp_offset\
+    \ = calc_offset(is_ipv6, false /* is_icmp */);\n  tcp_hdr = (struct tcphdr*)(data\
+    \ + tcp_offset);\n  if (tcp_hdr + 1 > data_end) {\n    return FURTHER_PROCESSING;\n\
+    \  }\n  tcp_hdr_opt_len = (tcp_hdr->doff * 4) - sizeof(struct tcphdr);\n  if (tcp_hdr_opt_len\
+    \ < TCP_HDR_OPT_LEN_TPR) {\n    return FURTHER_PROCESSING;\n  }\n\n  opt_state.hdr_bytes_remaining\
+    \ = tcp_hdr_opt_len;\n  opt_state.byte_offset = sizeof(struct tcphdr) + tcp_offset;\n\
+    #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 3, 0)\n  // For linux kernel version\
+    \ < 5.3, there isn't support in the bpf verifier\n  // for validating bounded\
+    \ loops, so we need to unroll the loop\n#pragma clang loop unroll(full)\n#endif\n\
+    \  for (int i = 0; i < TCP_HDR_OPT_MAX_OPT_CHECKS; i++) {\n    err = parse_hdr_opt(xdp,\
+    \ &opt_state);\n    if (err || !opt_state.hdr_bytes_remaining) {\n      break;\n\
+    \    }\n  }\n\n  if (!opt_state.server_id) {\n    return FURTHER_PROCESSING;\n\
+    \  }\n\n  __u32 key = opt_state.server_id;\n  __u32* real_pos = bpf_map_lookup_elem(&server_id_map,\
+    \ &key);\n  if (!real_pos) {\n    return FURTHER_PROCESSING;\n  }\n  key = *real_pos;\n\
+    \  if (key == 0) {\n    // Since server_id_map is a bpf_map_array all its members\
+    \ are 0-initialized\n    // This can lead to a false match for non-existing key\
+    \ to real at index 0.\n    // So, just skip key of value 0 to avoid misrouting\
+    \ of packets.\n    return FURTHER_PROCESSING;\n  }\n  pckt->real_index = key;"
+  diff_summary: 'katran/lib/bpf/balancer_kern.c:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: static inline int process_packet(struct xdp_md *xdp, __u64
+    off,.
+
+    katran/lib/bpf/pckt_parsing.h:
+
+    - Changed inlining annotations so verifier-visible state stays in a form older
+    kernels accept.
+
+    - Affected context: static inline bool parse_tcp(void *data, void *data_end,.
+
+    - Commit subject: Parsing tcp hdr options: replace #pragma unroll with a global
+    function call.'
+

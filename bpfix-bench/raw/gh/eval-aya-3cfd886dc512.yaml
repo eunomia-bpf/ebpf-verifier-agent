@@ -1,0 +1,181 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-aya-3cfd886dc512
+source_kind: github_commit
+source:
+  url: https://github.com/aya-rs/aya/commit/3cfd886dc512872fd3948cdf3baa8c99fe27ef0f
+  title: 'log: annotate logging functions inlining'
+  repository: https://github.com/aya-rs/aya
+  commit: 3cfd886dc512872fd3948cdf3baa8c99fe27ef0f
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-aya-3cfd886dc512.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-aya-3cfd886dc512
+  source: eval_commits
+  repository: https://github.com/aya-rs/aya
+  commit_hash: 3cfd886dc512872fd3948cdf3baa8c99fe27ef0f
+  commit_message: 'log: annotate logging functions inlining'
+  commit_date: '2023-08-08'
+  fix_type: inline_hint
+  buggy_code: "// FILE: aya-log-common/src/lib.rs\n// CONTEXT: pub enum DisplayHint\
+    \ {\n    /// `:x`\n    LowerHex,\n    /// `:X`\n    UpperHex,\n    /// `:i`\n\
+    \    Ip,\n    /// `:mac`\n    LowerMac,\n    /// `:MAC`\n    UpperMac,\n}\n\n\
+    pub(crate) fn write(tag: u8, value: &[u8], buf: &mut [u8]) -> Result<usize, ()>\
+    \ {\n    let wire_len: LogValueLength = value\n        .len()\n        .try_into()\n\
+    \        .map_err(|num::TryFromIntError { .. }| ())?;\n    let mut size = 0;\n\
+    \    macro_rules! copy_from_slice {\n        ($value:expr) => {{\n           \
+    \ let buf = buf.get_mut(size..).ok_or(())?;\n            let buf = buf.get_mut(..$value.len()).ok_or(())?;\n\
+    \            buf.copy_from_slice($value);\n            size += $value.len();\n\
+    \n// CONTEXT: pub(crate) fn write(tag: u8, value: &[u8], buf: &mut [u8]) -> Result<usize,\
+    \ ()>\n    copy_from_slice!(value);\n    Ok(size)\n}\n\npub trait WriteToBuf {\n\
+    \    #[allow(clippy::result_unit_err)]\n    fn write(self, buf: &mut [u8]) ->\
+    \ Result<usize, ()>;\n}\n\nmacro_rules! impl_write_to_buf {\n    ($type:ident,\
+    \ $arg_type:expr) => {\n        impl WriteToBuf for $type {\n            fn write(self,\
+    \ buf: &mut [u8]) -> Result<usize, ()> {\n                write($arg_type.into(),\
+    \ &self.to_ne_bytes(), buf)\n            }\n        }\n    };\n}\n\nimpl_write_to_buf!(i8,\
+    \ Argument::I8);\nimpl_write_to_buf!(i16, Argument::I16);\nimpl_write_to_buf!(i32,\
+    \ Argument::I32);\nimpl_write_to_buf!(i64, Argument::I64);\nimpl_write_to_buf!(isize,\
+    \ Argument::Isize);\n\nimpl_write_to_buf!(u8, Argument::U8);\nimpl_write_to_buf!(u16,\
+    \ Argument::U16);\nimpl_write_to_buf!(u32, Argument::U32);\nimpl_write_to_buf!(u64,\
+    \ Argument::U64);\nimpl_write_to_buf!(usize, Argument::Usize);\n\nimpl_write_to_buf!(f32,\
+    \ Argument::F32);\nimpl_write_to_buf!(f64, Argument::F64);\n\nimpl WriteToBuf\
+    \ for [u8; 16] {\n    fn write(self, buf: &mut [u8]) -> Result<usize, ()> {\n\
+    \        write(Argument::ArrU8Len16.into(), &self, buf)\n    }\n}\n\nimpl WriteToBuf\
+    \ for [u16; 8] {\n    fn write(self, buf: &mut [u8]) -> Result<usize, ()> {\n\
+    \        let bytes = unsafe { core::mem::transmute::<_, [u8; 16]>(self) };\n \
+    \       write(Argument::ArrU16Len8.into(), &bytes, buf)\n    }\n}\n\nimpl WriteToBuf\
+    \ for [u8; 6] {\n    fn write(self, buf: &mut [u8]) -> Result<usize, ()> {\n \
+    \       write(Argument::ArrU8Len6.into(), &self, buf)\n    }\n}\n\nimpl WriteToBuf\
+    \ for &[u8] {\n    fn write(self, buf: &mut [u8]) -> Result<usize, ()> {\n   \
+    \     write(Argument::Bytes.into(), self, buf)\n    }\n}\n\nimpl WriteToBuf for\
+    \ &str {\n    fn write(self, buf: &mut [u8]) -> Result<usize, ()> {\n        write(Argument::Str.into(),\
+    \ self.as_bytes(), buf)\n    }\n}\n\nimpl WriteToBuf for DisplayHint {\n    fn\
+    \ write(self, buf: &mut [u8]) -> Result<usize, ()> {\n        let v: u8 = self.into();\n\
+    \        write(Argument::DisplayHint.into(), &v.to_ne_bytes(), buf)\n    }\n}\n\
+    \n#[allow(clippy::result_unit_err)]\n#[doc(hidden)]\n#[inline(always)] // This\
+    \ function takes too many arguments to not be inlined.\npub fn write_record_header(\n\
+    \    buf: &mut [u8],\n    target: &str,\n\n// FILE: test/integration-ebpf/src/log.rs\n\
+    #![no_std]\n#![no_main]\n\nuse aya_bpf::{macros::uprobe, programs::ProbeContext};\n\
+    use aya_log_ebpf::{debug, error, info, trace, warn};\n\n#[uprobe]\npub fn test_log(ctx:\
+    \ ProbeContext) {\n    debug!(&ctx, \"Hello from eBPF!\");\n    error!(&ctx, \"\
+    {}, {}, {}\", 69, 420i32, \"wao\");\n    let ipv4 = 167772161u32; // 10.0.0.1\n\
+    \    let ipv6 = [\n        32u8, 1u8, 13u8, 184u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8,\
+    \ 0u8, 0u8, 0u8, 0u8, 0u8, 1u8,\n    ]; // 2001:db8::1\n    info!(&ctx, \"ipv4:\
+    \ {:i}, ipv6: {:i}\", ipv4, ipv6);\n    let mac = [4u8, 32u8, 6u8, 9u8, 0u8, 64u8];\n\
+    \    trace!(&ctx, \"mac lc: {:mac}, mac uc: {:MAC}\", mac, mac);\n    let hex\
+    \ = 0x2f;\n    warn!(&ctx, \"hex lc: {:x}, hex uc: {:X}\", hex, hex);\n    let\
+    \ hex = [0xde, 0xad, 0xbe, 0xef].as_slice();\n    debug!(&ctx, \"hex lc: {:x},\
+    \ hex uc: {:X}\", hex, hex);\n\n// FILE: test/integration-test/src/tests/log.rs\n\
+    // CONTEXT: async fn log() {\n    assert_eq!(\n        records.next(),\n     \
+    \   Some(&CapturedLog {\n            body: \"Hello from eBPF!\".into(),\n    \
+    \        level: Level::Debug,\n            target: \"log\".into(),\n        }),\n\
+    \    );\n\n    assert_eq!(\n        records.next(),\n        Some(&CapturedLog\
+    \ {\n            body: \"69, 420, wao\".into(),\n            level: Level::Error,\n\
+    \            target: \"log\".into(),\n        })\n    );\n\n    assert_eq!(\n\
+    \        records.next(),\n        Some(&CapturedLog {\n            body: \"ipv4:\
+    \ 10.0.0.1, ipv6: 2001:db8::1\".into(),\n            level: Level::Info,\n   \
+    \         target: \"log\".into(),\n        })"
+  fixed_code: "// FILE: aya-log-common/src/lib.rs\n// CONTEXT: pub enum DisplayHint\
+    \ {\n    /// `:x`\n    LowerHex,\n    /// `:X`\n    UpperHex,\n    /// `:i`\n\
+    \    Ip,\n    /// `:mac`\n    LowerMac,\n    /// `:MAC`\n    UpperMac,\n}\n\n\
+    // Must be inlined, else the BPF backend emits:\n//\n// llvm: <unknown>:0:0: in\
+    \ function _ZN14aya_log_common5write17hc9ed05433e23a663E { i64, i64 } (i8, ptr,\
+    \ i64, ptr, i64): only integer returns supported\n#[inline(always)]\npub(crate)\
+    \ fn write(tag: u8, value: &[u8], buf: &mut [u8]) -> Result<usize, ()> {\n   \
+    \ let wire_len: LogValueLength = value\n        .len()\n        .try_into()\n\
+    \        .map_err(|num::TryFromIntError { .. }| ())?;\n    let mut size = 0;\n\
+    \    macro_rules! copy_from_slice {\n        ($value:expr) => {{\n           \
+    \ let buf = buf.get_mut(size..).ok_or(())?;\n            let buf = buf.get_mut(..$value.len()).ok_or(())?;\n\
+    \            buf.copy_from_slice($value);\n            size += $value.len();\n\
+    \n// CONTEXT: pub(crate) fn write(tag: u8, value: &[u8], buf: &mut [u8]) -> Result<usize,\
+    \ ()>\n    copy_from_slice!(value);\n    Ok(size)\n}\n\npub trait WriteToBuf {\n\
+    \    #[allow(clippy::result_unit_err)]\n    fn write(self, buf: &mut [u8]) ->\
+    \ Result<usize, ()>;\n}\n\nmacro_rules! impl_write_to_buf {\n    ($type:ident,\
+    \ $arg_type:expr) => {\n        impl WriteToBuf for $type {\n            // This\
+    \ need not be inlined because the return value is Result<N, ()> where N is\n \
+    \           // mem::size_of<$type>, which is a compile-time constant.\n      \
+    \      #[inline(never)]\n            fn write(self, buf: &mut [u8]) -> Result<usize,\
+    \ ()> {\n                write($arg_type.into(), &self.to_ne_bytes(), buf)\n \
+    \           }\n        }\n    };\n}\n\nimpl_write_to_buf!(i8, Argument::I8);\n\
+    impl_write_to_buf!(i16, Argument::I16);\nimpl_write_to_buf!(i32, Argument::I32);\n\
+    impl_write_to_buf!(i64, Argument::I64);\nimpl_write_to_buf!(isize, Argument::Isize);\n\
+    \nimpl_write_to_buf!(u8, Argument::U8);\nimpl_write_to_buf!(u16, Argument::U16);\n\
+    impl_write_to_buf!(u32, Argument::U32);\nimpl_write_to_buf!(u64, Argument::U64);\n\
+    impl_write_to_buf!(usize, Argument::Usize);\n\nimpl_write_to_buf!(f32, Argument::F32);\n\
+    impl_write_to_buf!(f64, Argument::F64);\n\nimpl WriteToBuf for [u8; 16] {\n  \
+    \  // This need not be inlined because the return value is Result<N, ()> where\
+    \ N is 16, which is a\n    // compile-time constant.\n    #[inline(never)]\n \
+    \   fn write(self, buf: &mut [u8]) -> Result<usize, ()> {\n        write(Argument::ArrU8Len16.into(),\
+    \ &self, buf)\n    }\n}\n\nimpl WriteToBuf for [u16; 8] {\n    // This need not\
+    \ be inlined because the return value is Result<N, ()> where N is 16, which is\
+    \ a\n    // compile-time constant.\n    #[inline(never)]\n    fn write(self, buf:\
+    \ &mut [u8]) -> Result<usize, ()> {\n        let bytes = unsafe { core::mem::transmute::<_,\
+    \ [u8; 16]>(self) };\n        write(Argument::ArrU16Len8.into(), &bytes, buf)\n\
+    \    }\n}\n\nimpl WriteToBuf for [u8; 6] {\n    // This need not be inlined because\
+    \ the return value is Result<N, ()> where N is 6, which is a\n    // compile-time\
+    \ constant.\n    #[inline(never)]\n    fn write(self, buf: &mut [u8]) -> Result<usize,\
+    \ ()> {\n        write(Argument::ArrU8Len6.into(), &self, buf)\n    }\n}\n\nimpl\
+    \ WriteToBuf for &[u8] {\n    // Must be inlined, else the BPF backend emits:\n\
+    \    //\n    // llvm: <unknown>:0:0: in function _ZN63_$LT$$RF$$u5b$u8$u5d$$u20$as$u20$aya_log_common..WriteToBuf$GT$5write17h08f30a45f7b9f09dE\
+    \ { i64, i64 } (ptr, i64, ptr, i64): only integer returns supported\n    #[inline(always)]\n\
+    \    fn write(self, buf: &mut [u8]) -> Result<usize, ()> {\n        write(Argument::Bytes.into(),\
+    \ self, buf)\n    }\n}\n\nimpl WriteToBuf for &str {\n    // Must be inlined,\
+    \ else the BPF backend emits:\n    //\n    // llvm: <unknown>:0:0: in function\
+    \ _ZN54_$LT$$RF$str$u20$as$u20$aya_log_common..WriteToBuf$GT$5write17h7e2d1ccaa758e2b5E\
+    \ { i64, i64 } (ptr, i64, ptr, i64): only integer returns supported\n    #[inline(always)]\n\
+    \    fn write(self, buf: &mut [u8]) -> Result<usize, ()> {\n        write(Argument::Str.into(),\
+    \ self.as_bytes(), buf)\n    }\n}\n\nimpl WriteToBuf for DisplayHint {\n    //\
+    \ This need not be inlined because the return value is Result<N, ()> where N is\
+    \ 1, which is a\n    // compile-time constant.\n    #[inline(never)]\n    fn write(self,\
+    \ buf: &mut [u8]) -> Result<usize, ()> {\n        let v: u8 = self.into();\n \
+    \       write(Argument::DisplayHint.into(), &v.to_ne_bytes(), buf)\n    }\n}\n\
+    \n#[allow(clippy::result_unit_err)]\n#[doc(hidden)]\n#[inline(always)] // This\
+    \ function takes too many arguments to not be inlined.\npub fn write_record_header(\n\
+    \    buf: &mut [u8],\n    target: &str,\n\n// FILE: test/integration-ebpf/src/log.rs\n\
+    #![no_std]\n#![no_main]\n\nuse aya_bpf::{macros::uprobe, programs::ProbeContext};\n\
+    use aya_log_ebpf::{debug, error, info, trace, warn};\n\n#[uprobe]\npub fn test_log(ctx:\
+    \ ProbeContext) {\n    debug!(&ctx, \"Hello from eBPF!\");\n    error!(\n    \
+    \    &ctx,\n        \"{}, {}, {}, {:x}\",\n        69,\n        420i32,\n    \
+    \    \"wao\",\n        \"wao\".as_bytes()\n    );\n    let ipv4 = 167772161u32;\
+    \ // 10.0.0.1\n    let ipv6 = [\n        32u8, 1u8, 13u8, 184u8, 0u8, 0u8, 0u8,\
+    \ 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 1u8,\n    ]; // 2001:db8::1\n    info!(&ctx,\
+    \ \"ipv4: {:i}, ipv6: {:i}\", ipv4, ipv6);\n    let mac = [4u8, 32u8, 6u8, 9u8,\
+    \ 0u8, 64u8];\n    trace!(&ctx, \"mac lc: {:mac}, mac uc: {:MAC}\", mac, mac);\n\
+    \    let hex = 0x2f;\n    warn!(&ctx, \"hex lc: {:x}, hex uc: {:X}\", hex, hex);\n\
+    \    let hex = [0xde, 0xad, 0xbe, 0xef].as_slice();\n    debug!(&ctx, \"hex lc:\
+    \ {:x}, hex uc: {:X}\", hex, hex);\n\n// FILE: test/integration-test/src/tests/log.rs\n\
+    // CONTEXT: async fn log() {\n    assert_eq!(\n        records.next(),\n     \
+    \   Some(&CapturedLog {\n            body: \"Hello from eBPF!\".into(),\n    \
+    \        level: Level::Debug,\n            target: \"log\".into(),\n        }),\n\
+    \    );\n\n    assert_eq!(\n        records.next(),\n        Some(&CapturedLog\
+    \ {\n            body: \"69, 420, wao, 77616f\".into(),\n            level: Level::Error,\n\
+    \            target: \"log\".into(),\n        })\n    );\n\n    assert_eq!(\n\
+    \        records.next(),\n        Some(&CapturedLog {\n            body: \"ipv4:\
+    \ 10.0.0.1, ipv6: 2001:db8::1\".into(),\n            level: Level::Info,\n   \
+    \         target: \"log\".into(),\n        })"
+  diff_summary: 'aya-log-common/src/lib.rs:
+
+    - Added explicit `#[inline(always)]` to aggregate-return writers that must be
+    inlined for BPF.
+
+    - Added `#[inline(never)]` to fixed-size writers where non-inline code is safe.
+
+    test/integration-ebpf/src/log.rs, test/integration-test/src/tests/log.rs:
+
+    - Extended the integration program and test coverage to exercise the new inlining
+    choices.'
+

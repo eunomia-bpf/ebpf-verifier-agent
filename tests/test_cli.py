@@ -15,7 +15,7 @@ def test_python_m_bpfix_emits_json_for_case_manifest() -> None:
             sys.executable,
             "-m",
             "bpfix",
-            str(ROOT / "case_study" / "cases" / "stackoverflow" / "stackoverflow-60053570.yaml"),
+            str(ROOT / "bpfix-bench" / "raw" / "so" / "stackoverflow-60053570.yaml"),
             "--format",
             "json",
         ],

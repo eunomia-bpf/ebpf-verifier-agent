@@ -1,0 +1,41 @@
+case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-acquire-unreleased-tp-btf-cgroup-mkdir-0f46d712
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/cgrp_kfunc_failure.c
+  section: tp_btf/cgroup_mkdir
+  function: cgrp_kfunc_acquire_unreleased
+  description: cgrp_kfunc_acquire_unreleased
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - Unreleased reference
+  unprivileged: []
+  combined:
+  - Unreleased reference
+verifier_log: |
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (79) r1 = *(u64 *)(r1 +0)
+    1: .1........ (85) call bpf_cgroup_acquire#71302
+    2: 0......... (7b) *(u64 *)(r10 -8) = r0
+    3: .......... (b4) w0 = 0
+    4: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int BPF_PROG(cgrp_kfunc_acquire_unreleased, struct cgroup *cgrp, const char *path) @ cgrp_kfunc_failure.c:124
+  0: (79) r1 = *(u64 *)(r1 +0)
+  func 'cgroup_mkdir' arg0 has btf_id 548 type STRUCT 'cgroup'
+  1: R1_w=trusted_ptr_cgroup()
+  ; acquired = bpf_cgroup_acquire(cgrp); @ cgrp_kfunc_failure.c:128
+  1: (85) call bpf_cgroup_acquire#71302         ; R0_w=ptr_or_null_cgroup(id=2,ref_obj_id=2) refs=2
+  2: (7b) *(u64 *)(r10 -8) = r0         ; R0_w=ptr_or_null_cgroup(id=2,ref_obj_id=2) R10=fp0 fp-8_w=ptr_or_null_cgroup(id=2,ref_obj_id=2) refs=2
+  ; int BPF_PROG(cgrp_kfunc_acquire_unreleased, struct cgroup *cgrp, const char *path) @ cgrp_kfunc_failure.c:124
+  3: (b4) w0 = 0                        ; R0_w=0 refs=2
+  4: (95) exit
+  Unreleased reference id=2 alloc_insn=1
+  BPF_EXIT instruction in main prog would lead to reference leak
+  processed 5 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/cgrp_kfunc_failure.c
+  code: "SEC(\"tp_btf/cgroup_mkdir\")\n__failure __msg(\"Unreleased reference\")\nint BPF_PROG(cgrp_kfunc_acquire_unreleased, struct cgroup *cgrp, const char *path)\n{\n\tstruct cgroup *acquired;\n\n\tacquired = bpf_cgroup_acquire(cgrp);\n\n\t/* Acquired cgroup is never released. */\n\t__sink(acquired);\n\n\treturn 0;\n}"

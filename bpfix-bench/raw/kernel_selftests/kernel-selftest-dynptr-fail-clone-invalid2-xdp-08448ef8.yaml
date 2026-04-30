@@ -1,0 +1,66 @@
+case_id: kernel-selftest-dynptr-fail-clone-invalid2-xdp-08448ef8
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?xdp
+  function: clone_invalid2
+  description: clone_invalid2
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - cannot overwrite referenced dynptr
+  unprivileged: []
+  combined:
+  - cannot overwrite referenced dynptr
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (bf) r6 = r10
+    1: .1....6... (07) r6 += -16
+    2: .1....6... (b7) r2 = 0
+    3: .12...6... (bf) r3 = r6
+    4: .123..6... (85) call bpf_dynptr_from_xdp#71553
+    5: ......6... (bf) r7 = r10
+    6: ......67.. (07) r7 += -32
+    7: ......67.. (18) r1 = 0xffff8d56690ec900
+    9: .1....67.. (b4) w2 = 64
+   10: .12...67.. (b7) r3 = 0
+   11: .123..67.. (bf) r4 = r7
+   12: .1234.67.. (85) call bpf_ringbuf_reserve_dynptr#198
+   13: ......67.. (bf) r1 = r6
+   14: .1.....7.. (bf) r2 = r7
+   15: .12....7.. (85) call bpf_dynptr_clone#71541
+   16: .......7.. (bf) r1 = r7
+   17: .1........ (b7) r2 = 0
+   18: .12....... (85) call bpf_ringbuf_submit_dynptr#199
+   19: .......... (b4) w0 = 0
+   20: 0......... (95) exit
+  0: R1=ctx() R10=fp0
+  ; int clone_invalid2(struct xdp_md *xdp) @ dynptr_fail.c:1477
+  0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ;  @ dynptr_fail.c:0
+  1: (07) r6 += -16                     ; R6_w=fp-16
+  ; bpf_dynptr_from_xdp(xdp, 0, &ptr1); @ dynptr_fail.c:1482
+  2: (b7) r2 = 0                        ; R2_w=0
+  3: (bf) r3 = r6                       ; R3_w=fp-16 R6_w=fp-16
+  4: (85) call bpf_dynptr_from_xdp#71553        ; R0_w=scalar() fp-16_w=dynptr_xdp(id=1,dynptr_id=1)
+  5: (bf) r7 = r10                      ; R7_w=fp0 R10=fp0
+  ;  @ dynptr_fail.c:0
+  6: (07) r7 += -32                     ; R7_w=fp-32
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &clone); @ dynptr_fail.c:1484
+  7: (18) r1 = 0xffff8d56690ec900       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  9: (b4) w2 = 64                       ; R2_w=64
+  10: (b7) r3 = 0                       ; R3_w=0
+  11: (bf) r4 = r7                      ; R4_w=fp-32 R7_w=fp-32
+  12: (85) call bpf_ringbuf_reserve_dynptr#198          ; R0=scalar() fp-32=dynptr_ringbuf(id=2,ref_id=3,dynptr_id=1) refs=3
+  ; bpf_dynptr_clone(&ptr1, &clone); @ dynptr_fail.c:1487
+  13: (bf) r1 = r6                      ; R1_w=fp-16 R6=fp-16 refs=3
+  14: (bf) r2 = r7                      ; R2_w=fp-32 R7=fp-32 refs=3
+  15: (85) call bpf_dynptr_clone#71541
+  cannot overwrite referenced dynptr
+  processed 15 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?xdp\")\n__failure __msg(\"cannot overwrite referenced dynptr\")\nint clone_invalid2(struct xdp_md *xdp)\n{\n\tstruct bpf_dynptr ptr1;\n\tstruct bpf_dynptr clone;\n\n\tbpf_dynptr_from_xdp(xdp, 0, &ptr1);\n\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &clone);\n\n\t/* this should fail */\n\tbpf_dynptr_clone(&ptr1, &clone);\n\n\tbpf_ringbuf_submit_dynptr(&clone, 0);\n\n\treturn 0;\n}\n\n/* Invalidating a dynptr should invalidate its clones */"

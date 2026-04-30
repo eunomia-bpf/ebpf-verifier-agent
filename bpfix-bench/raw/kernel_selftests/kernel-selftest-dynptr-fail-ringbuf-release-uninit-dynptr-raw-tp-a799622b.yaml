@@ -1,0 +1,38 @@
+case_id: kernel-selftest-dynptr-fail-ringbuf-release-uninit-dynptr-raw-tp-a799622b
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: ringbuf_release_uninit_dynptr
+  description: ringbuf_release_uninit_dynptr
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - arg 1 is an unacquired reference
+  unprivileged: []
+  combined:
+  - arg 1 is an unacquired reference
+verifier_log: |
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r1 = r10
+    1: .1........ (07) r1 += -16
+    2: .1........ (b7) r2 = 0
+    3: .12....... (85) call bpf_ringbuf_submit_dynptr#199
+    4: .......... (b4) w0 = 0
+    5: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int ringbuf_release_uninit_dynptr(void *ctx) @ dynptr_fail.c:140
+  0: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+  ; bpf_ringbuf_submit_dynptr(&ptr, 0); @ dynptr_fail.c:145
+  1: (07) r1 += -16                     ; R1_w=fp-16
+  2: (b7) r2 = 0                        ; R2_w=0
+  3: (85) call bpf_ringbuf_submit_dynptr#199
+  arg 1 is an unacquired reference
+  processed 4 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"arg 1 is an unacquired reference\")\nint ringbuf_release_uninit_dynptr(void *ctx)\n{\n\tstruct bpf_dynptr ptr;\n\n\t/* this should fail */\n\tbpf_ringbuf_submit_dynptr(&ptr, 0);\n\n\treturn 0;\n}\n\n/* A dynptr can't be used after it has been invalidated */"

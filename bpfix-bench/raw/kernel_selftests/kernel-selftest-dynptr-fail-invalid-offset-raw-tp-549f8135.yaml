@@ -1,0 +1,75 @@
+case_id: kernel-selftest-dynptr-fail-invalid-offset-raw-tp-549f8135
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: invalid_offset
+  description: invalid_offset
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - cannot pass in dynptr at an offset=0
+  unprivileged: []
+  combined:
+  - cannot pass in dynptr at an offset=0
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r4 = r10
+    1: ....4..... (07) r4 += 0
+    2: ....4..... (18) r1 = 0xffff8d47455cd200
+    4: .1..4..... (b4) w2 = 64
+    5: .12.4..... (b7) r3 = 0
+    6: .1234..... (85) call bpf_ringbuf_reserve_dynptr#198
+    7: .......... (bf) r1 = r10
+    8: .1........ (07) r1 += -16
+    9: .1........ (b7) r2 = 0
+   10: .12....... (85) call bpf_ringbuf_discard_dynptr#200
+   11: .......... (b4) w0 = 0
+   12: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &ptr + 1); @ dynptr_fail.c:624
+  0: (bf) r4 = r10                      ; R4_w=fp0 R10=fp0
+  1: (07) r4 += 0                       ; R4_w=fp0
+  2: (18) r1 = 0xffff8d47455cd200       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 64                       ; R2_w=64
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (85) call bpf_ringbuf_reserve_dynptr#198
+  cannot pass in dynptr at an offset=0
+  Dynptr has to be an uninitialized dynptr
+  processed 6 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r4 = r10
+    1: ....4..... (07) r4 += 0
+    2: ....4..... (18) r1 = 0xffff8f0c6e236700
+    4: .1..4..... (b4) w2 = 64
+    5: .12.4..... (b7) r3 = 0
+    6: .1234..... (85) call bpf_ringbuf_reserve_dynptr#198
+    7: .......... (bf) r1 = r10
+    8: .1........ (07) r1 += -16
+    9: .1........ (b7) r2 = 0
+   10: .12....... (85) call bpf_ringbuf_discard_dynptr#200
+   11: .......... (b4) w0 = 0
+   12: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &ptr + 1); @ prog.c:83
+  0: (bf) r4 = r10                      ; R4_w=fp0 R10=fp0
+  1: (07) r4 += 0                       ; R4_w=fp0
+  2: (18) r1 = 0xffff8f0c6e236700       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 64                       ; R2_w=64
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (85) call bpf_ringbuf_reserve_dynptr#198
+  cannot pass in dynptr at an offset=0
+  Dynptr has to be an uninitialized dynptr
+  processed 6 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"cannot pass in dynptr at an offset=0\")\nint invalid_offset(void *ctx)\n{\n\tstruct bpf_dynptr ptr;\n\n\t/* this should fail */\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, 64, 0, &ptr + 1);\n\n\tbpf_ringbuf_discard_dynptr(&ptr, 0);\n\n\treturn 0;\n}\n\n/* Can't release a dynptr twice */"

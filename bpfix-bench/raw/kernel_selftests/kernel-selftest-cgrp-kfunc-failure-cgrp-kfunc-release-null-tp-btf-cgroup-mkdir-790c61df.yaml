@@ -1,0 +1,130 @@
+case_id: kernel-selftest-cgrp-kfunc-failure-cgrp-kfunc-release-null-tp-btf-cgroup-mkdir-790c61df
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/cgrp_kfunc_failure.c
+  section: tp_btf/cgroup_mkdir
+  function: cgrp_kfunc_release_null
+  description: cgrp_kfunc_release_null
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - Possibly NULL pointer passed to trusted arg0
+  unprivileged: []
+  combined:
+  - Possibly NULL pointer passed to trusted arg0
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .1........ (b7) r2 = 80
+    1: .12....... (79) r6 = *(u64 *)(r1 +0)
+    2: ..2...6... (bf) r3 = r6
+    3: ..23..6... (0f) r3 += r2
+    4: ...3..6... (bf) r1 = r10
+    5: .1.3..6... (07) r1 += -12
+    6: .1.3..6... (b4) w2 = 4
+    7: .123..6... (85) call bpf_probe_read_kernel#113
+    8: 0.....6... (bf) r1 = r0
+    9: .1....6... (b4) w0 = 0
+   10: 01....6... (55) if r1 != 0x0 goto pc+11
+   11: ......6... (b7) r1 = 0
+   12: .1....6... (7b) *(u64 *)(r10 -8) = r1
+   13: ......6... (bf) r2 = r10
+   14: ..2...6... (07) r2 += -12
+   15: ..2...6... (bf) r3 = r10
+   16: ..23..6... (07) r3 += -8
+   17: ..23..6... (18) r1 = 0xffff8d47e6e97c00
+   19: .123..6... (b7) r4 = 1
+   20: .1234.6... (85) call bpf_map_update_elem#2
+   21: 0.....6... (15) if r0 == 0x0 goto pc+1
+   22: 0......... (95) exit
+   23: ......6... (bf) r2 = r10
+   24: ..2...6... (07) r2 += -12
+   25: ..2...6... (18) r1 = 0xffff8d47e6e97c00
+   27: .12...6... (85) call bpf_map_lookup_elem#1
+   28: 0.....6... (bf) r7 = r0
+   29: ......67.. (b4) w0 = -2
+   30: 0.....67.. (15) if r7 == 0x0 goto pc-9
+   31: ......67.. (bf) r1 = r6
+   32: .1.....7.. (85) call bpf_cgroup_acquire#71302
+   33: 0......7.. (bf) r2 = r0
+   34: ..2....7.. (b4) w0 = -2
+   35: 0.2....7.. (15) if r2 == 0x0 goto pc-14
+   36: ..2....7.. (bf) r1 = r7
+   37: .12....... (85) call bpf_kptr_xchg#194
+   38: 0......... (bf) r1 = r0
+   39: .1........ (85) call bpf_cgroup_release#71323
+   40: .......... (b4) w0 = 0
+   41: 0......... (05) goto pc-20
+  0: R1=ctx() R10=fp0
+  ; int BPF_PROG(cgrp_kfunc_release_null, struct cgroup *cgrp, const char *path) @ cgrp_kfunc_failure.c:207
+  0: (b7) r2 = 80                       ; R2_w=80
+  1: (79) r6 = *(u64 *)(r1 +0)
+  func 'cgroup_mkdir' arg0 has btf_id 548 type STRUCT 'cgroup'
+  2: R1=ctx() R6_w=trusted_ptr_cgroup()
+  2: (bf) r3 = r6                       ; R3_w=trusted_ptr_cgroup() R6_w=trusted_ptr_cgroup()
+  3: (0f) r3 += r2
+  mark_precise: frame0: last_idx 3 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 2: (bf) r3 = r6
+  mark_precise: frame0: regs=r2 stack= before 1: (79) r6 = *(u64 *)(r1 +0)
+  mark_precise: frame0: regs=r2 stack= before 0: (b7) r2 = 80
+  4: R2_w=80 R3_w=trusted_ptr_cgroup(off=80)
+  4: (bf) r1 = r10                      ; R1_w=fp0 R10=fp0
+  ;  @ cgrp_kfunc_failure.c:0
+  5: (07) r1 += -12                     ; R1_w=fp-12
+  ; status = bpf_probe_read_kernel(&id, sizeof(id), &cgrp->self.id); @ cgrp_kfunc_failure.c:214
+  6: (b4) w2 = 4                        ; R2_w=4
+  7: (85) call bpf_probe_read_kernel#113
+  mark_precise: frame0: last_idx 7 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r2 stack= before 6: (b4) w2 = 4
+  8: R0_w=scalar() fp-16=mmmm????
+  8: (bf) r1 = r0                       ; R0_w=scalar(id=1) R1_w=scalar(id=1)
+  9: (b4) w0 = 0                        ; R0_w=0
+  ; if (status) @ cgrp_kfunc_failure.c:215
+  10: (55) if r1 != 0x0 goto pc+11      ; R1_w=0
+  11: (b7) r1 = 0                       ; R1_w=0
+  ; local.cgrp = NULL; @ cgrp_kfunc_failure.c:218
+  12: (7b) *(u64 *)(r10 -8) = r1        ; R1_w=0 R10=fp0 fp-8_w=0
+  13: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+  14: (07) r2 += -12                    ; R2_w=fp-12
+  15: (bf) r3 = r10                     ; R3_w=fp0 R10=fp0
+  16: (07) r3 += -8                     ; R3_w=fp-8
+  ; status = bpf_map_update_elem(&__cgrps_kfunc_map, &id, &local, BPF_NOEXIST); @ cgrp_kfunc_failure.c:219
+  17: (18) r1 = 0xffff8d47e6e97c00      ; R1_w=map_ptr(map=__cgrps_kfunc_m,ks=4,vs=8)
+  19: (b7) r4 = 1                       ; R4_w=1
+  20: (85) call bpf_map_update_elem#2   ; R0=scalar()
+  ; if (status) @ cgrp_kfunc_failure.c:220
+  21: (15) if r0 == 0x0 goto pc+1       ; R0=scalar(umin=1)
+  ; int BPF_PROG(cgrp_kfunc_release_null, struct cgroup *cgrp, const char *path) @ cgrp_kfunc_failure.c:207
+  22: (95) exit
+
+  from 21 to 23: R0=0 R6=trusted_ptr_cgroup() R10=fp0 fp-8=0 fp-16=mmmm????
+  23: R0=0 R6=trusted_ptr_cgroup() R10=fp0 fp-8=0 fp-16=mmmm????
+  23: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+  ; v = bpf_map_lookup_elem(&__cgrps_kfunc_map, &id); @ cgrp_kfunc_failure.c:223
+  24: (07) r2 += -12                    ; R2_w=fp-12
+  25: (18) r1 = 0xffff8d47e6e97c00      ; R1_w=map_ptr(map=__cgrps_kfunc_m,ks=4,vs=8)
+  27: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value_or_null(id=2,map=__cgrps_kfunc_m,ks=4,vs=8)
+  28: (bf) r7 = r0                      ; R0_w=map_value_or_null(id=2,map=__cgrps_kfunc_m,ks=4,vs=8) R7_w=map_value_or_null(id=2,map=__cgrps_kfunc_m,ks=4,vs=8)
+  29: (b4) w0 = -2                      ; R0=0xfffffffe
+  ; if (!v) @ cgrp_kfunc_failure.c:224
+  30: (15) if r7 == 0x0 goto pc-9       ; R7=map_value(map=__cgrps_kfunc_m,ks=4,vs=8)
+  ; acquired = bpf_cgroup_acquire(cgrp); @ cgrp_kfunc_failure.c:227
+  31: (bf) r1 = r6                      ; R1_w=trusted_ptr_cgroup() R6=trusted_ptr_cgroup()
+  32: (85) call bpf_cgroup_acquire#71302        ; R0_w=ptr_or_null_cgroup(id=4,ref_obj_id=4) refs=4
+  33: (bf) r2 = r0                      ; R0_w=ptr_or_null_cgroup(id=4,ref_obj_id=4) R2_w=ptr_or_null_cgroup(id=4,ref_obj_id=4) refs=4
+  34: (b4) w0 = -2                      ; R0_w=0xfffffffe refs=4
+  ; if (!acquired) @ cgrp_kfunc_failure.c:228
+  35: (15) if r2 == 0x0 goto pc-14      ; R2_w=ptr_cgroup(ref_obj_id=4) refs=4
+  ; old = bpf_kptr_xchg(&v->cgrp, acquired); @ cgrp_kfunc_failure.c:231
+  36: (bf) r1 = r7                      ; R1_w=map_value(map=__cgrps_kfunc_m,ks=4,vs=8) R7=map_value(map=__cgrps_kfunc_m,ks=4,vs=8) refs=4
+  37: (85) call bpf_kptr_xchg#194       ; R0=ptr_or_null_cgroup(id=6,ref_obj_id=6) refs=6
+  ; bpf_cgroup_release(old); @ cgrp_kfunc_failure.c:234
+  38: (bf) r1 = r0                      ; R0=ptr_or_null_cgroup(id=6,ref_obj_id=6) R1_w=ptr_or_null_cgroup(id=6,ref_obj_id=6) refs=6
+  39: (85) call bpf_cgroup_release#71323
+  Possibly NULL pointer passed to trusted arg0
+  processed 38 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 2
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/cgrp_kfunc_failure.c
+  code: "SEC(\"tp_btf/cgroup_mkdir\")\n__failure __msg(\"Possibly NULL pointer passed to trusted arg0\")\nint BPF_PROG(cgrp_kfunc_release_null, struct cgroup *cgrp, const char *path)\n{\n\tstruct __cgrps_kfunc_map_value local, *v;\n\tlong status;\n\tstruct cgroup *acquired, *old;\n\ts32 id;\n\n\tstatus = bpf_probe_read_kernel(&id, sizeof(id), &cgrp->self.id);\n\tif (status)\n\t\treturn 0;\n\n\tlocal.cgrp = NULL;\n\tstatus = bpf_map_update_elem(&__cgrps_kfunc_map, &id, &local, BPF_NOEXIST);\n\tif (status)\n\t\treturn status;\n\n\tv = bpf_map_lookup_elem(&__cgrps_kfunc_map, &id);\n\tif (!v)\n\t\treturn -ENOENT;\n\n\tacquired = bpf_cgroup_acquire(cgrp);\n\tif (!acquired)\n\t\treturn -ENOENT;\n\n\told = bpf_kptr_xchg(&v->cgrp, acquired);\n\n\t/* old cannot be passed to bpf_cgroup_release() without a NULL check. */\n\tbpf_cgroup_release(old);\n\n\treturn 0;\n}"

@@ -1,8 +1,0 @@
-In file included from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits_verified/eval-bcc-18208507666d/fixed.c:9:
-In file included from /usr/include/argp.h:27:
-In file included from /usr/include/errno.h:28:
-In file included from /usr/include/bits/errno.h:26:
-/usr/include/linux/errno.h:1:10: fatal error: 'asm/errno.h' file not found
-    1 | #include <asm/errno.h>
-      |          ^~~~~~~~~~~~~
-1 error generated.

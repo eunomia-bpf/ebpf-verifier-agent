@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for eval/verifier_oracle.py.
+"""Tests for tools/verifier_oracle.py.
 
 These tests run in two tiers:
   1. Compile-only tests — no root needed; fast; always run.
@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from eval.verifier_oracle import (
+from tools.verifier_oracle import (
     CLANG_FLAGS_UAPI,
     OracleResult,
     _compile,
@@ -580,14 +580,15 @@ class TestVerifyCase:
         """Smoke test: load a real YAML case and verify."""
         import yaml
         # Use the stackoverflow-70091221 case
-        yaml_path = ROOT / "case_study" / "cases" / "stackoverflow" / "stackoverflow-70091221.yaml"
+        yaml_path = ROOT / "bpfix-bench" / "raw" / "so" / "stackoverflow-70091221.yaml"
         if not yaml_path.exists():
             pytest.skip("Case YAML not found")
         with open(yaml_path, "r", encoding="utf-8") as f:
             case_data = yaml.safe_load(f)
         # The original SO snippet is buggy (missing SEC("maps") on the map).
         # We just check that the oracle runs without crashing.
-        result = verify_case(case_data)
+        raw_case = case_data.get("raw", case_data)
+        result = verify_case(raw_case)
         assert isinstance(result, OracleResult)
         assert result.compiles in (True, False)  # either is OK
 

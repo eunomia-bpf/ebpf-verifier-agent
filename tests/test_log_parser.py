@@ -10,27 +10,21 @@ from interface.extractor.log_parser import parse_log
 
 
 def _load_verifier_log(relative_path: str) -> str:
-    payload = yaml.safe_load((ROOT / relative_path).read_text(encoding="utf-8"))
-    verifier_log = payload.get("original_verifier_log", payload["verifier_log"])
-    if isinstance(verifier_log, str):
-        return verifier_log
-    combined = verifier_log.get("combined")
-    if isinstance(combined, str) and combined.strip():
-        return combined
-    blocks = verifier_log.get("blocks") or []
-    return "\n\n".join(block for block in blocks if isinstance(block, str))
+    from bench_fixtures import load_verifier_log
+
+    return load_verifier_log(relative_path)
 
 
 def test_parse_log_prefers_specific_rejection_over_source_comment() -> None:
     dynptr = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-invalid-slice-rdwr-rdonly-cgroup-skb-ingress-61688196.yaml"
         )
     )
     irq = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-irq-irq-save-invalid-tc-86a07a3f.yaml"
         )
     )
@@ -43,10 +37,10 @@ def test_parse_log_prefers_specific_rejection_over_source_comment() -> None:
 
 def test_parse_log_prefers_specific_libbpf_reason_over_wrapper_and_summary() -> None:
     func_info = parse_log(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-69192685.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-69192685.yaml")
     )
     kernel_btf = parse_log(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-77462271.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-77462271.yaml")
     )
 
     assert func_info.error_line == "number of funcs in func_info doesn't match number of subprogs"
@@ -58,27 +52,27 @@ def test_parse_log_prefers_specific_libbpf_reason_over_wrapper_and_summary() -> 
 def test_parse_log_catalog_covers_round2_unknown_taxonomy_patterns() -> None:
     dynptr_slice = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-dynptr-slice-var-len1-tc-76a0b3fb.yaml"
         )
     )
     dynptr_const = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-dynptr-slice-var-len2-tc-673ab9e7.yaml"
         )
     )
     pkt_end = parse_log(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-60506220.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-60506220.yaml")
     )
     ctx = parse_log(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-67402772.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-67402772.yaml")
     )
     comparison = parse_log(
-        _load_verifier_log("case_study/cases/stackoverflow/stackoverflow-71351495.yaml")
+        _load_verifier_log("bpfix-bench/raw/so/stackoverflow-71351495.yaml")
     )
     btf_invalid_name = parse_log(
-        _load_verifier_log("case_study/cases/github_issues/github-aya-rs-aya-1490.yaml")
+        _load_verifier_log("bpfix-bench/raw/gh/github-aya-rs-aya-1490.yaml")
     )
 
     assert dynptr_slice.error_id == "BPFIX-E005"
@@ -97,7 +91,7 @@ def test_parse_log_prefers_selected_error_line_for_catalog_seed() -> None:
     # BTF_PROBE_NOISE_RE penalisation so the real dynptr protocol error wins.
     dynptr_unknown = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-clone-invalid1-raw-tp-b7206632.yaml"
         )
     )
@@ -111,13 +105,13 @@ def test_parse_log_prefers_selected_error_line_for_catalog_seed() -> None:
 def test_parse_log_does_not_seed_e021_from_btf_probe_preface() -> None:
     data_slice = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-data-slice-out-of-bounds-map-value-raw-tp-de37aa84.yaml"
         )
     )
     reg_type = parse_log(
         _load_verifier_log(
-            "case_study/cases/kernel_selftests/"
+            "bpfix-bench/raw/kernel_selftests/"
             "kernel-selftest-dynptr-fail-test-dynptr-reg-type-raw-tp-18f079b9.yaml"
         )
     )

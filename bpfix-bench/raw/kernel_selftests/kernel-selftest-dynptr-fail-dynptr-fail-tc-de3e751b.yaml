@@ -1,0 +1,19 @@
+case_id: kernel-selftest-dynptr-fail-dynptr-fail-tc-de3e751b
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?tc
+  function: ''
+  description: dynptr_fail
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - R{{[0-9]+}} cannot write into rdonly_mem
+  unprivileged: []
+  combined:
+  - R{{[0-9]+}} cannot write into rdonly_mem
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"R{{[0-9]+}} cannot write into rdonly_mem\")\nint skb_invalid_slice_write(struct __sk_buff *skb)\n{\n\tstruct bpf_dynptr ptr;\n\tstruct ethhdr *hdr;\n\tchar buffer[sizeof(*hdr)] = {};\n\n\tbpf_dynptr_from_skb(skb, 0, &ptr);\n\n\thdr = bpf_dynptr_slice(&ptr, 0, buffer, sizeof(buffer));\n\tif (!hdr)\n\t\treturn SK_DROP;\n\n\t/* this should fail */\n\thdr->h_proto = 1;\n\n\treturn SK_PASS;\n}\n\n/* bpf_dynptr_slice()s are read-only and cannot be written to */"

@@ -1,0 +1,22 @@
+case_id: kernel-selftest-iters-iters-raw-tp-ea7ac3e5
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/iters.c
+  section: ?raw_tp
+  function: ''
+  description: iters
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - math between fp pointer and register with unbounded
+  unprivileged: []
+  combined:
+  - math between fp pointer and register with unbounded
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/iters.c
+  code: "SEC(\"?raw_tp\")\n__failure\n__msg(\"math between fp pointer and register with unbounded\")\n__flag(BPF_F_TEST_STATE_FREQ)\n__naked int loop_state_deps3(void)\n{\n\t/* This is equivalent to a C program below.\n\t *\n\t *   if (random() != 24) {       // assume false branch is placed first\n\t *     i = iter_new();           // fp[-8]\n\t *     while (iter_next(i));\n\t *     iter_destroy(i);\n\t *     return;\n\t *   }\n\t *\n\t *   for (i = 10; i > 0; i--);   // increase dfs_depth for child states\n\t *\n\t *   i = iter_new();             // fp[-8]\n\t *   b = -24;                    // r8\n\t *   for (;;) {                  // checkpoint (L)\n\t *     if (iter_next(i))         // checkpoint (N)\n\t *       break;\n\t *     if (random() == 77) {     // assume false branch is placed first\n\t *       *(u64 *)(r10 + b) = 7;  // this is not safe when b == -25\n\t *       iter_destroy(i);\n\t *       return;\n\t *     }\n\t *     if (random() == 42) {     // assume false branch is\
+    \ placed first\n\t *       b = -25;\n\t *     }\n\t *   }\n\t *   iter_destroy(i);\n\t *\n\t * In case of a buggy verifier first loop might poison\n\t * env->cur_state->loop_entry with a state having 0 branches\n\t * and small dfs_depth. This would trigger NOT_EXACT states\n\t * comparison for some states within second loop.\n\t * Specifically, checkpoint (L) might be problematic if:\n\t * - branch with '*(u64 *)(r10 + b) = 7' is not explored yet;\n\t * - checkpoint (L) is first reached in state {b=-24};\n\t * - traversal is pruned at checkpoint (N) setting checkpoint's (L)\n\t *   branch count to 0, thus making it eligible for use in pruning;\n\t * - checkpoint (L) is next reached in state {b=-25},\n\t *   this would cause NOT_EXACT comparison with a state {b=-24}\n\t *   while 'b' is not marked precise yet.\n\t */\n\tasm volatile (\n\t\t\"call %[bpf_get_prandom_u32];\"\n\t\t\"if r0 == 24 goto 2f;\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"r2 = 0;\"\n\t\t\"r3 = 5;\"\n\t\t\"call\
+    \ %[bpf_iter_num_new];\"\n\t\"1:\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"call %[bpf_iter_num_next];\"\n\t\t\"if r0 != 0 goto 1b;\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"call %[bpf_iter_num_destroy];\"\n\t\t\"r0 = 0;\"\n\t\t\"exit;\"\n\t\"2:\"\n\t\t/* loop to increase dfs_depth */\n\t\t\"r0 = 10;\"\n\t\"3:\"\n\t\t\"r0 -= 1;\"\n\t\t\"if r0 != 0 goto 3b;\"\n\t\t/* end of loop */\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"r2 = 0;\"\n\t\t\"r3 = 10;\"\n\t\t\"call %[bpf_iter_num_new];\"\n\t\t\"r8 = -24;\"\n\t\"main_loop_%=:\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"call %[bpf_iter_num_next];\"\n\t\t\"if r0 == 0 goto main_loop_end_%=;\"\n\t\t/* first if */\n\t\t\"call %[bpf_get_prandom_u32];\"\n\t\t\"if r0 == 77 goto unsafe_write_%=;\"\n\t\t/* second if */\n\t\t\"call %[bpf_get_prandom_u32];\"\n\t\t\"if r0 == 42 goto poison_r8_%=;\"\n\t\t/* iterate */\n\t\t\"goto main_loop_%=;\"\n\t\"main_loop_end_%=:\"\n\t\t\"r1 = r10;\"\n\t\t\"r1 += -8;\"\n\t\t\"call %[bpf_iter_num_destroy];\"\
+    \n\t\t\"r0 = 0;\"\n\t\t\"exit;\"\n\n\t\"unsafe_write_%=:\"\n\t\t\"r0 = r10;\"\n\t\t\"r0 += r8;\"\n\t\t\"r1 = 7;\"\n\t\t\"*(u64 *)(r0 + 0) = r1;\"\n\t\t\"goto main_loop_end_%=;\"\n\n\t\"poison_r8_%=:\"\n\t\t\"r8 = -25;\"\n\t\t\"goto main_loop_%=;\"\n\t\t:\n\t\t: __imm(bpf_get_prandom_u32),\n\t\t  __imm(bpf_iter_num_new),\n\t\t  __imm(bpf_iter_num_next),\n\t\t  __imm(bpf_iter_num_destroy)\n\t\t: __clobber_all\n\t);\n}"

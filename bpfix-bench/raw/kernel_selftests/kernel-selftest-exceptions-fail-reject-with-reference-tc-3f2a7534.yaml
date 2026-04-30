@@ -1,0 +1,47 @@
+case_id: kernel-selftest-exceptions-fail-reject-with-reference-tc-3f2a7534
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  section: ?tc
+  function: reject_with_reference
+  description: reject_with_reference
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - Unreleased reference
+  unprivileged: []
+  combined:
+  - Unreleased reference
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (18) r1 = 0x5c
+    2: .1........ (b7) r2 = 0
+    3: .12....... (85) call bpf_obj_new_impl#72771
+    4: 0......... (15) if r0 == 0x0 goto pc+2
+    5: .......... (b7) r1 = 0
+    6: .1........ (85) call bpf_throw#73439
+    7: .......... (b4) w0 = 0
+    8: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; f = bpf_obj_new(typeof(*f)); @ exceptions_fail.c:184
+  0: (18) r1 = 0x5c                     ; R1_w=92
+  2: (b7) r2 = 0                        ; R2_w=0
+  3: (85) call bpf_obj_new_impl#72771
+  mark_precise: frame0: last_idx 3 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r1 stack= before 2: (b7) r2 = 0
+  mark_precise: frame0: regs=r1 stack= before 0: (18) r1 = 0x5c
+  4: R0_w=ptr_or_null_foo(id=2,ref_obj_id=2) refs=2
+  ; if (!f) @ exceptions_fail.c:185
+  4: (15) if r0 == 0x0 goto pc+2        ; R0_w=ptr_foo(ref_obj_id=2) refs=2
+  ; bpf_throw(0); @ exceptions_fail.c:187
+  5: (b7) r1 = 0                        ; R1_w=0 refs=2
+  6: (85) call bpf_throw#73439
+  JIT does not support calling kfunc bpf_throw#73439
+  processed 6 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/exceptions_fail.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"Unreleased reference\")\nint reject_with_reference(void *ctx)\n{\n\tstruct foo *f;\n\n\tf = bpf_obj_new(typeof(*f));\n\tif (!f)\n\t\treturn 0;\n\tbpf_throw(0);\n\treturn 0;\n}\n\n__noinline static int subprog_ref(struct __sk_buff *ctx)\n{\n\tstruct foo *f;\n\n\tf = bpf_obj_new(typeof(*f));\n\tif (!f)\n\t\treturn 0;\n\tbpf_throw(0);\n\treturn 0;\n}\n\n__noinline static int subprog_cb_ref(u32 i, void *ctx)\n{\n\tbpf_throw(0);\n\treturn 0;\n}"

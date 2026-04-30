@@ -1,0 +1,19 @@
+case_id: kernel-selftest-dynptr-fail-ro-skb-slice-invalid-after-metadata-write-tc-31715e6e
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?tc
+  function: ro_skb_slice_invalid_after_metadata_write
+  description: ro_skb_slice_invalid_after_metadata_write
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - invalid mem access 'scalar'
+  unprivileged: []
+  combined:
+  - invalid mem access 'scalar'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?tc\")\n__failure __msg(\"invalid mem access 'scalar'\")\nint ro_skb_slice_invalid_after_metadata_write(struct __sk_buff *skb)\n{\n\tstruct bpf_dynptr data, meta;\n\t__u8 *d;\n\n\tbpf_dynptr_from_skb(skb, 0, &data);\n\tbpf_dynptr_from_skb_meta(skb, 0, &meta);\n\n\td = bpf_dynptr_slice(&data, 0, NULL, sizeof(*d));\n\tif (!d)\n\t\treturn SK_DROP;\n\n\tbpf_dynptr_write(&meta, 0, \"x\", 1, 0);\n\n\t/* this should fail */\n\tval = *d;\n\n\treturn SK_PASS;\n}\n\n/* Read-write skb data slice is invalidated on write to skb metadata */"

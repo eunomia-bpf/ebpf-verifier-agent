@@ -1,0 +1,111 @@
+case_id: kernel-selftest-dynptr-fail-data-slice-missing-null-check1-raw-tp-af2be9c9
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  section: ?raw_tp
+  function: data_slice_missing_null_check1
+  description: data_slice_missing_null_check1
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - invalid mem access 'mem_or_null'
+  unprivileged: []
+  combined:
+  - invalid mem access 'mem_or_null'
+original_verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r6 = r10
+    1: ......6... (07) r6 += -16
+    2: ......6... (18) r1 = 0xffff8d56690ecc00
+    4: .1....6... (b4) w2 = 8
+    5: .12...6... (b7) r3 = 0
+    6: .123..6... (bf) r4 = r6
+    7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+    8: ......6... (bf) r1 = r6
+    9: .1....6... (b4) w2 = 0
+   10: .12...6... (b4) w3 = 8
+   11: .123..6... (85) call bpf_dynptr_data#203
+   12: 0.....6... (b4) w1 = 3
+   13: 01....6... (73) *(u8 *)(r0 +0) = r1
+   14: ......6... (bf) r1 = r6
+   15: .1........ (b7) r2 = 0
+   16: .12....... (85) call bpf_ringbuf_submit_dynptr#199
+   17: .......... (b4) w0 = 0
+   18: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int data_slice_missing_null_check1(void *ctx) @ dynptr_fail.c:359
+  0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 8, 0, &ptr); @ dynptr_fail.c:364
+  1: (07) r6 += -16                     ; R6_w=fp-16
+  2: (18) r1 = 0xffff8d56690ecc00       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 8                        ; R2_w=8
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16
+  7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  ; data  = bpf_dynptr_data(&ptr, 0, 8); @ dynptr_fail.c:366
+  8: (bf) r1 = r6                       ; R1_w=fp-16 R6_w=fp-16 refs=2
+  9: (b4) w2 = 0                        ; R2_w=0 refs=2
+  10: (b4) w3 = 8                       ; R3_w=8 refs=2
+  11: (85) call bpf_dynptr_data#203
+  mark_precise: frame0: last_idx 11 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r3 stack= before 10: (b4) w3 = 8
+  12: R0=mem_or_null(id=3,ref_obj_id=2,sz=8) fp-16=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  12: (b4) w1 = 3                       ; R1_w=3 refs=2
+  ; *(__u8 *)data = 3; @ dynptr_fail.c:371
+  13: (73) *(u8 *)(r0 +0) = r1
+  R0 invalid mem access 'mem_or_null'
+  processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+verifier_log: |-
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r6 = r10
+    1: ......6... (07) r6 += -16
+    2: ......6... (18) r1 = 0xffff8f15d5c7ab00
+    4: .1....6... (b4) w2 = 8
+    5: .12...6... (b7) r3 = 0
+    6: .123..6... (bf) r4 = r6
+    7: .1234.6... (85) call bpf_ringbuf_reserve_dynptr#198
+    8: ......6... (bf) r1 = r6
+    9: .1....6... (b7) r2 = 0
+   10: .12...6... (b7) r3 = 8
+   11: .123..6... (85) call bpf_dynptr_data#203
+   12: 0.....6... (b4) w1 = 3
+   13: 01....6... (73) *(u8 *)(r0 +0) = r1
+   14: ......6... (bf) r1 = r6
+   15: .1........ (b7) r2 = 0
+   16: .12....... (85) call bpf_ringbuf_submit_dynptr#199
+   17: .......... (b4) w0 = 0
+   18: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int data_slice_missing_null_check1(void *ctx) @ prog.c:75
+  0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ; bpf_ringbuf_reserve_dynptr(&ringbuf, 8, 0, &ptr); @ prog.c:80
+  1: (07) r6 += -16                     ; R6_w=fp-16
+  2: (18) r1 = 0xffff8f15d5c7ab00       ; R1_w=map_ptr(map=ringbuf,ks=0,vs=0)
+  4: (b4) w2 = 8                        ; R2_w=8
+  5: (b7) r3 = 0                        ; R3_w=0
+  6: (bf) r4 = r6                       ; R4_w=fp-16 R6_w=fp-16
+  7: (85) call bpf_ringbuf_reserve_dynptr#198   ; R0_w=scalar() fp-16_w=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  ; data  = bpf_dynptr_data(&ptr, 0, 8); @ prog.c:82
+  8: (bf) r1 = r6                       ; R1_w=fp-16 R6_w=fp-16 refs=2
+  9: (b7) r2 = 0                        ; R2_w=0 refs=2
+  10: (b7) r3 = 8                       ; R3_w=8 refs=2
+  11: (85) call bpf_dynptr_data#203
+  mark_precise: frame0: last_idx 11 first_idx 0 subseq_idx -1
+  mark_precise: frame0: regs=r3 stack= before 10: (b7) r3 = 8
+  12: R0=mem_or_null(id=3,ref_obj_id=2,sz=8) fp-16=dynptr_ringbuf(id=1,ref_id=2,dynptr_id=1) refs=2
+  12: (b4) w1 = 3                       ; R1_w=3 refs=2
+  ; *(__u8 *)data = 3; @ prog.c:87
+  13: (73) *(u8 *)(r0 +0) = r1
+  R0 invalid mem access 'mem_or_null'
+  processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+verifier_log_source: captured_on_6.15.11
+verifier_log_captured_at: '2026-03-20'
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/dynptr_fail.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"invalid mem access 'mem_or_null'\")\nint data_slice_missing_null_check1(void *ctx)\n{\n\tstruct bpf_dynptr ptr;\n\tvoid *data;\n\n\tbpf_ringbuf_reserve_dynptr(&ringbuf, 8, 0, &ptr);\n\n\tdata  = bpf_dynptr_data(&ptr, 0, 8);\n\n\t/* missing if (!data) check */\n\n\t/* this should fail */\n\t*(__u8 *)data = 3;\n\n\tbpf_ringbuf_submit_dynptr(&ptr, 0);\n\treturn 0;\n}\n\n/* A data slice can't be dereferenced if it wasn't checked for null */"

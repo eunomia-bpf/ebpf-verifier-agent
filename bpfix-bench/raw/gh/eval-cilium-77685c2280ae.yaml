@@ -1,0 +1,74 @@
+schema_version: bpfix.raw_external/v1
+raw_id: eval-cilium-77685c2280ae
+source_kind: github_commit
+source:
+  url: https://github.com/cilium/cilium/commit/77685c2280aedd670ed19bf15f60bd7d086fffdb
+  title: 'bpf: NULL-check params in mock_fib_lookup'
+  repository: https://github.com/cilium/cilium
+  commit: 77685c2280aedd670ed19bf15f60bd7d086fffdb
+  collected_at: null
+collector:
+  original_path: bpfix-bench/raw/gh/eval-cilium-77685c2280ae.yaml
+  synced_at: '2026-04-29'
+content:
+  has_verifier_log: false
+  verifier_log_block_count: 0
+  source_snippet_count: 0
+  has_buggy_code: true
+  has_fixed_code: true
+  has_fix_description: false
+reproduction:
+  status: not_attempted
+  case_id: null
+  case_path: null
+  artifact_path: null
+  reason: raw_record_collected_without_local_reconstruction
+raw:
+  case_id: eval-cilium-77685c2280ae
+  source: eval_commits
+  repository: https://github.com/cilium/cilium
+  commit_hash: 77685c2280aedd670ed19bf15f60bd7d086fffdb
+  commit_message: 'bpf: NULL-check params in mock_fib_lookup'
+  commit_date: '2024-08-27'
+  fix_type: null_check
+  buggy_code: "// FILE: bpf/tests/tc_nodeport_lb4_nat_lb.c\n// CONTEXT: struct {\n\
+    \        __uint(value_size, sizeof(struct mock_settings));\n        __uint(max_entries,\
+    \ 1);\n} settings_map __section_maps_btf;\n\n#define fib_lookup mock_fib_lookup\n\
+    \nlong mock_fib_lookup(__maybe_unused struct __ctx_buff *ctx, struct bpf_fib_lookup\
+    \ *params,\n                     __maybe_unused int plen, __maybe_unused __u32\
+    \ flags)\n{\n        __u32 key = 0;\n        struct mock_settings *settings =\
+    \ map_lookup_elem(&settings_map, &key);\n\n        if (settings && settings->fail_fib)\n\
+    \                return BPF_FIB_LKUP_RET_NO_NEIGH;\n\n        params->ifindex\
+    \ = DEFAULT_IFACE;\n\n        if (params->ipv4_dst == BACKEND_IP_REMOTE) {\n \
+    \               __bpf_memcpy_builtin(params->smac, (__u8 *)lb_mac, ETH_ALEN);\n\
+    \                __bpf_memcpy_builtin(params->dmac, (__u8 *)remote_backend_mac,\
+    \ ETH_ALEN);\n        } else if (params->ipv4_src == FRONTEND_IP_LOCAL &&\n  \
+    \                 params->ipv4_dst == CLIENT_IP_2) {\n                __bpf_memcpy_builtin(params->smac,\
+    \ (__u8 *)lb_mac, ETH_ALEN);\n                __bpf_memcpy_builtin(params->dmac,\
+    \ (__u8 *)client_mac, ETH_ALEN);"
+  fixed_code: "// FILE: bpf/tests/tc_nodeport_lb4_nat_lb.c\n// CONTEXT: struct {\n\
+    \        __uint(value_size, sizeof(struct mock_settings));\n        __uint(max_entries,\
+    \ 1);\n} settings_map __section_maps_btf;\n\n#define fib_lookup mock_fib_lookup\n\
+    \nlong mock_fib_lookup(__maybe_unused struct __ctx_buff *ctx, struct bpf_fib_lookup\
+    \ *params,\n                     __maybe_unused int plen, __maybe_unused __u32\
+    \ flags)\n{\n        __u32 key = 0;\n        struct mock_settings *settings =\
+    \ map_lookup_elem(&settings_map, &key);\n\n        /* Verifier doesn't know that\
+    \ params is not NULL when verifying this\n         * function separately (see\
+    \ btf_prepare_func_args in kernel/bpf/btf.c).\n         * There is no appropriate\
+    \ EINVAL-like error code in this helper, so\n         * return some arbitrary\
+    \ error.\n         */\n        if (!params)\n                return BPF_FIB_LKUP_RET_BLACKHOLE;\n\
+    \n        if (settings && settings->fail_fib)\n                return BPF_FIB_LKUP_RET_NO_NEIGH;\n\
+    \n        params->ifindex = DEFAULT_IFACE;\n\n        if (params->ipv4_dst ==\
+    \ BACKEND_IP_REMOTE) {\n                __bpf_memcpy_builtin(params->smac, (__u8\
+    \ *)lb_mac, ETH_ALEN);\n                __bpf_memcpy_builtin(params->dmac, (__u8\
+    \ *)remote_backend_mac, ETH_ALEN);\n        } else if (params->ipv4_src == FRONTEND_IP_LOCAL\
+    \ &&\n                   params->ipv4_dst == CLIENT_IP_2) {\n                __bpf_memcpy_builtin(params->smac,\
+    \ (__u8 *)lb_mac, ETH_ALEN);\n                __bpf_memcpy_builtin(params->dmac,\
+    \ (__u8 *)client_mac, ETH_ALEN);"
+  diff_summary: 'bpf/tests/tc_nodeport_lb4_nat_lb.c:
+
+    - Added an explicit `if (!params)` guard before dereferencing the separately-verified
+    helper argument.
+
+    - Returned a harmless error code on the null path to satisfy verifier path coverage.'
+

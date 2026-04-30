@@ -1,0 +1,50 @@
+case_id: kernel-selftest-iters-looping-missing-null-check-fail-raw-tp-732d9857
+source: kernel_selftests
+collected_at: '2026-03-11T16:02:00+00:00'
+selftest:
+  file: tools/testing/selftests/bpf/progs/iters_looping.c
+  section: ?raw_tp
+  function: missing_null_check_fail
+  description: missing_null_check_fail
+  failure_mode: privileged_only
+  log_level: null
+expected_verifier_messages:
+  privileged:
+  - R0 invalid mem access 'scalar'
+  unprivileged: []
+  combined:
+  - R0 invalid mem access 'scalar'
+verifier_log: |
+  func#0 @0
+  Live regs before insn:
+    0: .......... (bf) r6 = r10
+    1: ......6... (07) r6 += -8
+    2: ......6... (bf) r1 = r6
+    3: .1....6... (b7) r2 = 0
+    4: .12...6... (b7) r3 = 1000
+    5: .123..6... (85) call bpf_iter_num_new#71887
+    6: ......6... (bf) r1 = r6
+    7: .1....6... (85) call bpf_iter_num_next#71889
+    8: 0.....6... (61) r1 = *(u32 *)(r0 +0)
+    9: ......6... (bf) r1 = r6
+   10: .1........ (85) call bpf_iter_num_destroy#71885
+   11: .......... (b4) w0 = 0
+   12: 0......... (95) exit
+  arg#0 reference type('UNKNOWN ') size cannot be determined: -22
+  0: R1=ctx() R10=fp0
+  ; int missing_null_check_fail(void *ctx) @ iters_looping.c:64
+  0: (bf) r6 = r10                      ; R6_w=fp0 R10=fp0
+  ; asm volatile ( @ iters_looping.c:68
+  1: (07) r6 += -8                      ; R6_w=fp-8
+  2: (bf) r1 = r6                       ; R1_w=fp-8 R6_w=fp-8
+  3: (b7) r2 = 0                        ; R2_w=0
+  4: (b7) r3 = 1000                     ; R3_w=1000
+  5: (85) call bpf_iter_num_new#71887   ; R0_w=scalar() fp-8_w=iter_num(ref_id=1,state=active,depth=0) refs=1
+  6: (bf) r1 = r6                       ; R1=fp-8 R6=fp-8 refs=1
+  7: (85) call bpf_iter_num_next#71889          ; R0_w=0 fp-8=iter_num(ref_id=1,state=drained,depth=0) refs=1
+  8: (61) r1 = *(u32 *)(r0 +0)
+  R0 invalid mem access 'scalar'
+  processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+source_snippets:
+- file: tools/testing/selftests/bpf/progs/iters_looping.c
+  code: "SEC(\"?raw_tp\")\n__failure __msg(\"R0 invalid mem access 'scalar'\")\nint missing_null_check_fail(void *ctx)\n{\n\tstruct bpf_iter_num iter;\n\n\tasm volatile (\n\t\t/* create iterator */\n\t\t\"r1 = %[iter];\"\n\t\t\"r2 = 0;\"\n\t\t\"r3 = 1000;\"\n\t\t\"call %[bpf_iter_num_new];\"\n\n\t\t/* consume first element */\n\t\t\"r1 = %[iter];\"\n\t\t\"call %[bpf_iter_num_next];\"\n\n\t\t/* FAIL: deref with no NULL check */\n\t\t\"r1 = *(u32 *)(r0 + 0);\"\n\n\t\t/* destroy iterator */\n\t\t\"r1 = %[iter];\"\n\t\t\"call %[bpf_iter_num_destroy];\"\n\t\t:\n\t\t: __imm_ptr(iter), ITER_HELPERS\n\t\t: __clobber_common\n\t);\n\n\treturn 0;\n}"
