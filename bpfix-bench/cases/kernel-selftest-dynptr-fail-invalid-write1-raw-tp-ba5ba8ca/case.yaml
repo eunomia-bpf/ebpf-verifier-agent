@@ -18,8 +18,8 @@ reproducer:
   build_command: make
   object_path: prog.o
   load_command: make replay-verify
-  notes: Imported from locally verified kernel selftest artifact; replay log is written to
-    replay-verifier.log.
+  notes: Imported from locally verified kernel selftest artifact; replay log is written
+    to replay-verifier.log.
 capture:
   capture_id: kernel-selftest-dynptr-fail-invalid-write1-raw-tp-ba5ba8ca__kernel-6.15.11-clang-18-log2
   environment_id: kernel-6.15.11-clang-18-log2
@@ -45,23 +45,21 @@ label:
   error_id: BPFIX-E012
   confidence: high
   label_source: agree
-  root_cause_description: 'Intentional negative test: overwrites the first byte of `ptr` with
-    `memcpy(&ptr, &x, sizeof(x))` and then calls `bpf_dynptr_data(&ptr, 0, 1)` on the corrupted
-    dynptr slot.'
+  root_cause_description: 'Intentional negative test: overwrites the first byte of
+    `ptr` with `memcpy(&ptr, &x, sizeof(x))` and then calls `bpf_dynptr_data(&ptr,
+    0, 1)` on the corrupted dynptr slot.'
   rejected_insn_idx: 27
   root_cause_insn_idx: 27
   rejected_line: data = bpf_dynptr_data(&ptr, 0, 1);
   root_cause_line: data = bpf_dynptr_data(&ptr, 0, 1);
   localization_confidence: high
   fix_type: other
-  fix_direction: In real code, never write raw bytes into a dynptr object; reinitialize it
-    with a proper dynptr helper instead.
+  fix_direction: In real code, never write raw bytes into a dynptr object; reinitialize
+    it with a proper dynptr helper instead.
 repair:
   eligible: false
 reporting:
-  split: main
   family_id: 'Expected an initialized dynptr as arg #0'
   representative: true
   intentional_negative_test: true
-  quarantine: false
   notes: Kernel selftest replay-valid case.

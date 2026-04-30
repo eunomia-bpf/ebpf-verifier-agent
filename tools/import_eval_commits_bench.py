@@ -35,9 +35,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--force", action="store_true")
     parser.add_argument(
-        "--main-reviewed",
+        "--reviewed",
         action="store_true",
-        help="Put commit-derived cases in main. Use only after manual root-cause label audit.",
+        help="Allow importing manually audited commit-derived cases into the single benchmark case set.",
     )
     parser.add_argument("--timeout-sec", type=int, default=45)
     args = parser.parse_args(argv)
@@ -51,6 +51,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if not args.all and not args.case_id:
         raise SystemExit("--apply requires --case-id or --all")
+    if not args.reviewed:
+        raise SystemExit("--apply requires --reviewed for commit-derived cases")
 
     manifest = load_manifest(args.bench_root.resolve())
     imported: list[str] = []
@@ -63,7 +65,6 @@ def main(argv: list[str] | None = None) -> int:
                 manifest,
                 force=args.force,
                 timeout_sec=args.timeout_sec,
-                main_reviewed=args.main_reviewed,
             )
         except Exception as exc:  # noqa: BLE001
             failed.append(f"{candidate['case_id']}: {exc}")
@@ -166,7 +167,6 @@ def import_case(
     *,
     force: bool,
     timeout_sec: int,
-    main_reviewed: bool,
 ) -> None:
     case_id = candidate["case_id"]
     variant = candidate["variant"]
@@ -190,6 +190,8 @@ def import_case(
     fresh = replay.parsed_log
     if replay.build.returncode != 0:
         raise RuntimeError(f"build failed: {replay.build.returncode}")
+    if replay.load.returncode == 0:
+        raise RuntimeError("fresh replay load succeeded; expected verifier reject")
     if not replay.verifier_log_captured or not fresh.terminal_error or fresh.rejected_insn_idx is None:
         raise RuntimeError("fresh replay did not produce a trace-rich verifier log")
 
@@ -201,11 +203,9 @@ def import_case(
     environment_id = str(manifest.get("environment_id") or ENVIRONMENT_ID_FALLBACK)
     capture_id = f"{case_id}__{environment_id}"
     imported_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-    split = "main" if main_reviewed else "candidate"
-    quarantine = not main_reviewed
 
     (case_dir / "case.yaml").write_text(
-        dump_yaml(build_case_yaml(candidate, capture_id, environment_id, fresh, split, quarantine)),
+        dump_yaml(build_case_yaml(candidate, capture_id, environment_id, fresh)),
         encoding="utf-8",
     )
     (case_dir / "capture.yaml").write_text(
@@ -218,10 +218,9 @@ def import_case(
         {
             "case_id": case_id,
             "path": f"cases/{case_id}",
-            "split": split,
             "source_kind": "commit_derived",
             "family_id": family_id(str(fresh.terminal_error)),
-            "representative": not quarantine,
+            "representative": True,
             "capture_id": capture_id,
         },
     )
@@ -291,8 +290,6 @@ def build_case_yaml(
     capture_id: str,
     environment_id: str,
     fresh: Any,
-    split: str,
-    quarantine: bool,
 ) -> dict[str, Any]:
     metadata: dict[str, Any] = candidate["metadata"]
     variant = candidate["variant"]
@@ -335,10 +332,10 @@ def build_case_yaml(
             "rejected_insn_idx": fresh.rejected_insn_idx,
         },
         "external_match": {
-            "status": "semantic",
+            "status": "not_applicable",
             "policy": "commit_derived_replay",
             "matched_messages": [fresh.terminal_error],
-            "notes": "Commit-derived case admitted only because the local replay reproduces this verifier failure.",
+            "notes": "Commit-derived case admitted only after manual audit and local replay.",
         },
         "label": {
             "capture_id": capture_id,
@@ -357,12 +354,10 @@ def build_case_yaml(
         },
         "repair": {"eligible": False},
         "reporting": {
-            "split": split,
             "family_id": family_id(str(fresh.terminal_error)),
-            "representative": not quarantine,
+            "representative": True,
             "intentional_negative_test": False,
-            "quarantine": quarantine,
-            "notes": "Replay-valid commit-derived verifier failure; candidate until manual root-cause audit.",
+            "notes": "Replay-valid manually audited commit-derived verifier failure.",
         },
     }
 

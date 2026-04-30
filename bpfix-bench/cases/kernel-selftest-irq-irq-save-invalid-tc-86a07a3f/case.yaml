@@ -18,8 +18,8 @@ reproducer:
   build_command: make
   object_path: prog.o
   load_command: make replay-verify
-  notes: Imported from locally verified kernel selftest artifact; replay log is written to
-    replay-verifier.log.
+  notes: Imported from locally verified kernel selftest artifact; replay log is written
+    to replay-verifier.log.
 capture:
   capture_id: kernel-selftest-irq-irq-save-invalid-tc-86a07a3f__kernel-6.15.11-clang-18-log2
   environment_id: kernel-6.15.11-clang-18-log2
@@ -53,14 +53,12 @@ label:
   root_cause_line: bpf_local_irq_save(&flags1);
   localization_confidence: high
   fix_type: other
-  fix_direction: In real code, use a fresh uninitialized stack slot for each IRQ save or restore
-    the first slot before reusing it.
+  fix_direction: In real code, use a fresh uninitialized stack slot for each IRQ save
+    or restore the first slot before reusing it.
 repair:
   eligible: false
 reporting:
-  split: main
   family_id: expected uninitialized irq flag as arg#0
   representative: true
   intentional_negative_test: true
-  quarantine: false
   notes: Kernel selftest replay-valid case.

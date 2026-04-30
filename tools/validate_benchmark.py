@@ -44,7 +44,7 @@ def validate_benchmark(benchmark_root: Path, timeout_sec: int) -> dict[str, Any]
         "valid": False,
         "benchmark_root": str(benchmark_root),
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "summary": {"total_main_cases": 0, "passed": 0, "failed": 0},
+        "summary": {"total_cases": 0, "passed": 0, "failed": 0},
         "errors": [],
         "cases": [],
     }
@@ -71,10 +71,10 @@ def validate_benchmark(benchmark_root: Path, timeout_sec: int) -> dict[str, Any]
     duplicate_errors = _duplicate_case_errors(entries)
     report["errors"].extend(duplicate_errors)
 
-    main_entries = [entry for entry in entries if isinstance(entry, dict) and entry.get("split") == "main"]
-    report["summary"]["total_main_cases"] = len(main_entries)
+    case_entries = [entry for entry in entries if isinstance(entry, dict)]
+    report["summary"]["total_cases"] = len(case_entries)
 
-    for entry in main_entries:
+    for entry in case_entries:
         case_report = validate_case(benchmark_root, manifest, entry, timeout_sec)
         report["cases"].append(case_report)
         if case_report["valid"]:
@@ -145,6 +145,11 @@ def validate_case(
     elif replay.build.returncode != 0:
         case_report["errors"].append(f"build command failed with exit code {replay.build.returncode}")
 
+    if replay.load.timed_out:
+        case_report["errors"].append("load command timed out")
+    elif replay.load.returncode == 0:
+        case_report["errors"].append("load command succeeded; expected verifier reject")
+
     capture = case_data.get("capture") or {}
     expected_terminal = capture.get("terminal_error")
     expected_idx = capture.get("rejected_insn_idx")
@@ -168,9 +173,6 @@ def validate_case(
         case_report["errors"].append(
             f"log_quality mismatch: expected {expected_quality!r}, got {fresh.get('log_quality')!r}"
         )
-
-    if not fresh.get("terminal_error") and replay.load.returncode == 0:
-        case_report["errors"].append("load command succeeded and no verifier rejection was parsed")
 
     validate_post_build_artifacts(case_dir, case_data, case_report)
     case_report["valid"] = not case_report["errors"]
@@ -197,7 +199,14 @@ def validate_case_metadata(
     require_fields(reproducer, ["status", "reconstruction", "build_command", "load_command", "source_file", "object_path"], "reproducer", errors)
     require_fields(capture, ["capture_id", "log_quality", "terminal_error", "rejected_insn_idx"], "capture", errors)
     require_fields(label, ["capture_id"], "label", errors)
-    require_fields(reporting, ["split", "family_id", "representative"], "reporting", errors)
+    require_fields(reporting, ["family_id", "representative"], "reporting", errors)
+
+    if "split" in entry:
+        errors.append("manifest case must not define split; bpfix-bench has a single case set")
+    if "split" in reporting:
+        errors.append("case.reporting must not define split; bpfix-bench has a single case set")
+    if "quarantine" in reporting:
+        errors.append("case.reporting must not define quarantine; keep non-primary cases outside bpfix-bench")
 
     compare(case_data.get("case_id"), case_id, "case.case_id", errors)
     compare(source.get("kind"), entry.get("source_kind"), "source.kind/source_kind", errors)
@@ -205,7 +214,6 @@ def validate_case_metadata(
     compare(label.get("capture_id"), capture.get("capture_id"), "label.capture_id/capture.capture_id", errors)
     if label.get("rejected_insn_idx") is not None:
         compare(label.get("rejected_insn_idx"), capture.get("rejected_insn_idx"), "label.rejected_insn_idx/capture.rejected_insn_idx", errors)
-    compare(reporting.get("split"), entry.get("split"), "reporting.split/manifest.split", errors)
     compare(reporting.get("family_id"), entry.get("family_id"), "reporting.family_id/manifest.family_id", errors)
     compare(reporting.get("representative"), entry.get("representative"), "reporting.representative/manifest.representative", errors)
 
@@ -228,10 +236,10 @@ def validate_case_metadata(
             errors.append(f"invalid external_match.status: {status!r}")
         if source.get("kind") == "kernel_selftest" and status != "not_applicable":
             errors.append("kernel_selftest cases must use external_match.status == 'not_applicable'")
-        if source.get("kind") != "kernel_selftest" and status not in {"exact", "partial", "semantic"}:
-            errors.append("external cases must use exact, partial, or semantic external_match.status")
-        if entry.get("split") == "main" and source.get("kind") != "kernel_selftest" and status == "semantic":
-            errors.append("main external cases must use exact or partial external_match.status")
+        if source.get("kind") in {"stackoverflow", "github_issue"} and status not in {"exact", "partial", "semantic"}:
+            errors.append("Stack Overflow/GitHub cases must use exact, partial, or semantic external_match.status")
+        if source.get("kind") == "commit_derived" and status != "not_applicable":
+            errors.append("commit-derived cases must use external_match.status == 'not_applicable'")
 
     if manifest.get("environment_id") and capture.get("environment_id"):
         compare(capture.get("environment_id"), manifest.get("environment_id"), "capture.environment_id/manifest.environment_id", errors)
@@ -393,7 +401,7 @@ def _duplicate_case_errors(entries: list[Any]) -> list[str]:
 
 
 def _public_manifest_fields(entry: dict[str, Any]) -> dict[str, Any]:
-    fields = ("path", "split", "source_kind", "family_id", "representative", "capture_id")
+    fields = ("path", "source_kind", "family_id", "representative", "capture_id")
     return {field: entry.get(field) for field in fields}
 
 

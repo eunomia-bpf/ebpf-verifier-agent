@@ -108,7 +108,6 @@ description: "Locally reproducible verifier-log benchmark."
 cases:
   - case_id: kernel-selftest-dynptr-invalid-read-2cc2b993
     path: cases/kernel-selftest-dynptr-invalid-read-2cc2b993
-    split: main
     source_kind: kernel_selftest
     family_id: dynptr-invalid-read
     representative: true
@@ -116,7 +115,6 @@ cases:
 
   - case_id: stackoverflow-70750259
     path: cases/stackoverflow-70750259
-    split: main
     source_kind: stackoverflow
     family_id: packet-pointer-provenance
     representative: true
@@ -235,7 +233,6 @@ repair:
   fixed_oracle: null
 
 reporting:
-  split: main
   family_id: packet-pointer-provenance
   duplicate_group: null
   representative: true
@@ -250,7 +247,7 @@ from the recorded terminal error or rejected instruction.
 
 ## Primary Case Admission Rules
 
-A case enters `split: main` only if all conditions hold:
+A case enters `bpfix-bench` only if all conditions hold:
 
 1. `reproducer.status == ready`.
 2. `reproducer.reconstruction` is `original`, `minimized`, or `reconstructed`.
@@ -261,21 +258,22 @@ A case enters `split: main` only if all conditions hold:
 7. The parser can recover a terminal error from the fresh replay log.
 8. The parser can recover or validate `capture.rejected_insn_idx`.
 9. `label.capture_id == capture.capture_id`.
-10. For Stack Overflow, GitHub, and commit-derived cases in `split: main`,
-    `external_match.status` is `exact` or `partial`.
+10. For Stack Overflow and GitHub cases, `external_match.status` is `exact`,
+    `partial`, or `semantic`. `semantic` is allowed only when fresh local replay
+    produces a trace-rich verifier rejection; it is not a candidate split.
 11. For kernel selftests, `external_match.status == not_applicable`.
-12. `semantic` matches are allowed only in `split: candidate` and require a short
-    auditable policy, not free-form judgment.
+12. Commit-derived cases require manual audit and
+    `external_match.status == not_applicable`.
 13. `reporting.family_id` and `reporting.representative` are present.
 14. `tools/validate_benchmark.py --replay bpfix-bench` succeeds for the case.
 
 No exception path should allow excerpt-only logs, message-only loader errors, or
-synthetic no-log cases into `split: main`.
+synthetic no-log cases into `bpfix-bench`.
 
 ## Repair Case Rules
 
-Repair eval is a separate layer on top of the diagnostic benchmark. A case can
-be in the main diagnostic split without any fixed program.
+Repair eval is separate from the diagnostic benchmark. A case can be in the
+diagnostic benchmark without any fixed program.
 
 A case is eligible for repair eval only if:
 
@@ -301,10 +299,10 @@ Recommended handling:
   `bpfix-bench`.
 - Commit diff but no verifier reproduction: not in `bpfix-bench`.
 - Synthetic case without verifier log: not in `bpfix-bench`.
-- Case accepted by the current verifier: not in `split: main`; optionally keep
+- Case accepted by the current verifier: not in `bpfix-bench`; optionally keep
   outside the benchmark as cross-version evidence.
 - Case with only message-level stderr and no trace-rich verifier log: not in
-  `split: main`.
+  `bpfix-bench`.
 
 This keeps the benchmark honest: the main number measures diagnosis over local,
 auditable verifier traces.
@@ -317,9 +315,9 @@ Add one replay validator before moving eval scripts:
 python3 tools/validate_benchmark.py --replay bpfix-bench
 ```
 
-`tools/validate_benchmark.py` must rerun build/load/capture for every
-`split: main` case. Static schema checks are useful, but they are not sufficient
-for admission into the primary benchmark.
+`tools/validate_benchmark.py` must rerun build/load/capture for every listed
+case. Static schema checks are useful, but they are not sufficient for
+admission into the benchmark.
 
 For each primary case, the validator must:
 
@@ -342,12 +340,12 @@ The validator should fail on:
 - missing `capture.yaml`;
 - `capture.yaml` command/environment mismatch with `case.yaml` or
   `environment.yaml`;
-- non-`verifier_reject` primary case;
+- non-`verifier_reject` case;
 - missing terminal error;
 - missing rejected instruction index;
 - unsupported `source.kind`;
 - external case without acceptable `external_match.status`;
-- `split: main` case with `reconstruction: synthetic`;
+- case with `reconstruction: synthetic`;
 - missing `family_id` or `representative`;
 - build failure during replay;
 - load acceptance during replay;
@@ -392,9 +390,10 @@ Current data should be treated as raw material:
 - `case_study/cases/kernel_selftests_verified/<case_id>/`: likely easiest to
   import if it has source, build command, rejection status, and captured log.
 - `case_study/cases/so_gh_verified/<case_id>/`: import exact/partial matches
-  directly into `split: main`; import mismatch cases only into
-  `split: candidate` as `external_match.status: semantic` when a fresh local
-  replay produces a trace-rich verifier rejection.
+  directly; import mismatch cases as `external_match.status: semantic` only
+  when a fresh local replay produces a trace-rich verifier rejection. Loader
+  errors, libbpf object-open errors, timeouts without a verifier terminal error,
+  and current-kernel accepts are not benchmark cases.
 - `case_study/cases/eval_commits_verified/<case_id>/`: import only a concrete
   commit-derived variant that builds, is rejected locally, and has a captured
   trace-rich verifier log. A fixed/buggy pair where both pass is not a
@@ -428,18 +427,17 @@ This deliberately favors a small clean benchmark over a large mixed corpus.
 
 The implemented `bpfix-bench/` snapshot has:
 
-- 100 `split: main` cases for headline diagnostic eval.
-- 79 main `kernel_selftest` cases.
-- 21 main exact/partial `stackoverflow` cases.
-- 1 replay-valid `split: candidate` commit-derived case that is excluded from
-  headline eval until stronger provenance review.
+- 102 replayable cases for headline diagnostic eval.
+- 79 `kernel_selftest` cases.
+- 23 `stackoverflow` cases: 21 exact/partial matches and 2 replay-valid
+  semantic matches.
 - No case directories outside `manifest.yaml`.
 
 The replay validator has been run successfully:
 
 ```bash
 python3 tools/validate_benchmark.py --replay bpfix-bench --timeout-sec 60
-# main passed: 100, failed: 0
+# passed: 102, failed: 0
 ```
 
 The batch diagnostic eval adapter has also been run successfully:
@@ -448,7 +446,7 @@ The batch diagnostic eval adapter has also been run successfully:
 python3 eval/batch_diagnostic_eval.py --benchmark bpfix-bench \
   --results-path /tmp/bpfix-bench-batch-results.json \
   --report-path /tmp/bpfix-bench-batch-report.md
-# processed: 100 main cases
+# processed: 102 cases
 ```
 
 ## Reporting Requirements
@@ -465,8 +463,8 @@ Every paper result using this benchmark should report:
 - duplicate-family counts;
 - case-weighted and family-weighted metrics.
 
-The main claim should use only `split: main`. There is no headline metric over
-unreproduced external excerpts.
+The main claim should use only `bpfix-bench/manifest.yaml`. There is no
+headline metric over unreproduced external excerpts.
 
 ## Why This Is Simpler
 

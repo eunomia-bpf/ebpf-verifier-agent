@@ -27,6 +27,7 @@ NOISE_RE = re.compile(
     r")",
     re.IGNORECASE,
 )
+MAX_CAPTURE_BYTES = 8_000_000
 
 
 @dataclass
@@ -177,7 +178,12 @@ def _read_fresh_capture(path: Path, before_mtime: int | None) -> str | None:
     current_mtime = path.stat().st_mtime_ns
     if before_mtime is not None and current_mtime == before_mtime:
         return None
-    text = path.read_text(encoding="utf-8", errors="replace")
+    if path.stat().st_size > MAX_CAPTURE_BYTES:
+        with path.open("rb") as handle:
+            handle.seek(-MAX_CAPTURE_BYTES, 2)
+            text = handle.read().decode("utf-8", errors="replace")
+    else:
+        text = path.read_text(encoding="utf-8", errors="replace")
     return text if text.strip() else None
 
 

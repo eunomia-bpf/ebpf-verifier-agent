@@ -1,7 +1,9 @@
+SHELL := /bin/bash
 CLANG ?= clang
 BPFTool ?= sudo bpftool
 CFLAGS ?= -target bpf -O2 -g -I /usr/include
 PIN ?= /sys/fs/bpf/$(notdir $(CURDIR))
+LOG_LIMIT ?= 8000000
 
 .PHONY: all verify replay-verify clean
 
@@ -15,7 +17,7 @@ verify: prog.o
 
 replay-verify: prog.o
 	rm -f replay-verifier.log
-	$(BPFTool) -d prog load prog.o $(PIN) > replay-verifier.log 2>&1
+	set -o pipefail; $(BPFTool) -d prog load prog.o $(PIN) 2>&1 | tail -c $(LOG_LIMIT) > replay-verifier.log
 
 clean:
 	rm -f prog.o replay-verifier.log

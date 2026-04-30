@@ -2,17 +2,16 @@
 
 Top-level replayable benchmark for verifier-failure diagnosis.
 
-The only discovery entry point is `manifest.yaml`. A case is in `split: main`
-only if it has a self-contained case directory and passes replay validation in
-the pinned environment.
+The only discovery entry point is `manifest.yaml`. Every listed case has a
+self-contained case directory and must pass replay validation in the pinned
+environment. Non-primary candidates stay outside `bpfix-bench`.
 
 Current snapshot:
 
-- 100 main cases
+- 102 replayable cases
 - 79 kernel selftest cases
-- 21 exact/partial Stack Overflow cases
-- 1 replay-valid commit-derived candidate case excluded from headline eval pending
-  stronger provenance review
+- 23 Stack Overflow cases: 21 exact/partial matches and 2 replay-valid semantic
+  matches
 
 Required admission check:
 
@@ -23,6 +22,6 @@ python3 tools/validate_benchmark.py --replay bpfix-bench --timeout-sec 60
 Expected local result for this snapshot:
 
 ```text
-passed: 100
+passed: 102
 failed: 0
 ```

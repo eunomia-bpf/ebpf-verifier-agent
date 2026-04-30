@@ -18,8 +18,8 @@ reproducer:
   build_command: make
   object_path: prog.o
   load_command: make replay-verify
-  notes: Imported from locally verified kernel selftest artifact; replay log is written to
-    replay-verifier.log.
+  notes: Imported from locally verified kernel selftest artifact; replay log is written
+    to replay-verifier.log.
 capture:
   capture_id: kernel-selftest-dynptr-fail-xdp-invalid-data-slice1-xdp-c0fa30d5__kernel-6.15.11-clang-18-log2
   environment_id: kernel-6.15.11-clang-18-log2
@@ -58,9 +58,7 @@ label:
 repair:
   eligible: false
 reporting:
-  split: main
   family_id: R8 invalid mem access 'scalar'
   representative: true
   intentional_negative_test: true
-  quarantine: false
   notes: Kernel selftest replay-valid case.

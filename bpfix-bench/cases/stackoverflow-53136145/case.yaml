@@ -16,7 +16,8 @@ reproducer:
   build_command: make
   object_path: prog.o
   load_command: make replay-verify
-  notes: Imported from case_study/cases/so_gh_verified with replay logs written to replay-verifier.log.
+  notes: Imported from case_study/cases/so_gh_verified with replay logs written to
+    replay-verifier.log.
 capture:
   capture_id: stackoverflow-53136145__kernel-6.15.11-clang-18-log2
   environment_id: kernel-6.15.11-clang-18-log2
@@ -34,17 +35,18 @@ external_match:
   matched_messages:
   - R0 invalid mem access 'inv'
   - R5 invalid mem access 'scalar'
-  notes: Imported only because verifier_error_match was exact/partial in the verified SO/GH
-    artifact.
+  notes: Imported only because verifier_error_match was exact/partial in the verified
+    SO/GH artifact.
 label:
   capture_id: stackoverflow-53136145__kernel-6.15.11-clang-18-log2
   taxonomy_class: lowering_artifact
   error_id: BPFIX-E006
   confidence: low
   label_source: adjudicated
-  root_cause_description: The parser builds `udph` by merging either the IPv4 or IPv6 header
-    branch into one pointer, and the lowered code loses the packet provenance for that merged
-    pointer before the `udph->dest` load, leaving `R0` as `inv` at the access site.
+  root_cause_description: The parser builds `udph` by merging either the IPv4 or IPv6
+    header branch into one pointer, and the lowered code loses the packet provenance
+    for that merged pointer before the `udph->dest` load, leaving `R0` as `inv` at
+    the access site.
   rejected_insn_idx: 37
   root_cause_insn_idx: 105
   rejected_line: null
@@ -58,9 +60,7 @@ label:
 repair:
   eligible: true
 reporting:
-  split: main
   family_id: stackoverflow-53136145
   representative: true
   intentional_negative_test: false
-  quarantine: false
   notes: External SO/GH case imported from verified exact/partial artifact.

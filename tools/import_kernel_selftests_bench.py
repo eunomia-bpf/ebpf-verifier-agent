@@ -111,6 +111,8 @@ def eligibility_reason(source_dir: Path, status: dict[str, str], label: dict[str
         return "load_attempted is not yes"
     if status.get("verifier_rejected") != "yes":
         return "verifier_rejected is not yes"
+    if status.get("verifier_log_captured") != "yes":
+        return "verifier_log_captured is not yes"
     if not status.get("target_function"):
         return "missing target_function"
     if label is None:
@@ -194,6 +196,8 @@ def import_case(candidate: dict[str, Any], bench_root: Path, manifest: dict[str,
     fresh = replay.parsed_log
     if replay.build.returncode != 0:
         raise RuntimeError(f"build failed: {replay.build.returncode}")
+    if replay.load.returncode == 0:
+        raise RuntimeError("fresh replay load succeeded; expected verifier reject")
     if not replay.verifier_log_captured or not fresh.terminal_error or fresh.rejected_insn_idx is None:
         raise RuntimeError("fresh replay did not produce a trace-rich verifier log")
 
@@ -210,7 +214,6 @@ def import_case(candidate: dict[str, Any], bench_root: Path, manifest: dict[str,
     upsert_manifest(manifest, {
         "case_id": case_id,
         "path": f"cases/{case_id}",
-        "split": "main",
         "source_kind": "kernel_selftest",
         "family_id": family_id(fresh.terminal_error),
         "representative": True,
@@ -323,11 +326,9 @@ def build_case_yaml(
         },
         "repair": {"eligible": False},
         "reporting": {
-            "split": "main",
             "family_id": family_id(terminal_error),
             "representative": True,
             "intentional_negative_test": bool(label.get("is_intentional_negative_test", True)),
-            "quarantine": False,
             "notes": "Kernel selftest replay-valid case.",
         },
     }

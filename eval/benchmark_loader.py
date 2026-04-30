@@ -12,7 +12,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def load_benchmark_rows(benchmark: str | Path, root: Path = ROOT, split: str | None = "main") -> list[dict[str, Any]]:
+def load_benchmark_rows(benchmark: str | Path, root: Path = ROOT) -> list[dict[str, Any]]:
     """Load benchmark rows from ``<benchmark>/manifest.yaml`` and case YAML files."""
 
     benchmark_dir = _resolve_path(Path(benchmark), root)
@@ -28,9 +28,6 @@ def load_benchmark_rows(benchmark: str | Path, root: Path = ROOT, split: str | N
 
     rows: list[dict[str, Any]] = []
     for entry in _case_entries(manifest, benchmark_dir):
-        entry_split = _as_optional_string(_first_present(entry, ("split",))) or "main"
-        if split is not None and entry_split != split:
-            continue
         case_yaml_path = _case_yaml_path(benchmark_dir, entry)
         case_data = _read_yaml(case_yaml_path)
         case_dir = case_yaml_path.parent
@@ -66,7 +63,6 @@ def load_benchmark_rows(benchmark: str | Path, root: Path = ROOT, split: str | N
                     or _find_nested(case_data, (("reporting", "family_id"), ("family", "id")))
                     or _first_present(entry, ("family_id", "family"))
                 ),
-                "split": entry_split,
                 "representative": bool(
                     _first_present(entry, ("representative", "core_representative"))
                     or _first_present(case_data, ("representative", "core_representative"))

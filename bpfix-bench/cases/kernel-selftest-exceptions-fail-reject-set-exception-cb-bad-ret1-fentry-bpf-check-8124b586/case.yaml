@@ -18,8 +18,8 @@ reproducer:
   build_command: make
   object_path: prog.o
   load_command: make replay-verify
-  notes: Imported from locally verified kernel selftest artifact; replay log is written to
-    replay-verifier.log.
+  notes: Imported from locally verified kernel selftest artifact; replay log is written
+    to replay-verifier.log.
 capture:
   capture_id: kernel-selftest-exceptions-fail-reject-set-exception-cb-bad-ret1-fentry-bpf-check-8124b586__kernel-6.15.11-clang-18-log2
   environment_id: kernel-6.15.11-clang-18-log2
@@ -45,24 +45,22 @@ label:
   error_id: BPFIX-E013
   confidence: high
   label_source: agree
-  root_cause_description: 'Intentional negative test: associates `exception_cb_bad_ret` with
-    the `fentry/bpf_check` program even though that callback can leave `R0` as an unconstrained
-    scalar instead of the required concrete return value.'
+  root_cause_description: 'Intentional negative test: associates `exception_cb_bad_ret`
+    with the `fentry/bpf_check` program even though that callback can leave `R0` as
+    an unconstrained scalar instead of the required concrete return value.'
   rejected_insn_idx: 3
   root_cause_insn_idx: 2
   rejected_line: return c;
   root_cause_line: return c;
   localization_confidence: high
   fix_type: reorder
-  fix_direction: In real code, make the exception callback return a verifier-visible scalar
-    value that matches the main program's exit contract.
+  fix_direction: In real code, make the exception callback return a verifier-visible
+    scalar value that matches the main program's exit contract.
   legacy_rejected_insn_idx: 2
 repair:
   eligible: false
 reporting:
-  split: main
   family_id: 'arg#0 reference type(''UNKNOWN '') size cannot be determined: -22'
   representative: true
   intentional_negative_test: true
-  quarantine: false
   notes: Kernel selftest replay-valid case.

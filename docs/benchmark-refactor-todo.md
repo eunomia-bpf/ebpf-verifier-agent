@@ -20,7 +20,7 @@ can rebuild, reload, recapture, and re-parse the verifier failure locally.
   harness stores them.
 - `fixed/` is optional and only used when `repair.eligible: true`.
 - `tools/validate_benchmark.py --replay bpfix-bench` actually runs build/load
-  for every `split: main` case.
+  for every listed benchmark case.
 - The validator rejects cases that build but do not reproduce a verifier
   rejection.
 - Eval entry points can consume `--benchmark bpfix-bench` without scanning
@@ -66,15 +66,16 @@ python3 tools/validate_benchmark.py --replay bpfix-bench --timeout-sec 60
 Final local result:
 
 ```text
-passed: 100
+passed: 102
 failed: 0
-total_main_cases: 100
+total_cases: 102
 ```
 
 ```text
-main kernel_selftest: 79
-main stackoverflow exact/partial: 21
-candidate commit_derived: 1
+kernel_selftest: 79
+stackoverflow: 23
+stackoverflow exact/partial: 21
+stackoverflow semantic: 2
 ```
 
 The benchmark is not considered valid on another host until replay passes again

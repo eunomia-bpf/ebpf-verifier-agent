@@ -18,8 +18,8 @@ reproducer:
   build_command: make
   object_path: prog.o
   load_command: make replay-verify
-  notes: Imported from locally verified kernel selftest artifact; replay log is written to
-    replay-verifier.log.
+  notes: Imported from locally verified kernel selftest artifact; replay log is written
+    to replay-verifier.log.
 capture:
   capture_id: kernel-selftest-dynptr-fail-global-raw-tp-e92dc79e__kernel-6.15.11-clang-18-log2
   environment_id: kernel-6.15.11-clang-18-log2
@@ -45,21 +45,21 @@ label:
   error_id: BPFIX-E019
   confidence: high
   label_source: agree
-  root_cause_description: 'Intentional negative test: passes the global `.bss` object `global_dynptr`
-    to `bpf_ringbuf_reserve_dynptr`, but dynptrs must live in stack storage.'
+  root_cause_description: 'Intentional negative test: passes the global `.bss` object
+    `global_dynptr` to `bpf_ringbuf_reserve_dynptr`, but dynptrs must live in stack
+    storage.'
   rejected_insn_idx: 6
   root_cause_insn_idx: 6
   rejected_line: bpf_ringbuf_reserve_dynptr(&ringbuf, 16, 0, &global_dynptr);
   root_cause_line: bpf_ringbuf_reserve_dynptr(&ringbuf, 16, 0, &global_dynptr);
   localization_confidence: high
   fix_type: other
-  fix_direction: In real code, keep dynptr state on the BPF stack instead of in global data.
+  fix_direction: In real code, keep dynptr state on the BPF stack instead of in global
+    data.
 repair:
   eligible: false
 reporting:
-  split: main
   family_id: R4 type=map_value expected=fp, dynptr_ptr
   representative: true
   intentional_negative_test: true
-  quarantine: false
   notes: Kernel selftest replay-valid case.

@@ -18,8 +18,8 @@ reproducer:
   build_command: make
   object_path: prog.o
   load_command: make replay-verify
-  notes: Imported from locally verified kernel selftest artifact; replay log is written to
-    replay-verifier.log.
+  notes: Imported from locally verified kernel selftest artifact; replay log is written
+    to replay-verifier.log.
 capture:
   capture_id: kernel-selftest-dynptr-fail-dynptr-slice-var-len2-tc-673ab9e7__kernel-6.15.11-clang-18-log2
   environment_id: kernel-6.15.11-clang-18-log2
@@ -45,24 +45,22 @@ label:
   error_id: BPFIX-E019
   confidence: high
   label_source: agree
-  root_cause_description: 'Intentional negative test: calls `bpf_dynptr_slice_rdwr(&ptr, 0,
-    buffer, hdr_size)` with a runtime `hdr_size` even though the API requires the requested
-    length to be constant.'
+  root_cause_description: 'Intentional negative test: calls `bpf_dynptr_slice_rdwr(&ptr,
+    0, buffer, hdr_size)` with a runtime `hdr_size` even though the API requires the
+    requested length to be constant.'
   rejected_insn_idx: 18
   root_cause_insn_idx: 10
   rejected_line: hdr = bpf_dynptr_slice_rdwr(&ptr, 0, buffer, hdr_size);
   root_cause_line: hdr = bpf_dynptr_slice_rdwr(&ptr, 0, buffer, hdr_size);
   localization_confidence: high
   fix_type: other
-  fix_direction: In real code, split runtime sizes into constant cases or switch to a fixed
-    writable slice length.
+  fix_direction: In real code, split runtime sizes into constant cases or switch to
+    a fixed writable slice length.
   legacy_rejected_insn_idx: 10
 repair:
   eligible: false
 reporting:
-  split: main
   family_id: R4 must be a known constant
   representative: true
   intentional_negative_test: true
-  quarantine: false
   notes: Kernel selftest replay-valid case.
