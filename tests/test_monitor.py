@@ -8,8 +8,22 @@ from interface.extractor.engine.opcode_safety import (
     SafetyCondition,
     SafetyDomain,
 )
-from interface.extractor.engine.predicate import PacketAccessPredicate
 from interface.extractor.trace_parser import RegisterState, TracedInstruction
+
+
+class PacketAccessGap:
+    def __init__(self, register: str, access_size: int) -> None:
+        self.register = register
+        self.access_size = access_size
+
+    def compute_gap(self, state: dict[str, RegisterState], insn=None) -> int | None:
+        reg = state.get(self.register)
+        if reg is None or reg.range is None or reg.off is None:
+            return None
+        return max(0, reg.off + self.access_size - reg.range)
+
+    def describe_violation(self, state: dict[str, RegisterState], insn=None) -> str:
+        return "packet access exceeds proven range"
 
 
 def _rs(type_: str = "scalar", **kwargs) -> RegisterState:
@@ -58,7 +72,7 @@ def test_vacuous_satisfaction_does_not_create_establishment():
 
 
 def test_positive_gap_to_zero_creates_establishment():
-    predicate = PacketAccessPredicate(target_regs=["R3"], access_size=4)
+    predicate = PacketAccessGap("R3", access_size=4)
     instructions = [
         _insn(0, "r3 = r1", post={"R3": _rs("pkt", off=8, range=10)}),
         _insn(1, "if r2 > r1 goto pc+1", post={"R3": _rs("pkt", off=8, range=12)}),
@@ -74,7 +88,7 @@ def test_positive_gap_to_zero_creates_establishment():
 
 
 def test_gap_increase_after_establishment_creates_loss():
-    predicate = PacketAccessPredicate(target_regs=["R3"], access_size=4)
+    predicate = PacketAccessGap("R3", access_size=4)
     instructions = [
         _insn(0, "r3 = r1", post={"R3": _rs("pkt", off=8, range=10)}),
         _insn(1, "if r2 > r1 goto pc+1", post={"R3": _rs("pkt", off=8, range=12)}),

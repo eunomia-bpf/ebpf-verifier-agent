@@ -8,7 +8,7 @@ from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).resolve().parents[1]
 
-from interface.extractor.rust_diagnostic import generate_diagnostic
+from interface.extractor.pipeline import generate_diagnostic
 
 
 def _load_verifier_log(relative_path: str) -> str:

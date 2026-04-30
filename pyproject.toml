@@ -25,7 +25,7 @@ include-package-data = true
 py-modules = ["bpfix"]
 
 [tool.setuptools.packages.find]
-include = ["oblige*", "interface*", "taxonomy*"]
+include = ["interface*", "taxonomy*"]
 
 [tool.setuptools.package-data]
 "interface.schema" = ["diagnostic.json"]

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .log_parser import ParsedLog, VerifierLogParser, parse_log, parse_verifier_log
-from .rust_diagnostic import generate_diagnostic
+from .pipeline import generate_diagnostic
 from .trace_parser import ParsedTrace, parse_trace, parse_verifier_trace
 
 

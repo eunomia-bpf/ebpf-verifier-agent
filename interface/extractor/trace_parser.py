@@ -1,9 +1,8 @@
-"""Compatibility surface for the split trace parser."""
+"""Public trace parser for LOG_LEVEL2 verifier state traces."""
 
 from __future__ import annotations
 
-from .trace_parser_parts._impl import _is_pointer_type
-from .trace_parser_parts import (
+from .trace_parser_impl import (
     BacktrackChain,
     BacktrackInfo,
     BacktrackLine,
@@ -20,6 +19,7 @@ from .trace_parser_parts import (
     SourceAnnotation,
     TraceLine,
     TracedInstruction,
+    _is_pointer_type,
     extract_backtrack_chains,
     parse_line,
     parse_trace,

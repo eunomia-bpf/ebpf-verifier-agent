@@ -35,7 +35,7 @@ docs/tmp/benchmark-eval-results.json
 *.profraw
 *.profdata
 *.skel.h
-core
+*.core
 core.*
 
 # bpfix-bench replay/build outputs

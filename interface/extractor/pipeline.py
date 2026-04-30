@@ -246,9 +246,7 @@ def generate_diagnostic(
         specific_reject=specific_reject,
     )
 
-    # Step 12: compute principled backward slice for causal chain.
-    # This replaces the old heuristic mark_precise + value_lineage chain.
-    #
+    # Step 12: compute backward slice for causal-chain context.
     # Determine the criterion: error instruction + the primary register of interest.
     # Prefer the predicate's target register; fall back to the first register
     # used or defined by the error instruction.
@@ -1131,12 +1129,3 @@ def _confidence_to_float(confidence: str | float | None) -> float | None:
         return confidence
     mapping = {"high": 0.9, "medium": 0.6, "low": 0.3, "very_low": 0.1}
     return mapping.get(str(confidence).lower().strip())
-
-
-# ---------------------------------------------------------------------------
-# Legacy compatibility: diagnose() — kept for eval scripts that import it
-# ---------------------------------------------------------------------------
-
-def diagnose(verifier_log: str, catalog_path: str | None = None) -> Any:
-    """Thin wrapper that returns generate_diagnostic() result for legacy callers."""
-    return generate_diagnostic(verifier_log, catalog_path=catalog_path)

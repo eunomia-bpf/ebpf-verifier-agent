@@ -17,7 +17,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
-from interface.extractor.trace_parser_parts._impl import TracedInstruction
+from interface.extractor.trace_parser import TracedInstruction
 from interface.extractor.engine.dataflow import (
     compute_data_slice,
     compute_reaching_defs,

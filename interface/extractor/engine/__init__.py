@@ -3,9 +3,6 @@
 Public API:
 - TraceMonitor: evaluates predicates over instruction traces
 - MonitorResult: result of trace monitoring
-- Predicate (and subclasses): declarative safety properties
-- RepairSynthesizer: template-based repair synthesis
-- RepairSuggestion: a concrete repair suggestion
 - OpcodeConditionPredicate: opcode-driven safety condition predicate
 - SafetyCondition / SafetyDomain: ISA-derived safety condition structures
 - infer_conditions_from_error_insn: opcode-driven condition inference
@@ -42,17 +39,6 @@ from .opcode_safety import (
     instantiate_schema,
     normalize_pointer_kind,
 )
-from .predicate import (
-    ClassificationOnlyPredicate,
-    CompositeAllPredicate,
-    IntervalContainment,
-    NullCheckPredicate,
-    PacketAccessPredicate,
-    Predicate,
-    ScalarBound,
-    TypeMembership,
-)
-from .synthesizer import RepairSuggestion, RepairSynthesizer
 from .control_dep import (
     ControlDep,
     compute_control_dependence,
@@ -96,18 +82,6 @@ __all__ = [
     "instantiate_schema",
     "discover_compatible_carriers",
     "normalize_pointer_kind",
-    # Predicates (kept for backward compatibility and structural errors)
-    "Predicate",
-    "IntervalContainment",
-    "TypeMembership",
-    "ScalarBound",
-    "NullCheckPredicate",
-    "PacketAccessPredicate",
-    "CompositeAllPredicate",
-    "ClassificationOnlyPredicate",
-    # Synthesis
-    "RepairSynthesizer",
-    "RepairSuggestion",
     # Control dependence
     "ControlDep",
     "compute_control_dependence",

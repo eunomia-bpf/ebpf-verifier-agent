@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..trace_parser_parts._impl import TracedInstruction
+    from ..trace_parser import TracedInstruction
 
 from .opcode_safety import decode_opcode
 

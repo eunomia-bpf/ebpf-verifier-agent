@@ -7,7 +7,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
-from interface.extractor.rust_diagnostic import generate_diagnostic
+from interface.extractor.pipeline import generate_diagnostic
 from interface.extractor.renderer import render_diagnostic
 from interface.extractor.source_correlator import SourceSpan
 
@@ -297,7 +297,7 @@ def test_renderer_preserves_engine_inferred_obligation_when_formal_analysis_retu
     # The old approach produced a generic "safety_violation" placeholder; now we omit it.
     obligation = output.json_data.get("metadata", {}).get("obligation")
     if obligation is not None:
-        # If obligation is present, it should be a meaningful type (not a legacy placeholder)
+        # If obligation is present, it should be a meaningful type.
         assert obligation.get("type") not in {"", None}
 
 
@@ -307,8 +307,7 @@ def test_renderer_keeps_engine_obligation_when_unknown_engine_status_is_ignored(
     With opcode-driven analysis: no instruction is explicitly marked as is_error=True,
     so the opcode-driven lifecycle analysis does not apply. The proof_status is
     'unknown' or 'never_established' based on taxonomy. No register-level obligation
-    is derived (the old ClassificationOnlyPredicate-based btf_reference_type obligation
-    was a legacy artifact).
+    is derived.
     """
     output = generate_diagnostic(
         _load_verifier_log(
@@ -319,7 +318,6 @@ def test_renderer_keeps_engine_obligation_when_unknown_engine_status_is_ignored(
 
     # proof_status is correctly unknown/never_established (no explicit error instruction)
     assert output.json_data["metadata"]["proof_status"] in {"unknown", "never_established"}
-    # With opcode-driven analysis: no legacy ClassificationOnlyPredicate obligation
     # The obligation may be absent or may be derived from the error_id/taxonomy.
     obligation = output.json_data.get("metadata", {}).get("obligation")
     if obligation is not None:

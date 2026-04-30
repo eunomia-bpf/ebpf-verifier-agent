@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from core.baseline import generate_baseline_diagnostic
+from interface.baseline import generate_baseline_diagnostic
 from interface.extractor.engine.cfg_builder import build_cfg
 from interface.extractor.engine.monitor import CarrierBoundPredicate, TraceMonitor, monitor_carriers
 from interface.extractor.engine.opcode_safety import (
@@ -42,7 +42,7 @@ from interface.extractor.pipeline import (
     classify_atom,
     compute_forward_dominators,
 )
-from interface.extractor.rust_diagnostic import generate_diagnostic
+from interface.extractor.pipeline import generate_diagnostic
 from interface.extractor.source_correlator import correlate_to_source
 from interface.extractor.trace_parser import parse_trace
 from tools.replay_case import replay_case

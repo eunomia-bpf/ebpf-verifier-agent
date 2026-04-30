@@ -53,13 +53,13 @@ ebpf-verifier-agent/
 │   ├── error_catalog.yaml       # Enumerated verifier error types with stable IDs
 │   └── obligation_catalog.yaml  # Proof obligation templates
 ├── interface/                   # Proof trace analysis tools
-│   ├── schema/                  # JSON schema for structured diagnostics
+│   ├── api/                     # Public Python API
+│   ├── baseline/                # Baseline diagnostic implementations
 │   ├── extractor/               # Extract structured diagnostics from verifier output
-│   │   ├── log_parser.py        # Parse raw verifier logs
-│   │   ├── btf_mapper.py        # BTF/line_info source mapping
-│   │   └── obligation.py        # Proof obligation extraction
-│   └── api/                     # Agent-facing API
-├── core/                        # Baseline diagnostic implementations
+│   │   ├── pipeline.py          # Main diagnostic pipeline
+│   │   ├── trace_parser.py      # Public trace parser entry point
+│   │   └── engine/              # Active trace analysis helpers
+│   └── schema/                  # JSON schema for structured diagnostics
 ├── tools/                       # Benchmark replay, validation, audit, and eval tools
 │   ├── validate_benchmark.py    # Rebuild/load replay validator
 │   ├── replay_case.py           # Per-case replay helper

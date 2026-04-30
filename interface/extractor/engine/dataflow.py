@@ -28,7 +28,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..trace_parser_parts._impl import TracedInstruction
+    from ..trace_parser import TracedInstruction
 
 from .cfg_builder import TraceCFG
 
@@ -299,8 +299,8 @@ def compute_reaching_defs(
     the verifier explores one DFS path to each error.  On this path, the
     most-recently-written definition is the reaching definition.
 
-    The CFG parameter is accepted for API compatibility (future use for
-    merge-point-aware analysis) but is not required for the single-path case.
+    The CFG parameter is reserved for merge-point-aware analysis but is not
+    required for the single-path case.
 
     Args:
         traced_instructions: List of TracedInstruction objects from parse_trace().

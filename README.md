@@ -28,13 +28,13 @@ taxonomy/
   error_catalog.yaml Stable verifier error catalog
   obligation_catalog.yaml Repair-oriented obligation templates
 interface/extractor/
-  rust_diagnostic.py End-to-end diagnostic pipeline
-  proof_engine.py    Formal proof analysis engine
+  pipeline.py        End-to-end diagnostic pipeline
+  engine/            CFG, dataflow, slicing, opcode safety, and monitor logic
   trace_parser.py    LOG_LEVEL2 trace parser
+interface/baseline/
+  regex_diagnostic.py Regex baseline used by benchmark evaluation
 interface/schema/
   diagnostic.json    Structured diagnostic output schema
-oblige/
-  cli.py             `python -m bpfix` / `bpfix` entry point
 tools/
   validate_benchmark.py  Replay validator for `bpfix-bench`
   evaluate_benchmark.py  Fresh-replay diagnostic baseline/ablation runner

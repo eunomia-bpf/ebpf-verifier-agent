@@ -1,80 +1,30 @@
 # interface/extractor
 
-Proof trace analysis pipeline for the BPFix system. Takes a raw eBPF verifier
-verbose log (LOG_LEVEL2) and produces Rust-style multi-span diagnostics: a
-stable error ID, taxonomy class, proof obligation, source/bytecode spans, and
-structured JSON output. Pure Python, no kernel involvement.
+Verifier-log diagnostic pipeline for BPFix. The entry point is
+`pipeline.generate_diagnostic()`, which takes a raw LOG_LEVEL2 verifier log and
+returns text plus structured JSON.
 
-## Pipeline
+## Flow
 
-```
-raw log text
-    │
-    ▼
-log_parser.py          → ParsedLog (error line, catalog error ID, taxonomy class)
-    │
-    ▼
-trace_parser_parts/    → ParsedTrace (TracedInstruction list with pre/post register state,
-                          backtrack chains, causal chain, critical transitions)
-    │
-    ▼
-proof_engine_parts/    → ProofAnalysisResult (ObligationSpec, PredicateEvals, obligation
-  obligation_inference    establish/loss/reject sites, backward slice)
-  predicate_tracking
-  backward_slicing
-    │
-    ▼
-source_correlator.py   → SourceSpan list (bytecode range → source file:line via BTF)
-    │
-    ▼
-renderer.py            → DiagnosticOutput (text + json_data)
+```text
+raw verifier log
+  -> log_parser.py
+  -> trace_parser.py
+  -> engine/ opcode safety, monitoring, CFG, dataflow, slicing
+  -> source_correlator.py
+  -> renderer.py
 ```
 
-## Entry Point
+## Files
 
-```python
-from interface.extractor.pipeline import generate_diagnostic
-
-output = generate_diagnostic(verifier_log: str) -> DiagnosticOutput
-# output.text  — Rust-style text diagnostic
-# output.json_data — structured dict with error_id, spans, obligation, etc.
-```
-
-`generate_diagnostic` is also re-exported from `rust_diagnostic.py` for
-backward compatibility.
-
-## File Map
-
-| File | Role |
+| Path | Role |
 |------|------|
-| `pipeline.py` | Top-level orchestrator; calls all stages and assembles `DiagnosticOutput` |
-| `log_parser.py` | Stage 1 — regex + catalog matching → `ParsedLog` |
-| `trace_parser.py` | Compatibility facade; re-exports from `trace_parser_parts/` |
-| `trace_parser_parts/` | Stage 2 implementation — per-instruction state parsing, backtrack chains, causal chain |
-| `proof_engine.py` | Compatibility facade; re-exports from `proof_engine_parts/` |
-| `proof_engine_parts/` | Stage 3 implementation — obligation inference, predicate tracking, backward slicing, IR builder |
-| `obligation_inference.py` | Top-level proof analysis entrypoint used by the facade |
-| `obligation_refinement.py` | Refines raw engine obligation against catalog and specific reject info |
-| `source_correlator.py` | Stage 4 — maps proof events to source spans via BTF line info |
-| `spans.py` | Span normalization and synthesis helpers |
-| `renderer.py` | Stage 5 — renders `SourceSpan` list + obligation as text + JSON |
-| `rust_diagnostic.py` | Compatibility facade; re-exports `DiagnosticOutput` and `generate_diagnostic` |
-| `diagnoser.py` | Differential diagnosis layer (proof_status, taxonomy, root-cause heuristics) |
-| `bpftool_parser.py` | Parse `bpftool prog dump xlated linum` output for source mapping |
-| `reject_info.py` | Extract specific contract mismatch details from error lines |
-| `shared_utils.py` | Register parsing and verifier type family helpers used across modules |
-| `backward_slicing.py` | Top-level backward slice entrypoint (re-exported via proof_engine) |
-| `ir_builder.py` | Build SSA-style trace IR from `ParsedTrace` |
-| `causal_chain.py` | Causal chain extraction helpers |
-| `transitions.py` | Critical state transition detection |
-
-## Notes
-
-- `trace_parser.py`, `proof_engine.py`, and `rust_diagnostic.py` are
-  re-export facades kept for backward compatibility; the real implementations
-  live in their respective `*_parts/` sub-packages.
-- `shared_utils.py` provides register extraction and pointer-type predicates
-  used by multiple stages.
-- The optional `bpftool_xlated` argument to `generate_diagnostic` enables
-  richer source mapping when `bpftool prog dump xlated linum` output is
-  available alongside the verifier log.
+| `pipeline.py` | Top-level orchestration and diagnostic assembly |
+| `log_parser.py` | Terminal verifier error and catalog classification |
+| `trace_parser.py` | Public LOG_LEVEL2 trace parser |
+| `trace_parser_impl.py` | Trace parser implementation |
+| `engine/` | CFG, control dependence, dataflow, slicing, monitor, opcode safety |
+| `source_correlator.py` | Map proof events to source or bytecode spans |
+| `renderer.py` | Render text and schema-compatible JSON |
+| `reject_info.py` | Specialized verifier reject extraction |
+| `bpftool_parser.py` | Parse `bpftool prog dump xlated linum` output |

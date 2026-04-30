@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass, field
 from typing import TypeAlias
 
-from ..shared_utils import is_pointer_type_name, normalize_register
+from .shared_utils import is_pointer_type_name, normalize_register
 
 
 INSTRUCTION_RE = re.compile(

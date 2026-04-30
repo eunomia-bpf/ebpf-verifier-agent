@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..trace_parser_parts._impl import TracedInstruction
+    from ..trace_parser import TracedInstruction
 
 from .cfg_builder import TraceCFG, build_cfg
 from .control_dep import ControlDep, compute_control_dependence, controlling_branches

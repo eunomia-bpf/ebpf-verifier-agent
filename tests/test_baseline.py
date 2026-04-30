@@ -7,9 +7,9 @@ from jsonschema import Draft202012Validator
 import pytest
 import yaml
 
-from core.baseline.error_patterns import match_error_pattern
-from core.baseline.regex_diagnostic import generate_baseline_diagnostic
-from interface.extractor.rust_diagnostic import generate_diagnostic
+from interface.baseline.error_patterns import match_error_pattern
+from interface.baseline.regex_diagnostic import generate_baseline_diagnostic
+from interface.extractor.pipeline import generate_diagnostic
 
 ROOT = Path(__file__).resolve().parents[1]
 
