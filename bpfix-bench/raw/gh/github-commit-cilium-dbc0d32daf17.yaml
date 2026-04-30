@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Moves egress handling into a tail call to avoid the host program growing
+    too large; replay depends on the generated Cilium program size.
 raw:
   case_id: github-commit-cilium-dbc0d32daf17
   source: github_commits

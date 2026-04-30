@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Removes relax_verifier() to save instructions in a historical Cilium 4.9
+    full-datapath build; no standalone rejected operation is present.
 raw:
   case_id: github-commit-cilium-d19889561aed
   source: github_commits

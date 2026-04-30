@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Standalone tc probe for the DSR stale-packet-pointer shape was accepted
+    on kernel-6.15.11-clang-18-log2; the upstream complaint is tied to kernel 4.19.57
+    and no local verifier reject was reproduced.
 raw:
   case_id: github-commit-cilium-ff54dbd703b6
   source: github_commits
@@ -56,8 +58,12 @@ raw:
     \ + sizeof(struct iphdr),\n\t\t\t\t\t   &opt1, sizeof(opt1)) < 0)\n\t\t\t\treturn\
     \ DROP_INVALID;\n\t\t\topt1 = bpf_ntohl(opt1);\n\n\t\t\tif ((opt1 & DSR_IPV4_OPT_MASK)\
     \ == DSR_IPV4_OPT_32) {"
-  diff_summary: |-
-    bpf/bpf_lxc.c:
-    - Added explicit bounds or range guards so the verifier can prove the access size and offset.
-    - Affected context: ipv4_policy(struct __sk_buff *skb, int ifindex, __u32 src_label, __u8 *reason, _.
-    - Commit subject: datapath: Fix 4.19.57 verifier complaint for bpf_lxc w/ DSR.
+  diff_summary: 'bpf/bpf_lxc.c:
+
+    - Added explicit bounds or range guards so the verifier can prove the access size
+    and offset.
+
+    - Affected context: ipv4_policy(struct __sk_buff *skb, int ifindex, __u32 src_label,
+    __u8 *reason, _.
+
+    - Commit subject: datapath: Fix 4.19.57 verifier complaint for bpf_lxc w/ DSR.'

@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Replaces ipcache lookup helpers for older-kernel support; reconstruction
+    would require the unsupported historical helper/map-value behavior.
 raw:
   case_id: github-commit-cilium-d7f58e84d878
   source: github_commits

@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Copies map values to stack only for kernels before 4.18 where helpers could
+    not directly access map values; local 6.15.11 accepts the modern shape.
 raw:
   case_id: github-commit-cilium-d7c5c0c7062f
   source: github_commits

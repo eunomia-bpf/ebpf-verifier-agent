@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: NAT46 support was split into tail calls to stay under the old 4K instruction/complexity
+    limit; replay depends on the historical full datapath.
 raw:
   case_id: github-commit-cilium-9e108c171ed1
   source: github_commits

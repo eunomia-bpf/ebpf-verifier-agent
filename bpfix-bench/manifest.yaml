@@ -274,6 +274,30 @@ cases:
   family_id: github-commit-cilium-bbf57970f552
   representative: true
   capture_id: github-commit-cilium-bbf57970f552__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-c3b65fce8b84
+  path: cases/github-commit-cilium-c3b65fce8b84
+  source_kind: github_commit
+  family_id: github-commit-cilium-c3b65fce8b84
+  representative: true
+  capture_id: github-commit-cilium-c3b65fce8b84__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-caf84595d9cb
+  path: cases/github-commit-cilium-caf84595d9cb
+  source_kind: github_commit
+  family_id: github-commit-cilium-caf84595d9cb
+  representative: true
+  capture_id: github-commit-cilium-caf84595d9cb__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-ceaa4c42b010
+  path: cases/github-commit-cilium-ceaa4c42b010
+  source_kind: github_commit
+  family_id: github-commit-cilium-ceaa4c42b010
+  representative: true
+  capture_id: github-commit-cilium-ceaa4c42b010__kernel-6.15.11-clang-18-log2
+- case_id: github-commit-cilium-de679382fe1e
+  path: cases/github-commit-cilium-de679382fe1e
+  source_kind: github_commit
+  family_id: github-commit-cilium-de679382fe1e
+  representative: true
+  capture_id: github-commit-cilium-de679382fe1e__kernel-6.15.11-clang-18-log2
 - case_id: github-iovisor-bcc-10
   path: cases/github-iovisor-bcc-10
   source_kind: github_issue

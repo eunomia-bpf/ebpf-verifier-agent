@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: not_reconstructable_from_diff
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: A local wildcard-classifier loop probe rejected with The sequence of 8193
+    jumps is too complex, but the fresh log did not parse as trace_rich; the raw record
+    has no verifier log to anchor an admissible terminal error.
 raw:
   case_id: github-commit-cilium-a75f49716581
   source: github_commits

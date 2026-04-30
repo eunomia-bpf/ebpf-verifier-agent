@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Fixes hairpin flow behavior when ENABLE_ROUTING is disabled by tracking
+    loopback service state and allowing local endpoint delivery; the raw record has
+    no verifier log and the diff is runtime forwarding behavior, not a verifier-load
+    failure.
 raw:
   case_id: github-commit-cilium-e9da2245f9db
   source: github_commits

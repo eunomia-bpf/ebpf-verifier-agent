@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Commit body cites a 4.19 full-program complexity failure, BPF program is
+    too large. Processed 131073 insn; local faithful replay requires that historical
+    Cilium build.
 raw:
   case_id: github-commit-cilium-9cbb6e594247
   source: github_commits

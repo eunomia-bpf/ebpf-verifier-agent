@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Fixes an SCTP-over-IPv6 checksum condition in load-balancing logic; no verifier-load
+    failure is implicated.
 raw:
   case_id: github-commit-cilium-9f27973a1052
   source: github_commits

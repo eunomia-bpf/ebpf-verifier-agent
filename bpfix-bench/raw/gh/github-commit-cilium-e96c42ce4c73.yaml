@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Adds relax_verifier() in conntrack/debug slow paths; any failure is old
+    full-datapath verifier complexity without a captured standalone terminal log.
 raw:
   case_id: github-commit-cilium-e96c42ce4c73
   source: github_commits

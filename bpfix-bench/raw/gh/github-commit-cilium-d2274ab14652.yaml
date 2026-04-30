@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Adds a test for larger built-in memcmp lengths while keeping iterations
+    low to avoid test complexity; it is not a verifier rejection fix.
 raw:
   case_id: github-commit-cilium-d2274ab14652
   source: github_commits

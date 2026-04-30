@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Adds tail calls for IPv4-only/IPv6-only setups to control generated datapath
+    complexity; a generic stack-limit reject was not admitted because it does not
+    match the raw complexity failure.
 raw:
   case_id: github-commit-cilium-e62eb70cf03d
   source: github_commits

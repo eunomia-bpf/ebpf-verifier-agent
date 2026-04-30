@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Standalone bpf_get_netns_cookie() sock_addr probe accepted locally; reproducing
+    the raw failure requires a pre-5.8 kernel where the helper is unavailable.
 raw:
   case_id: github-commit-cilium-e607d0c161dc
   source: github_commits

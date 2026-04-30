@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: attempted_accepted
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Local endpoint map-update and memcpy/stack-alignment probes accepted on
+    kernel 6.15.11; the raw record has no terminal verifier log to anchor a stricter
+    reconstruction.
 raw:
   case_id: github-commit-cilium-cf3976af0d06
   source: github_commits
