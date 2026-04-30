@@ -45,24 +45,18 @@ raw:
     author: qingfenghanghua
   verifier_log:
     blocks:
-    - '549: (bf) r2 = r10
-
+    - |-
+      549: (bf) r2 = r10
       550: (07) r2 += -96
-
       551: (18) r1 = 0x0
-
       553: (85) call bpf_map_lookup_elem#1
-
-      R1 type=inv expected=map_ptr'
-    combined: '549: (bf) r2 = r10
-
+      R1 type=inv expected=map_ptr
+    combined: |-
+      549: (bf) r2 = r10
       550: (07) r2 += -96
-
       551: (18) r1 = 0x0
-
       553: (85) call bpf_map_lookup_elem#1
-
-      R1 type=inv expected=map_ptr'
+      R1 type=inv expected=map_ptr
   source_snippets: []
   issue_body_text: "Load balancer_kern.o by iproute2: ip link set dev enp178s0 xdp\
     \ obj balancer_kern.o sec xdp-balancer\nThe output is as follows\uFF1A\nBTF debug\
@@ -76,4 +70,3 @@ raw:
     Error fetching program/map!\nuname -r\n4.18.16-1.el7.elrepo.x86_64\nI amn't sure\
     \ if there is something wrong with my environment"
   fix: {}
-

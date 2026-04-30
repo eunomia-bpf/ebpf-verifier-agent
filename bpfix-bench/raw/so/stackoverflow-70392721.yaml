@@ -42,652 +42,611 @@ raw:
     is_answered: false
   verifier_log:
     blocks:
-    - "root@this:/home/ubuntu/Desktop/ebpf/kern# ./trace_output_user a\nlibbpf: Error\
-      \ loading BTF: Invalid argument(22)\nlibbpf: magic: 0xeb9f\nversion: 1\nflags:\
-      \ 0x0\nhdr_len: 24\ntype_off: 0\ntype_len: 900\nstr_off: 900\nstr_len: 600\n\
-      btf_total_size: 1524\n[1] PTR (anon) type_id=3\n[2] INT int size=4 bits_offset=0\
-      \ nr_bits=32 encoding=SIGNED\n[3] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=4\n\
-      [4] INT __ARRAY_SIZE_TYPE__ size=4 bits_offset=0 nr_bits=32 encoding=(none)\n\
-      [5] PTR (anon) type_id=6\n[6] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=2\n\
-      [7] STRUCT (anon) size=32 vlen=4\n    type type_id=1 bits_offset=0\n    key_size\
-      \ type_id=1 bits_offse\n    key_size type_id=1 bits_offset=64\n    value_size\
-      \ type_id=1 bits_offset=128\n    max_entries type_id=5 bits_offset=192\n[8]\
-      \ VAR my_map type_id=7 linkage=1\n[9] FUNC_PROTO (anon) return=2 args=(10 (anon))\n\
-      [10] PTR (anon) type_id=11\n[11] STRUCT pt_regs size=168 vlen=21\n    r15 type_id=12\
-      \ bits_offset=0\n    r14 type_id=12 bits_offset=64\n    r13 type_id=12 bits_offset=128\n\
-      \    r12 type_id=12 bits_offset=192\n    rbp type_id=12 bits_offset=256\n  \
-      \  rbx type_id=12 bits_offset=320\n    r11 type_id=12 bits_offset=384\n    r10\
-      \ type_id=12 bits_offset=448\n    r9 type_id=12 bits_offset=512\n    r8 type_id=12\
-      \ bits_offset=576\n    rax type_id=12 bits_offset=640\n    rcx type_id=12 bits_offset=704\n\
-      \    rdx type_id=12 bits_offset=768\n    rsi type_id=12 bits_offset=832\n  \
-      \  rdi type_id=12 bits_offset=896\n    orig_rax type_id=12 bits_offset=960\n\
-      \    rip type_id=12 bits_offset=1024\n    cs type_id=12 bits_offset=1088\n \
-      \   eflags type_id=12 bits_offset=1152\n    rsp type_id=12 bits_offset=1216\n\
-      \    ss type_id=12 bits_offset=1280\n[12] INT long unsigned int size=8 bits_offset=0\
-      \ nr_bits=64 encoding=(none)\n[13] FUNC bpf_prog1 type_id=9\n[14] PTR (anon)\
-      \ type_id=15\n[15] FUNC_PROTO (anon) return=16 args=(void)\n[16] TYPEDEF __u64\
-      \ type_id=17\n[17] INT long long unsigned int size=8 bits_offset=0 nr_bits=64\
-      \ encoding=(none)\n[18] VAR bpf_get_current_pid_tgid type_id=14 linkage=0\n\
-      [19] PTR (anon) type_id=20\n[20] FUNC_PROTO (anon) return=21 args=(22 (anon),\
-      \ 22 (anon), 16 (anon), 22 (anon), 16 (anon))\n[21] INT long int size=8 bits_offset=0\
-      \ nr_bits=64 encoding=SIGNED\n[22] PTR (anon) type_id=0\n[23] VAR bpf_perf_event_output\
-      \ type_id=19 linkage=0\n[24] INT char size=1 bits_offset=0 nr_bits=8 encoding=SIGNED\n\
-      [25] ARRAY (anon) type_id=24 index_type_id=4 nr_elems=4\n[26] VAR _license type_id=25\
-      \ linkage=1\n[27] TYPEDEF uint32_t type_id=28\n[28] TYPEDEF __u32 type_id=29\n\
-      [29] INT unsigned int size=4 bits_offset=0 nr_bits=32 encoding=(none)\n[30]\
-      \ VAR _version type_id=27 linkage=1\n[31] DATASEC .data size=16 vlen=2\n   \
-      \  type_id=18 offset=0 size=8\n     type_id=23 offset=8 size=8\n[32] DATASEC\
-      \ .maps size=32 vlen=1\n     type_id=8 offset=0 size=32\n[33] DATASEC license\
-      \ size=4 vlen=1\n     type_id=26 offset=0 size=4\n[34] DATASEC version size=4\
-      \ vlen=1\n     type_id=30 offset=0 size=4\n[13] FUNC bpf_prog1 type_id=9 Invalid\
-      \ arg#1\n\nlibbpf: Error loading .BTF into kernel: -22. BTF is optional, ignoring.\n\
-      libbpf: load bpf program failed: Invalid argument\nlibbpf: -- BEGIN DUMP LOG\
-      \ ---\nlibbpf:\nunknown opcode 8d\nprocessed 0 insns (limit 1000000) max_states_per_insn\
-      \ 0 total_states 0 peak_states 0 mark_read 0\n\nlibbpf: -- END LOG --\nlibbpf:\
-      \ failed to load program 'bpf_prog1'\nlibbpf: failed to load object './trace_output_kern.o'\n\
-      ERROR: loading BPF object file failed"
-    combined: "root@this:/home/ubuntu/Desktop/ebpf/kern# ./trace_output_user a\nlibbpf:\
-      \ Error loading BTF: Invalid argument(22)\nlibbpf: magic: 0xeb9f\nversion: 1\n\
-      flags: 0x0\nhdr_len: 24\ntype_off: 0\ntype_len: 900\nstr_off: 900\nstr_len:\
-      \ 600\nbtf_total_size: 1524\n[1] PTR (anon) type_id=3\n[2] INT int size=4 bits_offset=0\
-      \ nr_bits=32 encoding=SIGNED\n[3] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=4\n\
-      [4] INT __ARRAY_SIZE_TYPE__ size=4 bits_offset=0 nr_bits=32 encoding=(none)\n\
-      [5] PTR (anon) type_id=6\n[6] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=2\n\
-      [7] STRUCT (anon) size=32 vlen=4\n    type type_id=1 bits_offset=0\n    key_size\
-      \ type_id=1 bits_offse\n    key_size type_id=1 bits_offset=64\n    value_size\
-      \ type_id=1 bits_offset=128\n    max_entries type_id=5 bits_offset=192\n[8]\
-      \ VAR my_map type_id=7 linkage=1\n[9] FUNC_PROTO (anon) return=2 args=(10 (anon))\n\
-      [10] PTR (anon) type_id=11\n[11] STRUCT pt_regs size=168 vlen=21\n    r15 type_id=12\
-      \ bits_offset=0\n    r14 type_id=12 bits_offset=64\n    r13 type_id=12 bits_offset=128\n\
-      \    r12 type_id=12 bits_offset=192\n    rbp type_id=12 bits_offset=256\n  \
-      \  rbx type_id=12 bits_offset=320\n    r11 type_id=12 bits_offset=384\n    r10\
-      \ type_id=12 bits_offset=448\n    r9 type_id=12 bits_offset=512\n    r8 type_id=12\
-      \ bits_offset=576\n    rax type_id=12 bits_offset=640\n    rcx type_id=12 bits_offset=704\n\
-      \    rdx type_id=12 bits_offset=768\n    rsi type_id=12 bits_offset=832\n  \
-      \  rdi type_id=12 bits_offset=896\n    orig_rax type_id=12 bits_offset=960\n\
-      \    rip type_id=12 bits_offset=1024\n    cs type_id=12 bits_offset=1088\n \
-      \   eflags type_id=12 bits_offset=1152\n    rsp type_id=12 bits_offset=1216\n\
-      \    ss type_id=12 bits_offset=1280\n[12] INT long unsigned int size=8 bits_offset=0\
-      \ nr_bits=64 encoding=(none)\n[13] FUNC bpf_prog1 type_id=9\n[14] PTR (anon)\
-      \ type_id=15\n[15] FUNC_PROTO (anon) return=16 args=(void)\n[16] TYPEDEF __u64\
-      \ type_id=17\n[17] INT long long unsigned int size=8 bits_offset=0 nr_bits=64\
-      \ encoding=(none)\n[18] VAR bpf_get_current_pid_tgid type_id=14 linkage=0\n\
-      [19] PTR (anon) type_id=20\n[20] FUNC_PROTO (anon) return=21 args=(22 (anon),\
-      \ 22 (anon), 16 (anon), 22 (anon), 16 (anon))\n[21] INT long int size=8 bits_offset=0\
-      \ nr_bits=64 encoding=SIGNED\n[22] PTR (anon) type_id=0\n[23] VAR bpf_perf_event_output\
-      \ type_id=19 linkage=0\n[24] INT char size=1 bits_offset=0 nr_bits=8 encoding=SIGNED\n\
-      [25] ARRAY (anon) type_id=24 index_type_id=4 nr_elems=4\n[26] VAR _license type_id=25\
-      \ linkage=1\n[27] TYPEDEF uint32_t type_id=28\n[28] TYPEDEF __u32 type_id=29\n\
-      [29] INT unsigned int size=4 bits_offset=0 nr_bits=32 encoding=(none)\n[30]\
-      \ VAR _version type_id=27 linkage=1\n[31] DATASEC .data size=16 vlen=2\n   \
-      \  type_id=18 offset=0 size=8\n     type_id=23 offset=8 size=8\n[32] DATASEC\
-      \ .maps size=32 vlen=1\n     type_id=8 offset=0 size=32\n[33] DATASEC license\
-      \ size=4 vlen=1\n     type_id=26 offset=0 size=4\n[34] DATASEC version size=4\
-      \ vlen=1\n     type_id=30 offset=0 size=4\n[13] FUNC bpf_prog1 type_id=9 Invalid\
-      \ arg#1\n\nlibbpf: Error loading .BTF into kernel: -22. BTF is optional, ignoring.\n\
-      libbpf: load bpf program failed: Invalid argument\nlibbpf: -- BEGIN DUMP LOG\
-      \ ---\nlibbpf:\nunknown opcode 8d\nprocessed 0 insns (limit 1000000) max_states_per_insn\
-      \ 0 total_states 0 peak_states 0 mark_read 0\n\nlibbpf: -- END LOG --\nlibbpf:\
-      \ failed to load program 'bpf_prog1'\nlibbpf: failed to load object './trace_output_kern.o'\n\
-      ERROR: loading BPF object file failed"
+    - |-
+      root@this:/home/ubuntu/Desktop/ebpf/kern# ./trace_output_user a
+      libbpf: Error loading BTF: Invalid argument(22)
+      libbpf: magic: 0xeb9f
+      version: 1
+      flags: 0x0
+      hdr_len: 24
+      type_off: 0
+      type_len: 900
+      str_off: 900
+      str_len: 600
+      btf_total_size: 1524
+      [1] PTR (anon) type_id=3
+      [2] INT int size=4 bits_offset=0 nr_bits=32 encoding=SIGNED
+      [3] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=4
+      [4] INT __ARRAY_SIZE_TYPE__ size=4 bits_offset=0 nr_bits=32 encoding=(none)
+      [5] PTR (anon) type_id=6
+      [6] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=2
+      [7] STRUCT (anon) size=32 vlen=4
+          type type_id=1 bits_offset=0
+          key_size type_id=1 bits_offse
+          key_size type_id=1 bits_offset=64
+          value_size type_id=1 bits_offset=128
+          max_entries type_id=5 bits_offset=192
+      [8] VAR my_map type_id=7 linkage=1
+      [9] FUNC_PROTO (anon) return=2 args=(10 (anon))
+      [10] PTR (anon) type_id=11
+      [11] STRUCT pt_regs size=168 vlen=21
+          r15 type_id=12 bits_offset=0
+          r14 type_id=12 bits_offset=64
+          r13 type_id=12 bits_offset=128
+          r12 type_id=12 bits_offset=192
+          rbp type_id=12 bits_offset=256
+          rbx type_id=12 bits_offset=320
+          r11 type_id=12 bits_offset=384
+          r10 type_id=12 bits_offset=448
+          r9 type_id=12 bits_offset=512
+          r8 type_id=12 bits_offset=576
+          rax type_id=12 bits_offset=640
+          rcx type_id=12 bits_offset=704
+          rdx type_id=12 bits_offset=768
+          rsi type_id=12 bits_offset=832
+          rdi type_id=12 bits_offset=896
+          orig_rax type_id=12 bits_offset=960
+          rip type_id=12 bits_offset=1024
+          cs type_id=12 bits_offset=1088
+          eflags type_id=12 bits_offset=1152
+          rsp type_id=12 bits_offset=1216
+          ss type_id=12 bits_offset=1280
+      [12] INT long unsigned int size=8 bits_offset=0 nr_bits=64 encoding=(none)
+      [13] FUNC bpf_prog1 type_id=9
+      [14] PTR (anon) type_id=15
+      [15] FUNC_PROTO (anon) return=16 args=(void)
+      [16] TYPEDEF __u64 type_id=17
+      [17] INT long long unsigned int size=8 bits_offset=0 nr_bits=64 encoding=(none)
+      [18] VAR bpf_get_current_pid_tgid type_id=14 linkage=0
+      [19] PTR (anon) type_id=20
+      [20] FUNC_PROTO (anon) return=21 args=(22 (anon), 22 (anon), 16 (anon), 22 (anon), 16 (anon))
+      [21] INT long int size=8 bits_offset=0 nr_bits=64 encoding=SIGNED
+      [22] PTR (anon) type_id=0
+      [23] VAR bpf_perf_event_output type_id=19 linkage=0
+      [24] INT char size=1 bits_offset=0 nr_bits=8 encoding=SIGNED
+      [25] ARRAY (anon) type_id=24 index_type_id=4 nr_elems=4
+      [26] VAR _license type_id=25 linkage=1
+      [27] TYPEDEF uint32_t type_id=28
+      [28] TYPEDEF __u32 type_id=29
+      [29] INT unsigned int size=4 bits_offset=0 nr_bits=32 encoding=(none)
+      [30] VAR _version type_id=27 linkage=1
+      [31] DATASEC .data size=16 vlen=2
+           type_id=18 offset=0 size=8
+           type_id=23 offset=8 size=8
+      [32] DATASEC .maps size=32 vlen=1
+           type_id=8 offset=0 size=32
+      [33] DATASEC license size=4 vlen=1
+           type_id=26 offset=0 size=4
+      [34] DATASEC version size=4 vlen=1
+           type_id=30 offset=0 size=4
+      [13] FUNC bpf_prog1 type_id=9 Invalid arg#1
+
+      libbpf: Error loading .BTF into kernel: -22. BTF is optional, ignoring.
+      libbpf: load bpf program failed: Invalid argument
+      libbpf: -- BEGIN DUMP LOG ---
+      libbpf:
+      unknown opcode 8d
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+
+      libbpf: -- END LOG --
+      libbpf: failed to load program 'bpf_prog1'
+      libbpf: failed to load object './trace_output_kern.o'
+      ERROR: loading BPF object file failed
+    combined: |-
+      root@this:/home/ubuntu/Desktop/ebpf/kern# ./trace_output_user a
+      libbpf: Error loading BTF: Invalid argument(22)
+      libbpf: magic: 0xeb9f
+      version: 1
+      flags: 0x0
+      hdr_len: 24
+      type_off: 0
+      type_len: 900
+      str_off: 900
+      str_len: 600
+      btf_total_size: 1524
+      [1] PTR (anon) type_id=3
+      [2] INT int size=4 bits_offset=0 nr_bits=32 encoding=SIGNED
+      [3] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=4
+      [4] INT __ARRAY_SIZE_TYPE__ size=4 bits_offset=0 nr_bits=32 encoding=(none)
+      [5] PTR (anon) type_id=6
+      [6] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=2
+      [7] STRUCT (anon) size=32 vlen=4
+          type type_id=1 bits_offset=0
+          key_size type_id=1 bits_offse
+          key_size type_id=1 bits_offset=64
+          value_size type_id=1 bits_offset=128
+          max_entries type_id=5 bits_offset=192
+      [8] VAR my_map type_id=7 linkage=1
+      [9] FUNC_PROTO (anon) return=2 args=(10 (anon))
+      [10] PTR (anon) type_id=11
+      [11] STRUCT pt_regs size=168 vlen=21
+          r15 type_id=12 bits_offset=0
+          r14 type_id=12 bits_offset=64
+          r13 type_id=12 bits_offset=128
+          r12 type_id=12 bits_offset=192
+          rbp type_id=12 bits_offset=256
+          rbx type_id=12 bits_offset=320
+          r11 type_id=12 bits_offset=384
+          r10 type_id=12 bits_offset=448
+          r9 type_id=12 bits_offset=512
+          r8 type_id=12 bits_offset=576
+          rax type_id=12 bits_offset=640
+          rcx type_id=12 bits_offset=704
+          rdx type_id=12 bits_offset=768
+          rsi type_id=12 bits_offset=832
+          rdi type_id=12 bits_offset=896
+          orig_rax type_id=12 bits_offset=960
+          rip type_id=12 bits_offset=1024
+          cs type_id=12 bits_offset=1088
+          eflags type_id=12 bits_offset=1152
+          rsp type_id=12 bits_offset=1216
+          ss type_id=12 bits_offset=1280
+      [12] INT long unsigned int size=8 bits_offset=0 nr_bits=64 encoding=(none)
+      [13] FUNC bpf_prog1 type_id=9
+      [14] PTR (anon) type_id=15
+      [15] FUNC_PROTO (anon) return=16 args=(void)
+      [16] TYPEDEF __u64 type_id=17
+      [17] INT long long unsigned int size=8 bits_offset=0 nr_bits=64 encoding=(none)
+      [18] VAR bpf_get_current_pid_tgid type_id=14 linkage=0
+      [19] PTR (anon) type_id=20
+      [20] FUNC_PROTO (anon) return=21 args=(22 (anon), 22 (anon), 16 (anon), 22 (anon), 16 (anon))
+      [21] INT long int size=8 bits_offset=0 nr_bits=64 encoding=SIGNED
+      [22] PTR (anon) type_id=0
+      [23] VAR bpf_perf_event_output type_id=19 linkage=0
+      [24] INT char size=1 bits_offset=0 nr_bits=8 encoding=SIGNED
+      [25] ARRAY (anon) type_id=24 index_type_id=4 nr_elems=4
+      [26] VAR _license type_id=25 linkage=1
+      [27] TYPEDEF uint32_t type_id=28
+      [28] TYPEDEF __u32 type_id=29
+      [29] INT unsigned int size=4 bits_offset=0 nr_bits=32 encoding=(none)
+      [30] VAR _version type_id=27 linkage=1
+      [31] DATASEC .data size=16 vlen=2
+           type_id=18 offset=0 size=8
+           type_id=23 offset=8 size=8
+      [32] DATASEC .maps size=32 vlen=1
+           type_id=8 offset=0 size=32
+      [33] DATASEC license size=4 vlen=1
+           type_id=26 offset=0 size=4
+      [34] DATASEC version size=4 vlen=1
+           type_id=30 offset=0 size=4
+      [13] FUNC bpf_prog1 type_id=9 Invalid arg#1
+
+      libbpf: Error loading .BTF into kernel: -22. BTF is optional, ignoring.
+      libbpf: load bpf program failed: Invalid argument
+      libbpf: -- BEGIN DUMP LOG ---
+      libbpf:
+      unknown opcode 8d
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+
+      libbpf: -- END LOG --
+      libbpf: failed to load program 'bpf_prog1'
+      libbpf: failed to load object './trace_output_kern.o'
+      ERROR: loading BPF object file failed
   source_snippets:
-  - "#include <linux/ptrace.h>\n#include <linux/version.h>\n#include <linux/bpf.h>\n\
-    #include <bpf/bpf_helpers.h>\n#include <linux/types.h>\n\n#define __TRACE_COMMON_H\n\
-    #define SYSCALL(SYS) \"__x64_\" __stringify(SYS)\n\nstruct bpf_map_def SEC(\"\
-    maps\") my_map = {\n      .type        = BPF_MAP_TYPE_ARRAY,\n      .key_size\
-    \    = sizeof(int),\n      .value_size  = sizeof(int),\n      .max_entries = 42,\n\
-    \      .map_flags   = 0\n};\n\nSEC(\"kprobe/sys_write\")\nint bpf_prog1(struct\
-    \ pt_regs *ctx)\n{\n    struct S {\n        int pid;\n        int cookie;\n  \
-    \  } data;\n\n    data.pid = bpf_get_current_pid_tgid();\n    data.cookie = 99;\n\
-    \n    bpf_perf_event_output(ctx, &my_map, 0, &data, sizeof(data));\n\n    return\
-    \ 0;\n}\n\nchar _license[] SEC(\"license\") = \"GPL\";\nint _version SEC(\"version\"\
-    ) = 190;"
-  - "// SPDX-License-Identifier: GPL-2.0-only\n#include <stdio.h>\n#include <fcntl.h>\n\
-    #include <poll.h>\n#include <time.h>\n#include <signal.h>\n#include <bpf/libbpf.h>\n\
-    \n//create .o file root@this:/home/ubuntu/Desktop/ebpf/kern# clang -I /lib/modules/5.14.1/build\
-    \ -I /usr/include/bpf/ -O2 -Wall -c trace_output_user.c\n\nstatic __u64 time_get_ns(void)\n\
-    {\n    struct timespec ts;\n\n    clock_gettime(CLOCK_MONOTONIC, &ts);\n    return\
-    \ ts.tv_sec * 1000000000ull + ts.tv_nsec;\n}\n\nstatic __u64 start_time;\nstatic\
-    \ __u64 cnt;\n\n#define MAX_CNT 100000ll\n\nstatic void print_bpf_output(void\
-    \ *ctx, int cpu, void *data, __u32 size)\n{\n    struct {\n        int pid;\n\
-    \        int cookie;\n    } *e = data;\n\n    if (e->cookie != 0x12345678) {\n\
-    \        printf(\"BUG pid %llx cookie %llx sized %d\\n\",\n               e->pid,\
-    \ e->cookie, size);\n        return;\n    }\n\n    cnt++;\n\n    if (cnt == MAX_CNT)\
-    \ {\n        printf(\"recv %lld events per sec\\n\",\n               MAX_CNT *\
-    \ 1000000000ll / (time_get_ns() - start_time));\n        return;\n    }\n}\n\n\
-    int main(int argc, char **argv)\n{\n    struct perf_buffer_opts pb_opts = {};\n\
-    \    struct bpf_link *link = NULL;\n    struct bpf_program *prog;\n    struct\
-    \ perf_buffer *pb;\n    struct bpf_object *obj;\n    int map_fd, ret = 0;\n  \
-    \  char filename[256];\n    FILE *f;\n\n    //snprintf(filename, sizeof(filename),\
-    \ \"..o\", argv[0]);\n    obj = bpf_object__open_file(\"./trace_output_kern.o\"\
-    , NULL);\n    if (libbpf_get_error(obj)) {\n        fprintf(stderr, \"ERROR: opening\
-    \ BPF object file failed\\n\");\n        return 0;\n    }\n\n    /* load BPF program\
-    \ */\n    if (bpf_object__load(obj)) {\n        fprintf(stderr, \"ERROR: loading\
-    \ BPF object file failed\\n\");\n        goto cleanup;\n    }\n\n    map_fd =\
-    \ bpf_object__find_map_fd_by_name(obj, \"my_map\");\n    if (map_fd < 0) {\n \
-    \       fprintf(stderr, \"ERROR: finding a map in obj file failed\\n\");\n   \
-    \     goto cleanup;\n    }\n\n    prog = bpf_object__find_program_by_name(obj,\
-    \ \"bpf_prog1\");\n    if (libbpf_get_error(prog)) {\n        fprintf(stderr,\
-    \ \"ERROR: finding a prog in obj file failed\\n\");\n        goto cleanup;\n \
-    \   }\n\n    link = bpf_program__attach(prog);\n    if (libbpf_get_error(link))\
-    \ {\n        fprintf(stderr, \"ERROR: bpf_program__attach failed\\n\");\n    \
-    \    link = NULL;\n        goto cleanup;\n    }\n\n    pb_opts.sample_cb = print_bpf_output;\n\
-    \    pb = perf_buffer__new(map_fd, 8, &pb_opts);\n    ret = libbpf_get_error(pb);\n\
-    \    if (ret) {\n        printf(\"failed to setup perf_buffer: %d\\n\", ret);\n\
-    \        return 1;\n    }\n\n    f = popen(\"taskset 1 dd if=/dev/zero of=/dev/null\"\
-    , \"r\");\n    (void) f;\n\n    start_time = time_get_ns();\n    while ((ret =\
-    \ perf_buffer__poll(pb, 1000)) >= 0 && cnt < MAX_CNT) {\n    }\n    kill(0, SIGINT);\n\
-    \ncleanup:\n    bpf_link__destroy(link);\n    bpf_object__close(obj);\n    return\
-    \ ret;\n}"
-  - "trace_output_kern.o:    file format elf64-bpf\n\nDisassembly of section kprobe/sys_write:\n\
-    \n0000000000000000 <bpf_prog1>:\n; {\n       0:   7b 1a f8 ff 00 00 00 00 *(u64\
-    \ *)(r10 - 8) = r1\n;     data.pid = bpf_get_current_pid_tgid();\n       1:  \
-    \ 18 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 r1 = 0 ll\n       3:   79 11\
-    \ 00 00 00 00 00 00 r1 = *(u64 *)(r1 + 0)\n       4:   8d 00 00 00 01 00 00 00\
-    \ callx r1\n       5:   7b 0a e8 ff 00 00 00 00 *(u64 *)(r10 - 24) = r0\n    \
-    \   6:   b7 01 00 00 78 56 34 12 r1 = 305419896\n;     data.cookie = 0x12345678;\n\
-    \       7:   7b 1a f0 ff 00 00 00 00 *(u64 *)(r10 - 16) = r1\n;     bpf_perf_event_output(ctx,\
-    \ &my_map, 0, &data, sizeof(data));\n       8:   18 01 00 00 08 00 00 00 00 00\
-    \ 00 00 00 00 00 00 r1 = 8 ll\n      10:   79 10 00 00 00 00 00 00 r0 = *(u64\
-    \ *)(r1 + 0)\n      11:   79 a1 f8 ff 00 00 00 00 r1 = *(u64 *)(r10 - 8)\n   \
-    \   12:   18 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 r2 = 0 ll\n      14:\
-    \   b7 03 00 00 00 00 00 00 r3 = 0\n      15:   7b 3a e0 ff 00 00 00 00 *(u64\
-    \ *)(r10 - 32) = r3\n      16:   bf a4 00 00 00 00 00 00 r4 = r10\n;     data.pid\
-    \ = bpf_get_current_pid_tgid();\n      17:   07 04 00 00 e8 ff ff ff r4 += -24\n\
-    \      18:   b7 05 00 00 10 00 00 00 r5 = 16\n;     bpf_perf_event_output(ctx,\
-    \ &my_map, 0, &data, sizeof(data));\n      19:   8d 00 00 00 00 00 00 00 callx\
-    \ r0\n;     return 0;\n      20:   79 a0 e0 ff 00 00 00 00 r0 = *(u64 *)(r10 -\
-    \ 32)\n      21:   95 00 00 00 00 00 00 00 exit\nroot@this:/home/ubuntu/Desktop/ebpf/kern#\
-    \ ^C\nroot@this:/home/ubuntu/Desktop/ebpf/kern# ^C"
-  question_body_text: 'This is my ebpf program
-
+  - |-
     #include <linux/ptrace.h>
-
     #include <linux/version.h>
-
     #include <linux/bpf.h>
-
     #include <bpf/bpf_helpers.h>
-
     #include <linux/types.h>
 
     #define __TRACE_COMMON_H
-
     #define SYSCALL(SYS) "__x64_" __stringify(SYS)
 
     struct bpf_map_def SEC("maps") my_map = {
-
-    .type = BPF_MAP_TYPE_ARRAY,
-
-    .key_size = sizeof(int),
-
-    .value_size = sizeof(int),
-
-    .max_entries = 42,
-
-    .map_flags = 0
-
+          .type        = BPF_MAP_TYPE_ARRAY,
+          .key_size    = sizeof(int),
+          .value_size  = sizeof(int),
+          .max_entries = 42,
+          .map_flags   = 0
     };
 
     SEC("kprobe/sys_write")
-
     int bpf_prog1(struct pt_regs *ctx)
-
     {
+        struct S {
+            int pid;
+            int cookie;
+        } data;
 
-    struct S {
+        data.pid = bpf_get_current_pid_tgid();
+        data.cookie = 99;
 
-    int pid;
+        bpf_perf_event_output(ctx, &my_map, 0, &data, sizeof(data));
 
-    int cookie;
-
-    } data;
-
-    data.pid = bpf_get_current_pid_tgid();
-
-    data.cookie = 99;
-
-    bpf_perf_event_output(ctx, &my_map, 0, &data, sizeof(data));
-
-    return 0;
-
+        return 0;
     }
 
     char _license[] SEC("license") = "GPL";
-
     int _version SEC("version") = 190;
-
-    And I am trying to compile ebpf program and load it like following
-
-    root@this:/home/ubuntu/Desktop/ebpf/kern# clang -g -target bpf -c trace_output_kern.c
-    -o trace_output_kern.o
-
-    but when I run it it throws error that
-
-    root@this:/home/ubuntu/Desktop/ebpf/kern# ./trace_output_user a
-
-    libbpf: Error loading BTF: Invalid argument(22)
-
-    libbpf: magic: 0xeb9f
-
-    version: 1
-
-    flags: 0x0
-
-    hdr_len: 24
-
-    type_off: 0
-
-    type_len: 900
-
-    str_off: 900
-
-    str_len: 600
-
-    btf_total_size: 1524
-
-    [1] PTR (anon) type_id=3
-
-    [2] INT int size=4 bits_offset=0 nr_bits=32 encoding=SIGNED
-
-    [3] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=4
-
-    [4] INT __ARRAY_SIZE_TYPE__ size=4 bits_offset=0 nr_bits=32 encoding=(none)
-
-    [5] PTR (anon) type_id=6
-
-    [6] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=2
-
-    [7] STRUCT (anon) size=32 vlen=4
-
-    type type_id=1 bits_offset=0
-
-    key_size type_id=1 bits_offse
-
-    key_size type_id=1 bits_offset=64
-
-    value_size type_id=1 bits_offset=128
-
-    max_entries type_id=5 bits_offset=192
-
-    [8] VAR my_map type_id=7 linkage=1
-
-    [9] FUNC_PROTO (anon) return=2 args=(10 (anon))
-
-    [10] PTR (anon) type_id=11
-
-    [11] STRUCT pt_regs size=168 vlen=21
-
-    r15 type_id=12 bits_offset=0
-
-    r14 type_id=12 bits_offset=64
-
-    r13 type_id=12 bits_offset=128
-
-    r12 type_id=12 bits_offset=192
-
-    rbp type_id=12 bits_offset=256
-
-    rbx type_id=12 bits_offset=320
-
-    r11 type_id=12 bits_offset=384
-
-    r10 type_id=12 bits_offset=448
-
-    r9 type_id=12 bits_offset=512
-
-    r8 type_id=12 bits_offset=576
-
-    rax type_id=12 bits_offset=640
-
-    rcx type_id=12 bits_offset=704
-
-    rdx type_id=12 bits_offset=768
-
-    rsi type_id=12 bits_offset=832
-
-    rdi type_id=12 bits_offset=896
-
-    orig_rax type_id=12 bits_offset=960
-
-    rip type_id=12 bits_offset=1024
-
-    cs type_id=12 bits_offset=1088
-
-    eflags type_id=12 bits_offset=1152
-
-    rsp type_id=12 bits_offset=1216
-
-    ss type_id=12 bits_offset=1280
-
-    [12] INT long unsigned int size=8 bits_offset=0 nr_bits=64 encoding=(none)
-
-    [13] FUNC bpf_prog1 type_id=9
-
-    [14] PTR (anon) type_id=15
-
-    [15] FUNC_PROTO (anon) return=16 args=(void)
-
-    [16] TYPEDEF __u64 type_id=17
-
-    [17] INT long long unsigned int size=8 bits_offset=0 nr_bits=64 encoding=(none)
-
-    [18] VAR bpf_get_current_pid_tgid type_id=14 linkage=0
-
-    [19] PTR (anon) type_id=20
-
-    [20] FUNC_PROTO (anon) return=21 args=(22 (anon), 22 (anon), 16 (anon), 22 (anon),
-    16 (anon))
-
-    [21] INT long int size=8 bits_offset=0 nr_bits=64 encoding=SIGNED
-
-    [22] PTR (anon) type_id=0
-
-    [23] VAR bpf_perf_event_output type_id=19 linkage=0
-
-    [24] INT char size=1 bits_offset=0 nr_bits=8 encoding=SIGNED
-
-    [25] ARRAY (anon) type_id=24 index_type_id=4 nr_elems=4
-
-    [26] VAR _license type_id=25 linkage=1
-
-    [27] TYPEDEF uint32_t type_id=28
-
-    [28] TYPEDEF __u32 type_id=29
-
-    [29] INT unsigned int size=4 bits_offset=0 nr_bits=32 encoding=(none)
-
-    [30] VAR _version type_id=27 linkage=1
-
-    [31] DATASEC .data size=16 vlen=2
-
-    type_id=18 offset=0 size=8
-
-    type_id=23 offset=8 size=8
-
-    [32] DATASEC .maps size=32 vlen=1
-
-    type_id=8 offset=0 size=32
-
-    [33] DATASEC license size=4 vlen=1
-
-    type_id=26 offset=0 size=4
-
-    [34] DATASEC version size=4 vlen=1
-
-    type_id=30 offset=0 size=4
-
-    [13] FUNC bpf_prog1 type_id=9 Invalid arg#1
-
-    libbpf: Error loading .BTF into kernel: -22. BTF is optional, ignoring.
-
-    libbpf: load bpf program failed: Invalid argument
-
-    libbpf: -- BEGIN DUMP LOG ---
-
-    libbpf:
-
-    unknown opcode 8d
-
-    processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-    0 mark_read 0
-
-    libbpf: -- END LOG --
-
-    libbpf: failed to load program ''bpf_prog1''
-
-    libbpf: failed to load object ''./trace_output_kern.o''
-
-    ERROR: loading BPF object file failed
-
-    Update
-
-    and this is my trace_output_user.c
-
+  - |-
     // SPDX-License-Identifier: GPL-2.0-only
-
     #include <stdio.h>
-
     #include <fcntl.h>
-
     #include <poll.h>
-
     #include <time.h>
-
     #include <signal.h>
-
     #include <bpf/libbpf.h>
 
-    //create .o file root@this:/home/ubuntu/Desktop/ebpf/kern# clang -I /lib/modules/5.14.1/build
-    -I /usr/include/bpf/ -O2 -Wall -c trace_output_user.c
+    //create .o file root@this:/home/ubuntu/Desktop/ebpf/kern# clang -I /lib/modules/5.14.1/build -I /usr/include/bpf/ -O2 -Wall -c trace_output_user.c
 
     static __u64 time_get_ns(void)
-
     {
+        struct timespec ts;
 
-    struct timespec ts;
-
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-
-    return ts.tv_sec * 1000000000ull + ts.tv_nsec;
-
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        return ts.tv_sec * 1000000000ull + ts.tv_nsec;
     }
 
     static __u64 start_time;
-
     static __u64 cnt;
 
     #define MAX_CNT 100000ll
 
     static void print_bpf_output(void *ctx, int cpu, void *data, __u32 size)
-
     {
+        struct {
+            int pid;
+            int cookie;
+        } *e = data;
 
-    struct {
+        if (e->cookie != 0x12345678) {
+            printf("BUG pid %llx cookie %llx sized %d\n",
+                   e->pid, e->cookie, size);
+            return;
+        }
 
-    int pid;
+        cnt++;
 
-    int cookie;
-
-    } *e = data;
-
-    if (e->cookie != 0x12345678) {
-
-    printf("BUG pid %llx cookie %llx sized %d\n",
-
-    e->pid, e->cookie, size);
-
-    return;
-
-    }
-
-    cnt++;
-
-    if (cnt == MAX_CNT) {
-
-    printf("recv %lld events per sec\n",
-
-    MAX_CNT * 1000000000ll / (time_get_ns() - start_time));
-
-    return;
-
-    }
-
+        if (cnt == MAX_CNT) {
+            printf("recv %lld events per sec\n",
+                   MAX_CNT * 1000000000ll / (time_get_ns() - start_time));
+            return;
+        }
     }
 
     int main(int argc, char **argv)
-
     {
+        struct perf_buffer_opts pb_opts = {};
+        struct bpf_link *link = NULL;
+        struct bpf_program *prog;
+        struct perf_buffer *pb;
+        struct bpf_object *obj;
+        int map_fd, ret = 0;
+        char filename[256];
+        FILE *f;
 
-    struct perf_buffer_opts pb_opts = {};
+        //snprintf(filename, sizeof(filename), "..o", argv[0]);
+        obj = bpf_object__open_file("./trace_output_kern.o", NULL);
+        if (libbpf_get_error(obj)) {
+            fprintf(stderr, "ERROR: opening BPF object file failed\n");
+            return 0;
+        }
 
-    struct bpf_link *link = NULL;
+        /* load BPF program */
+        if (bpf_object__load(obj)) {
+            fprintf(stderr, "ERROR: loading BPF object file failed\n");
+            goto cleanup;
+        }
 
-    struct bpf_program *prog;
+        map_fd = bpf_object__find_map_fd_by_name(obj, "my_map");
+        if (map_fd < 0) {
+            fprintf(stderr, "ERROR: finding a map in obj file failed\n");
+            goto cleanup;
+        }
 
-    struct perf_buffer *pb;
+        prog = bpf_object__find_program_by_name(obj, "bpf_prog1");
+        if (libbpf_get_error(prog)) {
+            fprintf(stderr, "ERROR: finding a prog in obj file failed\n");
+            goto cleanup;
+        }
 
-    struct bpf_object *obj;
+        link = bpf_program__attach(prog);
+        if (libbpf_get_error(link)) {
+            fprintf(stderr, "ERROR: bpf_program__attach failed\n");
+            link = NULL;
+            goto cleanup;
+        }
 
-    int map_fd, ret = 0;
+        pb_opts.sample_cb = print_bpf_output;
+        pb = perf_buffer__new(map_fd, 8, &pb_opts);
+        ret = libbpf_get_error(pb);
+        if (ret) {
+            printf("failed to setup perf_buffer: %d\n", ret);
+            return 1;
+        }
 
-    char filename[256];
+        f = popen("taskset 1 dd if=/dev/zero of=/dev/null", "r");
+        (void) f;
 
-    FILE *f;
-
-    //snprintf(filename, sizeof(filename), "..o", argv[0]);
-
-    obj = bpf_object__open_file("./trace_output_kern.o", NULL);
-
-    if (libbpf_get_error(obj)) {
-
-    fprintf(stderr, "ERROR: opening BPF object file failed\n");
-
-    return 0;
-
-    }
-
-    /* load BPF program */
-
-    if (bpf_object__load(obj)) {
-
-    fprintf(stderr, "ERROR: loading BPF object file failed\n");
-
-    goto cleanup;
-
-    }
-
-    map_fd = bpf_object__find_map_fd_by_name(obj, "my_map");
-
-    if (map_fd < 0) {
-
-    fprintf(stderr, "ERROR: finding a map in obj file failed\n");
-
-    goto cleanup;
-
-    }
-
-    prog = bpf_object__find_program_by_name(obj, "bpf_prog1");
-
-    if (libbpf_get_error(prog)) {
-
-    fprintf(stderr, "ERROR: finding a prog in obj file failed\n");
-
-    goto cleanup;
-
-    }
-
-    link = bpf_program__attach(prog);
-
-    if (libbpf_get_error(link)) {
-
-    fprintf(stderr, "ERROR: bpf_program__attach failed\n");
-
-    link = NULL;
-
-    goto cleanup;
-
-    }
-
-    pb_opts.sample_cb = print_bpf_output;
-
-    pb = perf_buffer__new(map_fd, 8, &pb_opts);
-
-    ret = libbpf_get_error(pb);
-
-    if (ret) {
-
-    printf("failed to setup perf_buffer: %d\n", ret);
-
-    return 1;
-
-    }
-
-    f = popen("taskset 1 dd if=/dev/zero of=/dev/null", "r");
-
-    (void) f;
-
-    start_time = time_get_ns();
-
-    while ((ret = perf_buffer__poll(pb, 1000)) >= 0 && cnt < MAX_CNT) {
-
-    }
-
-    kill(0, SIGINT);
+        start_time = time_get_ns();
+        while ((ret = perf_buffer__poll(pb, 1000)) >= 0 && cnt < MAX_CNT) {
+        }
+        kill(0, SIGINT);
 
     cleanup:
-
-    bpf_link__destroy(link);
-
-    bpf_object__close(obj);
-
-    return ret;
-
+        bpf_link__destroy(link);
+        bpf_object__close(obj);
+        return ret;
     }
-
-    llvm-objdump output
-
-    trace_output_kern.o: file format elf64-bpf
+  - |-
+    trace_output_kern.o:    file format elf64-bpf
 
     Disassembly of section kprobe/sys_write:
 
     0000000000000000 <bpf_prog1>:
-
     ; {
-
-    0: 7b 1a f8 ff 00 00 00 00 *(u64 *)(r10 - 8) = r1
-
-    ; data.pid = bpf_get_current_pid_tgid();
-
-    1: 18 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 r1 = 0 ll
-
-    3: 79 11 00 00 00 00 00 00 r1 = *(u64 *)(r1 + 0)
-
-    4: 8d 00 00 00 01 00 00 00 callx r1
-
-    5: 7b 0a e8 ff 00 00 00 00 *(u64 *)(r10 - 24) = r0
-
-    6: b7 01 00 00 78 56 34 12 r1 = 305419896
-
-    ; data.cookie = 0x12345678;
-
-    7: 7b 1a f0 ff 00 00 00 00 *(u64 *)(r10 - 16) = r1
-
-    ; bpf_perf_event_output(ctx, &my_map, 0, &data, sizeof(data));
-
-    8: 18 01 00 00 08 00 00 00 00 00 00 00 00 00 00 00 r1 = 8 ll
-
-    10: 79 10 00 00 00 00 00 00 r0 = *(u64 *)(r1 + 0)
-
-    11: 79 a1 f8 ff 00 00 00 00 r1 = *(u64 *)(r10 - 8)
-
-    12: 18 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 r2 = 0 ll
-
-    14: b7 03 00 00 00 00 00 00 r3 = 0
-
-    15: 7b 3a e0 ff 00 00 00 00 *(u64 *)(r10 - 32) = r3
-
-    16: bf a4 00 00 00 00 00 00 r4 = r10
-
-    ; data.pid = bpf_get_current_pid_tgid();
-
-    17: 07 04 00 00 e8 ff ff ff r4 += -24
-
-    18: b7 05 00 00 10 00 00 00 r5 = 16
-
-    ; bpf_perf_event_output(ctx, &my_map, 0, &data, sizeof(data));
-
-    19: 8d 00 00 00 00 00 00 00 callx r0
-
-    ; return 0;
-
-    20: 79 a0 e0 ff 00 00 00 00 r0 = *(u64 *)(r10 - 32)
-
-    21: 95 00 00 00 00 00 00 00 exit
-
+           0:   7b 1a f8 ff 00 00 00 00 *(u64 *)(r10 - 8) = r1
+    ;     data.pid = bpf_get_current_pid_tgid();
+           1:   18 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 r1 = 0 ll
+           3:   79 11 00 00 00 00 00 00 r1 = *(u64 *)(r1 + 0)
+           4:   8d 00 00 00 01 00 00 00 callx r1
+           5:   7b 0a e8 ff 00 00 00 00 *(u64 *)(r10 - 24) = r0
+           6:   b7 01 00 00 78 56 34 12 r1 = 305419896
+    ;     data.cookie = 0x12345678;
+           7:   7b 1a f0 ff 00 00 00 00 *(u64 *)(r10 - 16) = r1
+    ;     bpf_perf_event_output(ctx, &my_map, 0, &data, sizeof(data));
+           8:   18 01 00 00 08 00 00 00 00 00 00 00 00 00 00 00 r1 = 8 ll
+          10:   79 10 00 00 00 00 00 00 r0 = *(u64 *)(r1 + 0)
+          11:   79 a1 f8 ff 00 00 00 00 r1 = *(u64 *)(r10 - 8)
+          12:   18 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 r2 = 0 ll
+          14:   b7 03 00 00 00 00 00 00 r3 = 0
+          15:   7b 3a e0 ff 00 00 00 00 *(u64 *)(r10 - 32) = r3
+          16:   bf a4 00 00 00 00 00 00 r4 = r10
+    ;     data.pid = bpf_get_current_pid_tgid();
+          17:   07 04 00 00 e8 ff ff ff r4 += -24
+          18:   b7 05 00 00 10 00 00 00 r5 = 16
+    ;     bpf_perf_event_output(ctx, &my_map, 0, &data, sizeof(data));
+          19:   8d 00 00 00 00 00 00 00 callx r0
+    ;     return 0;
+          20:   79 a0 e0 ff 00 00 00 00 r0 = *(u64 *)(r10 - 32)
+          21:   95 00 00 00 00 00 00 00 exit
     root@this:/home/ubuntu/Desktop/ebpf/kern# ^C
-
-    root@this:/home/ubuntu/Desktop/ebpf/kern# ^C'
+    root@this:/home/ubuntu/Desktop/ebpf/kern# ^C
+  question_body_text: |-
+    This is my ebpf program
+    #include <linux/ptrace.h>
+    #include <linux/version.h>
+    #include <linux/bpf.h>
+    #include <bpf/bpf_helpers.h>
+    #include <linux/types.h>
+    #define __TRACE_COMMON_H
+    #define SYSCALL(SYS) "__x64_" __stringify(SYS)
+    struct bpf_map_def SEC("maps") my_map = {
+    .type = BPF_MAP_TYPE_ARRAY,
+    .key_size = sizeof(int),
+    .value_size = sizeof(int),
+    .max_entries = 42,
+    .map_flags = 0
+    };
+    SEC("kprobe/sys_write")
+    int bpf_prog1(struct pt_regs *ctx)
+    {
+    struct S {
+    int pid;
+    int cookie;
+    } data;
+    data.pid = bpf_get_current_pid_tgid();
+    data.cookie = 99;
+    bpf_perf_event_output(ctx, &my_map, 0, &data, sizeof(data));
+    return 0;
+    }
+    char _license[] SEC("license") = "GPL";
+    int _version SEC("version") = 190;
+    And I am trying to compile ebpf program and load it like following
+    root@this:/home/ubuntu/Desktop/ebpf/kern# clang -g -target bpf -c trace_output_kern.c -o trace_output_kern.o
+    but when I run it it throws error that
+    root@this:/home/ubuntu/Desktop/ebpf/kern# ./trace_output_user a
+    libbpf: Error loading BTF: Invalid argument(22)
+    libbpf: magic: 0xeb9f
+    version: 1
+    flags: 0x0
+    hdr_len: 24
+    type_off: 0
+    type_len: 900
+    str_off: 900
+    str_len: 600
+    btf_total_size: 1524
+    [1] PTR (anon) type_id=3
+    [2] INT int size=4 bits_offset=0 nr_bits=32 encoding=SIGNED
+    [3] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=4
+    [4] INT __ARRAY_SIZE_TYPE__ size=4 bits_offset=0 nr_bits=32 encoding=(none)
+    [5] PTR (anon) type_id=6
+    [6] ARRAY (anon) type_id=2 index_type_id=4 nr_elems=2
+    [7] STRUCT (anon) size=32 vlen=4
+    type type_id=1 bits_offset=0
+    key_size type_id=1 bits_offse
+    key_size type_id=1 bits_offset=64
+    value_size type_id=1 bits_offset=128
+    max_entries type_id=5 bits_offset=192
+    [8] VAR my_map type_id=7 linkage=1
+    [9] FUNC_PROTO (anon) return=2 args=(10 (anon))
+    [10] PTR (anon) type_id=11
+    [11] STRUCT pt_regs size=168 vlen=21
+    r15 type_id=12 bits_offset=0
+    r14 type_id=12 bits_offset=64
+    r13 type_id=12 bits_offset=128
+    r12 type_id=12 bits_offset=192
+    rbp type_id=12 bits_offset=256
+    rbx type_id=12 bits_offset=320
+    r11 type_id=12 bits_offset=384
+    r10 type_id=12 bits_offset=448
+    r9 type_id=12 bits_offset=512
+    r8 type_id=12 bits_offset=576
+    rax type_id=12 bits_offset=640
+    rcx type_id=12 bits_offset=704
+    rdx type_id=12 bits_offset=768
+    rsi type_id=12 bits_offset=832
+    rdi type_id=12 bits_offset=896
+    orig_rax type_id=12 bits_offset=960
+    rip type_id=12 bits_offset=1024
+    cs type_id=12 bits_offset=1088
+    eflags type_id=12 bits_offset=1152
+    rsp type_id=12 bits_offset=1216
+    ss type_id=12 bits_offset=1280
+    [12] INT long unsigned int size=8 bits_offset=0 nr_bits=64 encoding=(none)
+    [13] FUNC bpf_prog1 type_id=9
+    [14] PTR (anon) type_id=15
+    [15] FUNC_PROTO (anon) return=16 args=(void)
+    [16] TYPEDEF __u64 type_id=17
+    [17] INT long long unsigned int size=8 bits_offset=0 nr_bits=64 encoding=(none)
+    [18] VAR bpf_get_current_pid_tgid type_id=14 linkage=0
+    [19] PTR (anon) type_id=20
+    [20] FUNC_PROTO (anon) return=21 args=(22 (anon), 22 (anon), 16 (anon), 22 (anon), 16 (anon))
+    [21] INT long int size=8 bits_offset=0 nr_bits=64 encoding=SIGNED
+    [22] PTR (anon) type_id=0
+    [23] VAR bpf_perf_event_output type_id=19 linkage=0
+    [24] INT char size=1 bits_offset=0 nr_bits=8 encoding=SIGNED
+    [25] ARRAY (anon) type_id=24 index_type_id=4 nr_elems=4
+    [26] VAR _license type_id=25 linkage=1
+    [27] TYPEDEF uint32_t type_id=28
+    [28] TYPEDEF __u32 type_id=29
+    [29] INT unsigned int size=4 bits_offset=0 nr_bits=32 encoding=(none)
+    [30] VAR _version type_id=27 linkage=1
+    [31] DATASEC .data size=16 vlen=2
+    type_id=18 offset=0 size=8
+    type_id=23 offset=8 size=8
+    [32] DATASEC .maps size=32 vlen=1
+    type_id=8 offset=0 size=32
+    [33] DATASEC license size=4 vlen=1
+    type_id=26 offset=0 size=4
+    [34] DATASEC version size=4 vlen=1
+    type_id=30 offset=0 size=4
+    [13] FUNC bpf_prog1 type_id=9 Invalid arg#1
+    libbpf: Error loading .BTF into kernel: -22. BTF is optional, ignoring.
+    libbpf: load bpf program failed: Invalid argument
+    libbpf: -- BEGIN DUMP LOG ---
+    libbpf:
+    unknown opcode 8d
+    processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+    libbpf: -- END LOG --
+    libbpf: failed to load program 'bpf_prog1'
+    libbpf: failed to load object './trace_output_kern.o'
+    ERROR: loading BPF object file failed
+    Update
+    and this is my trace_output_user.c
+    // SPDX-License-Identifier: GPL-2.0-only
+    #include <stdio.h>
+    #include <fcntl.h>
+    #include <poll.h>
+    #include <time.h>
+    #include <signal.h>
+    #include <bpf/libbpf.h>
+    //create .o file root@this:/home/ubuntu/Desktop/ebpf/kern# clang -I /lib/modules/5.14.1/build -I /usr/include/bpf/ -O2 -Wall -c trace_output_user.c
+    static __u64 time_get_ns(void)
+    {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec * 1000000000ull + ts.tv_nsec;
+    }
+    static __u64 start_time;
+    static __u64 cnt;
+    #define MAX_CNT 100000ll
+    static void print_bpf_output(void *ctx, int cpu, void *data, __u32 size)
+    {
+    struct {
+    int pid;
+    int cookie;
+    } *e = data;
+    if (e->cookie != 0x12345678) {
+    printf("BUG pid %llx cookie %llx sized %d\n",
+    e->pid, e->cookie, size);
+    return;
+    }
+    cnt++;
+    if (cnt == MAX_CNT) {
+    printf("recv %lld events per sec\n",
+    MAX_CNT * 1000000000ll / (time_get_ns() - start_time));
+    return;
+    }
+    }
+    int main(int argc, char **argv)
+    {
+    struct perf_buffer_opts pb_opts = {};
+    struct bpf_link *link = NULL;
+    struct bpf_program *prog;
+    struct perf_buffer *pb;
+    struct bpf_object *obj;
+    int map_fd, ret = 0;
+    char filename[256];
+    FILE *f;
+    //snprintf(filename, sizeof(filename), "..o", argv[0]);
+    obj = bpf_object__open_file("./trace_output_kern.o", NULL);
+    if (libbpf_get_error(obj)) {
+    fprintf(stderr, "ERROR: opening BPF object file failed\n");
+    return 0;
+    }
+    /* load BPF program */
+    if (bpf_object__load(obj)) {
+    fprintf(stderr, "ERROR: loading BPF object file failed\n");
+    goto cleanup;
+    }
+    map_fd = bpf_object__find_map_fd_by_name(obj, "my_map");
+    if (map_fd < 0) {
+    fprintf(stderr, "ERROR: finding a map in obj file failed\n");
+    goto cleanup;
+    }
+    prog = bpf_object__find_program_by_name(obj, "bpf_prog1");
+    if (libbpf_get_error(prog)) {
+    fprintf(stderr, "ERROR: finding a prog in obj file failed\n");
+    goto cleanup;
+    }
+    link = bpf_program__attach(prog);
+    if (libbpf_get_error(link)) {
+    fprintf(stderr, "ERROR: bpf_program__attach failed\n");
+    link = NULL;
+    goto cleanup;
+    }
+    pb_opts.sample_cb = print_bpf_output;
+    pb = perf_buffer__new(map_fd, 8, &pb_opts);
+    ret = libbpf_get_error(pb);
+    if (ret) {
+    printf("failed to setup perf_buffer: %d\n", ret);
+    return 1;
+    }
+    f = popen("taskset 1 dd if=/dev/zero of=/dev/null", "r");
+    (void) f;
+    start_time = time_get_ns();
+    while ((ret = perf_buffer__poll(pb, 1000)) >= 0 && cnt < MAX_CNT) {
+    }
+    kill(0, SIGINT);
+    cleanup:
+    bpf_link__destroy(link);
+    bpf_object__close(obj);
+    return ret;
+    }
+    llvm-objdump output
+    trace_output_kern.o: file format elf64-bpf
+    Disassembly of section kprobe/sys_write:
+    0000000000000000 <bpf_prog1>:
+    ; {
+    0: 7b 1a f8 ff 00 00 00 00 *(u64 *)(r10 - 8) = r1
+    ; data.pid = bpf_get_current_pid_tgid();
+    1: 18 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 r1 = 0 ll
+    3: 79 11 00 00 00 00 00 00 r1 = *(u64 *)(r1 + 0)
+    4: 8d 00 00 00 01 00 00 00 callx r1
+    5: 7b 0a e8 ff 00 00 00 00 *(u64 *)(r10 - 24) = r0
+    6: b7 01 00 00 78 56 34 12 r1 = 305419896
+    ; data.cookie = 0x12345678;
+    7: 7b 1a f0 ff 00 00 00 00 *(u64 *)(r10 - 16) = r1
+    ; bpf_perf_event_output(ctx, &my_map, 0, &data, sizeof(data));
+    8: 18 01 00 00 08 00 00 00 00 00 00 00 00 00 00 00 r1 = 8 ll
+    10: 79 10 00 00 00 00 00 00 r0 = *(u64 *)(r1 + 0)
+    11: 79 a1 f8 ff 00 00 00 00 r1 = *(u64 *)(r10 - 8)
+    12: 18 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 r2 = 0 ll
+    14: b7 03 00 00 00 00 00 00 r3 = 0
+    15: 7b 3a e0 ff 00 00 00 00 *(u64 *)(r10 - 32) = r3
+    16: bf a4 00 00 00 00 00 00 r4 = r10
+    ; data.pid = bpf_get_current_pid_tgid();
+    17: 07 04 00 00 e8 ff ff ff r4 += -24
+    18: b7 05 00 00 10 00 00 00 r5 = 16
+    ; bpf_perf_event_output(ctx, &my_map, 0, &data, sizeof(data));
+    19: 8d 00 00 00 00 00 00 00 callx r0
+    ; return 0;
+    20: 79 a0 e0 ff 00 00 00 00 r0 = *(u64 *)(r10 - 32)
+    21: 95 00 00 00 00 00 00 00 exit
+    root@this:/home/ubuntu/Desktop/ebpf/kern# ^C
+    root@this:/home/ubuntu/Desktop/ebpf/kern# ^C
   selected_answer:
     answer_id: 75517993
     url: https://stackoverflow.com/questions/70392721/unable-to-load-ebpf-program-loading-stops-at-13-func-bpf-prog1-type-id-9-inval#75517993
@@ -699,4 +658,3 @@ raw:
       \ %.bpf.c,$^) -o $@\n$(Q)$(LLVM_STRIP) -g $@ # strip useless DWARF info"
     fix_description: "I also encountered the same problem, and the solution is as\
       \ follows\uFF0CAdd the compile option -O2 and use LLVM_STRIP"
-

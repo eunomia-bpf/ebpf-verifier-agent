@@ -40,73 +40,69 @@ raw:
     is_answered: false
   verifier_log:
     blocks:
-    - "Prog section 'action' rejected: Permission denied (13)!\n - Type:         4\n\
-      \ - Instructions: 108 (0 over limit)\n - License:      GPL\n\nVerifier analysis:\n\
-      \n0: (bf) r6 = r1\n1: (61) r2 = *(u32 *)(r6 +84)\n2: (67) r2 <<= 32\n3: (61)\
-      \ r1 = *(u32 *)(r6 +80)\n4: (4f) r2 |= r1\nR2 pointer arithmetic on PTR_TO_PACKET_END\
-      \ prohibited\n\nError fetching program/map!\nbad action parsing\nparse_action:\
-      \ bad value (6:bpf)!\nIllegal \"action\""
-    combined: "Prog section 'action' rejected: Permission denied (13)!\n - Type: \
-      \        4\n - Instructions: 108 (0 over limit)\n - License:      GPL\n\nVerifier\
-      \ analysis:\n\n0: (bf) r6 = r1\n1: (61) r2 = *(u32 *)(r6 +84)\n2: (67) r2 <<=\
-      \ 32\n3: (61) r1 = *(u32 *)(r6 +80)\n4: (4f) r2 |= r1\nR2 pointer arithmetic\
-      \ on PTR_TO_PACKET_END prohibited\n\nError fetching program/map!\nbad action\
-      \ parsing\nparse_action: bad value (6:bpf)!\nIllegal \"action\""
+    - |-
+      Prog section 'action' rejected: Permission denied (13)!
+       - Type:         4
+       - Instructions: 108 (0 over limit)
+       - License:      GPL
+
+      Verifier analysis:
+
+      0: (bf) r6 = r1
+      1: (61) r2 = *(u32 *)(r6 +84)
+      2: (67) r2 <<= 32
+      3: (61) r1 = *(u32 *)(r6 +80)
+      4: (4f) r2 |= r1
+      R2 pointer arithmetic on PTR_TO_PACKET_END prohibited
+
+      Error fetching program/map!
+      bad action parsing
+      parse_action: bad value (6:bpf)!
+      Illegal "action"
+    combined: |-
+      Prog section 'action' rejected: Permission denied (13)!
+       - Type:         4
+       - Instructions: 108 (0 over limit)
+       - License:      GPL
+
+      Verifier analysis:
+
+      0: (bf) r6 = r1
+      1: (61) r2 = *(u32 *)(r6 +84)
+      2: (67) r2 <<= 32
+      3: (61) r1 = *(u32 *)(r6 +80)
+      4: (4f) r2 |= r1
+      R2 pointer arithmetic on PTR_TO_PACKET_END prohibited
+
+      Error fetching program/map!
+      bad action parsing
+      parse_action: bad value (6:bpf)!
+      Illegal "action"
   source_snippets: []
-  question_body_text: 'I am trying to write a kernel module for filtering using the
-    following example. On Ubuntu 18.04 with kernel 5.3.0 it''s compiled and works
-    perfectly fine.
-
-    However, when the same example is compiled on Debian 10 with kernel 4.19.0 compilation
-    emits another byte-code, which is rejected when trying to load it to kernel by
-    the kernel''s verifier with error:
-
-    Prog section ''action'' rejected: Permission denied (13)!
-
+  question_body_text: |-
+    I am trying to write a kernel module for filtering using the following example. On Ubuntu 18.04 with kernel 5.3.0 it's compiled and works perfectly fine.
+    However, when the same example is compiled on Debian 10 with kernel 4.19.0 compilation emits another byte-code, which is rejected when trying to load it to kernel by the kernel's verifier with error:
+    Prog section 'action' rejected: Permission denied (13)!
     - Type: 4
-
     - Instructions: 108 (0 over limit)
-
     - License: GPL
-
     Verifier analysis:
-
     0: (bf) r6 = r1
-
     1: (61) r2 = *(u32 *)(r6 +84)
-
     2: (67) r2 <<= 32
-
     3: (61) r1 = *(u32 *)(r6 +80)
-
     4: (4f) r2 |= r1
-
     R2 pointer arithmetic on PTR_TO_PACKET_END prohibited
-
     Error fetching program/map!
-
     bad action parsing
-
     parse_action: bad value (6:bpf)!
-
     Illegal "action"
-
-    What can be the issue? Is there a bug somewhere in kernel, compiler, verifier
-    or the example? Versions of clang and llc match on both systems: 6.0.0 for both.
-
+    What can be the issue? Is there a bug somewhere in kernel, compiler, verifier or the example? Versions of clang and llc match on both systems: 6.0.0 for both.
     Update 1:
-
     Versions of OSes:
-
     Ubuntu: Linux 5.3.0-40-generic #32~18.04.1-Ubuntu SMP x86_64 GNU/Linux
-
-    Debian: Linux 4.19.0-6-686-pae #1 SMP Debian 4.19.67-2+deb10u2 (2019-11-11) i686
-    GNU/Linux
-
+    Debian: Linux 4.19.0-6-686-pae #1 SMP Debian 4.19.67-2+deb10u2 (2019-11-11) i686 GNU/Linux
     Versions of compilers:
-
     Ubuntu: clang version 6.0.0-1ubuntu2 (tags/RELEASE_600/final); Target: x86_64-pc-linux-gnu
-
-    Debian: clang version 6.0.1-10 (tags/RELEASE_601/final); Target: i686-pc-linux-gnu'
+    Debian: clang version 6.0.1-10 (tags/RELEASE_601/final); Target: i686-pc-linux-gnu
   selected_answer: {}
-

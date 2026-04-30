@@ -525,4 +525,3 @@ raw:
     verifier_error_match: mismatch
     notes: Semantic C reconstruction of the checked-packet-pointer/discarded-register
       pattern from iovisor/bcc#5062.
-

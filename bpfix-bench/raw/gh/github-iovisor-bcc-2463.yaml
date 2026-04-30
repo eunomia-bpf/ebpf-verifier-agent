@@ -494,4 +494,3 @@ raw:
     verifier_error_match: mismatch
     notes: Semantic C reconstruction of the XDP UDP checksum bpf_csum_diff verifier
       failure from iovisor/bcc#2463.
-

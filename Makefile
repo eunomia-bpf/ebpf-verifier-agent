@@ -24,6 +24,7 @@ help:
 	@echo ""
 	@echo "Benchmark"
 	@echo "  make bench-validate    Replay and validate all bpfix-bench cases"
+	@echo "  make bench-eval        Replay cases, then run BPFix/baseline/ablation eval"
 	@echo "  make bench-raw-audit   Regenerate raw external audit index"
 	@echo ""
 	@echo "Paper"
@@ -57,6 +58,11 @@ bench-raw-audit:
 	@echo "[bench-raw-audit] Regenerating raw external audit index..."
 	cd $(CURDIR) && $(PYTHON) tools/sync_external_raw_bench.py --apply
 
+.PHONY: bench-eval
+bench-eval:
+	@echo "[bench-eval] Replaying bpfix-bench and running diagnostic eval..."
+	cd $(CURDIR) && $(PYTHON) tools/evaluate_benchmark.py --benchmark bpfix-bench --timeout-sec 60
+
 .PHONY: paper
 paper:
 	@echo "[paper] Compiling LaTeX paper..."
@@ -83,12 +89,12 @@ lint:
 	$(PYTHON) -m flake8 \
 		--max-line-length=120 \
 		--extend-ignore=E203,W503 \
-		$(CURDIR)/agent/ $(CURDIR)/interface/ $(CURDIR)/oblige/ $(CURDIR)/tools/ $(CURDIR)/tests/
+		$(CURDIR)/core/ $(CURDIR)/interface/ $(CURDIR)/oblige/ $(CURDIR)/tools/ $(CURDIR)/tests/
 
 .PHONY: loc
 loc:
 	@echo "[loc] Active Python modules:"
-	@find agent interface oblige tools tests -name '*.py' -print0 | xargs -0 wc -l | sort -rn | tail -1
+	@find core interface oblige tools tests -name '*.py' -print0 | xargs -0 wc -l | sort -rn | tail -1
 
 .PHONY: clean
 clean: paper-clean

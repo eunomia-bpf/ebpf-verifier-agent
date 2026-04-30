@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -147,14 +148,7 @@ class VerifierLogParser:
         self._catalog = self._load_catalog()
 
     def _load_catalog(self) -> list[dict[str, Any]]:
-        try:
-            import yaml
-        except ImportError:
-            return []
-
-        with self.catalog_path.open("r", encoding="utf-8") as handle:
-            payload = yaml.safe_load(handle) or {}
-        return payload.get("error_types", [])
+        return _load_catalog_cached(str(self.catalog_path.resolve()))
 
     def parse(self, raw_log: str) -> ParsedLog:
         """Extract the likely error line, stable error ID, and supporting evidence."""
@@ -335,6 +329,18 @@ def parse_log(raw_log: str, catalog_path: str | Path | None = None) -> ParsedLog
         catalog_path=Path(catalog_path) if catalog_path is not None else None
     )
     return parser.parse(raw_log)
+
+
+@lru_cache(maxsize=None)
+def _load_catalog_cached(catalog_path: str) -> list[dict[str, Any]]:
+    try:
+        import yaml
+    except ImportError:
+        return []
+
+    with Path(catalog_path).open("r", encoding="utf-8") as handle:
+        payload = yaml.safe_load(handle) or {}
+    return payload.get("error_types", [])
 
 
 def parse_verifier_log(raw_log: str, catalog_path: str | Path | None = None) -> ParsedLog:

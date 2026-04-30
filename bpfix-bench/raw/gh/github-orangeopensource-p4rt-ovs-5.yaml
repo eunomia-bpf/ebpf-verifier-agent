@@ -579,4 +579,3 @@ raw:
     verifier_error_match: mismatch
     notes: Semantic C reconstruction of the generated P4/uBPF map-value overread verifier
       failure from Orange-OpenSource/p4rt-ovs#5.
-

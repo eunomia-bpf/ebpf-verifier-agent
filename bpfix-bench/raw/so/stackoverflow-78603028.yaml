@@ -42,61 +42,47 @@ raw:
     blocks: []
     combined: ''
   source_snippets:
-  - "while (i < MAX_BUF_LEN )\n    {\n        if (*fmt == '\\0')\n            break;\n\
-    \        if (*fmt == 'h') {\n            fmt++;\n            i++;\n          \
-    \  continue;\n        }\n\n        i++;\n        *msg++ = *fmt++;\n    }"
-  question_body_text: 'I had wrote a ebpf prog, which include a simple while loop,
-    but when i run it, it reports bpf verify log as title described. But I could not
-    find what the reason of occurring large loop, end up to exceed the max ebpf insns.
-
+  - |-
     while (i < MAX_BUF_LEN )
+        {
+            if (*fmt == '\0')
+                break;
+            if (*fmt == 'h') {
+                fmt++;
+                i++;
+                continue;
+            }
 
+            i++;
+            *msg++ = *fmt++;
+        }
+  question_body_text: |-
+    I had wrote a ebpf prog, which include a simple while loop, but when i run it, it reports bpf verify log as title described. But I could not find what the reason of occurring large loop, end up to exceed the max ebpf insns.
+    while (i < MAX_BUF_LEN )
     {
-
-    if (*fmt == ''\0'')
-
+    if (*fmt == '\0')
     break;
-
-    if (*fmt == ''h'') {
-
+    if (*fmt == 'h') {
     fmt++;
-
     i++;
-
     continue;
-
     }
-
     i++;
-
     *msg++ = *fmt++;
-
     }
-
     which fmt and msg is type of char *, MAX_BUF_LEN is constant number.
-
     clang version 12.0.1
-
     kernel version:5.10
-
-    libbpf version: 1.4.1'
+    libbpf version: 1.4.1
   selected_answer:
     answer_id: 78611719
     url: https://stackoverflow.com/questions/78603028/bpf-program-is-too-large-processed-1000001-insn#78611719
     is_accepted: true
     score: 3
-    body_text: 'The 1 million instructions limit refers to the number of instructions
-      the verifier analyzed, not the number of instructions in your program.
-
-      The two differ because the verifier needs to check instructions on every path
-      through your program. In your case, because of the two if statements, the number
-      of paths through the program grows exponentially with each iteration of the
-      while loop.
-
-      You will need to either reduce the size of your loop or use newer forms of BPF
-      loops, such as bpf_loop, bpf_for, cond_break (depending on your kernel version).
-      I''d recommend checking the kernel''s samples and selftests for examples of
-      those.'
+    body_text: |-
+      The 1 million instructions limit refers to the number of instructions the verifier analyzed, not the number of instructions in your program.
+      The two differ because the verifier needs to check instructions on every path through your program. In your case, because of the two if statements, the number of paths through the program grows exponentially with each iteration of the while loop.
+      You will need to either reduce the size of your loop or use newer forms of BPF loops, such as bpf_loop, bpf_for, cond_break (depending on your kernel version). I'd recommend checking the kernel's samples and selftests for examples of those.
     fix_description: The two differ because the verifier needs to check instructions
       on every path through your program. In your case, because of the two if statements,
       the number of paths through the program grows exponentially with each iteration
@@ -104,4 +90,3 @@ raw:
       newer forms of BPF loops, such as bpf_loop, bpf_for, cond_break (depending on
       your kernel version). I'd recommend checking the kernel's samples and selftests
       for examples of those.
-

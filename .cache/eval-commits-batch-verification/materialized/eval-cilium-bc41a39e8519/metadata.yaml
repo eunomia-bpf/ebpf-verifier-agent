@@ -1,7 +1,0 @@
-case_id: eval-cilium-bc41a39e8519
-source: eval_commits
-repository: https://github.com/cilium/cilium
-repo_name: cilium
-case_yaml: /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/eval_commits/eval-cilium-bc41a39e8519.yaml
-score: 6
-error: 'materialization_error: CalledProcessError: Command ''[''git'', ''show'', ''b1605abae9760f0422213de0ccce73ac931359ca:bpf/tests/builtins.c'']'' returned non-zero exit status 128.'

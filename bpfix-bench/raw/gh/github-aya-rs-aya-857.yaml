@@ -40,18 +40,28 @@ raw:
     author: Spedoske
   verifier_log:
     blocks:
-    - "map 'Foo' has to have BTF in order to use bpf_spin_lock\nverification time\
-      \ 37 usec\nstack depth 4\nprocessed 10 insns (limit 1000000) max_states_per_insn\
-      \ 0 total_states 0 peak_states 0 mark_read 0\n\nCaused by:\n    Permission denied\
-      \ (os error 13)\nFailed to run `sudo -E target/debug/foo`"
-    combined: "map 'Foo' has to have BTF in order to use bpf_spin_lock\nverification\
-      \ time 37 usec\nstack depth 4\nprocessed 10 insns (limit 1000000) max_states_per_insn\
-      \ 0 total_states 0 peak_states 0 mark_read 0\n\nCaused by:\n    Permission denied\
-      \ (os error 13)\nFailed to run `sudo -E target/debug/foo`"
-  source_snippets: []
-  issue_body_text: 'https://github.com/Spedoske/aya-issue-2/commit/cbef0f876b0def8ef8135dcaf7f625a96e6695a5
+    - |-
+      map 'Foo' has to have BTF in order to use bpf_spin_lock
+      verification time 37 usec
+      stack depth 4
+      processed 10 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
 
-    Run with RUST_LOG=info cargo xtask run will get'
+      Caused by:
+          Permission denied (os error 13)
+      Failed to run `sudo -E target/debug/foo`
+    combined: |-
+      map 'Foo' has to have BTF in order to use bpf_spin_lock
+      verification time 37 usec
+      stack depth 4
+      processed 10 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+
+      Caused by:
+          Permission denied (os error 13)
+      Failed to run `sudo -E target/debug/foo`
+  source_snippets: []
+  issue_body_text: |-
+    https://github.com/Spedoske/aya-issue-2/commit/cbef0f876b0def8ef8135dcaf7f625a96e6695a5
+    Run with RUST_LOG=info cargo xtask run will get
   fix:
     summary: 'Currently not. Per the eBPF verifier error, we''re blocked on #351.
       Great progress has been made on unblocking us from an LLVM and rustc standpoint
@@ -62,9 +72,6 @@ raw:
       url: https://github.com/aya-rs/aya/issues/857#issuecomment-1867550037
       author: dave-tucker
       author_association: MEMBER
-      body_text: 'Currently not. Per the eBPF verifier error, we''re blocked on #351.
-
-        Great progress has been made on unblocking us from an LLVM and rustc standpoint
-        - there''s still work ongoing to get the support required in bpf-linker so
-        we can then tackle #351, which will then enable spinlock support.'
-
+      body_text: |-
+        Currently not. Per the eBPF verifier error, we're blocked on #351.
+        Great progress has been made on unblocking us from an LLVM and rustc standpoint - there's still work ongoing to get the support required in bpf-linker so we can then tackle #351, which will then enable spinlock support.

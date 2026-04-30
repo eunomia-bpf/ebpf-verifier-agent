@@ -40,105 +40,110 @@ raw:
     author: sudharsh
   verifier_log:
     blocks:
-    - '5: (b7) r6 = 5                      ; R6_w=P5
-
+    - |-
+      5: (b7) r6 = 5                      ; R6_w=P5
       876: (bf) r3 = r10                    ; R3_w=fp0 R10=fp0
-
       877: (07) r3 += -16                   ; R3_w=fp-16
-
       878: (b7) r7 = 0                      ; R7_w=P0
-
       879: (b7) r1 = 5                      ; R1_w=P5
-
       880: (18) r2 = 0x11f
-
-      missing btf func_info'
-    combined: '5: (b7) r6 = 5                      ; R6_w=P5
-
+      missing btf func_info
+    combined: |-
+      5: (b7) r6 = 5                      ; R6_w=P5
       876: (bf) r3 = r10                    ; R3_w=fp0 R10=fp0
-
       877: (07) r3 += -16                   ; R3_w=fp-16
-
       878: (b7) r7 = 0                      ; R7_w=P0
-
       879: (b7) r1 = 5                      ; R1_w=P5
-
       880: (18) r2 = 0x11f
-
-      missing btf func_info'
+      missing btf func_info
   source_snippets:
-  - "use aya_bpf::{helpers::bpf_loop, programs::TcContext};\nuse aya_bpf_cty::c_void;\n\
-    use aya_log_ebpf::info;\n\nfn do_something(ctx: &TcContext) -> () {\n    let loop_f:\
-    \ *mut c_void = unsafe { ::core::mem::transmute(loop_fn as unsafe extern \"C\"\
-    \ fn(u32, &TcContext) -> i64) };\n    let void_ctx: *mut c_void = unsafe { ::core::mem::transmute(ctx)};\n\
-    \    unsafe { bpf_loop(5, loop_f, void_ctx, 0) };\n}\n\nunsafe extern \"C\" fn\
-    \ loop_fn(i: u32, ctx: &TcContext) -> i64 {\n    info!(ctx, \"foobar\");\n   \
-    \ return 0\n}"
-  - 'let loop_f: *mut c_void = unsafe { ::core::mem::transmute(loop_fn as unsafe extern
-    "C" fn(u32, &TcContext) -> i64) };
+  - |-
+    use aya_bpf::{helpers::bpf_loop, programs::TcContext};
+    use aya_bpf_cty::c_void;
+    use aya_log_ebpf::info;
 
-    let void_ctx: *mut c_void = unsafe { ::core::mem::transmute(ctx)};
-
-    unsafe { bpf_loop(5, loop_f, void_ctx, 0) };'
-  - 'info!(ctx, "foobar");
-
-    return 0'
-  - "const MAX_LOOP_ITERATION: u32 = 300u32;\n\n...\nfor i in 0..MAX_LOOP_ITERATION\
-    \ {\n            info!(ctx, \"hi {}\", i);\n}\n..."
-  - "for i in 0..10 {\n    parse_packet(ctx, start, end);\n}"
-  - '> const MAX_LOOP_ITERATION: u32 = 300u32;
-
-    >
-
-    > ...
-
-    > for i in 0..MAX_LOOP_ITERATION {
-
-    >             info!(ctx, "hi {}", i);
-
-    > }
-
-    > ...
-
-    >'
-  - 'unsafe extern "C" fn calc_csum(i: u32, ptrs: *mut c_void) -> c_long{ return 0;
+    fn do_something(ctx: &TcContext) -> () {
+        let loop_f: *mut c_void = unsafe { ::core::mem::transmute(loop_fn as unsafe extern "C" fn(u32, &TcContext) -> i64) };
+        let void_ctx: *mut c_void = unsafe { ::core::mem::transmute(ctx)};
+        unsafe { bpf_loop(5, loop_f, void_ctx, 0) };
     }
 
+    unsafe extern "C" fn loop_fn(i: u32, ctx: &TcContext) -> i64 {
+        info!(ctx, "foobar");
+        return 0
+    }
+  - |-
+    let loop_f: *mut c_void = unsafe { ::core::mem::transmute(loop_fn as unsafe extern "C" fn(u32, &TcContext) -> i64) };
+    let void_ctx: *mut c_void = unsafe { ::core::mem::transmute(ctx)};
+    unsafe { bpf_loop(5, loop_f, void_ctx, 0) };
+  - |-
+    info!(ctx, "foobar");
+    return 0
+  - |-
+    const MAX_LOOP_ITERATION: u32 = 300u32;
 
-    aya_ebpf::helpers::bpf_loop(len as u32, calc_csum as *mut c_void, &mut ptrs as
-    *mut _ as *mut c_void, 0);'
-  - "use aya_ebpf::{helpers::bpf_loop, programs::Context};\n\nstruct LoopContext<'a>\
-    \ {\n    ctx: &'a XdpContext,\n    // Whatever data you want. In my case, a reference\
-    \ to a map value with an array. Example:\n    data: &'a [u16; 256],\n}\n\nunsafe\
-    \ fn loop_body(index: u64, data: *mut c_void) -> i64 {\n    // Make the verifier\
-    \ happy as it manages to track the array is from a map value.\n    if index >=\
-    \ 256 { return 1 }\n\n    let ctx = data as *mut LoopContext;\n    let item =\
-    \ (*ctx).data[index as usize];\n\n    // Do something with the item, e.g. match\
-    \ on part of the packet from ctx.\n}\n\n// And in the main xdp program:\nif let\
-    \ Some(data) = MAP.get(/* stuff */) {\n    let mut ctx = LoopContext { ctx: &ctx,\
-    \ data };\n    let fn_ptr = loop_body as *mut fn(u64, *mut c_void) -> i64 as *mut\
-    \ c_void;\n    let ctx_ptr = &mut ctx as *mut LoopContext as *mut c_void;\n  \
-    \  // The real thing loads the iter count from the map, but it's for demonstration\
-    \ purposes.\n    bpf_loop(256, fn_ptr, ctx_ptr, 0);\n}"
-  - '// Make the verifier happy as it manages to track the array is from a map value.
+    ...
+    for i in 0..MAX_LOOP_ITERATION {
+                info!(ctx, "hi {}", i);
+    }
+    ...
+  - |-
+    for i in 0..10 {
+        parse_packet(ctx, start, end);
+    }
+  - |-
+    > const MAX_LOOP_ITERATION: u32 = 300u32;
+    >
+    > ...
+    > for i in 0..MAX_LOOP_ITERATION {
+    >             info!(ctx, "hi {}", i);
+    > }
+    > ...
+    >
+  - |-
+    unsafe extern "C" fn calc_csum(i: u32, ptrs: *mut c_void) -> c_long{ return 0; }
 
-    if index >= 256 { return 1 }'
-  - 'let mut ctx = LoopContext { ctx: &ctx, data };
+    aya_ebpf::helpers::bpf_loop(len as u32, calc_csum as *mut c_void, &mut ptrs as *mut _ as *mut c_void, 0);
+  - |-
+    use aya_ebpf::{helpers::bpf_loop, programs::Context};
 
+    struct LoopContext<'a> {
+        ctx: &'a XdpContext,
+        // Whatever data you want. In my case, a reference to a map value with an array. Example:
+        data: &'a [u16; 256],
+    }
+
+    unsafe fn loop_body(index: u64, data: *mut c_void) -> i64 {
+        // Make the verifier happy as it manages to track the array is from a map value.
+        if index >= 256 { return 1 }
+
+        let ctx = data as *mut LoopContext;
+        let item = (*ctx).data[index as usize];
+
+        // Do something with the item, e.g. match on part of the packet from ctx.
+    }
+
+    // And in the main xdp program:
+    if let Some(data) = MAP.get(/* stuff */) {
+        let mut ctx = LoopContext { ctx: &ctx, data };
+        let fn_ptr = loop_body as *mut fn(u64, *mut c_void) -> i64 as *mut c_void;
+        let ctx_ptr = &mut ctx as *mut LoopContext as *mut c_void;
+        // The real thing loads the iter count from the map, but it's for demonstration purposes.
+        bpf_loop(256, fn_ptr, ctx_ptr, 0);
+    }
+  - |-
+    // Make the verifier happy as it manages to track the array is from a map value.
+    if index >= 256 { return 1 }
+  - |-
+    let mut ctx = LoopContext { ctx: &ctx, data };
     let fn_ptr = loop_body as *mut fn(u64, *mut c_void) -> i64 as *mut c_void;
-
     let ctx_ptr = &mut ctx as *mut LoopContext as *mut c_void;
-
-    // The real thing loads the iter count from the map, but it''s for demonstration
-    purposes.
-
-    bpf_loop(256, fn_ptr, ctx_ptr, 0);'
-  issue_body_text: 'For the following snippet of code,
-
-    Am I using bpf_loop() the way it''s supposed to be used? I get the following verifier
-    error,
-
-    Kernel is 5.19.'
+    // The real thing loads the iter count from the map, but it's for demonstration purposes.
+    bpf_loop(256, fn_ptr, ctx_ptr, 0);
+  issue_body_text: |-
+    For the following snippet of code,
+    Am I using bpf_loop() the way it's supposed to be used? I get the following verifier error,
+    Kernel is 5.19.
   fix:
     summary: I was of the impression that loops aren't allowed at all by the verifier.
       Are there any examples of clever ways to get around the verifier for this? (bounded
@@ -152,12 +157,6 @@ raw:
       url: https://github.com/aya-rs/aya/issues/521#issuecomment-1432029995
       author: alessandrod
       author_association: COLLABORATOR
-      body_text: 'I was of the impression that loops aren''t allowed at all by the
-        verifier. Are there any examples of clever ways to get around the verifier
-        for this? (bounded small for i in 0..5 has no issues for me though, I guess
-        they''re being unrolled). My use case for a loop at this point is to walk
-        over each fixed chunk of a packet and do some parsing.
-
-        Yeah I''ve done this many times. Loops are not unrolled, but you need to minimize
-        the branching factor of the loop body in order not to run out of instructions.'
-
+      body_text: |-
+        I was of the impression that loops aren't allowed at all by the verifier. Are there any examples of clever ways to get around the verifier for this? (bounded small for i in 0..5 has no issues for me though, I guess they're being unrolled). My use case for a loop at this point is to walk over each fixed chunk of a packet and do some parsing.
+        Yeah I've done this many times. Loops are not unrolled, but you need to minimize the branching factor of the loop body in order not to run out of instructions.

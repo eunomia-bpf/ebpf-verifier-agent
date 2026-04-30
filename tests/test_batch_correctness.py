@@ -15,10 +15,9 @@ Tests in this module:
 
 from __future__ import annotations
 
+from functools import lru_cache
 import re
 from pathlib import Path
-
-import yaml
 
 from interface.extractor.rust_diagnostic import generate_diagnostic
 
@@ -38,18 +37,16 @@ def _load_verifier_log(relative_path: str) -> str:
     return load_verifier_log(relative_path)
 
 
-def _so_cases_with_logs() -> list[Path]:
+@lru_cache(maxsize=1)
+def _so_cases_with_logs() -> tuple[Path, ...]:
     """Return all SO case YAML files that contain a non-empty verifier log."""
-    from bench_fixtures import verifier_log_from_case
-
     result = []
     for f in sorted(SO_CASES_DIR.glob("*.yaml")):
         if f.name == "index.yaml":
             continue
-        payload = yaml.safe_load(f.read_text(encoding="utf-8"))
-        if verifier_log_from_case(payload).strip():
+        if _load_verifier_log(str(f.relative_to(ROOT))).strip():
             result.append(f)
-    return result
+    return tuple(result)
 
 
 # ============================================================================

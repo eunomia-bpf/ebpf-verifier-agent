@@ -41,76 +41,106 @@ raw:
     is_answered: false
   original_verifier_log:
     blocks:
-    - "WARNING: libbpf: prog 'trace_read_exit': BPF program load failed: Permission\
-      \ denied\n\nWARNING: libbpf: prog 'trace_read_exit': -- BEGIN PROG LOAD LOG\
-      \ --\n0: (bf) r7 = r1\n1: (b7) r1 = 0\n2: (63) *(u32 *)(r10 -4) = r1\n3: (bf)\
-      \ r2 = r10\n4: (07) r2 += -4\n5: (18) r1 = 0xffff888804364200\n7: (85) call\
-      \ bpf_map_lookup_elem#1\n8: (bf) r6 = r0\n9: (15) if r6 == 0x0 goto pc+18\n\
-      \ R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R7=ctx(id=0,off=0,imm=0) R10=fp0\n10: (79) r1 = *(u64 *)(r7 +16)\n11: (b7)\
-      \ r2 = 1\n12: (6d) if r2 s> r1 goto pc+15\n R0=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R1=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff))\
-      \ R2=inv1 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n13: (bf) r2 = r10\n14: (07) r2 += -4\n15: (18) r1 = 0xffff888804364700\n\
-      17: (85) call bpf_map_lookup_elem#1\n18: (15) if r0 == 0x0 goto pc+9\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0\n\
-      19: (79) r1 = *(u64 *)(r7 +16)\n20: (bf) r2 = r1\n21: (57) r2 &= 65535\n22:\
-      \ (b7) r3 = 2048\n23: (6d) if r3 s> r1 goto pc+1\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff))\
-      \ R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R7=ctx(id=0,off=0,imm=0) R10=fp0\n24: (b7) r2 = 2048\n25: (79) r3 = *(u64\
-      \ *)(r6 +0)\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0;\
-      \ 0x7fffffffffffffff)) R2=inv2048 R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R7=ctx(id=0,off=0,imm=0) R10=fp0\n26: (bf) r1 = r0\n27: (85) call bpf_probe_read#4\n\
-      \ R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R2=inv2048 R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n28: (b7) r0 = 0\n29: (95) exit\n\nfrom 23 to 25: R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff))\
-      \ R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n25: (79) r3 = *(u64 *)(r6 +0)\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff))\
-      \ R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n26: (bf) r1 = r0\n27: (85) call bpf_probe_read#4\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R2=inv(id=0,umax_value=65535,var_off=(0x0;\
-      \ 0xffff)) R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\ninvalid access to map value, value_size=2048 off=0 size=0\nR1 min\
-      \ value is outside of the array range\n-- END PROG LOAD LOG --\n\nWARNING: libbpf:\
-      \ failed to load program 'trace_read_exit'"
-    combined: "WARNING: libbpf: prog 'trace_read_exit': BPF program load failed: Permission\
-      \ denied\n\nWARNING: libbpf: prog 'trace_read_exit': -- BEGIN PROG LOAD LOG\
-      \ --\n0: (bf) r7 = r1\n1: (b7) r1 = 0\n2: (63) *(u32 *)(r10 -4) = r1\n3: (bf)\
-      \ r2 = r10\n4: (07) r2 += -4\n5: (18) r1 = 0xffff888804364200\n7: (85) call\
-      \ bpf_map_lookup_elem#1\n8: (bf) r6 = r0\n9: (15) if r6 == 0x0 goto pc+18\n\
-      \ R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R7=ctx(id=0,off=0,imm=0) R10=fp0\n10: (79) r1 = *(u64 *)(r7 +16)\n11: (b7)\
-      \ r2 = 1\n12: (6d) if r2 s> r1 goto pc+15\n R0=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R1=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff))\
-      \ R2=inv1 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n13: (bf) r2 = r10\n14: (07) r2 += -4\n15: (18) r1 = 0xffff888804364700\n\
-      17: (85) call bpf_map_lookup_elem#1\n18: (15) if r0 == 0x0 goto pc+9\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0\n\
-      19: (79) r1 = *(u64 *)(r7 +16)\n20: (bf) r2 = r1\n21: (57) r2 &= 65535\n22:\
-      \ (b7) r3 = 2048\n23: (6d) if r3 s> r1 goto pc+1\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff))\
-      \ R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R7=ctx(id=0,off=0,imm=0) R10=fp0\n24: (b7) r2 = 2048\n25: (79) r3 = *(u64\
-      \ *)(r6 +0)\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0;\
-      \ 0x7fffffffffffffff)) R2=inv2048 R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R7=ctx(id=0,off=0,imm=0) R10=fp0\n26: (bf) r1 = r0\n27: (85) call bpf_probe_read#4\n\
-      \ R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R2=inv2048 R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n28: (b7) r0 = 0\n29: (95) exit\n\nfrom 23 to 25: R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff))\
-      \ R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n25: (79) r3 = *(u64 *)(r6 +0)\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff))\
-      \ R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n26: (bf) r1 = r0\n27: (85) call bpf_probe_read#4\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R2=inv(id=0,umax_value=65535,var_off=(0x0;\
-      \ 0xffff)) R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\ninvalid access to map value, value_size=2048 off=0 size=0\nR1 min\
-      \ value is outside of the array range\n-- END PROG LOAD LOG --\n\nWARNING: libbpf:\
-      \ failed to load program 'trace_read_exit'"
+    - |-
+      WARNING: libbpf: prog 'trace_read_exit': BPF program load failed: Permission denied
+
+      WARNING: libbpf: prog 'trace_read_exit': -- BEGIN PROG LOAD LOG --
+      0: (bf) r7 = r1
+      1: (b7) r1 = 0
+      2: (63) *(u32 *)(r10 -4) = r1
+      3: (bf) r2 = r10
+      4: (07) r2 += -4
+      5: (18) r1 = 0xffff888804364200
+      7: (85) call bpf_map_lookup_elem#1
+      8: (bf) r6 = r0
+      9: (15) if r6 == 0x0 goto pc+18
+       R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      10: (79) r1 = *(u64 *)(r7 +16)
+      11: (b7) r2 = 1
+      12: (6d) if r2 s> r1 goto pc+15
+       R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv1 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      13: (bf) r2 = r10
+      14: (07) r2 += -4
+      15: (18) r1 = 0xffff888804364700
+      17: (85) call bpf_map_lookup_elem#1
+      18: (15) if r0 == 0x0 goto pc+9
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      19: (79) r1 = *(u64 *)(r7 +16)
+      20: (bf) r2 = r1
+      21: (57) r2 &= 65535
+      22: (b7) r3 = 2048
+      23: (6d) if r3 s> r1 goto pc+1
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      24: (b7) r2 = 2048
+      25: (79) r3 = *(u64 *)(r6 +0)
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv2048 R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      26: (bf) r1 = r0
+      27: (85) call bpf_probe_read#4
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R2=inv2048 R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      28: (b7) r0 = 0
+      29: (95) exit
+
+      from 23 to 25: R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      25: (79) r3 = *(u64 *)(r6 +0)
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      26: (bf) r1 = r0
+      27: (85) call bpf_probe_read#4
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      invalid access to map value, value_size=2048 off=0 size=0
+      R1 min value is outside of the array range
+      -- END PROG LOAD LOG --
+
+      WARNING: libbpf: failed to load program 'trace_read_exit'
+    combined: |-
+      WARNING: libbpf: prog 'trace_read_exit': BPF program load failed: Permission denied
+
+      WARNING: libbpf: prog 'trace_read_exit': -- BEGIN PROG LOAD LOG --
+      0: (bf) r7 = r1
+      1: (b7) r1 = 0
+      2: (63) *(u32 *)(r10 -4) = r1
+      3: (bf) r2 = r10
+      4: (07) r2 += -4
+      5: (18) r1 = 0xffff888804364200
+      7: (85) call bpf_map_lookup_elem#1
+      8: (bf) r6 = r0
+      9: (15) if r6 == 0x0 goto pc+18
+       R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      10: (79) r1 = *(u64 *)(r7 +16)
+      11: (b7) r2 = 1
+      12: (6d) if r2 s> r1 goto pc+15
+       R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv1 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      13: (bf) r2 = r10
+      14: (07) r2 += -4
+      15: (18) r1 = 0xffff888804364700
+      17: (85) call bpf_map_lookup_elem#1
+      18: (15) if r0 == 0x0 goto pc+9
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      19: (79) r1 = *(u64 *)(r7 +16)
+      20: (bf) r2 = r1
+      21: (57) r2 &= 65535
+      22: (b7) r3 = 2048
+      23: (6d) if r3 s> r1 goto pc+1
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      24: (b7) r2 = 2048
+      25: (79) r3 = *(u64 *)(r6 +0)
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv2048 R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      26: (bf) r1 = r0
+      27: (85) call bpf_probe_read#4
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R2=inv2048 R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      28: (b7) r0 = 0
+      29: (95) exit
+
+      from 23 to 25: R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      25: (79) r3 = *(u64 *)(r6 +0)
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      26: (bf) r1 = r0
+      27: (85) call bpf_probe_read#4
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      invalid access to map value, value_size=2048 off=0 size=0
+      R1 min value is outside of the array range
+      -- END PROG LOAD LOG --
+
+      WARNING: libbpf: failed to load program 'trace_read_exit'
     generated:
       log: "-- BEGIN PROG LOAD LOG --\nfunc#0 @0\nLive regs before insn:\n  0: .1........\
         \ (b7) r2 = 0\n  1: .12....... (63) *(u32 *)(r10 -4) = r2\n  2: .1........\
@@ -144,168 +174,232 @@ raw:
       new_log_len: 1825
   verifier_log:
     blocks:
-    - "WARNING: libbpf: prog 'trace_read_exit': BPF program load failed: Permission\
-      \ denied\n\nWARNING: libbpf: prog 'trace_read_exit': -- BEGIN PROG LOAD LOG\
-      \ --\n0: (bf) r7 = r1\n1: (b7) r1 = 0\n2: (63) *(u32 *)(r10 -4) = r1\n3: (bf)\
-      \ r2 = r10\n4: (07) r2 += -4\n5: (18) r1 = 0xffff888804364200\n7: (85) call\
-      \ bpf_map_lookup_elem#1\n8: (bf) r6 = r0\n9: (15) if r6 == 0x0 goto pc+18\n\
-      \ R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R7=ctx(id=0,off=0,imm=0) R10=fp0\n10: (79) r1 = *(u64 *)(r7 +16)\n11: (b7)\
-      \ r2 = 1\n12: (6d) if r2 s> r1 goto pc+15\n R0=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R1=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff))\
-      \ R2=inv1 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n13: (bf) r2 = r10\n14: (07) r2 += -4\n15: (18) r1 = 0xffff888804364700\n\
-      17: (85) call bpf_map_lookup_elem#1\n18: (15) if r0 == 0x0 goto pc+9\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0\n\
-      19: (79) r1 = *(u64 *)(r7 +16)\n20: (bf) r2 = r1\n21: (57) r2 &= 65535\n22:\
-      \ (b7) r3 = 2048\n23: (6d) if r3 s> r1 goto pc+1\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff))\
-      \ R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R7=ctx(id=0,off=0,imm=0) R10=fp0\n24: (b7) r2 = 2048\n25: (79) r3 = *(u64\
-      \ *)(r6 +0)\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0;\
-      \ 0x7fffffffffffffff)) R2=inv2048 R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R7=ctx(id=0,off=0,imm=0) R10=fp0\n26: (bf) r1 = r0\n27: (85) call bpf_probe_read#4\n\
-      \ R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R2=inv2048 R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n28: (b7) r0 = 0\n29: (95) exit\n\nfrom 23 to 25: R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff))\
-      \ R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n25: (79) r3 = *(u64 *)(r6 +0)\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff))\
-      \ R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\n26: (bf) r1 = r0\n27: (85) call bpf_probe_read#4\n R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0)\
-      \ R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R2=inv(id=0,umax_value=65535,var_off=(0x0;\
-      \ 0xffff)) R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)\
-      \ R10=fp0\ninvalid access to map value, value_size=2048 off=0 size=0\nR1 min\
-      \ value is outside of the array range\n-- END PROG LOAD LOG --\n\nWARNING: libbpf:\
-      \ failed to load program 'trace_read_exit'"
-    combined: "libbpf: loading object from /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-72560675/prog.o\n\
-      libbpf: elf: section(3) tracepoint/syscalls/sys_enter_read, size 112, link 0,\
-      \ flags 6, type=1\nlibbpf: sec 'tracepoint/syscalls/sys_enter_read': found program\
-      \ 'trace_read_enter' at insn offset 0 (0 bytes), code size 14 insns (112 bytes)\n\
-      libbpf: elf: section(4) .reltracepoint/syscalls/sys_enter_read, size 16, link\
-      \ 29, flags 40, type=9\nlibbpf: elf: section(5) tracepoint/syscalls/sys_exit_read,\
-      \ size 240, link 0, flags 6, type=1\nlibbpf: sec 'tracepoint/syscalls/sys_exit_read':\
-      \ found program 'trace_read_exit' at insn offset 0 (0 bytes), code size 30 insns\
-      \ (240 bytes)\nlibbpf: elf: section(6) .reltracepoint/syscalls/sys_exit_read,\
-      \ size 32, link 29, flags 40, type=9\nlibbpf: elf: section(7) .maps, size 64,\
-      \ link 0, flags 3, type=1\nlibbpf: elf: section(8) license, size 4, link 0,\
-      \ flags 3, type=1\nlibbpf: license of /home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-72560675/prog.o\
-      \ is GPL\nlibbpf: elf: section(19) .BTF, size 1819, link 0, flags 0, type=1\n\
-      libbpf: elf: section(21) .BTF.ext, size 408, link 0, flags 0, type=1\nlibbpf:\
-      \ elf: section(29) .symtab, size 480, link 1, flags 0, type=2\nlibbpf: looking\
-      \ for externs among 20 symbols...\nlibbpf: collected 0 externs total\nlibbpf:\
-      \ map 'saved_read_ctx': at sec_idx 7, offset 0.\nlibbpf: map 'saved_read_ctx':\
-      \ found type = 2.\nlibbpf: map 'saved_read_ctx': found key [2], sz = 4.\nlibbpf:\
-      \ map 'saved_read_ctx': found value [9], sz = 8.\nlibbpf: map 'saved_read_ctx':\
-      \ found max_entries = 1.\nlibbpf: map 'heap': at sec_idx 7, offset 32.\nlibbpf:\
-      \ map 'heap': found type = 6.\nlibbpf: map 'heap': found key [2], sz = 4.\n\
-      libbpf: map 'heap': found value [15], sz = 2048.\nlibbpf: map 'heap': found\
-      \ max_entries = 1.\nlibbpf: sec '.reltracepoint/syscalls/sys_enter_read': collecting\
-      \ relocation for section(3) 'tracepoint/syscalls/sys_enter_read'\nlibbpf: sec\
-      \ '.reltracepoint/syscalls/sys_enter_read': relo #0: insn #8 against 'saved_read_ctx'\n\
-      libbpf: prog 'trace_read_enter': found map 0 (saved_read_ctx, sec 7, off 0)\
-      \ for insn #8\nlibbpf: sec '.reltracepoint/syscalls/sys_exit_read': collecting\
-      \ relocation for section(5) 'tracepoint/syscalls/sys_exit_read'\nlibbpf: sec\
-      \ '.reltracepoint/syscalls/sys_exit_read': relo #0: insn #5 against 'saved_read_ctx'\n\
-      libbpf: prog 'trace_read_exit': found map 0 (saved_read_ctx, sec 7, off 0) for\
-      \ insn #5\nlibbpf: sec '.reltracepoint/syscalls/sys_exit_read': relo #1: insn\
-      \ #15 against 'heap'\nlibbpf: prog 'trace_read_exit': found map 1 (heap, sec\
-      \ 7, off 32) for insn #15\nlibbpf: object 'prog': failed (-95) to create BPF\
-      \ token from '/sys/fs/bpf', skipping optional step...\nlibbpf: map 'saved_read_ctx':\
-      \ created successfully, fd=4\nlibbpf: map 'heap': created successfully, fd=5\n\
-      libbpf: prog 'trace_read_enter': -- BEGIN PROG LOAD LOG --\nfunc#0 @0\nLive\
-      \ regs before insn:\n  0: .1........ (b7) r2 = 0\n  1: .12....... (63) *(u32\
-      \ *)(r10 -4) = r2\n  2: .1........ (79) r1 = *(u64 *)(r1 +24)\n  3: .1........\
-      \ (7b) *(u64 *)(r10 -16) = r1\n  4: .......... (bf) r2 = r10\n  5: ..2.......\
-      \ (07) r2 += -4\n  6: ..2....... (bf) r3 = r10\n  7: ..23...... (07) r3 += -16\n\
-      \  8: ..23...... (18) r1 = 0xffff8f278adaf200\n 10: .123...... (b7) r4 = 0\n\
-      \ 11: .1234..... (85) call bpf_map_update_elem#2\n 12: .......... (b7) r0 =\
-      \ 0\n 13: 0......... (95) exit\n0: R1=ctx() R10=fp0\n; int trace_read_enter(struct\
-      \ read_enter_ctx *ctx) @ prog.c:245\n0: (b7) r2 = 0                        ;\
-      \ R2_w=0\n; int zero = 0; @ prog.c:247\n1: (63) *(u32 *)(r10 -4) = r2\nmark_precise:\
-      \ frame0: last_idx 1 first_idx 0 subseq_idx -1\nmark_precise: frame0: regs=r2\
-      \ stack= before 0: (b7) r2 = 0\n2: R2_w=0 R10=fp0 fp-8=0000????\n; void *p =\
-      \ ctx->buf; @ prog.c:248\n2: (79) r1 = *(u64 *)(r1 +24)         ; R1_w=scalar()\n\
-      3: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=scalar(id=1) R10=fp0 fp-16_w=scalar(id=1)\n\
-      4: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0\n;  @ prog.c:0\n5:\
-      \ (07) r2 += -4                      ; R2_w=fp-4\n6: (bf) r3 = r10         \
-      \             ; R3_w=fp0 R10=fp0\n7: (07) r3 += -16                     ; R3_w=fp-16\n\
-      ; bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY); @ prog.c:250\n8:\
-      \ (18) r1 = 0xffff8f278adaf200       ; R1_w=map_ptr(map=saved_read_ctx,ks=4,vs=8)\n\
-      10: (b7) r4 = 0                       ; R4_w=0\n11: (85) call bpf_map_update_elem#2\
-      \   ; R0_w=scalar()\n; return 0; @ prog.c:251\n12: (b7) r0 = 0             \
-      \          ; R0_w=0\n13: (95) exit\nverification time 49 usec\nstack depth 16\n\
-      processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states\
-      \ 0 mark_read 0\n-- END PROG LOAD LOG --\nlibbpf: prog 'trace_read_exit': BPF\
-      \ program load failed: -EACCES\nlibbpf: prog 'trace_read_exit': -- BEGIN PROG\
-      \ LOAD LOG --\nfunc#0 @0\nLive regs before insn:\n  0: .1........ (bf) r7 =\
-      \ r1\n  1: .......7.. (b7) r1 = 0\n  2: .1.....7.. (63) *(u32 *)(r10 -4) = r1\n\
-      \  3: .......7.. (bf) r2 = r10\n  4: ..2....7.. (07) r2 += -4\n  5: ..2....7..\
-      \ (18) r1 = 0xffff8f278adaf200\n  7: .12....7.. (85) call bpf_map_lookup_elem#1\n\
-      \  8: 0......7.. (bf) r6 = r0\n  9: ......67.. (15) if r6 == 0x0 goto pc+18\n\
-      \ 10: ......67.. (79) r1 = *(u64 *)(r7 +16)\n 11: .1....67.. (b7) r2 = 1\n 12:\
-      \ .12...67.. (6d) if r2 s> r1 goto pc+15\n 13: ......67.. (bf) r2 = r10\n 14:\
-      \ ..2...67.. (07) r2 += -4\n 15: ..2...67.. (18) r1 = 0xffff8f278adaf400\n 17:\
-      \ .12...67.. (85) call bpf_map_lookup_elem#1\n 18: 0.....67.. (15) if r0 ==\
-      \ 0x0 goto pc+9\n 19: 0.....67.. (79) r1 = *(u64 *)(r7 +16)\n 20: 01....6...\
-      \ (bf) r2 = r1\n 21: 012...6... (57) r2 &= 65535\n 22: 012...6... (b7) r3 =\
-      \ 2048\n 23: 0123..6... (6d) if r3 s> r1 goto pc+1\n 24: 0.....6... (b7) r2\
-      \ = 2048\n 25: 0.2...6... (79) r3 = *(u64 *)(r6 +0)\n 26: 0.23...... (bf) r1\
-      \ = r0\n 27: .123...... (85) call bpf_probe_read_user#112\n 28: .......... (b7)\
-      \ r0 = 0\n 29: 0......... (95) exit\n0: R1=ctx() R10=fp0\n; int trace_read_exit(struct\
-      \ read_exit_ctx *ctx) @ prog.c:255\n0: (bf) r7 = r1                       ;\
-      \ R1=ctx() R7_w=ctx()\n1: (b7) r1 = 0                        ; R1_w=0\n; int\
-      \ zero = 0; @ prog.c:259\n2: (63) *(u32 *)(r10 -4) = r1\nmark_precise: frame0:\
-      \ last_idx 2 first_idx 0 subseq_idx -1\nmark_precise: frame0: regs=r1 stack=\
-      \ before 1: (b7) r1 = 0\n3: R1_w=0 R10=fp0 fp-8=0000????\n3: (bf) r2 = r10 \
-      \                     ; R2_w=fp0 R10=fp0\n;  @ prog.c:0\n4: (07) r2 += -4  \
-      \                    ; R2_w=fp-4\n; ubuf = bpf_map_lookup_elem(&saved_read_ctx,\
-      \ &zero); @ prog.c:262\n5: (18) r1 = 0xffff8f278adaf200       ; R1_w=map_ptr(map=saved_read_ctx,ks=4,vs=8)\n\
-      7: (85) call bpf_map_lookup_elem#1    ; R0_w=map_value(map=saved_read_ctx,ks=4,vs=8)\n\
-      8: (bf) r6 = r0                       ; R0_w=map_value(map=saved_read_ctx,ks=4,vs=8)\
-      \ R6_w=map_value(map=saved_read_ctx,ks=4,vs=8)\n; if (!ubuf) @ prog.c:263\n\
-      9: (15) if r6 == 0x0 goto pc+18       ; R6_w=map_value(map=saved_read_ctx,ks=4,vs=8)\n\
-      ; if (ctx->ret <= 0) @ prog.c:266\n10: (79) r1 = *(u64 *)(r7 +16)        ; R1_w=scalar()\
-      \ R7_w=ctx()\n11: (b7) r2 = 1                       ; R2=1\n12: (6d) if r2 s>\
-      \ r1 goto pc+15       ; R1=scalar(smin=umin=1,umax=0x7fffffffffffffff,var_off=(0x0;\
-      \ 0x7fffffffffffffff)) R2=1\n13: (bf) r2 = r10                     ; R2_w=fp0\
-      \ R10=fp0\n; map_buf = bpf_map_lookup_elem(&heap, &zero); @ prog.c:269\n14:\
-      \ (07) r2 += -4                     ; R2_w=fp-4\n15: (18) r1 = 0xffff8f278adaf400\
-      \      ; R1_w=map_ptr(map=heap,ks=4,vs=2048)\n17: (85) call bpf_map_lookup_elem#1\
-      \   ; R0_w=map_value(map=heap,ks=4,vs=2048)\n; if (!map_buf) { @ prog.c:270\n\
-      18: (15) if r0 == 0x0 goto pc+9       ; R0_w=map_value(map=heap,ks=4,vs=2048)\n\
-      ; min = MIN(ctx->ret, HEAP_BUFFER_SIZE); @ prog.c:274\n19: (79) r1 = *(u64 *)(r7\
-      \ +16)        ; R1_w=scalar() R7=ctx()\n20: (bf) r2 = r1                   \
-      \   ; R1_w=scalar(id=1) R2_w=scalar(id=1)\n21: (57) r2 &= 65535            \
-      \      ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0;\
-      \ 0xffff))\n22: (b7) r3 = 2048                    ; R3=2048\n23: (6d) if r3\
-      \ s> r1 goto pc+1        ; R1=scalar(id=1,smin=umin=2048,umax=0x7fffffffffffffff,var_off=(0x0;\
-      \ 0x7fffffffffffffff)) R3=2048\n24: (b7) r2 = 2048                    ; R2_w=2048\n\
-      ; if (bpf_probe_read_user(map_buf, min, *ubuf)) { @ prog.c:280\n25: (79) r3\
-      \ = *(u64 *)(r6 +0)         ; R3_w=scalar() R6=map_value(map=saved_read_ctx,ks=4,vs=8)\n\
-      26: (bf) r1 = r0                      ; R0=map_value(map=heap,ks=4,vs=2048)\
-      \ R1_w=map_value(map=heap,ks=4,vs=2048)\n27: (85) call bpf_probe_read_user#112\n\
-      mark_precise: frame0: last_idx 27 first_idx 23 subseq_idx -1\nmark_precise:\
-      \ frame0: regs=r2 stack= before 26: (bf) r1 = r0\nmark_precise: frame0: regs=r2\
-      \ stack= before 25: (79) r3 = *(u64 *)(r6 +0)\nmark_precise: frame0: regs=r2\
-      \ stack= before 24: (b7) r2 = 2048\n28: R0_w=scalar()\n; } @ prog.c:285\n28:\
-      \ (b7) r0 = 0                       ; R0_w=0\n29: (95) exit\n\nfrom 23 to 25:\
-      \ R0=map_value(map=heap,ks=4,vs=2048) R1=scalar(id=1,smax=2047) R2=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0;\
-      \ 0xffff)) R3=2048 R6=map_value(map=saved_read_ctx,ks=4,vs=8) R7=ctx() R10=fp0\
-      \ fp-8=0000????\n25: R0=map_value(map=heap,ks=4,vs=2048) R1=scalar(id=1,smax=2047)\
-      \ R2=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))\
-      \ R3=2048 R6=map_value(map=saved_read_ctx,ks=4,vs=8) R7=ctx() R10=fp0 fp-8=0000????\n\
-      ; if (bpf_probe_read_user(map_buf, min, *ubuf)) { @ prog.c:280\n25: (79) r3\
-      \ = *(u64 *)(r6 +0)         ; R3_w=scalar() R6=map_value(map=saved_read_ctx,ks=4,vs=8)\n\
-      26: (bf) r1 = r0                      ; R0=map_value(map=heap,ks=4,vs=2048)\
-      \ R1_w=map_value(map=heap,ks=4,vs=2048)\n27: (85) call bpf_probe_read_user#112\n\
-      invalid access to map value, value_size=2048 off=0 size=65535\nR1 min value\
-      \ is outside of the allowed memory range\nverification time 91 usec\nstack depth\
-      \ 8\nprocessed 31 insns (limit 1000000) max_states_per_insn 0 total_states 2\
-      \ peak_states 2 mark_read 2\n-- END PROG LOAD LOG --\nlibbpf: prog 'trace_read_exit':\
-      \ failed to load: -EACCES\nlibbpf: failed to load object '/home/yunwei37/workspace/ebpf-verifier-agent/case_study/cases/so_gh_verified/stackoverflow-72560675/prog.o'\n\
-      Error: failed to load object file"
+    - |-
+      WARNING: libbpf: prog 'trace_read_exit': BPF program load failed: Permission denied
+
+      WARNING: libbpf: prog 'trace_read_exit': -- BEGIN PROG LOAD LOG --
+      0: (bf) r7 = r1
+      1: (b7) r1 = 0
+      2: (63) *(u32 *)(r10 -4) = r1
+      3: (bf) r2 = r10
+      4: (07) r2 += -4
+      5: (18) r1 = 0xffff888804364200
+      7: (85) call bpf_map_lookup_elem#1
+      8: (bf) r6 = r0
+      9: (15) if r6 == 0x0 goto pc+18
+       R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      10: (79) r1 = *(u64 *)(r7 +16)
+      11: (b7) r2 = 1
+      12: (6d) if r2 s> r1 goto pc+15
+       R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv1 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      13: (bf) r2 = r10
+      14: (07) r2 += -4
+      15: (18) r1 = 0xffff888804364700
+      17: (85) call bpf_map_lookup_elem#1
+      18: (15) if r0 == 0x0 goto pc+9
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      19: (79) r1 = *(u64 *)(r7 +16)
+      20: (bf) r2 = r1
+      21: (57) r2 &= 65535
+      22: (b7) r3 = 2048
+      23: (6d) if r3 s> r1 goto pc+1
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      24: (b7) r2 = 2048
+      25: (79) r3 = *(u64 *)(r6 +0)
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv2048 R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      26: (bf) r1 = r0
+      27: (85) call bpf_probe_read#4
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R2=inv2048 R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      28: (b7) r0 = 0
+      29: (95) exit
+
+      from 23 to 25: R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      25: (79) r3 = *(u64 *)(r6 +0)
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      26: (bf) r1 = r0
+      27: (85) call bpf_probe_read#4
+       R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
+      invalid access to map value, value_size=2048 off=0 size=0
+      R1 min value is outside of the array range
+      -- END PROG LOAD LOG --
+
+      WARNING: libbpf: failed to load program 'trace_read_exit'
+    combined: |-
+      libbpf: loading object from <legacy-so-gh-reproducer>/stackoverflow-72560675/prog.o
+      libbpf: elf: section(3) tracepoint/syscalls/sys_enter_read, size 112, link 0, flags 6, type=1
+      libbpf: sec 'tracepoint/syscalls/sys_enter_read': found program 'trace_read_enter' at insn offset 0 (0 bytes), code size 14 insns (112 bytes)
+      libbpf: elf: section(4) .reltracepoint/syscalls/sys_enter_read, size 16, link 29, flags 40, type=9
+      libbpf: elf: section(5) tracepoint/syscalls/sys_exit_read, size 240, link 0, flags 6, type=1
+      libbpf: sec 'tracepoint/syscalls/sys_exit_read': found program 'trace_read_exit' at insn offset 0 (0 bytes), code size 30 insns (240 bytes)
+      libbpf: elf: section(6) .reltracepoint/syscalls/sys_exit_read, size 32, link 29, flags 40, type=9
+      libbpf: elf: section(7) .maps, size 64, link 0, flags 3, type=1
+      libbpf: elf: section(8) license, size 4, link 0, flags 3, type=1
+      libbpf: license of <legacy-so-gh-reproducer>/stackoverflow-72560675/prog.o is GPL
+      libbpf: elf: section(19) .BTF, size 1819, link 0, flags 0, type=1
+      libbpf: elf: section(21) .BTF.ext, size 408, link 0, flags 0, type=1
+      libbpf: elf: section(29) .symtab, size 480, link 1, flags 0, type=2
+      libbpf: looking for externs among 20 symbols...
+      libbpf: collected 0 externs total
+      libbpf: map 'saved_read_ctx': at sec_idx 7, offset 0.
+      libbpf: map 'saved_read_ctx': found type = 2.
+      libbpf: map 'saved_read_ctx': found key [2], sz = 4.
+      libbpf: map 'saved_read_ctx': found value [9], sz = 8.
+      libbpf: map 'saved_read_ctx': found max_entries = 1.
+      libbpf: map 'heap': at sec_idx 7, offset 32.
+      libbpf: map 'heap': found type = 6.
+      libbpf: map 'heap': found key [2], sz = 4.
+      libbpf: map 'heap': found value [15], sz = 2048.
+      libbpf: map 'heap': found max_entries = 1.
+      libbpf: sec '.reltracepoint/syscalls/sys_enter_read': collecting relocation for section(3) 'tracepoint/syscalls/sys_enter_read'
+      libbpf: sec '.reltracepoint/syscalls/sys_enter_read': relo #0: insn #8 against 'saved_read_ctx'
+      libbpf: prog 'trace_read_enter': found map 0 (saved_read_ctx, sec 7, off 0) for insn #8
+      libbpf: sec '.reltracepoint/syscalls/sys_exit_read': collecting relocation for section(5) 'tracepoint/syscalls/sys_exit_read'
+      libbpf: sec '.reltracepoint/syscalls/sys_exit_read': relo #0: insn #5 against 'saved_read_ctx'
+      libbpf: prog 'trace_read_exit': found map 0 (saved_read_ctx, sec 7, off 0) for insn #5
+      libbpf: sec '.reltracepoint/syscalls/sys_exit_read': relo #1: insn #15 against 'heap'
+      libbpf: prog 'trace_read_exit': found map 1 (heap, sec 7, off 32) for insn #15
+      libbpf: object 'prog': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+      libbpf: map 'saved_read_ctx': created successfully, fd=4
+      libbpf: map 'heap': created successfully, fd=5
+      libbpf: prog 'trace_read_enter': -- BEGIN PROG LOAD LOG --
+      func#0 @0
+      Live regs before insn:
+        0: .1........ (b7) r2 = 0
+        1: .12....... (63) *(u32 *)(r10 -4) = r2
+        2: .1........ (79) r1 = *(u64 *)(r1 +24)
+        3: .1........ (7b) *(u64 *)(r10 -16) = r1
+        4: .......... (bf) r2 = r10
+        5: ..2....... (07) r2 += -4
+        6: ..2....... (bf) r3 = r10
+        7: ..23...... (07) r3 += -16
+        8: ..23...... (18) r1 = 0xffff8f278adaf200
+       10: .123...... (b7) r4 = 0
+       11: .1234..... (85) call bpf_map_update_elem#2
+       12: .......... (b7) r0 = 0
+       13: 0......... (95) exit
+      0: R1=ctx() R10=fp0
+      ; int trace_read_enter(struct read_enter_ctx *ctx) @ prog.c:245
+      0: (b7) r2 = 0                        ; R2_w=0
+      ; int zero = 0; @ prog.c:247
+      1: (63) *(u32 *)(r10 -4) = r2
+      mark_precise: frame0: last_idx 1 first_idx 0 subseq_idx -1
+      mark_precise: frame0: regs=r2 stack= before 0: (b7) r2 = 0
+      2: R2_w=0 R10=fp0 fp-8=0000????
+      ; void *p = ctx->buf; @ prog.c:248
+      2: (79) r1 = *(u64 *)(r1 +24)         ; R1_w=scalar()
+      3: (7b) *(u64 *)(r10 -16) = r1        ; R1_w=scalar(id=1) R10=fp0 fp-16_w=scalar(id=1)
+      4: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+      ;  @ prog.c:0
+      5: (07) r2 += -4                      ; R2_w=fp-4
+      6: (bf) r3 = r10                      ; R3_w=fp0 R10=fp0
+      7: (07) r3 += -16                     ; R3_w=fp-16
+      ; bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY); @ prog.c:250
+      8: (18) r1 = 0xffff8f278adaf200       ; R1_w=map_ptr(map=saved_read_ctx,ks=4,vs=8)
+      10: (b7) r4 = 0                       ; R4_w=0
+      11: (85) call bpf_map_update_elem#2   ; R0_w=scalar()
+      ; return 0; @ prog.c:251
+      12: (b7) r0 = 0                       ; R0_w=0
+      13: (95) exit
+      verification time 49 usec
+      stack depth 16
+      processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+      -- END PROG LOAD LOG --
+      libbpf: prog 'trace_read_exit': BPF program load failed: -EACCES
+      libbpf: prog 'trace_read_exit': -- BEGIN PROG LOAD LOG --
+      func#0 @0
+      Live regs before insn:
+        0: .1........ (bf) r7 = r1
+        1: .......7.. (b7) r1 = 0
+        2: .1.....7.. (63) *(u32 *)(r10 -4) = r1
+        3: .......7.. (bf) r2 = r10
+        4: ..2....7.. (07) r2 += -4
+        5: ..2....7.. (18) r1 = 0xffff8f278adaf200
+        7: .12....7.. (85) call bpf_map_lookup_elem#1
+        8: 0......7.. (bf) r6 = r0
+        9: ......67.. (15) if r6 == 0x0 goto pc+18
+       10: ......67.. (79) r1 = *(u64 *)(r7 +16)
+       11: .1....67.. (b7) r2 = 1
+       12: .12...67.. (6d) if r2 s> r1 goto pc+15
+       13: ......67.. (bf) r2 = r10
+       14: ..2...67.. (07) r2 += -4
+       15: ..2...67.. (18) r1 = 0xffff8f278adaf400
+       17: .12...67.. (85) call bpf_map_lookup_elem#1
+       18: 0.....67.. (15) if r0 == 0x0 goto pc+9
+       19: 0.....67.. (79) r1 = *(u64 *)(r7 +16)
+       20: 01....6... (bf) r2 = r1
+       21: 012...6... (57) r2 &= 65535
+       22: 012...6... (b7) r3 = 2048
+       23: 0123..6... (6d) if r3 s> r1 goto pc+1
+       24: 0.....6... (b7) r2 = 2048
+       25: 0.2...6... (79) r3 = *(u64 *)(r6 +0)
+       26: 0.23...... (bf) r1 = r0
+       27: .123...... (85) call bpf_probe_read_user#112
+       28: .......... (b7) r0 = 0
+       29: 0......... (95) exit
+      0: R1=ctx() R10=fp0
+      ; int trace_read_exit(struct read_exit_ctx *ctx) @ prog.c:255
+      0: (bf) r7 = r1                       ; R1=ctx() R7_w=ctx()
+      1: (b7) r1 = 0                        ; R1_w=0
+      ; int zero = 0; @ prog.c:259
+      2: (63) *(u32 *)(r10 -4) = r1
+      mark_precise: frame0: last_idx 2 first_idx 0 subseq_idx -1
+      mark_precise: frame0: regs=r1 stack= before 1: (b7) r1 = 0
+      3: R1_w=0 R10=fp0 fp-8=0000????
+      3: (bf) r2 = r10                      ; R2_w=fp0 R10=fp0
+      ;  @ prog.c:0
+      4: (07) r2 += -4                      ; R2_w=fp-4
+      ; ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero); @ prog.c:262
+      5: (18) r1 = 0xffff8f278adaf200       ; R1_w=map_ptr(map=saved_read_ctx,ks=4,vs=8)
+      7: (85) call bpf_map_lookup_elem#1    ; R0_w=map_value(map=saved_read_ctx,ks=4,vs=8)
+      8: (bf) r6 = r0                       ; R0_w=map_value(map=saved_read_ctx,ks=4,vs=8) R6_w=map_value(map=saved_read_ctx,ks=4,vs=8)
+      ; if (!ubuf) @ prog.c:263
+      9: (15) if r6 == 0x0 goto pc+18       ; R6_w=map_value(map=saved_read_ctx,ks=4,vs=8)
+      ; if (ctx->ret <= 0) @ prog.c:266
+      10: (79) r1 = *(u64 *)(r7 +16)        ; R1_w=scalar() R7_w=ctx()
+      11: (b7) r2 = 1                       ; R2=1
+      12: (6d) if r2 s> r1 goto pc+15       ; R1=scalar(smin=umin=1,umax=0x7fffffffffffffff,var_off=(0x0; 0x7fffffffffffffff)) R2=1
+      13: (bf) r2 = r10                     ; R2_w=fp0 R10=fp0
+      ; map_buf = bpf_map_lookup_elem(&heap, &zero); @ prog.c:269
+      14: (07) r2 += -4                     ; R2_w=fp-4
+      15: (18) r1 = 0xffff8f278adaf400      ; R1_w=map_ptr(map=heap,ks=4,vs=2048)
+      17: (85) call bpf_map_lookup_elem#1   ; R0_w=map_value(map=heap,ks=4,vs=2048)
+      ; if (!map_buf) { @ prog.c:270
+      18: (15) if r0 == 0x0 goto pc+9       ; R0_w=map_value(map=heap,ks=4,vs=2048)
+      ; min = MIN(ctx->ret, HEAP_BUFFER_SIZE); @ prog.c:274
+      19: (79) r1 = *(u64 *)(r7 +16)        ; R1_w=scalar() R7=ctx()
+      20: (bf) r2 = r1                      ; R1_w=scalar(id=1) R2_w=scalar(id=1)
+      21: (57) r2 &= 65535                  ; R2_w=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff))
+      22: (b7) r3 = 2048                    ; R3=2048
+      23: (6d) if r3 s> r1 goto pc+1        ; R1=scalar(id=1,smin=umin=2048,umax=0x7fffffffffffffff,var_off=(0x0; 0x7fffffffffffffff)) R3=2048
+      24: (b7) r2 = 2048                    ; R2_w=2048
+      ; if (bpf_probe_read_user(map_buf, min, *ubuf)) { @ prog.c:280
+      25: (79) r3 = *(u64 *)(r6 +0)         ; R3_w=scalar() R6=map_value(map=saved_read_ctx,ks=4,vs=8)
+      26: (bf) r1 = r0                      ; R0=map_value(map=heap,ks=4,vs=2048) R1_w=map_value(map=heap,ks=4,vs=2048)
+      27: (85) call bpf_probe_read_user#112
+      mark_precise: frame0: last_idx 27 first_idx 23 subseq_idx -1
+      mark_precise: frame0: regs=r2 stack= before 26: (bf) r1 = r0
+      mark_precise: frame0: regs=r2 stack= before 25: (79) r3 = *(u64 *)(r6 +0)
+      mark_precise: frame0: regs=r2 stack= before 24: (b7) r2 = 2048
+      28: R0_w=scalar()
+      ; } @ prog.c:285
+      28: (b7) r0 = 0                       ; R0_w=0
+      29: (95) exit
+
+      from 23 to 25: R0=map_value(map=heap,ks=4,vs=2048) R1=scalar(id=1,smax=2047) R2=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R3=2048 R6=map_value(map=saved_read_ctx,ks=4,vs=8) R7=ctx() R10=fp0 fp-8=0000????
+      25: R0=map_value(map=heap,ks=4,vs=2048) R1=scalar(id=1,smax=2047) R2=scalar(smin=smin32=0,smax=umax=smax32=umax32=0xffff,var_off=(0x0; 0xffff)) R3=2048 R6=map_value(map=saved_read_ctx,ks=4,vs=8) R7=ctx() R10=fp0 fp-8=0000????
+      ; if (bpf_probe_read_user(map_buf, min, *ubuf)) { @ prog.c:280
+      25: (79) r3 = *(u64 *)(r6 +0)         ; R3_w=scalar() R6=map_value(map=saved_read_ctx,ks=4,vs=8)
+      26: (bf) r1 = r0                      ; R0=map_value(map=heap,ks=4,vs=2048) R1_w=map_value(map=heap,ks=4,vs=2048)
+      27: (85) call bpf_probe_read_user#112
+      invalid access to map value, value_size=2048 off=0 size=65535
+      R1 min value is outside of the allowed memory range
+      verification time 91 usec
+      stack depth 8
+      processed 31 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 2
+      -- END PROG LOAD LOG --
+      libbpf: prog 'trace_read_exit': failed to load: -EACCES
+      libbpf: failed to load object '<legacy-so-gh-reproducer>/stackoverflow-72560675/prog.o'
+      Error: failed to load object file
     generated:
       log: "-- BEGIN PROG LOAD LOG --\nfunc#0 @0\nLive regs before insn:\n  0: .1........\
         \ (b7) r2 = 0\n  1: .12....... (63) *(u32 *)(r10 -4) = r2\n  2: .1........\
@@ -340,285 +434,210 @@ raw:
   verifier_log_source: captured_on_6.15.11
   verifier_log_captured_at: '2026-03-20'
   source_snippets:
-  - "#include <stddef.h>\n#include <linux/bpf.h>\n#include <bpf/bpf_helpers.h>\n\n\
-    #define MIN(a,b) (((a)<(b))?(a):(b))\n\nstruct read_enter_ctx {\n        unsigned\
-    \ long long unused;\n        int __syscall_nr;\n        //unsigned int padding;\n\
-    \        unsigned long fd;\n        char* buf;\n        size_t count;\n};\n\n\
-    struct read_exit_ctx {\n        unsigned long long unused;\n        int __syscall_nr;\n\
-    \        long ret;\n};\n\nstruct {\n        __uint(type, BPF_MAP_TYPE_ARRAY);\n\
-    \        __uint(max_entries, 1);\n        __type(key, int);\n        __type(value,\
-    \ void*);\n} saved_read_ctx SEC(\".maps\");\n\n#define HEAP_BUFFER_SIZE (2 * 1024)\n\
-    \nstruct heap_buffer {\n        char buf[HEAP_BUFFER_SIZE];\n};\n\n/* This is\
-    \ the temporary storage - 'heap', used to copy userspace buffers */\nstruct {\n\
-    \        __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);\n        __uint(max_entries,\
-    \ 1);\n        __type(key, int);\n        __type(value, struct heap_buffer);\n\
-    } heap SEC(\".maps\");\n\nSEC(\"tracepoint/syscalls/sys_enter_read\")\nint trace_read_enter(struct\
-    \ read_enter_ctx *ctx)\n{\n        int zero = 0;\n        void *p = ctx->buf;\n\
-    \n        bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY);\n        return\
-    \ 0;\n}\n\nSEC(\"tracepoint/syscalls/sys_exit_read\")\nint trace_read_exit(struct\
-    \ read_exit_ctx *ctx)\n{\n        char *map_buf;\n        void **ubuf;\n     \
-    \   int zero = 0;\n        unsigned long min;\n\n        ubuf = bpf_map_lookup_elem(&saved_read_ctx,\
-    \ &zero);\n        if (!ubuf)\n                return 0;\n\n        if (ctx->ret\
-    \ <= 0)\n                return 0;\n\n        map_buf = bpf_map_lookup_elem(&heap,\
-    \ &zero);\n        if (!map_buf) {\n                return 0;\n        }\n\n \
-    \       min = MIN(ctx->ret, HEAP_BUFFER_SIZE);\n        min &= 0xffff;\n     \
-    \   //min = 16;  // verifier is happy once I uncomment this line\n#if 1\n\n  \
-    \      // this is where things go bad\n        if (bpf_probe_read_user(map_buf,\
-    \ min, *ubuf)) {\n                return 0;\n        }\n#endif\n        return\
-    \ 0;\n}\n\nchar _license[] SEC(\"license\") = \"GPL\";"
-  question_body_text: 'I am tracing read() system call using EBPF on a 4.14 kernel.
-    This code works fine on later kernels, however, the verifier rejects this on 4.14.
-
+  - |-
     #include <stddef.h>
-
     #include <linux/bpf.h>
-
     #include <bpf/bpf_helpers.h>
 
     #define MIN(a,b) (((a)<(b))?(a):(b))
 
     struct read_enter_ctx {
-
-    unsigned long long unused;
-
-    int __syscall_nr;
-
-    //unsigned int padding;
-
-    unsigned long fd;
-
-    char* buf;
-
-    size_t count;
-
+            unsigned long long unused;
+            int __syscall_nr;
+            //unsigned int padding;
+            unsigned long fd;
+            char* buf;
+            size_t count;
     };
 
     struct read_exit_ctx {
-
-    unsigned long long unused;
-
-    int __syscall_nr;
-
-    long ret;
-
+            unsigned long long unused;
+            int __syscall_nr;
+            long ret;
     };
 
     struct {
-
-    __uint(type, BPF_MAP_TYPE_ARRAY);
-
-    __uint(max_entries, 1);
-
-    __type(key, int);
-
-    __type(value, void*);
-
+            __uint(type, BPF_MAP_TYPE_ARRAY);
+            __uint(max_entries, 1);
+            __type(key, int);
+            __type(value, void*);
     } saved_read_ctx SEC(".maps");
 
     #define HEAP_BUFFER_SIZE (2 * 1024)
 
     struct heap_buffer {
-
-    char buf[HEAP_BUFFER_SIZE];
-
+            char buf[HEAP_BUFFER_SIZE];
     };
 
-    /* This is the temporary storage - ''heap'', used to copy userspace buffers */
-
+    /* This is the temporary storage - 'heap', used to copy userspace buffers */
     struct {
-
-    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
-
-    __uint(max_entries, 1);
-
-    __type(key, int);
-
-    __type(value, struct heap_buffer);
-
+            __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+            __uint(max_entries, 1);
+            __type(key, int);
+            __type(value, struct heap_buffer);
     } heap SEC(".maps");
 
     SEC("tracepoint/syscalls/sys_enter_read")
-
     int trace_read_enter(struct read_enter_ctx *ctx)
-
     {
+            int zero = 0;
+            void *p = ctx->buf;
 
-    int zero = 0;
-
-    void *p = ctx->buf;
-
-    bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY);
-
-    return 0;
-
+            bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY);
+            return 0;
     }
 
     SEC("tracepoint/syscalls/sys_exit_read")
-
     int trace_read_exit(struct read_exit_ctx *ctx)
-
     {
+            char *map_buf;
+            void **ubuf;
+            int zero = 0;
+            unsigned long min;
 
-    char *map_buf;
+            ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero);
+            if (!ubuf)
+                    return 0;
 
-    void **ubuf;
+            if (ctx->ret <= 0)
+                    return 0;
 
-    int zero = 0;
+            map_buf = bpf_map_lookup_elem(&heap, &zero);
+            if (!map_buf) {
+                    return 0;
+            }
 
-    unsigned long min;
-
-    ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero);
-
-    if (!ubuf)
-
-    return 0;
-
-    if (ctx->ret <= 0)
-
-    return 0;
-
-    map_buf = bpf_map_lookup_elem(&heap, &zero);
-
-    if (!map_buf) {
-
-    return 0;
-
-    }
-
-    min = MIN(ctx->ret, HEAP_BUFFER_SIZE);
-
-    min &= 0xffff;
-
-    //min = 16; // verifier is happy once I uncomment this line
-
+            min = MIN(ctx->ret, HEAP_BUFFER_SIZE);
+            min &= 0xffff;
+            //min = 16;  // verifier is happy once I uncomment this line
     #if 1
 
-    // this is where things go bad
-
-    if (bpf_probe_read_user(map_buf, min, *ubuf)) {
-
-    return 0;
-
-    }
-
+            // this is where things go bad
+            if (bpf_probe_read_user(map_buf, min, *ubuf)) {
+                    return 0;
+            }
     #endif
-
-    return 0;
-
+            return 0;
     }
 
     char _license[] SEC("license") = "GPL";
-
-    WARNING: libbpf: prog ''trace_read_exit'': BPF program load failed: Permission
-    denied
-
-    WARNING: libbpf: prog ''trace_read_exit'': -- BEGIN PROG LOAD LOG --
-
+  question_body_text: |-
+    I am tracing read() system call using EBPF on a 4.14 kernel. This code works fine on later kernels, however, the verifier rejects this on 4.14.
+    #include <stddef.h>
+    #include <linux/bpf.h>
+    #include <bpf/bpf_helpers.h>
+    #define MIN(a,b) (((a)<(b))?(a):(b))
+    struct read_enter_ctx {
+    unsigned long long unused;
+    int __syscall_nr;
+    //unsigned int padding;
+    unsigned long fd;
+    char* buf;
+    size_t count;
+    };
+    struct read_exit_ctx {
+    unsigned long long unused;
+    int __syscall_nr;
+    long ret;
+    };
+    struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, int);
+    __type(value, void*);
+    } saved_read_ctx SEC(".maps");
+    #define HEAP_BUFFER_SIZE (2 * 1024)
+    struct heap_buffer {
+    char buf[HEAP_BUFFER_SIZE];
+    };
+    /* This is the temporary storage - 'heap', used to copy userspace buffers */
+    struct {
+    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, int);
+    __type(value, struct heap_buffer);
+    } heap SEC(".maps");
+    SEC("tracepoint/syscalls/sys_enter_read")
+    int trace_read_enter(struct read_enter_ctx *ctx)
+    {
+    int zero = 0;
+    void *p = ctx->buf;
+    bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY);
+    return 0;
+    }
+    SEC("tracepoint/syscalls/sys_exit_read")
+    int trace_read_exit(struct read_exit_ctx *ctx)
+    {
+    char *map_buf;
+    void **ubuf;
+    int zero = 0;
+    unsigned long min;
+    ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero);
+    if (!ubuf)
+    return 0;
+    if (ctx->ret <= 0)
+    return 0;
+    map_buf = bpf_map_lookup_elem(&heap, &zero);
+    if (!map_buf) {
+    return 0;
+    }
+    min = MIN(ctx->ret, HEAP_BUFFER_SIZE);
+    min &= 0xffff;
+    //min = 16; // verifier is happy once I uncomment this line
+    #if 1
+    // this is where things go bad
+    if (bpf_probe_read_user(map_buf, min, *ubuf)) {
+    return 0;
+    }
+    #endif
+    return 0;
+    }
+    char _license[] SEC("license") = "GPL";
+    WARNING: libbpf: prog 'trace_read_exit': BPF program load failed: Permission denied
+    WARNING: libbpf: prog 'trace_read_exit': -- BEGIN PROG LOAD LOG --
     0: (bf) r7 = r1
-
     1: (b7) r1 = 0
-
     2: (63) *(u32 *)(r10 -4) = r1
-
     3: (bf) r2 = r10
-
     4: (07) r2 += -4
-
     5: (18) r1 = 0xffff888804364200
-
     7: (85) call bpf_map_lookup_elem#1
-
     8: (bf) r6 = r0
-
     9: (15) if r6 == 0x0 goto pc+18
-
-    R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)
-    R7=ctx(id=0,off=0,imm=0) R10=fp0
-
+    R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
     10: (79) r1 = *(u64 *)(r7 +16)
-
     11: (b7) r2 = 1
-
     12: (6d) if r2 s> r1 goto pc+15
-
-    R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0;
-    0x7fffffffffffffff)) R2=inv1 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)
-    R10=fp0
-
+    R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv1 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
     13: (bf) r2 = r10
-
     14: (07) r2 += -4
-
     15: (18) r1 = 0xffff888804364700
-
     17: (85) call bpf_map_lookup_elem#1
-
     18: (15) if r0 == 0x0 goto pc+9
-
-    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)
-    R7=ctx(id=0,off=0,imm=0) R10=fp0
-
+    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
     19: (79) r1 = *(u64 *)(r7 +16)
-
     20: (bf) r2 = r1
-
     21: (57) r2 &= 65535
-
     22: (b7) r3 = 2048
-
     23: (6d) if r3 s> r1 goto pc+1
-
-    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0;
-    0x7fffffffffffffff)) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048
-    R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
-
+    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
     24: (b7) r2 = 2048
-
     25: (79) r3 = *(u64 *)(r6 +0)
-
-    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0;
-    0x7fffffffffffffff)) R2=inv2048 R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)
-    R7=ctx(id=0,off=0,imm=0) R10=fp0
-
+    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,umin_value=2048,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R2=inv2048 R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
     26: (bf) r1 = r0
-
     27: (85) call bpf_probe_read#4
-
-    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0)
-    R2=inv2048 R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)
-    R10=fp0
-
+    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R2=inv2048 R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
     28: (b7) r0 = 0
-
     29: (95) exit
-
-    from 23 to 25: R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,smax_value=2047)
-    R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)
-    R7=ctx(id=0,off=0,imm=0) R10=fp0
-
+    from 23 to 25: R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
     25: (79) r3 = *(u64 *)(r6 +0)
-
-    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0;
-    0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0)
-    R10=fp0
-
+    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=inv(id=0,smax_value=2047) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv2048 R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
     26: (bf) r1 = r0
-
     27: (85) call bpf_probe_read#4
-
-    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0)
-    R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0)
-    R7=ctx(id=0,off=0,imm=0) R10=fp0
-
+    R0=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R1=map_value(id=0,off=0,ks=4,vs=2048,imm=0) R2=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R3=inv(id=0) R6=map_value(id=0,off=0,ks=4,vs=8,imm=0) R7=ctx(id=0,off=0,imm=0) R10=fp0
     invalid access to map value, value_size=2048 off=0 size=0
-
     R1 min value is outside of the array range
-
     -- END PROG LOAD LOG --
-
-    WARNING: libbpf: failed to load program ''trace_read_exit''
-
-    How do I make this work for 4.14 kernels? Looking through the 4.14 verifier code,
-    this is where the code breaks. https://elixir.bootlin.com/linux/v4.14.248/source/kernel/bpf/verifier.c#L1016'
+    WARNING: libbpf: failed to load program 'trace_read_exit'
+    How do I make this work for 4.14 kernels? Looking through the 4.14 verifier code, this is where the code breaks. https://elixir.bootlin.com/linux/v4.14.248/source/kernel/bpf/verifier.c#L1016
   selected_answer: {}
-

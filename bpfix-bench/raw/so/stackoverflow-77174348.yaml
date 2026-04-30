@@ -40,9 +40,9 @@ raw:
     is_answered: false
   verifier_log:
     blocks:
-    - 'invalid access to memory, mem_size=1528 off=0 size=0
-
-      R3 min value is outside of the allowed memory range'
+    - |-
+      invalid access to memory, mem_size=1528 off=0 size=0
+      R3 min value is outside of the allowed memory range
     - "make sockfilter && sudo ./sockfilter\n  BPF      .output/sockfilter.bpf.o\n\
       sockfilter.bpf.c:139:15: warning: incompatible pointer to integer conversion\
       \ assigning to '__u64' (aka 'unsigned long long') from 'void *' [-Wint-conversion]\n\
@@ -158,9 +158,9 @@ raw:
       \ 3\n-- END PROG LOAD LOG --\nlibbpf: prog 'socket_handler': failed to load:\
       \ -13\nlibbpf: failed to load object 'sockfilter_bpf'\nlibbpf: failed to load\
       \ BPF skeleton 'sockfilter_bpf': -13\nFailed to open and load BPF skeleton"
-    - 'invalid access to map value, value_size=1518 off=0 size=0
-
-      R3 min value is outside of the allowed memory range'
+    - |-
+      invalid access to map value, value_size=1518 off=0 size=0
+      R3 min value is outside of the allowed memory range
     - "make sockfilter && sudo ./sockfilter\n  BPF      .output/sockfilter.bpf.o\n\
       sockfilter.bpf.c:141:15: warning: incompatible pointer to integer conversion\
       \ assigning to '__u64' (aka 'unsigned long long') from 'void *' [-Wint-conversion]\n\
@@ -678,4 +678,3 @@ raw:
     \ not sure, why it is trying to write more data into the buffer than it should,\
     \ as the size is maximized at 15000 bytes."
   selected_answer: {}
-

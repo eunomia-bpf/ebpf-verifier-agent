@@ -1,6 +1,0 @@
-status: partial
-reason: buggy=load_error, fixed=load_error
-buggy_compile: True
-buggy_verifier_pass: None
-fixed_compile: True
-fixed_verifier_pass: None

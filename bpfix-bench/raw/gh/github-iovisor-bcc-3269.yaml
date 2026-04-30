@@ -224,4 +224,3 @@ raw:
     verifier_error_match: mismatch
     notes: Semantic C reconstruction of the skb_load_bytes variable-length copy into
       a 1024-byte per-CPU array map from iovisor/bcc#3269.
-

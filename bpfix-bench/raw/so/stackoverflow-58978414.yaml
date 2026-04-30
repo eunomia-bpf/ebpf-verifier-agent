@@ -42,57 +42,38 @@ raw:
     - R3 type=map_value_or_null expected=fp
     combined: R3 type=map_value_or_null expected=fp
   source_snippets:
-  - "BPF_ARRAY(test,u64, 12);\nu64 key0 = 0;\nu64 test = 1234;\ntest.update(&key0,\
-    \ &test);\nu64 comparer = 0;\nu64 compared = 1234;\nu64 replace_value = 1111;\n\
-    comparer = test.lookup(&key0);\nif (comparer == compared)\n    test.update(&key0,\
-    \ &replace_value);"
-  question_body_text: 'I''m experimenting with eBPF map and I have trouble using values
-    retrieved from eBPF maps in the ''if'' clause.
-
-    I''m also using BCC to experiment with this code!
-
-    So, when I run the code, I try to do this :
-
+  - |-
     BPF_ARRAY(test,u64, 12);
-
     u64 key0 = 0;
-
     u64 test = 1234;
-
     test.update(&key0, &test);
-
-    and I have checked after running the code that the 1234 has been appropriately
-    inserted.
-
-    and when I try to read the value from the eBPF map and make comparison using ''if'',
-    it gives me an error such as :
-
-    BPF_ARRAY(test,u64, 12);
-
-    u64 key0 = 0;
-
-    u64 test = 1234;
-
-    test.update(&key0, &test);
-
     u64 comparer = 0;
-
     u64 compared = 1234;
-
     u64 replace_value = 1111;
-
     comparer = test.lookup(&key0);
-
     if (comparer == compared)
-
+        test.update(&key0, &replace_value);
+  question_body_text: |-
+    I'm experimenting with eBPF map and I have trouble using values retrieved from eBPF maps in the 'if' clause.
+    I'm also using BCC to experiment with this code!
+    So, when I run the code, I try to do this :
+    BPF_ARRAY(test,u64, 12);
+    u64 key0 = 0;
+    u64 test = 1234;
+    test.update(&key0, &test);
+    and I have checked after running the code that the 1234 has been appropriately inserted.
+    and when I try to read the value from the eBPF map and make comparison using 'if', it gives me an error such as :
+    BPF_ARRAY(test,u64, 12);
+    u64 key0 = 0;
+    u64 test = 1234;
+    test.update(&key0, &test);
+    u64 comparer = 0;
+    u64 compared = 1234;
+    u64 replace_value = 1111;
+    comparer = test.lookup(&key0);
+    if (comparer == compared)
     test.update(&key0, &replace_value);
-
     and this gives me an error such as :
-
     R3 type=map_value_or_null expected=fp
-
-    I think I''m doing legitimate actions, just reading the value from the eBPF map
-    and comparing it with another value in the kernel space but this doesn''t seem
-    to work.'
+    I think I'm doing legitimate actions, just reading the value from the eBPF map and comparing it with another value in the kernel space but this doesn't seem to work.
   selected_answer: {}
-

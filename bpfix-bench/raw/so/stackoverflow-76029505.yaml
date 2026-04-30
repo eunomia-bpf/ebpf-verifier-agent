@@ -43,101 +43,74 @@ raw:
     blocks: []
     combined: ''
   source_snippets:
-  - "struct accept_args_t {\n    struct sockaddr_in *addr;\n};\n\nSEC(\"kprobe/sys_accept\"\
-    )\nint syscall__probe_entry_accept(struct pt_regs *ctx, int sockfd, struct sockaddr\
-    \ *addr, socklen_t *addrlen) {\n    u64 id  = bpf_get_current_pid_tgid();\n  \
-    \  u64 pid = id >> 32;\n    if (pid != PID)\n        return 0;\n    bpf_printk(\"\
-    accept entry called for [PID:%llu]\\n\", pid);\n\n    struct accept_args_t *accept_args\
-    \ = bpf_map_lookup_elem(&active_accept_args_map, &id);\n    if (accept_args) {\n\
-    \        bpf_printk(\"accept_args_t exists for [ID:%llu]\\n\", id);\n    } else\
-    \ {\n        bpf_printk(\"accept_args_t doesn't exist for [ID:%llu]\\n\", id);\n\
-    \        struct accept_args_t new_accept_args = {};\n\n        u32 size = sizeof(struct\
-    \ sockaddr_in);\n        bpf_probe_read(new_accept_args.addr, size, addr);  //\
-    \ this line is causing the below error.\n        bpf_map_update_elem(&active_accept_args_map,\
-    \ &id, &new_accept_args, BPF_ANY);\n    }\n\n    return 0;\n}"
-  question_body_text: 'I am unable to read the addr argument and assign it to my struct
-    field.
-
+  - |-
     struct accept_args_t {
-
-    struct sockaddr_in *addr;
-
+        struct sockaddr_in *addr;
     };
 
     SEC("kprobe/sys_accept")
+    int syscall__probe_entry_accept(struct pt_regs *ctx, int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
+        u64 id  = bpf_get_current_pid_tgid();
+        u64 pid = id >> 32;
+        if (pid != PID)
+            return 0;
+        bpf_printk("accept entry called for [PID:%llu]\n", pid);
 
-    int syscall__probe_entry_accept(struct pt_regs *ctx, int sockfd, struct sockaddr
-    *addr, socklen_t *addrlen) {
+        struct accept_args_t *accept_args = bpf_map_lookup_elem(&active_accept_args_map, &id);
+        if (accept_args) {
+            bpf_printk("accept_args_t exists for [ID:%llu]\n", id);
+        } else {
+            bpf_printk("accept_args_t doesn't exist for [ID:%llu]\n", id);
+            struct accept_args_t new_accept_args = {};
 
+            u32 size = sizeof(struct sockaddr_in);
+            bpf_probe_read(new_accept_args.addr, size, addr);  // this line is causing the below error.
+            bpf_map_update_elem(&active_accept_args_map, &id, &new_accept_args, BPF_ANY);
+        }
+
+        return 0;
+    }
+  question_body_text: |-
+    I am unable to read the addr argument and assign it to my struct field.
+    struct accept_args_t {
+    struct sockaddr_in *addr;
+    };
+    SEC("kprobe/sys_accept")
+    int syscall__probe_entry_accept(struct pt_regs *ctx, int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
     u64 id = bpf_get_current_pid_tgid();
-
     u64 pid = id >> 32;
-
     if (pid != PID)
-
     return 0;
-
     bpf_printk("accept entry called for [PID:%llu]\n", pid);
-
-    struct accept_args_t *accept_args = bpf_map_lookup_elem(&active_accept_args_map,
-    &id);
-
+    struct accept_args_t *accept_args = bpf_map_lookup_elem(&active_accept_args_map, &id);
     if (accept_args) {
-
     bpf_printk("accept_args_t exists for [ID:%llu]\n", id);
-
     } else {
-
-    bpf_printk("accept_args_t doesn''t exist for [ID:%llu]\n", id);
-
+    bpf_printk("accept_args_t doesn't exist for [ID:%llu]\n", id);
     struct accept_args_t new_accept_args = {};
-
     u32 size = sizeof(struct sockaddr_in);
-
-    bpf_probe_read(new_accept_args.addr, size, addr); // this line is causing the
-    below error.
-
+    bpf_probe_read(new_accept_args.addr, size, addr); // this line is causing the below error.
     bpf_map_update_elem(&active_accept_args_map, &id, &new_accept_args, BPF_ANY);
-
     }
-
     return 0;
-
     }
-
-    program syscall__probe_entry_accept: load program: permission denied: 0: (bf)
-    r6 = r3: R3 !read_ok (4 line(s) omitted) exit status 1
-
-    Can anyone please tell me how to debug and figure out the root cause of these
-    errors by understanding the error codes just as above, are there any resources
-    where i can find the meaning of these errors?'
+    program syscall__probe_entry_accept: load program: permission denied: 0: (bf) r6 = r3: R3 !read_ok (4 line(s) omitted) exit status 1
+    Can anyone please tell me how to debug and figure out the root cause of these errors by understanding the error codes just as above, are there any resources where i can find the meaning of these errors?
   selected_answer:
     answer_id: 76086270
     url: https://stackoverflow.com/questions/76029505/permission-denied-when-using-bpf-probe-read-in-the-ebpf-program#76086270
     is_accepted: true
     score: 2
-    body_text: 'I don''t think you can retrieve the syscall arguments in that way.
-      Instead, you should be using the dedicated macros:
-
+    body_text: |-
+      I don't think you can retrieve the syscall arguments in that way. Instead, you should be using the dedicated macros:
       PT_REGS_PARM3
-
       SEC("kprobe/sys_accept")
-
       int syscall__probe_entry_accept(struct pt_regs *ctx) {
-
       int sockfd = (int)PT_REGS_PARM1(ctx);
-
       struct sockaddr *addr = (struct sockaddr *)PT_REGS_PARM2(ctx);
-
       socklen_t *addrlen = (socklen_t *)PT_REGS_PARM3(ctx);
-
-      Verifier Error Explanation. R3 !read_ok means register 3 hasn''t been initialized
-      and therefore isn''t safe to read. It hasn''t been initialized because R3 in
-      this case is addr which was not correctly declared.
-
-      Note. It''s possible you saw BPF programs that are using bcc retrieve arguments
-      in that way. That is only possible with bcc because it rewrites the program
-      to a format the kernel understands before loading.'
+      Verifier Error Explanation. R3 !read_ok means register 3 hasn't been initialized and therefore isn't safe to read. It hasn't been initialized because R3 in this case is addr which was not correctly declared.
+      Note. It's possible you saw BPF programs that are using bcc retrieve arguments in that way. That is only possible with bcc because it rewrites the program to a format the kernel understands before loading.
     fix_description: 'I don''t think you can retrieve the syscall arguments in that
       way. Instead, you should be using the dedicated macros: Verifier Error Explanation.
       R3 !read_ok means register 3 hasn''t been initialized and therefore isn''t safe
@@ -145,4 +118,3 @@ raw:
       not correctly declared. Note. It''s possible you saw BPF programs that are using
       bcc retrieve arguments in that way. That is only possible with bcc because it
       rewrites the program to a format the kernel understands before loading.'
-

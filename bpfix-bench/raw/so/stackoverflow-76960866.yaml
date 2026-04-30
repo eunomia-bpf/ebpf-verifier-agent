@@ -44,120 +44,200 @@ raw:
     is_answered: true
   verifier_log:
     blocks:
-    - "; struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);\n0: (79) r6\
-      \ = *(u64 *)(r1 +104)\n; bpf_trace_printk(\"inet_accept called\\n\", sizeof(\"\
-      inet_accept called\\n\"));\n1: (18) r1 = 0xffff888a06dc4910\n3: (b7) r2 = 20\n\
-      4: (85) call bpf_trace_printk#6\n R1_w=map_value(id=0,off=0,ks=4,vs=57,imm=0)\
-      \ R2_w=inv20 R6_w=inv(id=0) R10=fp0\nlast_idx 4 first_idx 0\nregs=4 stack=0\
-      \ before 3: (b7) r2 = 20\n5: (b7) r1 = 0\n; struct sock_key sk_key = {0, };\n\
-      6: (63) *(u32 *)(r10 -8) = r1\nlast_idx 6 first_idx 0\nregs=2 stack=0 before\
-      \ 5: (b7) r1 = 0\n7: (7b) *(u64 *)(r10 -16) = r1\n8: (7b) *(u64 *)(r10 -24)\
-      \ = r1\n9: (7b) *(u64 *)(r10 -32) = r1\n10: (7b) *(u64 *)(r10 -40) = r1\n11:\
-      \ (7b) *(u64 *)(r10 -48) = r1\n12: (7b) *(u64 *)(r10 -56) = r1\n; extract_sock_key(newsock->sk,\
-      \ &sk_key);\n13: (79) r6 = *(u64 *)(r6 +24)\nR6 invalid mem access 'inv'\nprocessed\
-      \ 13 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states\
-      \ 0 mark_read 0\n2023/08/22 19:01:25 loading objects: field KprobeInetAccept:\
-      \ program kprobe__inet_accept: load program: permission denied: 13: (79) r6\
-      \ = *(u64 *)(r6 +24): R6 invalid mem access 'inv' (22 line(s) omitted)"
-    - "2023/08/22 19:13:49 verifier log:\n ; struct socket *newsock = (struct socket\
-      \ *)PT_REGS_PARM2(ctx);\n0: (79) r1 = *(u64 *)(r1 +104)\n; bpf_trace_printk(\"\
-      inet_accept called type %d\\n\", sizeof(\"inet_accept called type %d\\n\"),(int)newsock->type);\n\
-      1: (69) r3 = *(u16 *)(r1 +4)\nR1 invalid mem access 'inv'\nprocessed 2 insns\
-      \ (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read\
-      \ 0\n2023/08/22 19:13:49 loading objects: field KprobeInetAccept: program kprobe__inet_accept:\
-      \ load program: permission denied: 1: (69) r3 = *(u16 *)(r1 +4): R1 invalid\
-      \ mem access 'inv' (4 line(s) omitted)"
-    - "2023/08/24 11:24:15 verifier log:\n ; struct socket *newsock = (struct socket\
-      \ *)PT_REGS_PARM2(ctx);\n0: (79) r6 = *(u64 *)(r1 +104)\n; if (newsock == NULL)\
-      \ {\n1: (15) if r6 == 0x0 goto pc+27\n R1=ctx(id=0,off=0,imm=0) R6_w=inv(id=0)\
-      \ R10=fp0\n; bpf_trace_printk(\"inet_accept called %llx\\n\", sizeof(\"inet_accept\
-      \ called %llx\\n\"),newsock);\n2: (18) r1 = 0xffff88831ec64710\n4: (b7) r2 =\
-      \ 25\n5: (bf) r3 = r6\n6: (85) call bpf_trace_printk#6\n R1_w=map_value(id=0,off=0,ks=4,vs=154,imm=0)\
-      \ R2_w=inv25 R3_w=inv(id=0) R6_w=inv(id=0) R10=fp0\nlast_idx 6 first_idx 0\n\
-      regs=4 stack=0 before 5: (bf) r3 = r6\nregs=4 stack=0 before 4: (b7) r2 = 25\n\
-      7: (b7) r1 = 0\n; __u16 type = 0;\n8: (6b) *(u16 *)(r10 -2) = r1\nlast_idx 8\
-      \ first_idx 0\nregs=2 stack=0 before 7: (b7) r1 = 0\n; bpf_probe_read_kernel(&type,\
-      \ sizeof(__u16), &newsock->type);\n9: (bf) r3 = r6\n10: (07) r3 += 4\n11: (bf)\
-      \ r1 = r10\n;\n12: (07) r1 += -2\n; bpf_probe_read_kernel(&type, sizeof(__u16),\
-      \ &newsock->type);\n13: (b7) r2 = 2\n14: (85) call bpf_probe_read#4\nlast_idx\
-      \ 14 first_idx 0\nregs=4 stack=0 before 13: (b7) r2 = 2\n; bpf_trace_printk(\"\
-      inet_accept type %d\\n\", sizeof(\"inet_accept type %d\\n\"),type);\n15: (69)\
-      \ r3 = *(u16 *)(r10 -2)\n; bpf_trace_printk(\"inet_accept type %d\\n\", sizeof(\"\
-      inet_accept type %d\\n\"),type);\n16: (18) r1 = 0xffff88831ec64729\n18: (b7)\
-      \ r2 = 21\n19: (85) call bpf_trace_printk#6\n R0=inv(id=0) R1_w=map_value(id=0,off=25,ks=4,vs=154,imm=0)\
-      \ R2_w=inv21 R3_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R6=inv(id=0)\
-      \ R10=fp0 fp-8=mm??????\nlast_idx 19 first_idx 15\nregs=4 stack=0 before 18:\
-      \ (b7) r2 = 21\n; bpf_probe_read_kernel(sk, sizeof(sk), newsock->sk);\n20: (79)\
-      \ r3 = *(u64 *)(r6 +24)\nR6 invalid mem access 'inv'\nprocessed 19 insns (limit\
-      \ 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1\n\
-      2023/08/24 11:24:15 loading objects: field KprobeInetAccept: program kprobe__inet_accept:\
-      \ load program: permission denied: 20: (79) r3 = *(u64 *)(r6 +24): R6 invalid\
-      \ mem access 'inv' (41 line(s) omitted)"
-    combined: "; struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);\n0:\
-      \ (79) r6 = *(u64 *)(r1 +104)\n; bpf_trace_printk(\"inet_accept called\\n\"\
-      , sizeof(\"inet_accept called\\n\"));\n1: (18) r1 = 0xffff888a06dc4910\n3: (b7)\
-      \ r2 = 20\n4: (85) call bpf_trace_printk#6\n R1_w=map_value(id=0,off=0,ks=4,vs=57,imm=0)\
-      \ R2_w=inv20 R6_w=inv(id=0) R10=fp0\nlast_idx 4 first_idx 0\nregs=4 stack=0\
-      \ before 3: (b7) r2 = 20\n5: (b7) r1 = 0\n; struct sock_key sk_key = {0, };\n\
-      6: (63) *(u32 *)(r10 -8) = r1\nlast_idx 6 first_idx 0\nregs=2 stack=0 before\
-      \ 5: (b7) r1 = 0\n7: (7b) *(u64 *)(r10 -16) = r1\n8: (7b) *(u64 *)(r10 -24)\
-      \ = r1\n9: (7b) *(u64 *)(r10 -32) = r1\n10: (7b) *(u64 *)(r10 -40) = r1\n11:\
-      \ (7b) *(u64 *)(r10 -48) = r1\n12: (7b) *(u64 *)(r10 -56) = r1\n; extract_sock_key(newsock->sk,\
-      \ &sk_key);\n13: (79) r6 = *(u64 *)(r6 +24)\nR6 invalid mem access 'inv'\nprocessed\
-      \ 13 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states\
-      \ 0 mark_read 0\n2023/08/22 19:01:25 loading objects: field KprobeInetAccept:\
-      \ program kprobe__inet_accept: load program: permission denied: 13: (79) r6\
-      \ = *(u64 *)(r6 +24): R6 invalid mem access 'inv' (22 line(s) omitted)\n\n2023/08/22\
-      \ 19:13:49 verifier log:\n ; struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);\n\
-      0: (79) r1 = *(u64 *)(r1 +104)\n; bpf_trace_printk(\"inet_accept called type\
-      \ %d\\n\", sizeof(\"inet_accept called type %d\\n\"),(int)newsock->type);\n\
-      1: (69) r3 = *(u16 *)(r1 +4)\nR1 invalid mem access 'inv'\nprocessed 2 insns\
-      \ (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read\
-      \ 0\n2023/08/22 19:13:49 loading objects: field KprobeInetAccept: program kprobe__inet_accept:\
-      \ load program: permission denied: 1: (69) r3 = *(u16 *)(r1 +4): R1 invalid\
-      \ mem access 'inv' (4 line(s) omitted)\n\n2023/08/24 11:24:15 verifier log:\n\
-      \ ; struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);\n0: (79) r6\
-      \ = *(u64 *)(r1 +104)\n; if (newsock == NULL) {\n1: (15) if r6 == 0x0 goto pc+27\n\
-      \ R1=ctx(id=0,off=0,imm=0) R6_w=inv(id=0) R10=fp0\n; bpf_trace_printk(\"inet_accept\
-      \ called %llx\\n\", sizeof(\"inet_accept called %llx\\n\"),newsock);\n2: (18)\
-      \ r1 = 0xffff88831ec64710\n4: (b7) r2 = 25\n5: (bf) r3 = r6\n6: (85) call bpf_trace_printk#6\n\
-      \ R1_w=map_value(id=0,off=0,ks=4,vs=154,imm=0) R2_w=inv25 R3_w=inv(id=0) R6_w=inv(id=0)\
-      \ R10=fp0\nlast_idx 6 first_idx 0\nregs=4 stack=0 before 5: (bf) r3 = r6\nregs=4\
-      \ stack=0 before 4: (b7) r2 = 25\n7: (b7) r1 = 0\n; __u16 type = 0;\n8: (6b)\
-      \ *(u16 *)(r10 -2) = r1\nlast_idx 8 first_idx 0\nregs=2 stack=0 before 7: (b7)\
-      \ r1 = 0\n; bpf_probe_read_kernel(&type, sizeof(__u16), &newsock->type);\n9:\
-      \ (bf) r3 = r6\n10: (07) r3 += 4\n11: (bf) r1 = r10\n;\n12: (07) r1 += -2\n\
-      ; bpf_probe_read_kernel(&type, sizeof(__u16), &newsock->type);\n13: (b7) r2\
-      \ = 2\n14: (85) call bpf_probe_read#4\nlast_idx 14 first_idx 0\nregs=4 stack=0\
-      \ before 13: (b7) r2 = 2\n; bpf_trace_printk(\"inet_accept type %d\\n\", sizeof(\"\
-      inet_accept type %d\\n\"),type);\n15: (69) r3 = *(u16 *)(r10 -2)\n; bpf_trace_printk(\"\
-      inet_accept type %d\\n\", sizeof(\"inet_accept type %d\\n\"),type);\n16: (18)\
-      \ r1 = 0xffff88831ec64729\n18: (b7) r2 = 21\n19: (85) call bpf_trace_printk#6\n\
-      \ R0=inv(id=0) R1_w=map_value(id=0,off=25,ks=4,vs=154,imm=0) R2_w=inv21 R3_w=inv(id=0,umax_value=65535,var_off=(0x0;\
-      \ 0xffff)) R6=inv(id=0) R10=fp0 fp-8=mm??????\nlast_idx 19 first_idx 15\nregs=4\
-      \ stack=0 before 18: (b7) r2 = 21\n; bpf_probe_read_kernel(sk, sizeof(sk), newsock->sk);\n\
-      20: (79) r3 = *(u64 *)(r6 +24)\nR6 invalid mem access 'inv'\nprocessed 19 insns\
-      \ (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read\
-      \ 1\n2023/08/24 11:24:15 loading objects: field KprobeInetAccept: program kprobe__inet_accept:\
-      \ load program: permission denied: 20: (79) r3 = *(u64 *)(r6 +24): R6 invalid\
-      \ mem access 'inv' (41 line(s) omitted)"
+    - |-
+      ; struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);
+      0: (79) r6 = *(u64 *)(r1 +104)
+      ; bpf_trace_printk("inet_accept called\n", sizeof("inet_accept called\n"));
+      1: (18) r1 = 0xffff888a06dc4910
+      3: (b7) r2 = 20
+      4: (85) call bpf_trace_printk#6
+       R1_w=map_value(id=0,off=0,ks=4,vs=57,imm=0) R2_w=inv20 R6_w=inv(id=0) R10=fp0
+      last_idx 4 first_idx 0
+      regs=4 stack=0 before 3: (b7) r2 = 20
+      5: (b7) r1 = 0
+      ; struct sock_key sk_key = {0, };
+      6: (63) *(u32 *)(r10 -8) = r1
+      last_idx 6 first_idx 0
+      regs=2 stack=0 before 5: (b7) r1 = 0
+      7: (7b) *(u64 *)(r10 -16) = r1
+      8: (7b) *(u64 *)(r10 -24) = r1
+      9: (7b) *(u64 *)(r10 -32) = r1
+      10: (7b) *(u64 *)(r10 -40) = r1
+      11: (7b) *(u64 *)(r10 -48) = r1
+      12: (7b) *(u64 *)(r10 -56) = r1
+      ; extract_sock_key(newsock->sk, &sk_key);
+      13: (79) r6 = *(u64 *)(r6 +24)
+      R6 invalid mem access 'inv'
+      processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+      2023/08/22 19:01:25 loading objects: field KprobeInetAccept: program kprobe__inet_accept: load program: permission denied: 13: (79) r6 = *(u64 *)(r6 +24): R6 invalid mem access 'inv' (22 line(s) omitted)
+    - |-
+      2023/08/22 19:13:49 verifier log:
+       ; struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);
+      0: (79) r1 = *(u64 *)(r1 +104)
+      ; bpf_trace_printk("inet_accept called type %d\n", sizeof("inet_accept called type %d\n"),(int)newsock->type);
+      1: (69) r3 = *(u16 *)(r1 +4)
+      R1 invalid mem access 'inv'
+      processed 2 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+      2023/08/22 19:13:49 loading objects: field KprobeInetAccept: program kprobe__inet_accept: load program: permission denied: 1: (69) r3 = *(u16 *)(r1 +4): R1 invalid mem access 'inv' (4 line(s) omitted)
+    - |-
+      2023/08/24 11:24:15 verifier log:
+       ; struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);
+      0: (79) r6 = *(u64 *)(r1 +104)
+      ; if (newsock == NULL) {
+      1: (15) if r6 == 0x0 goto pc+27
+       R1=ctx(id=0,off=0,imm=0) R6_w=inv(id=0) R10=fp0
+      ; bpf_trace_printk("inet_accept called %llx\n", sizeof("inet_accept called %llx\n"),newsock);
+      2: (18) r1 = 0xffff88831ec64710
+      4: (b7) r2 = 25
+      5: (bf) r3 = r6
+      6: (85) call bpf_trace_printk#6
+       R1_w=map_value(id=0,off=0,ks=4,vs=154,imm=0) R2_w=inv25 R3_w=inv(id=0) R6_w=inv(id=0) R10=fp0
+      last_idx 6 first_idx 0
+      regs=4 stack=0 before 5: (bf) r3 = r6
+      regs=4 stack=0 before 4: (b7) r2 = 25
+      7: (b7) r1 = 0
+      ; __u16 type = 0;
+      8: (6b) *(u16 *)(r10 -2) = r1
+      last_idx 8 first_idx 0
+      regs=2 stack=0 before 7: (b7) r1 = 0
+      ; bpf_probe_read_kernel(&type, sizeof(__u16), &newsock->type);
+      9: (bf) r3 = r6
+      10: (07) r3 += 4
+      11: (bf) r1 = r10
+      ;
+      12: (07) r1 += -2
+      ; bpf_probe_read_kernel(&type, sizeof(__u16), &newsock->type);
+      13: (b7) r2 = 2
+      14: (85) call bpf_probe_read#4
+      last_idx 14 first_idx 0
+      regs=4 stack=0 before 13: (b7) r2 = 2
+      ; bpf_trace_printk("inet_accept type %d\n", sizeof("inet_accept type %d\n"),type);
+      15: (69) r3 = *(u16 *)(r10 -2)
+      ; bpf_trace_printk("inet_accept type %d\n", sizeof("inet_accept type %d\n"),type);
+      16: (18) r1 = 0xffff88831ec64729
+      18: (b7) r2 = 21
+      19: (85) call bpf_trace_printk#6
+       R0=inv(id=0) R1_w=map_value(id=0,off=25,ks=4,vs=154,imm=0) R2_w=inv21 R3_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R6=inv(id=0) R10=fp0 fp-8=mm??????
+      last_idx 19 first_idx 15
+      regs=4 stack=0 before 18: (b7) r2 = 21
+      ; bpf_probe_read_kernel(sk, sizeof(sk), newsock->sk);
+      20: (79) r3 = *(u64 *)(r6 +24)
+      R6 invalid mem access 'inv'
+      processed 19 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+      2023/08/24 11:24:15 loading objects: field KprobeInetAccept: program kprobe__inet_accept: load program: permission denied: 20: (79) r3 = *(u64 *)(r6 +24): R6 invalid mem access 'inv' (41 line(s) omitted)
+    combined: |-
+      ; struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);
+      0: (79) r6 = *(u64 *)(r1 +104)
+      ; bpf_trace_printk("inet_accept called\n", sizeof("inet_accept called\n"));
+      1: (18) r1 = 0xffff888a06dc4910
+      3: (b7) r2 = 20
+      4: (85) call bpf_trace_printk#6
+       R1_w=map_value(id=0,off=0,ks=4,vs=57,imm=0) R2_w=inv20 R6_w=inv(id=0) R10=fp0
+      last_idx 4 first_idx 0
+      regs=4 stack=0 before 3: (b7) r2 = 20
+      5: (b7) r1 = 0
+      ; struct sock_key sk_key = {0, };
+      6: (63) *(u32 *)(r10 -8) = r1
+      last_idx 6 first_idx 0
+      regs=2 stack=0 before 5: (b7) r1 = 0
+      7: (7b) *(u64 *)(r10 -16) = r1
+      8: (7b) *(u64 *)(r10 -24) = r1
+      9: (7b) *(u64 *)(r10 -32) = r1
+      10: (7b) *(u64 *)(r10 -40) = r1
+      11: (7b) *(u64 *)(r10 -48) = r1
+      12: (7b) *(u64 *)(r10 -56) = r1
+      ; extract_sock_key(newsock->sk, &sk_key);
+      13: (79) r6 = *(u64 *)(r6 +24)
+      R6 invalid mem access 'inv'
+      processed 13 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+      2023/08/22 19:01:25 loading objects: field KprobeInetAccept: program kprobe__inet_accept: load program: permission denied: 13: (79) r6 = *(u64 *)(r6 +24): R6 invalid mem access 'inv' (22 line(s) omitted)
+
+      2023/08/22 19:13:49 verifier log:
+       ; struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);
+      0: (79) r1 = *(u64 *)(r1 +104)
+      ; bpf_trace_printk("inet_accept called type %d\n", sizeof("inet_accept called type %d\n"),(int)newsock->type);
+      1: (69) r3 = *(u16 *)(r1 +4)
+      R1 invalid mem access 'inv'
+      processed 2 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+      2023/08/22 19:13:49 loading objects: field KprobeInetAccept: program kprobe__inet_accept: load program: permission denied: 1: (69) r3 = *(u16 *)(r1 +4): R1 invalid mem access 'inv' (4 line(s) omitted)
+
+      2023/08/24 11:24:15 verifier log:
+       ; struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);
+      0: (79) r6 = *(u64 *)(r1 +104)
+      ; if (newsock == NULL) {
+      1: (15) if r6 == 0x0 goto pc+27
+       R1=ctx(id=0,off=0,imm=0) R6_w=inv(id=0) R10=fp0
+      ; bpf_trace_printk("inet_accept called %llx\n", sizeof("inet_accept called %llx\n"),newsock);
+      2: (18) r1 = 0xffff88831ec64710
+      4: (b7) r2 = 25
+      5: (bf) r3 = r6
+      6: (85) call bpf_trace_printk#6
+       R1_w=map_value(id=0,off=0,ks=4,vs=154,imm=0) R2_w=inv25 R3_w=inv(id=0) R6_w=inv(id=0) R10=fp0
+      last_idx 6 first_idx 0
+      regs=4 stack=0 before 5: (bf) r3 = r6
+      regs=4 stack=0 before 4: (b7) r2 = 25
+      7: (b7) r1 = 0
+      ; __u16 type = 0;
+      8: (6b) *(u16 *)(r10 -2) = r1
+      last_idx 8 first_idx 0
+      regs=2 stack=0 before 7: (b7) r1 = 0
+      ; bpf_probe_read_kernel(&type, sizeof(__u16), &newsock->type);
+      9: (bf) r3 = r6
+      10: (07) r3 += 4
+      11: (bf) r1 = r10
+      ;
+      12: (07) r1 += -2
+      ; bpf_probe_read_kernel(&type, sizeof(__u16), &newsock->type);
+      13: (b7) r2 = 2
+      14: (85) call bpf_probe_read#4
+      last_idx 14 first_idx 0
+      regs=4 stack=0 before 13: (b7) r2 = 2
+      ; bpf_trace_printk("inet_accept type %d\n", sizeof("inet_accept type %d\n"),type);
+      15: (69) r3 = *(u16 *)(r10 -2)
+      ; bpf_trace_printk("inet_accept type %d\n", sizeof("inet_accept type %d\n"),type);
+      16: (18) r1 = 0xffff88831ec64729
+      18: (b7) r2 = 21
+      19: (85) call bpf_trace_printk#6
+       R0=inv(id=0) R1_w=map_value(id=0,off=25,ks=4,vs=154,imm=0) R2_w=inv21 R3_w=inv(id=0,umax_value=65535,var_off=(0x0; 0xffff)) R6=inv(id=0) R10=fp0 fp-8=mm??????
+      last_idx 19 first_idx 15
+      regs=4 stack=0 before 18: (b7) r2 = 21
+      ; bpf_probe_read_kernel(sk, sizeof(sk), newsock->sk);
+      20: (79) r3 = *(u64 *)(r6 +24)
+      R6 invalid mem access 'inv'
+      processed 19 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+      2023/08/24 11:24:15 loading objects: field KprobeInetAccept: program kprobe__inet_accept: load program: permission denied: 20: (79) r3 = *(u64 *)(r6 +24): R6 invalid mem access 'inv' (41 line(s) omitted)
   source_snippets:
-  - "SEC(\"kprobe/inet_accept\")\nint kprobe__inet_accept(struct pt_regs *ctx)\n{\n\
-    \    struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);\n    if (newsock\
-    \ == NULL) {\n        return 0;\n    }\n    bpf_trace_printk(\"inet_accept called\
-    \ %llx\\n\", sizeof(\"inet_accept called %llx\\n\"),newsock);\n    __u16 type\
-    \ = 0;\n    bpf_probe_read_kernel(&type, sizeof(__u16), &newsock->type);\n   \
-    \ bpf_trace_printk(\"inet_accept type %d\\n\", sizeof(\"inet_accept type %d\\\
-    n\"),type);\n    return 0;\n}"
-  - "SEC(\"kprobe/inet_accept\")\nint kprobe__inet_accept(struct pt_regs *ctx)\n{\n\
-    \    struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);\n    if (newsock\
-    \ == NULL) {\n        return 0;\n    }\n    bpf_trace_printk(\"inet_accept called\
-    \ %llx\\n\", sizeof(\"inet_accept called %llx\\n\"),newsock);\n    __u16 type\
-    \ = 0;\n    bpf_probe_read_kernel(&type, sizeof(__u16), &newsock->type);\n   \
-    \ bpf_trace_printk(\"inet_accept type %d\\n\", sizeof(\"inet_accept type %d\\\
-    n\"),type);\n    struct sock *sk = NULL;\n    bpf_probe_read_kernel(sk, sizeof(sk),\
-    \ newsock->sk);\n    bpf_trace_printk(\"inet_accept sk %llx\\n\", sizeof(\"inet_accept\
-    \ sk %llx\\n\"),sk);\n    return 0;\n}"
+  - |-
+    SEC("kprobe/inet_accept")
+    int kprobe__inet_accept(struct pt_regs *ctx)
+    {
+        struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);
+        if (newsock == NULL) {
+            return 0;
+        }
+        bpf_trace_printk("inet_accept called %llx\n", sizeof("inet_accept called %llx\n"),newsock);
+        __u16 type = 0;
+        bpf_probe_read_kernel(&type, sizeof(__u16), &newsock->type);
+        bpf_trace_printk("inet_accept type %d\n", sizeof("inet_accept type %d\n"),type);
+        return 0;
+    }
+  - |-
+    SEC("kprobe/inet_accept")
+    int kprobe__inet_accept(struct pt_regs *ctx)
+    {
+        struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);
+        if (newsock == NULL) {
+            return 0;
+        }
+        bpf_trace_printk("inet_accept called %llx\n", sizeof("inet_accept called %llx\n"),newsock);
+        __u16 type = 0;
+        bpf_probe_read_kernel(&type, sizeof(__u16), &newsock->type);
+        bpf_trace_printk("inet_accept type %d\n", sizeof("inet_accept type %d\n"),type);
+        struct sock *sk = NULL;
+        bpf_probe_read_kernel(sk, sizeof(sk), newsock->sk);
+        bpf_trace_printk("inet_accept sk %llx\n", sizeof("inet_accept sk %llx\n"),sk);
+        return 0;
+    }
   question_body_text: "I want to get some information from kprobe/inet_accept through\
     \ ebpf, but got error:\nload program: permission denied: 13: (79) r6 = *(u64 *)(r6\
     \ +24): R6 invalid mem access 'inv' (22 line(s) omitted)\ndebug detail:\n; struct\
@@ -277,47 +357,24 @@ raw:
     url: https://stackoverflow.com/questions/76960866/how-to-correctly-read-socket-sk-from-pt-regs-in-ebpf-program#76967855
     is_accepted: true
     score: 0
-    body_text: 'You are on the right track. In your first example you are dereferencing
-      newsock->sk in the function call with is not allowed directly.
-
+    body_text: |-
+      You are on the right track. In your first example you are dereferencing newsock->sk in the function call with is not allowed directly.
       struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);
-
       bpf_trace_printk("inet_accept called\n", sizeof("inet_accept called\n"));
-
       struct sock_key sk_key = {0, };
-
       extract_sock_key(newsock->sk, &sk_key);
-
-      In the C world you are casting the pointer in PARAM2 to a (struct socket *)
-      but the verifier does not see that. It only sees that you took a number but
-      it doesn''t know that type it is or even that it is a pointer. So you can''t
-      dereference using *newsock, you need to do it via bpf_probe_read_kernel.
-
+      In the C world you are casting the pointer in PARAM2 to a (struct socket *) but the verifier does not see that. It only sees that you took a number but it doesn't know that type it is or even that it is a pointer. So you can't dereference using *newsock, you need to do it via bpf_probe_read_kernel.
       In your last program, you made a simple mistake:
-
       struct socket *newsock = (struct socket *)PT_REGS_PARM2(ctx);
-
       if (newsock == NULL) {
-
       return 0;
-
       }
-
       __u16 type = 0;
-
       bpf_probe_read_kernel(&type, sizeof(__u16), &newsock->type);
-
       struct sock *sk = NULL;
-
       bpf_probe_read_kernel(sk, sizeof(sk), newsock->sk);
-
-      When you write &newsock->type this translates into netsock + offsetof(newsock.type)
-      because you take the address of the dereferenced field. So no actual memory
-      is read, that is valid.
-
-      But when you write newsock->sk without taking the address you actually perform
-      a memory lookup which isn''t allowed. So you should write it as &newsock->sk
-      as well even though the value contained in the field is a pointer.'
+      When you write &newsock->type this translates into netsock + offsetof(newsock.type) because you take the address of the dereferenced field. So no actual memory is read, that is valid.
+      But when you write newsock->sk without taking the address you actually perform a memory lookup which isn't allowed. So you should write it as &newsock->sk as well even though the value contained in the field is a pointer.
     fix_description: In the C world you are casting the pointer in PARAM2 to a (struct
       socket *) but the verifier does not see that. It only sees that you took a number
       but it doesn't know that type it is or even that it is a pointer. So you can't
@@ -326,4 +383,3 @@ raw:
       because you take the address of the dereferenced field. So no actual memory
       is read, that is valid. But when you write newsock->sk without taking the address
       you actually perform a memory lookup which isn't allowe...
-

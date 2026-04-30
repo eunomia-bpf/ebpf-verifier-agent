@@ -44,77 +44,71 @@ raw:
     is_answered: true
   verifier_log:
     blocks:
-    - '42: (85) call bpf_probe_read_user_str#114     ; R0=scalar(smin=-4095,smax=8)
-      fp-72=mmmmmmmm
-
+    - |-
+      42: (85) call bpf_probe_read_user_str#114     ; R0=scalar(smin=-4095,smax=8) fp-72=mmmmmmmm
       ; data.argv[i] = arg;
-
       43: (79) r1 = *(u64 *)(r10 -72)       ; R1_w=scalar() R10=fp0 fp-72=mmmmmmmm
-
       ; data.argv[i] = arg;
-
       44: (79) r2 = *(u64 *)(r10 -8)        ; R2_w=P0 R10=fp0 fp-8=00000000
-
       ; data.argv[i] = arg;
-
       45: (7b) *(u64 *)(r2 +0) = r1
-
-      R2 invalid mem access ''scalar''
-
-      processed 43 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states
-      3 mark_read 3
-
-      Failed to load BPF object'
-    - '62: (85) call bpf_trace_printk#6
-
+      R2 invalid mem access 'scalar'
+      processed 43 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 3
+      Failed to load BPF object
+    - |-
+      62: (85) call bpf_trace_printk#6
       ; for (int i = 0; i < sizeof(ctx->argv); i++)
-
       infinite loop detected at insn 63
-
-      processed 97 insns (limit 1000000) max_states_per_insn 1 total_states 6 peak_states
-      6 mark_read 4'
-    combined: '42: (85) call bpf_probe_read_user_str#114     ; R0=scalar(smin=-4095,smax=8)
-      fp-72=mmmmmmmm
-
+      processed 97 insns (limit 1000000) max_states_per_insn 1 total_states 6 peak_states 6 mark_read 4
+    combined: |-
+      42: (85) call bpf_probe_read_user_str#114     ; R0=scalar(smin=-4095,smax=8) fp-72=mmmmmmmm
       ; data.argv[i] = arg;
-
       43: (79) r1 = *(u64 *)(r10 -72)       ; R1_w=scalar() R10=fp0 fp-72=mmmmmmmm
-
       ; data.argv[i] = arg;
-
       44: (79) r2 = *(u64 *)(r10 -8)        ; R2_w=P0 R10=fp0 fp-8=00000000
-
       ; data.argv[i] = arg;
-
       45: (7b) *(u64 *)(r2 +0) = r1
-
-      R2 invalid mem access ''scalar''
-
-      processed 43 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states
-      3 mark_read 3
-
+      R2 invalid mem access 'scalar'
+      processed 43 insns (limit 1000000) max_states_per_insn 0 total_states 3 peak_states 3 mark_read 3
       Failed to load BPF object
 
-
       62: (85) call bpf_trace_printk#6
-
       ; for (int i = 0; i < sizeof(ctx->argv); i++)
-
       infinite loop detected at insn 63
-
-      processed 97 insns (limit 1000000) max_states_per_insn 1 total_states 6 peak_states
-      6 mark_read 4'
+      processed 97 insns (limit 1000000) max_states_per_insn 1 total_states 6 peak_states 6 mark_read 4
   source_snippets:
-  - "struct sys_enter_execve\n{\n    // ...\n    char **argv;\n};\n\nstruct data_t\n\
-    {\n    // ...\n    char **argv;\n};\nSEC(\"tp/syscalls/sys_enter_execve\")\nint\
-    \ tp_sys_enter_execve(struct sys_enter_execve *ctx)\n{\n    struct data_t data\
-    \ = {};\n\n    // ...\n\n    for (int i = 0; i < sizeof(ctx->argv); i++)\n   \
-    \ {\n        char *arg = NULL;\n        bpf_probe_read_user_str(&arg, sizeof(arg),\
-    \  &ctx->argv[i]);\n\n        data.argv[i] = arg; // Lead to the below error\n\
-    \        // bpf_map_update_elem(&argv, &i, &arg, BPF_ANY); // Another solution\
-    \ that lead to infinite loop for the verifier\n        bpf_printk(\"arg%d: %s\
-    \ \", i, arg); // Works and print the correct sting\n    }\n\n    bpf_perf_event_output(ctx,\
-    \ &output, BPF_F_CURRENT_CPU, &data, sizeof(data));\n    return 0;\n}"
+  - |-
+    struct sys_enter_execve
+    {
+        // ...
+        char **argv;
+    };
+
+    struct data_t
+    {
+        // ...
+        char **argv;
+    };
+    SEC("tp/syscalls/sys_enter_execve")
+    int tp_sys_enter_execve(struct sys_enter_execve *ctx)
+    {
+        struct data_t data = {};
+
+        // ...
+
+        for (int i = 0; i < sizeof(ctx->argv); i++)
+        {
+            char *arg = NULL;
+            bpf_probe_read_user_str(&arg, sizeof(arg),  &ctx->argv[i]);
+
+            data.argv[i] = arg; // Lead to the below error
+            // bpf_map_update_elem(&argv, &i, &arg, BPF_ANY); // Another solution that lead to infinite loop for the verifier
+            bpf_printk("arg%d: %s ", i, arg); // Works and print the correct sting
+        }
+
+        bpf_perf_event_output(ctx, &output, BPF_F_CURRENT_CPU, &data, sizeof(data));
+        return 0;
+    }
   question_body_text: "I am new to eBPF and currently trying to send all the executed\
     \ commands with arguments in the userspace using a perf map.\nI manage to send\
     \ most of my data, but not the one accessed with bpf_probe_read_str. Print the\
@@ -172,4 +166,3 @@ raw:
       I have noticed that the length of ctx->argv was always 8 so i took this value.
       Then the second mistake was to make sure the value was safe using bpf_probe_read
       before bpf_probe_read_str char argv[8][50]; // Fix the s...
-

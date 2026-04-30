@@ -43,50 +43,71 @@ raw:
     author: krisnova
   verifier_log:
     blocks:
-    - "Error: the BPF_PROG_LOAD syscall failed. Verifier output: last insn is not\
-      \ an exit or jmp\nverification time 21 usec\nstack depth 0+0\nprocessed 0 insns\
-      \ (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read\
-      \ 0\n\nCaused by:\n    Invalid argument (os error 22)"
-    combined: "Error: the BPF_PROG_LOAD syscall failed. Verifier output: last insn\
-      \ is not an exit or jmp\nverification time 21 usec\nstack depth 0+0\nprocessed\
-      \ 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0\
-      \ mark_read 0\n\nCaused by:\n    Invalid argument (os error 22)"
+    - |-
+      Error: the BPF_PROG_LOAD syscall failed. Verifier output: last insn is not an exit or jmp
+      verification time 21 usec
+      stack depth 0+0
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+
+      Caused by:
+          Invalid argument (os error 22)
+    combined: |-
+      Error: the BPF_PROG_LOAD syscall failed. Verifier output: last insn is not an exit or jmp
+      verification time 21 usec
+      stack depth 0+0
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+
+      Caused by:
+          Invalid argument (os error 22)
   source_snippets:
-  - "let sock: *mut sock = ctx.arg(2).ok_or(1i64)?;\n    let cgroup =\n        unsafe\
-    \ { bpf_probe_read_kernel(&(*sock).sk_cgrp_data as *const sock_cgroup_data)? };\n\
-    \    info!(&ctx, \"{}\", unsafe {\n        (*(*cgroup.cgroup).kn).name.as_ref().expect(\"\
-    string\")\n    });"
-  - "let cgroup =\n        unsafe { bpf_probe_read_kernel(&(*sock).sk_cgrp_data as\
-    \ *const sock_cgroup_data)? };\n    let name: &c_char = unsafe { (*(*cgroup.cgroup).kn).name.as_ref().expect(\"\
-    -\") };\n    info!(&ctx, \"{}\", name);"
-  - "let sock: *mut sock = ctx.arg(2).ok_or(1i64)?;\nlet cgroup =\n    unsafe { bpf_probe_read_kernel(&(*sock).sk_cgrp_data\
-    \ as *const sock_cgroup_data)? };\ninfo!(&ctx, \"{}\", unsafe {\n    (*(*cgroup.cgroup).kn).name.as_ref().expect(\"\
-    string\")\n});"
-  - "let cgroup =\n    unsafe { bpf_probe_read_kernel(&(*sock).sk_cgrp_data as *const\
-    \ sock_cgroup_data)? };\nlet name: &c_char = unsafe { (*(*cgroup.cgroup).kn).name.as_ref().expect(\"\
-    -\") };\ninfo!(&ctx, \"{}\", name);"
-  - "let buf: &mut [u8; 16usize] = &mut [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
-    \ 0, 0];\n    let iface = unsafe {\n        core::str::from_utf8_unchecked(bpf_probe_read_kernel_str_bytes(\n\
-    \            (*netdev).name.as_ptr() as *const u8,\n            buf,\n       \
-    \ )?)\n    };\n    info!(&ctx, \"netif_receive_skb: pid: {}, iface: {}\", pid,\
-    \ iface);"
-  - "let buf: &mut [u8; 16usize] = &mut [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
-    \ 0, 0];\nlet iface = unsafe {\n    core::str::from_utf8_unchecked(bpf_probe_read_kernel_str_bytes(\n\
-    \        (*netdev).name.as_ptr() as *const u8,\n        buf,\n    )?)\n};\ninfo!(&ctx,\
-    \ \"netif_receive_skb: pid: {}, iface: {}\", pid, iface);"
-  issue_body_text: 'Trying to use the various AYA macros (EG: info!(), trace!(), etc)
-    within a probe. Everything works as intended until I try to surface strings to
-    userspace.
-
+  - |-
+    let sock: *mut sock = ctx.arg(2).ok_or(1i64)?;
+        let cgroup =
+            unsafe { bpf_probe_read_kernel(&(*sock).sk_cgrp_data as *const sock_cgroup_data)? };
+        info!(&ctx, "{}", unsafe {
+            (*(*cgroup.cgroup).kn).name.as_ref().expect("string")
+        });
+  - |-
+    let cgroup =
+            unsafe { bpf_probe_read_kernel(&(*sock).sk_cgrp_data as *const sock_cgroup_data)? };
+        let name: &c_char = unsafe { (*(*cgroup.cgroup).kn).name.as_ref().expect("-") };
+        info!(&ctx, "{}", name);
+  - |-
+    let sock: *mut sock = ctx.arg(2).ok_or(1i64)?;
+    let cgroup =
+        unsafe { bpf_probe_read_kernel(&(*sock).sk_cgrp_data as *const sock_cgroup_data)? };
+    info!(&ctx, "{}", unsafe {
+        (*(*cgroup.cgroup).kn).name.as_ref().expect("string")
+    });
+  - |-
+    let cgroup =
+        unsafe { bpf_probe_read_kernel(&(*sock).sk_cgrp_data as *const sock_cgroup_data)? };
+    let name: &c_char = unsafe { (*(*cgroup.cgroup).kn).name.as_ref().expect("-") };
+    info!(&ctx, "{}", name);
+  - |-
+    let buf: &mut [u8; 16usize] = &mut [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let iface = unsafe {
+            core::str::from_utf8_unchecked(bpf_probe_read_kernel_str_bytes(
+                (*netdev).name.as_ptr() as *const u8,
+                buf,
+            )?)
+        };
+        info!(&ctx, "netif_receive_skb: pid: {}, iface: {}", pid, iface);
+  - |-
+    let buf: &mut [u8; 16usize] = &mut [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let iface = unsafe {
+        core::str::from_utf8_unchecked(bpf_probe_read_kernel_str_bytes(
+            (*netdev).name.as_ptr() as *const u8,
+            buf,
+        )?)
+    };
+    info!(&ctx, "netif_receive_skb: pid: {}, iface: {}", pid, iface);
+  issue_body_text: |-
+    Trying to use the various AYA macros (EG: info!(), trace!(), etc) within a probe. Everything works as intended until I try to surface strings to userspace.
     which can be produced by a simple BPF probe
-
     I believe this has to do with the BPF verifier needing the size of the values
-
-    Anyway I will keep trying to come up with a pattern to do this -- my next attempt
-    will be trying to build a map directly and pass the data in its raw form to userspace.
-
-    Any help or suggestion would be great -- maybe this is just a completely invalid
-    approach to getting names out of the kernel.'
+    Anyway I will keep trying to come up with a pattern to do this -- my next attempt will be trying to build a map directly and pass the data in its raw form to userspace.
+    Any help or suggestion would be great -- maybe this is just a completely invalid approach to getting names out of the kernel.
   fix:
     summary: Nope it doesn't, you need to create a str out of it, for example see
       https://github.com/alessandrod/aya-echo-tracepoint/blob/598c78f1e9ad4317096397bc3cfea5f930d6c10c/echo-ebpf/src/main.rs#L45
@@ -99,16 +120,9 @@ raw:
       url: https://github.com/aya-rs/aya/issues/546#issuecomment-1475034017
       author: alessandrod
       author_association: COLLABORATOR
-      body_text: 'In the bindings.rs file the type is defined:
-
+      body_text: |-
+        In the bindings.rs file the type is defined:
         so maybe a better question is:
-
         > Does the AYA BPF logger support logging type aya_bpf::cty::c_char
-
-        Nope it doesn''t, you need to create a str out of it, for example see https://github.com/alessandrod/aya-echo-tracepoint/blob/598c78f1e9ad4317096397bc3cfea5f930d6c10c/echo-ebpf/src/main.rs#L45
-
-        Also the verifier still needs to be able to see an upper bound for the string
-        length, so unless you''re creating a string from a fixed array or something,
-        you''ll have to write some code to make the bound explicit (this is the point
-        of the if in the example above)'
-
+        Nope it doesn't, you need to create a str out of it, for example see https://github.com/alessandrod/aya-echo-tracepoint/blob/598c78f1e9ad4317096397bc3cfea5f930d6c10c/echo-ebpf/src/main.rs#L45
+        Also the verifier still needs to be able to see an upper bound for the string length, so unless you're creating a string from a fixed array or something, you'll have to write some code to make the bound explicit (this is the point of the if in the example above)

@@ -40,38 +40,24 @@ raw:
     is_answered: false
   verifier_log:
     blocks:
-    - '0: R1=ctx(off=0,imm=0) R10=fp0
-
+    - |-
+      0: R1=ctx(off=0,imm=0) R10=fp0
       0: (18) r1 = 0x0                      ; R1_w=0
-
       2: (b7) r2 = 20                       ; R2_w=20
-
       3: (85) call bpf_trace_printk#6
-
-      R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem,
-      buf, trusted_ptr_
-
-      processed 3 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-      0 mark_read 0'
+      R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf, trusted_ptr_
+      processed 3 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
     - R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem,
       buf, trusted_ptr_
-    combined: '0: R1=ctx(off=0,imm=0) R10=fp0
-
+    combined: |-
+      0: R1=ctx(off=0,imm=0) R10=fp0
       0: (18) r1 = 0x0                      ; R1_w=0
-
       2: (b7) r2 = 20                       ; R2_w=20
-
       3: (85) call bpf_trace_printk#6
+      R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf, trusted_ptr_
+      processed 3 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
 
-      R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem,
-      buf, trusted_ptr_
-
-      processed 3 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-      0 mark_read 0
-
-
-      R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem,
-      buf, trusted_ptr_'
+      R1 type=scalar expected=fp, pkt, pkt_meta, map_key, map_value, mem, ringbuf_mem, buf, trusted_ptr_
     generated:
       log: "-- BEGIN PROG LOAD LOG --\nfunc#0 @0\nLive regs before insn:\n  0: ..........\
         \ (b7) r1 = 681324\n  1: .1........ (63) *(u32 *)(r10 -8) = r1\n  2: ..........\
@@ -102,9 +88,14 @@ raw:
       old_log_len: 453
       new_log_len: 1761
   source_snippets:
-  - "SEC(\"xdp\")\nint xdp_prog_simple(struct xdp_md *ctx)\n{\n    char msg[] = \"\
-    In xdp_prog_simple\\n\";\n    bpf_trace_printk(msg, sizeof(msg));\n    return\
-    \ XDP_PASS;\n}"
+  - |-
+    SEC("xdp")
+    int xdp_prog_simple(struct xdp_md *ctx)
+    {
+        char msg[] = "In xdp_prog_simple\n";
+        bpf_trace_printk(msg, sizeof(msg));
+        return XDP_PASS;
+    }
   question_body_text: "This question became longer than I expected. Since BPF is very\
     \ new, it's possible there is no precise answer.\nI am trying to load a \"hello\
     \ world\" eBPF program onto the XDP attachment point. I want to do this using\
@@ -200,30 +191,16 @@ raw:
     url: https://stackoverflow.com/questions/77673256/how-to-link-load-rodata-section-when-loading-bpf-program-with-raw-syscalls#78800929
     is_accepted: false
     score: 0
-    body_text: 'I think you can find some processing in Aya''s implementation. During
-      the process of loading eBPF program, Aya will first parse the ELF file and find
-      the .rodata section, .bss section, .data section and so on. After this, Aya
-      will create map for these sections. The type of these maps is usually BPF_MAP_TYPE_ARRAY.
-      After this step is completed, the instructions in the program that access the
-      contents of these sections need to be relocated.The core relocation logic is
-      as follows:
-
+    body_text: |-
+      I think you can find some processing in Aya's implementation. During the process of loading eBPF program, Aya will first parse the ELF file and find the .rodata section, .bss section, .data section and so on. After this, Aya will create map for these sections. The type of these maps is usually BPF_MAP_TYPE_ARRAY. After this step is completed, the instructions in the program that access the contents of these sections need to be relocated.The core relocation logic is as follows:
       if !map.data().is_empty() {
-
       instructions[ins_index].set_src_reg(BPF_PSEUDO_MAP_VALUE as u8);
-
-      instructions[ins_index + 1].imm = instructions[ins_index].imm + sym.address
-      as i32;
-
+      instructions[ins_index + 1].imm = instructions[ins_index].imm + sym.address as i32;
       } else {
-
       instructions[ins_index].set_src_reg(BPF_PSEUDO_MAP_FD as u8);
-
       }
-
       instructions[ins_index].imm = *fd;
-
-      You can see why this is needed in the kernel documentation.'
+      You can see why this is needed in the kernel documentation.
     fix_description: 'I think you can find some processing in Aya''s implementation.
       During the process of loading eBPF program, Aya will first parse the ELF file
       and find the .rodata section, .bss section, .data section and so on. After this,
@@ -231,4 +208,3 @@ raw:
       After this step is completed, the instructions in the program that access the
       contents of these sections need to be relocated.The core relocation logic is
       as follows:'
-

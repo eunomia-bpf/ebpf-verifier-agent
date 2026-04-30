@@ -1,4 +1,0 @@
-/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-2ba0b4fd4bff/buggy.c:4:10: fatal error: 'bpf/ctx/xdp.h' file not found
-    4 | #include <bpf/ctx/xdp.h>
-      |          ^~~~~~~~~~~~~~~
-1 error generated.

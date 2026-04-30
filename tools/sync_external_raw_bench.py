@@ -29,6 +29,18 @@ DEFAULT_GH_ROOTS: list[Path] = []
 VERIFIED_ROOTS: list[Path] = []
 
 
+class RawDumper(yaml.SafeDumper):
+    pass
+
+
+def represent_string(dumper: yaml.SafeDumper, value: str) -> yaml.nodes.ScalarNode:
+    style = "|" if "\n" in value else None
+    return dumper.represent_scalar("tag:yaml.org,2002:str", value, style=style)
+
+
+RawDumper.add_representer(str, represent_string)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bench-root", type=Path, default=DEFAULT_BENCH_ROOT)
@@ -77,8 +89,8 @@ def collect_records(bench_root: Path, so_roots: list[Path], gh_roots: list[Path]
             if path.name == "index.yaml":
                 continue
             raw = load_yaml(path)
-            raw_id = str(raw.get("case_id") or path.stem)
-            source_kind = "github_issue" if raw_id.startswith("github-") else "github_commit"
+            raw_id = str(raw.get("case_id") or raw.get("raw_id") or path.stem)
+            source_kind = infer_github_source_kind(raw_id, raw)
             record = build_record(raw_id, source_kind, path, raw, benchmark_cases, verified)
             keep_better(chosen, ("gh", raw_id), record)
 
@@ -160,7 +172,7 @@ def build_record(
     content = content_summary(raw)
     reproduction = reproduction_summary(raw_id, raw, benchmark_cases, verified)
     original_path = relpath(raw_path)
-    payload = raw_payload(raw)
+    payload = normalized_raw_payload(raw_id, source_kind, raw)
     if raw.get("schema_version") == "bpfix.raw_external/v1":
         collector = raw.get("collector") if isinstance(raw.get("collector"), dict) else {}
         original_path = collector.get("original_path") or original_path
@@ -372,6 +384,18 @@ def raw_bucket(source_kind: str) -> str:
     return "so" if source_kind == "stackoverflow" else "gh"
 
 
+def infer_github_source_kind(raw_id: str, raw: dict[str, Any]) -> str:
+    if raw.get("schema_version") == "bpfix.raw_external/v1":
+        existing_kind = raw.get("source_kind")
+        if existing_kind in {"github_issue", "github_commit"}:
+            return str(existing_kind)
+    if raw_id.startswith("github-commit-"):
+        return "github_commit"
+    if raw_id.startswith("github-"):
+        return "github_issue"
+    return "github_commit"
+
+
 def parse_status(path: Path) -> dict[str, str]:
     status: dict[str, str] = {}
     for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
@@ -399,6 +423,13 @@ def raw_payload(raw: dict[str, Any]) -> dict[str, Any]:
         return raw
     payload = raw.get("raw")
     return payload if isinstance(payload, dict) else {}
+
+
+def normalized_raw_payload(raw_id: str, source_kind: str, raw: dict[str, Any]) -> dict[str, Any]:
+    payload = dict(raw_payload(raw))
+    if source_kind == "github_commit" and not payload.get("case_id"):
+        payload["case_id"] = raw_id
+    return payload
 
 
 def raw_from_status(raw_id: str, source_kind: str, status: dict[str, str]) -> dict[str, Any]:
@@ -450,7 +481,7 @@ def parse_github_id(raw_id: str) -> tuple[str | None, int | None]:
 
 
 def dump_yaml(data: dict[str, Any]) -> str:
-    return yaml.safe_dump(data, sort_keys=False, allow_unicode=False) + "\n"
+    return yaml.dump(data, Dumper=RawDumper, sort_keys=False, allow_unicode=False).rstrip() + "\n"
 
 
 def relpath(path: Path) -> str:

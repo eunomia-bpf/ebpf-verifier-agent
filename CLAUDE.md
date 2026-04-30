@@ -59,14 +59,11 @@ ebpf-verifier-agent/
 │   │   ├── btf_mapper.py        # BTF/line_info source mapping
 │   │   └── obligation.py        # Proof obligation extraction
 │   └── api/                     # Agent-facing API
-├── agent/                       # LLM agent evaluation harness
-│   ├── baselines/               # Baseline conditions
-│   ├── repair_loop.py           # Agent repair loop driver
-│   ├── oracle.py                # Semantic correctness oracle
-│   └── eval.py                  # Evaluation metrics computation
-├── tools/                       # Benchmark import, replay, and validation tools
+├── core/                        # Baseline diagnostic implementations
+├── tools/                       # Benchmark replay, validation, audit, and eval tools
 │   ├── validate_benchmark.py    # Rebuild/load replay validator
 │   ├── replay_case.py           # Per-case replay helper
+│   ├── evaluate_benchmark.py    # Fresh-replay diagnostic evaluation runner
 │   └── sync_external_raw_bench.py # Raw external audit/index generator
 ├── docs/
 │   ├── research-plan.md         # Master research plan (single hub)

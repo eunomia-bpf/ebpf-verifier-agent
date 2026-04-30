@@ -58,40 +58,17 @@ raw:
     url: https://stackoverflow.com/questions/72554292/how-to-generate-delay-using-ebpf-kernel-program#72560284
     is_accepted: false
     score: 3
-    body_text: 'The short answer is no(not in eBPF). At least not as of kernel 5.18.
-      This is because eBPF programs, particularly those running in the network stack
-      are often called from code that should never sleep.
-
-      What perhaps is most useful in your case is that TC(Traffic Control) programs
-      can ask TC to delay a packet for you. The actual delay happens outside of the
-      eBPF program, in the TC subsystem. You can request TC to send the packet at
-      a given time by setting __sk_buff->tstamp. Note: this only works for Egress(outgoing)
-      traffic not Ingress(incomming) traffic. This behavior can also be triggered
-      via TC configuration without using eBPF.
-
-      tried mdelay/msleep/udelay etc functions with delay.h library in c, it gives
-      me LLVM error that "Program using external function which can''t be resolved".
-
-      Yes, you can''t use the stdlib in eBPF programs since they use kernel facilities
-      which are unavailable in eBPF.
-
+    body_text: |-
+      The short answer is no(not in eBPF). At least not as of kernel 5.18. This is because eBPF programs, particularly those running in the network stack are often called from code that should never sleep.
+      What perhaps is most useful in your case is that TC(Traffic Control) programs can ask TC to delay a packet for you. The actual delay happens outside of the eBPF program, in the TC subsystem. You can request TC to send the packet at a given time by setting __sk_buff->tstamp. Note: this only works for Egress(outgoing) traffic not Ingress(incomming) traffic. This behavior can also be triggered via TC configuration without using eBPF.
+      tried mdelay/msleep/udelay etc functions with delay.h library in c, it gives me LLVM error that "Program using external function which can't be resolved".
+      Yes, you can't use the stdlib in eBPF programs since they use kernel facilities which are unavailable in eBPF.
       Side notes:
-
-      We do have "sleepable" programs, but only syscall, LSM and tracing programs
-      can be sleepable. "sleepable" doesn''t mean we can call some sort of sleep helper
-      with a duration, it means we can call helper functions which in turn may sleep(for
-      example bpf_copy_from_user_stack). So you don''t have control over how long
-      the program will sleep.
-
-      Another time related feature is BPF timers, which actually allow you to set
-      a timer and execute a callback after a given time. The limitation here is that
-      you can''t pass any arguments to this callback, and it is called without a context.
-      So after setting the timer, the original program will continue and return as
-      usual.'
+      We do have "sleepable" programs, but only syscall, LSM and tracing programs can be sleepable. "sleepable" doesn't mean we can call some sort of sleep helper with a duration, it means we can call helper functions which in turn may sleep(for example bpf_copy_from_user_stack). So you don't have control over how long the program will sleep.
+      Another time related feature is BPF timers, which actually allow you to set a timer and execute a callback after a given time. The limitation here is that you can't pass any arguments to this callback, and it is called without a context. So after setting the timer, the original program will continue and return as usual.
     fix_description: The short answer is no(not in eBPF). At least not as of kernel
       5.18. This is because eBPF programs, particularly those running in the network
       stack are often called from code that should never sleep. tried mdelay/msleep/udelay
       etc functions with delay.h library in c, it gives me LLVM error that "Program
       using external function which can't be resolved". Yes, you can't use the stdlib
       in eBPF programs since they use kernel facilities which are unavailable in eBPF.
-

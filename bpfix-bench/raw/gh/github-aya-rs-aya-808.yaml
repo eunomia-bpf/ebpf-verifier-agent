@@ -40,28 +40,18 @@ raw:
     author: qjerome
   verifier_log:
     blocks:
-    - 'Error: the BPF_PROG_LOAD syscall failed. Verifier output: Validating write()
-      func#1...
-
-      Global function write() doesn''t return scalar. Only those are supported.
-
+    - |-
+      Error: the BPF_PROG_LOAD syscall failed. Verifier output: Validating write() func#1...
+      Global function write() doesn't return scalar. Only those are supported.
       verification time 40 usec
-
       stack depth 0+0
-
-      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-      0 mark_read 0'
-    combined: 'Error: the BPF_PROG_LOAD syscall failed. Verifier output: Validating
-      write() func#1...
-
-      Global function write() doesn''t return scalar. Only those are supported.
-
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+    combined: |-
+      Error: the BPF_PROG_LOAD syscall failed. Verifier output: Validating write() func#1...
+      Global function write() doesn't return scalar. Only those are supported.
       verification time 40 usec
-
       stack depth 0+0
-
-      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-      0 mark_read 0'
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
   source_snippets: []
   issue_body_text: "The verifier fails at loading BPF\_program because of (supposed)\
     \ DisplayHint::write function.\nThis bug appears only under some conditions:\n\
@@ -81,4 +71,3 @@ raw:
       author_association: MEMBER
       body_text: Can you reproduce this with a test in this repo? I understand if
         bpf-linker needs to be built from the feature/fix-di branch.
-

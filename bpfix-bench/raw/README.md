@@ -8,7 +8,7 @@ Layout:
 
 - `so/stackoverflow-<question_id>.yaml`: Stack Overflow questions.
 - `gh/github-<owner>-<repo>-<issue>.yaml`: GitHub issues.
-- `gh/eval-<repo>-<commit>.yaml`: GitHub commit-derived candidates.
+- `gh/github-commit-<repo>-<commit>.yaml`: GitHub commit-derived candidates.
 - `kernel_selftests/*.yaml`: kernel selftest verifier-log fixtures retained from the same unified bench root.
 - `index.yaml`: generated summary linking raw records to replayable cases.
 

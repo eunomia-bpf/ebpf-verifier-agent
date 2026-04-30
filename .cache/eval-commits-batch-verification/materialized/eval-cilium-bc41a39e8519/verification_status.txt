@@ -1,6 +1,0 @@
-status: failed
-reason: materialization_error: CalledProcessError: Command '['git', 'show', 'b1605abae9760f0422213de0ccce73ac931359ca:bpf/tests/builtins.c']' returned non-zero exit status 128.
-buggy_compile: False
-buggy_verifier_pass: n/a
-fixed_compile: False
-fixed_verifier_pass: n/a

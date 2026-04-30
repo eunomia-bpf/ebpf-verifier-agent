@@ -1,4 +1,0 @@
-/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-3a51667c088b/fixed.c:6:10: fatal error: 'classifiers_common.h' file not found
-    6 | #include "classifiers_common.h"
-      |          ^~~~~~~~~~~~~~~~~~~~~~
-1 error generated.

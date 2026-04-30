@@ -42,15 +42,34 @@ raw:
     blocks: []
     combined: ''
   source_snippets:
-  - "SEC(\"lsm/security_path_mknod\")\nint BPF_PROG(check_new_file_create, const struct\
-    \ path *dir, struct dentry *dentry, umode_t mode, unsigned int dev)\n{\n    struct\
-    \ FSEvent *newEvent = bpf_ringbuf_reserve(\n        &FSEventMap,\n        sizeof(struct\
-    \ FSEvent),\n        0);\n    if (newEvent == NULL)\n    {\n        bpf_printk(\"\
-    ERROR: check_new_file_create: Error reserving ringbuf event\\n\");\n        return\
-    \ 0;\n    }\n\n    d_path_result = bpf_d_path(dir, newEvent->filepath, sizeof(newEvent->filepath));\n\
-    \    if (d_path_result > 0)\n    {\n        newEvent->filepathSize = d_path_result;\n\
-    \    }\n    else\n    {\n        newEvent->filepathSize = 0;\n    }\n\n    bpf_ringbuf_submit(newEvent,\
-    \ 0);\n\n    return 0;\n}"
+  - |-
+    SEC("lsm/security_path_mknod")
+    int BPF_PROG(check_new_file_create, const struct path *dir, struct dentry *dentry, umode_t mode, unsigned int dev)
+    {
+        struct FSEvent *newEvent = bpf_ringbuf_reserve(
+            &FSEventMap,
+            sizeof(struct FSEvent),
+            0);
+        if (newEvent == NULL)
+        {
+            bpf_printk("ERROR: check_new_file_create: Error reserving ringbuf event\n");
+            return 0;
+        }
+
+        d_path_result = bpf_d_path(dir, newEvent->filepath, sizeof(newEvent->filepath));
+        if (d_path_result > 0)
+        {
+            newEvent->filepathSize = d_path_result;
+        }
+        else
+        {
+            newEvent->filepathSize = 0;
+        }
+
+        bpf_ringbuf_submit(newEvent, 0);
+
+        return 0;
+    }
   question_body_text: "Can somebody help me with retrieving name of file using eBPF\
     \ when file is creating?\nWhat I\u2019ve done:\nWe have 2 funcs (helper and Kfunc)\
     \ for collecting filepath from struct path:\nbpf_d_path & bpf_path_d_path.\nWe\
@@ -82,15 +101,10 @@ raw:
     url: https://stackoverflow.com/questions/79752670/how-to-collect-filename-from-ebpf-hook-while-file-is-creating#79754678
     is_accepted: true
     score: 0
-    body_text: 'Okay. I found an answer. For those, who need help with this question:
-      read this article.
-
-      Main part of this question is to find struct mount, whose field is struct vfsmount
-      from struct path. To do this, you can use container_of (read this). So, with
-      mount and dentry you can successfully restore path. (Kernel also can restore
-      path to file in other mount namespace, I don''t do this)'
+    body_text: |-
+      Okay. I found an answer. For those, who need help with this question: read this article.
+      Main part of this question is to find struct mount, whose field is struct vfsmount from struct path. To do this, you can use container_of (read this). So, with mount and dentry you can successfully restore path. (Kernel also can restore path to file in other mount namespace, I don't do this)
     fix_description: Main part of this question is to find struct mount, whose field
       is struct vfsmount from struct path. To do this, you can use container_of (read
       this). So, with mount and dentry you can successfully restore path. (Kernel
       also can restore path to file in other mount namespace, I don't do this)
-

@@ -1,4 +1,0 @@
-/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-d538b1fa9d39/fixed.c:4:10: fatal error: 'common.h' file not found
-    4 | #include "common.h"
-      |          ^~~~~~~~~~
-1 error generated.

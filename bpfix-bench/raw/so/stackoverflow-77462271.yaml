@@ -40,142 +40,71 @@ raw:
     is_answered: false
   verifier_log:
     blocks:
-    - '# ./hello
-
-      libbpf: prog ''fentry_execve'': failed to find kernel BTF type ID of ''execve'':
-      -3
-
-      libbpf: prog ''fentry_execve'': failed to prepare load attributes: -3
-
-      libbpf: prog ''fentry_execve'': failed to load: -3
-
-      libbpf: failed to load object ''hello_bpf''
-
-      libbpf: failed to load BPF skeleton ''hello_bpf'': -3
-
-      processed 54 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states
-      4 mark_read 4'
-    combined: '# ./hello
-
-      libbpf: prog ''fentry_execve'': failed to find kernel BTF type ID of ''execve'':
-      -3
-
-      libbpf: prog ''fentry_execve'': failed to prepare load attributes: -3
-
-      libbpf: prog ''fentry_execve'': failed to load: -3
-
-      libbpf: failed to load object ''hello_bpf''
-
-      libbpf: failed to load BPF skeleton ''hello_bpf'': -3
-
-      processed 54 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states
-      4 mark_read 4'
+    - |-
+      # ./hello
+      libbpf: prog 'fentry_execve': failed to find kernel BTF type ID of 'execve': -3
+      libbpf: prog 'fentry_execve': failed to prepare load attributes: -3
+      libbpf: prog 'fentry_execve': failed to load: -3
+      libbpf: failed to load object 'hello_bpf'
+      libbpf: failed to load BPF skeleton 'hello_bpf': -3
+      processed 54 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 4
+    combined: |-
+      # ./hello
+      libbpf: prog 'fentry_execve': failed to find kernel BTF type ID of 'execve': -3
+      libbpf: prog 'fentry_execve': failed to prepare load attributes: -3
+      libbpf: prog 'fentry_execve': failed to load: -3
+      libbpf: failed to load object 'hello_bpf'
+      libbpf: failed to load BPF skeleton 'hello_bpf': -3
+      processed 54 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 4
   source_snippets: []
-  question_body_text: 'I am trying to follow the Learning eBPF book by Liz Rice along
-    with code samples at https://github.com/lizrice/learning-ebpf. I have problem
-    with chapter 7 example - hello.bpf.c. The code builds but at runtime the verifier
-    fails it.
-
+  question_body_text: |-
+    I am trying to follow the Learning eBPF book by Liz Rice along with code samples at https://github.com/lizrice/learning-ebpf. I have problem with chapter 7 example - hello.bpf.c. The code builds but at runtime the verifier fails it.
     # ./hello
-
-    libbpf: prog ''fentry_execve'': failed to find kernel BTF type ID of ''execve'':
-    -3
-
-    libbpf: prog ''fentry_execve'': failed to prepare load attributes: -3
-
-    libbpf: prog ''fentry_execve'': failed to load: -3
-
-    libbpf: failed to load object ''hello_bpf''
-
-    libbpf: failed to load BPF skeleton ''hello_bpf'': -3
-
-    processed 54 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states
-    4 mark_read 4
-
-    I commented out the fentry/do_execve section, compiled and ran again. This time
-    I see this error.
-
-    libbpf: prog ''kprobe_do_execve'': failed to create kprobe ''do_execve+0x0'' perf
-    event: No such file or directory
-
-    libbpf: prog ''kprobe_do_execve'': failed to auto-attach: -2
-
+    libbpf: prog 'fentry_execve': failed to find kernel BTF type ID of 'execve': -3
+    libbpf: prog 'fentry_execve': failed to prepare load attributes: -3
+    libbpf: prog 'fentry_execve': failed to load: -3
+    libbpf: failed to load object 'hello_bpf'
+    libbpf: failed to load BPF skeleton 'hello_bpf': -3
+    processed 54 insns (limit 1000000) max_states_per_insn 0 total_states 4 peak_states 4 mark_read 4
+    I commented out the fentry/do_execve section, compiled and ran again. This time I see this error.
+    libbpf: prog 'kprobe_do_execve': failed to create kprobe 'do_execve+0x0' perf event: No such file or directory
+    libbpf: prog 'kprobe_do_execve': failed to auto-attach: -2
     Failed to attach BPF skeleton: -2
-
-    Now the do_execve function does exist, as I see it in kernel sources (unless I
-    have the version wrong). So this error due the possibility that this function
-    do_execve might have actually been inlined during compilation?
-
+    Now the do_execve function does exist, as I see it in kernel sources (unless I have the version wrong). So this error due the possibility that this function do_execve might have actually been inlined during compilation?
     I did not build that kernel. I am on Ubuntu 20.04 (5.15.0-88-generic #98~20.04.1-Ubuntu).
-
     clang & bpftool versions -
-
     $ clang -v
-
     clang version 10.0.0-4ubuntu1
-
     Target: x86_64-pc-linux-gnu
-
     Thread model: posix
-
     InstalledDir: /usr/bin
-
     Found candidate GCC installation: /usr/bin/../lib/gcc/x86_64-linux-gnu/9
-
     Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/9
-
     Selected GCC installation: /usr/bin/../lib/gcc/x86_64-linux-gnu/9
-
     Candidate multilib: .;@m64
-
     Candidate multilib: 32;@m32
-
     Candidate multilib: x32;@mx32
-
     Selected multilib: .;@m64
-
     # bpftool version
-
     bpftool v7.3.0
-
     using libbpf v1.3
-
     features: libbfd
-
     PS: I also see it is not listed by bpftrace
-
     $ sudo bpftrace -l "*execve*"
-
     tracepoint:syscalls:sys_enter_execve
-
     tracepoint:syscalls:sys_exit_execve
-
     tracepoint:syscalls:sys_enter_execveat
-
     tracepoint:syscalls:sys_exit_execveat
-
     kprobe:audit_log_execve_info
-
     kprobe:bprm_execve
-
     kprobe:do_execveat_common.isra.0
-
     kprobe:__ia32_sys_execve
-
     kprobe:__ia32_sys_execveat
-
     kprobe:__ia32_compat_sys_execve
-
     kprobe:__ia32_compat_sys_execveat
-
     kprobe:__x64_compat_sys_execveat
-
     kprobe:__x64_sys_execveat
-
     kprobe:__x64_sys_execve
-
     kprobe:__x64_compat_sys_execve
-
-    kprobe:kernel_execve'
+    kprobe:kernel_execve
   selected_answer: {}
-

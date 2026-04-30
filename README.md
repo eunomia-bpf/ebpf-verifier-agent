@@ -37,6 +37,7 @@ oblige/
   cli.py             `python -m bpfix` / `bpfix` entry point
 tools/
   validate_benchmark.py  Replay validator for `bpfix-bench`
+  evaluate_benchmark.py  Fresh-replay diagnostic baseline/ablation runner
   sync_external_raw_bench.py Raw external audit/index generator
 tests/
   test_*.py          Extractor, renderer, schema, and CLI coverage
@@ -105,6 +106,12 @@ Replay the benchmark validator:
 
 ```bash
 python3 tools/validate_benchmark.py --replay bpfix-bench --timeout-sec 60
+```
+
+Run the diagnostic evaluation on freshly replayed verifier logs:
+
+```bash
+python3 tools/evaluate_benchmark.py --benchmark bpfix-bench --timeout-sec 60
 ```
 
 ## Project Scope

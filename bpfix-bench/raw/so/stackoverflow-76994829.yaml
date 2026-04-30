@@ -43,146 +43,100 @@ raw:
     is_answered: true
   verifier_log:
     blocks:
-    - "invalid access to map value, value_size=8 off=8 size=1\n    R5 min value is\
-      \ outside of the allowed memory range"
-    combined: "invalid access to map value, value_size=8 off=8 size=1\n    R5 min\
-      \ value is outside of the allowed memory range"
+    - |-
+      invalid access to map value, value_size=8 off=8 size=1
+          R5 min value is outside of the allowed memory range
+    combined: |-
+      invalid access to map value, value_size=8 off=8 size=1
+          R5 min value is outside of the allowed memory range
   source_snippets:
-  - "struct target_d_name {\n        unsigned long int len;\n        char name[PID_LEN_MAX];\
-    \ //PID_LEN_MAX = 8, it is a macro\n    };"
-  - "struct {\n        __uint(type, BPF_MAP_TYPE_ARRAY);\n        __uint(max_entries,\
-    \ 8);\n        __type(key, u32);\n        __type(value, sizeof(struct target_d_name));\n\
-    \    } map_d_name_tgts SEC(\".maps\");"
-  - "//iterator_limit is either len(filename) or PID_LEN_MAX, whichever is smallest\n\
-    \    for (k = 0; k < iterator_limit; ++k) {\n      if (filename[k] != target_d_name_instance->name[k])\
-    \ break;\n    }"
-  - "u32 index = 0;\n    struct target_d_name * current_d_name\n        = bpf_map_lookup_elem(&map_d_name_tgts,\
-    \ &index);\n    if (current_d_name == 0) return -1;\n\n    for (int i = 0; i <\
-    \ PID_LEN_MAX; ++i) {\n        current_d_name->name[i] = 'u';\n    }\n    return\
-    \ 0;"
-  question_body_text: 'I have a BPF_MAP_TYPE_ARRAY map that stores instances of this
-    struct:
-
+  - |-
     struct target_d_name {
-
-    unsigned long int len;
-
-    char name[PID_LEN_MAX]; //PID_LEN_MAX = 8, it is a macro
-
-    };
-
-    Here is the map definition:
-
+            unsigned long int len;
+            char name[PID_LEN_MAX]; //PID_LEN_MAX = 8, it is a macro
+        };
+  - |-
     struct {
-
-    __uint(type, BPF_MAP_TYPE_ARRAY);
-
-    __uint(max_entries, 8);
-
-    __type(key, u32);
-
-    __type(value, sizeof(struct target_d_name));
-
-    } map_d_name_tgts SEC(".maps");
-
-    What I am doing can be summarised as the following:
-
-    Hook exit of getents64
-
-    Loop through all dirent64 structures being returned
-
-    See if any of dirent64->d_name strings match anything in target_d_name->name
-
-    Here is the code that does the actual string comparison between the dirent64 strings
-    and the strings in my map:
-
+            __uint(type, BPF_MAP_TYPE_ARRAY);
+            __uint(max_entries, 8);
+            __type(key, u32);
+            __type(value, sizeof(struct target_d_name));
+        } map_d_name_tgts SEC(".maps");
+  - |-
     //iterator_limit is either len(filename) or PID_LEN_MAX, whichever is smallest
-
-    for (k = 0; k < iterator_limit; ++k) {
-
-    if (filename[k] != target_d_name_instance->name[k]) break;
-
-    }
-
-    As you can see, everything is in bounds. However at load time the eBPF verifier
-    errors out with:
-
-    invalid access to map value, value_size=8 off=8 size=1
-
-    R5 min value is outside of the allowed memory range
-
-    Where R5 attempts to dereference the address of target_d_name_instance->name[k].
-
-    At first I expected this to work since everything is in bounds. Upon further investigation
-    however I found numerous other people who have come across this problem. Namely:
-
-    eBPF: invalid access to map value even with bounds check
-
-    https://github.com/iovisor/bcc/issues/3269
-
-    https://lore.kernel.org/bpf/f9c2ab1f-42a9-f5eb-f9bf-63402c6a8a62@uliege.be/T/
-
-    From these links I gathered that the eBPF verifier fails to keep track of the
-    size of the character buffers in my struct. As such, when I iterate with 0 <=
-    k <= PID_LEN_MAX, at some point k may fall outside the allowed memory range. While
-    this is impossible, the eBPF verifier isn''t aware of this.
-
-    However I still don''t know how what my new approach should be. How else can I
-    pass strings to my eBPF programs from userspace? What if I need to carry out string
-    comparisons on them and hence iterate over them? I noticed the existence of the
-    bpf_strncmp() helper, but it only works on constants and is therefore not very
-    useful if the strings are being dynamically generated.
-
-    UPDATE:
-
-    Here is a minimal example that produces an identical error:
-
+        for (k = 0; k < iterator_limit; ++k) {
+          if (filename[k] != target_d_name_instance->name[k]) break;
+        }
+  - |-
     u32 index = 0;
+        struct target_d_name * current_d_name
+            = bpf_map_lookup_elem(&map_d_name_tgts, &index);
+        if (current_d_name == 0) return -1;
 
-    struct target_d_name * current_d_name
-
-    = bpf_map_lookup_elem(&map_d_name_tgts, &index);
-
-    if (current_d_name == 0) return -1;
-
-    for (int i = 0; i < PID_LEN_MAX; ++i) {
-
-    current_d_name->name[i] = ''u'';
-
+        for (int i = 0; i < PID_LEN_MAX; ++i) {
+            current_d_name->name[i] = 'u';
+        }
+        return 0;
+  question_body_text: |-
+    I have a BPF_MAP_TYPE_ARRAY map that stores instances of this struct:
+    struct target_d_name {
+    unsigned long int len;
+    char name[PID_LEN_MAX]; //PID_LEN_MAX = 8, it is a macro
+    };
+    Here is the map definition:
+    struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 8);
+    __type(key, u32);
+    __type(value, sizeof(struct target_d_name));
+    } map_d_name_tgts SEC(".maps");
+    What I am doing can be summarised as the following:
+    Hook exit of getents64
+    Loop through all dirent64 structures being returned
+    See if any of dirent64->d_name strings match anything in target_d_name->name
+    Here is the code that does the actual string comparison between the dirent64 strings and the strings in my map:
+    //iterator_limit is either len(filename) or PID_LEN_MAX, whichever is smallest
+    for (k = 0; k < iterator_limit; ++k) {
+    if (filename[k] != target_d_name_instance->name[k]) break;
     }
-
-    return 0;'
+    As you can see, everything is in bounds. However at load time the eBPF verifier errors out with:
+    invalid access to map value, value_size=8 off=8 size=1
+    R5 min value is outside of the allowed memory range
+    Where R5 attempts to dereference the address of target_d_name_instance->name[k].
+    At first I expected this to work since everything is in bounds. Upon further investigation however I found numerous other people who have come across this problem. Namely:
+    eBPF: invalid access to map value even with bounds check
+    https://github.com/iovisor/bcc/issues/3269
+    https://lore.kernel.org/bpf/f9c2ab1f-42a9-f5eb-f9bf-63402c6a8a62@uliege.be/T/
+    From these links I gathered that the eBPF verifier fails to keep track of the size of the character buffers in my struct. As such, when I iterate with 0 <= k <= PID_LEN_MAX, at some point k may fall outside the allowed memory range. While this is impossible, the eBPF verifier isn't aware of this.
+    However I still don't know how what my new approach should be. How else can I pass strings to my eBPF programs from userspace? What if I need to carry out string comparisons on them and hence iterate over them? I noticed the existence of the bpf_strncmp() helper, but it only works on constants and is therefore not very useful if the strings are being dynamically generated.
+    UPDATE:
+    Here is a minimal example that produces an identical error:
+    u32 index = 0;
+    struct target_d_name * current_d_name
+    = bpf_map_lookup_elem(&map_d_name_tgts, &index);
+    if (current_d_name == 0) return -1;
+    for (int i = 0; i < PID_LEN_MAX; ++i) {
+    current_d_name->name[i] = 'u';
+    }
+    return 0;
   selected_answer:
     answer_id: 77009051
     url: https://stackoverflow.com/questions/76994829/ebpf-properly-passing-fixed-length-strings-from-userspace-using-ebpf-array-maps#77009051
     is_accepted: true
     score: 1
-    body_text: 'how about change
-
+    body_text: |-
+      how about change
       struct {
-
       __uint(type, BPF_MAP_TYPE_ARRAY);
-
       __uint(max_entries, 8);
-
       __type(key, u32);
-
       __type(value, sizeof(struct target_d_name));
-
       } map_d_name_tgts SEC(".maps");
-
       to
-
       struct {
-
       __uint(type, BPF_MAP_TYPE_ARRAY);
-
       __uint(max_entries, 8);
-
       __type(key, u32);
-
       __type(value, struct target_d_name); // changed
-
-      } map_d_name_tgts SEC(".maps");'
+      } map_d_name_tgts SEC(".maps");
     fix_description: how about change struct { __uint(type, BPF_MAP_TYPE_ARRAY);
-

@@ -20,9 +20,8 @@ def test_expected_files_exist() -> None:
         ROOT / "taxonomy" / "taxonomy.yaml",
         ROOT / "interface" / "schema" / "diagnostic.json",
         ROOT / "tools" / "validate_benchmark.py",
+        ROOT / "tools" / "evaluate_benchmark.py",
         ROOT / "tools" / "sync_external_raw_bench.py",
-        ROOT / "agent" / "repair_loop.py",
-        ROOT / "agent" / "metrics.py",
         ROOT / "README.md",
         ROOT / "requirements.txt",
         ROOT / ".gitignore",
@@ -88,9 +87,8 @@ def test_diagnostic_schema_accepts_minimal_example() -> None:
 def test_cli_help_commands_work() -> None:
     scripts = [
         ROOT / "tools" / "validate_benchmark.py",
+        ROOT / "tools" / "evaluate_benchmark.py",
         ROOT / "tools" / "sync_external_raw_bench.py",
-        ROOT / "agent" / "repair_loop.py",
-        ROOT / "agent" / "metrics.py",
     ]
     for script in scripts:
         result = subprocess.run(

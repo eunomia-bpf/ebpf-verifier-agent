@@ -1,4 +1,0 @@
-/home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-9141129561ff/buggy.c:4:10: fatal error: 'bpf/ctx/skb.h' file not found
-    4 | #include <bpf/ctx/skb.h>
-      |          ^~~~~~~~~~~~~~~
-1 error generated.

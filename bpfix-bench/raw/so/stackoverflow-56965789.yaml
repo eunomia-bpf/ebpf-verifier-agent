@@ -41,94 +41,69 @@ raw:
     blocks: []
     combined: ''
     generated:
-      log: 'libbpf: loading object from /tmp/bpfix_oracle_n3a9yn13/prog_wrap-vmlinux.o
-
+      log: |-
+        libbpf: loading object from /tmp/bpfix_oracle_n3a9yn13/prog_wrap-vmlinux.o
         libbpf: elf: section(3) license, size 4, link 0, flags 3, type=1
-
         libbpf: license of /tmp/bpfix_oracle_n3a9yn13/prog_wrap-vmlinux.o is GPL
-
         libbpf: elf: section(12) .BTF, size 163, link 0, flags 0, type=1
-
         libbpf: elf: section(18) .symtab, size 216, link 1, flags 0, type=2
-
         libbpf: looking for externs among 9 symbols...
-
         libbpf: collected 0 externs total
-
-        libbpf: object ''prog_wrap-vmlin'': failed (-95) to create BPF token from
-        ''/sys/fs/bpf'', skipping optional step...
-
-        Error: object file doesn''t contain any bpf program'
+        libbpf: object 'prog_wrap-vmlin': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+        Error: object file doesn't contain any bpf program
       verifier_pass: false
       template_used: wrap-vmlinux
       generated_at: '2026-03-13T21:13:42.041844+00:00'
       old_log_len: 0
       new_log_len: 592
   source_snippets:
-  - "static inline int parse_ipv4(void *data, u64 nh_off, void *data_end) {\nstruct\
-    \ iphdr *iph = data + nh_off;\n\nif ((void*)&iph[1] > data_end)\n    return 0;\n\
-    return iph->protocol;\n}"
-  - 'if (h_proto == htons(ETH_P_IP)){
-
-    index = parse_ipv4(data, nh_off, data_end);'
-  - "if (h_proto == htons(ETH_P_IP)){\n    index = parse_ipv4(data, nh_off, data_end);\n\
-    \n    struct iphdr *iph2 = sizeof(*eth) + nh_off;\n}"
-  question_body_text: 'So I''ve been trying to access the iphdr using eBPF.
-
+  - |-
     static inline int parse_ipv4(void *data, u64 nh_off, void *data_end) {
-
     struct iphdr *iph = data + nh_off;
 
     if ((void*)&iph[1] > data_end)
-
-    return 0;
-
+        return 0;
     return iph->protocol;
-
     }
+  - |-
+    if (h_proto == htons(ETH_P_IP)){
+    index = parse_ipv4(data, nh_off, data_end);
+  - |-
+    if (h_proto == htons(ETH_P_IP)){
+        index = parse_ipv4(data, nh_off, data_end);
 
+        struct iphdr *iph2 = sizeof(*eth) + nh_off;
+    }
+  question_body_text: |-
+    So I've been trying to access the iphdr using eBPF.
+    static inline int parse_ipv4(void *data, u64 nh_off, void *data_end) {
+    struct iphdr *iph = data + nh_off;
+    if ((void*)&iph[1] > data_end)
+    return 0;
+    return iph->protocol;
+    }
     When I use the code above in the eBPF function, it works fine like :
-
     if (h_proto == htons(ETH_P_IP)){
-
     index = parse_ipv4(data, nh_off, data_end);
-
     Like this, calling parse_ipv4 function works.
-
-    However, if I try to access the ipheader directly without using the function,
-    it doesn''t work.
-
+    However, if I try to access the ipheader directly without using the function, it doesn't work.
     if (h_proto == htons(ETH_P_IP)){
-
     index = parse_ipv4(data, nh_off, data_end);
-
     struct iphdr *iph2 = sizeof(*eth) + nh_off;
-
     }
-
-    This gives me an error : HINT: The invalid mem access ''inv'' error can happen
-    if you try to dereference memory without first using bpf_probe_read() to copy
-    it to the BPF stack. Sometimes the bpf_probe_read is automatic by the bcc rewriter,
-    other times you''ll need to be explicit.
-
+    This gives me an error : HINT: The invalid mem access 'inv' error can happen if you try to dereference memory without first using bpf_probe_read() to copy it to the BPF stack. Sometimes the bpf_probe_read is automatic by the bcc rewriter, other times you'll need to be explicit.
     and fails to activate.
-
-    Thank you so much in advance!'
+    Thank you so much in advance!
   selected_answer:
     answer_id: 56966441
     url: https://stackoverflow.com/questions/56965789/i-have-an-error-trying-to-access-iphdr-using-ebpf#56966441
     is_accepted: true
     score: 2
-    body_text: 'Unless I misunderstand your program, the following:
-
+    body_text: |-
+      Unless I misunderstand your program, the following:
       struct iphdr *iph2 = sizeof(*eth) + nh_off;
-
-      looks erroneous. Instead, iph2 should be something like data + nh_off, just
-      as in your function, no? If you set it to the sum of two sizes, without any
-      base address, then you try to access data at an arbitrary memory location (something
-      like 0x28 I guess), which of course is not permitted.'
+      looks erroneous. Instead, iph2 should be something like data + nh_off, just as in your function, no? If you set it to the sum of two sizes, without any base address, then you try to access data at an arbitrary memory location (something like 0x28 I guess), which of course is not permitted.
     fix_description: looks erroneous. Instead, iph2 should be something like data
       + nh_off, just as in your function, no? If you set it to the sum of two sizes,
       without any base address, then you try to access data at an arbitrary memory
       location (something like 0x28 I guess), which of course is not permitted.
-

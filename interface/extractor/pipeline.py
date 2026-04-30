@@ -10,6 +10,7 @@ Flow:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -1068,10 +1069,7 @@ def _build_help_text(
             return specific_help
 
     catalog_path = Path(__file__).resolve().parents[2] / "taxonomy" / "obligation_catalog.yaml"
-    try:
-        templates = yaml.safe_load(catalog_path.read_text(encoding="utf-8")) or {}
-    except OSError:
-        return None
+    templates = _load_obligation_templates(str(catalog_path.resolve()))
 
     error_id = parsed_log.error_id
     for template in templates.get("templates", []):
@@ -1081,6 +1079,14 @@ def _build_help_text(
                 return hints[0]
 
     return None
+
+
+@lru_cache(maxsize=None)
+def _load_obligation_templates(catalog_path: str) -> dict[str, Any]:
+    try:
+        return yaml.safe_load(Path(catalog_path).read_text(encoding="utf-8")) or {}
+    except OSError:
+        return {}
 
 
 # ---------------------------------------------------------------------------

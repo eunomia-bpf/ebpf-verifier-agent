@@ -1,6 +1,6 @@
 source: kernel_selftests
 generated_at: '2026-03-11T16:02:00+00:00'
-generator: tools/import_kernel_selftests_bench.py
+generator: bpfix-bench/raw/kernel_selftests archived fixture index
 case_count: 200
 output_dir: bpfix-bench/raw/kernel_selftests
 source_details:

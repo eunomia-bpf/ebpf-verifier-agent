@@ -38,88 +38,39 @@ raw:
     is_answered: true
   verifier_log:
     blocks:
-    - 'libbpf: failed to guess program type based on ELF section name ''.text''
-
-      libbpf: supported section(type) names are: socket kprobe/ uprobe/ kretprobe/
-      uretprobe/ classifier action tracepoint/ tp/ raw_tracepoint/ raw_tp/ tp_btf/
-      xdp perf_event lwt_in lwt_out lwt_xmit lwt_seg6local cgroup_skb/ingress cgroup_skb/egress
-      cgroup/skb cgroup/sock cgroup/post_bind4 cgroup/post_bind6 cgroup/dev sockops
-      sk_skb/stream_parser sk_skb/stream_verdict sk_skb sk_msg lirc_mode2 flow_dissector
-      cgroup/bind4 cgroup/bind6 cgroup/connect4 cgroup/connect6 cgroup/sendmsg4 cgroup/sendmsg6
-      cgroup/recvmsg4 cgroup/recvmsg6 cgroup/sysctl cgroup/getsockopt cgroup/setsockopt
-
+    - |-
+      libbpf: failed to guess program type based on ELF section name '.text'
+      libbpf: supported section(type) names are: socket kprobe/ uprobe/ kretprobe/ uretprobe/ classifier action tracepoint/ tp/ raw_tracepoint/ raw_tp/ tp_btf/ xdp perf_event lwt_in lwt_out lwt_xmit lwt_seg6local cgroup_skb/ingress cgroup_skb/egress cgroup/skb cgroup/sock cgroup/post_bind4 cgroup/post_bind6 cgroup/dev sockops sk_skb/stream_parser sk_skb/stream_verdict sk_skb sk_msg lirc_mode2 flow_dissector cgroup/bind4 cgroup/bind6 cgroup/connect4 cgroup/connect6 cgroup/sendmsg4 cgroup/sendmsg6 cgroup/recvmsg4 cgroup/recvmsg6 cgroup/sysctl cgroup/getsockopt cgroup/setsockopt
       libbpf: load bpf program failed: Invalid argument
-
       libbpf: -- BEGIN DUMP LOG ---
-
       libbpf:
-
-      number of funcs in func_info doesn''t match number of subprogs
-
-      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-      0 mark_read 0
-
+      number of funcs in func_info doesn't match number of subprogs
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
       libbpf: -- END LOG --
-
-      libbpf: failed to load program ''.text'''
-    combined: 'libbpf: failed to guess program type based on ELF section name ''.text''
-
-      libbpf: supported section(type) names are: socket kprobe/ uprobe/ kretprobe/
-      uretprobe/ classifier action tracepoint/ tp/ raw_tracepoint/ raw_tp/ tp_btf/
-      xdp perf_event lwt_in lwt_out lwt_xmit lwt_seg6local cgroup_skb/ingress cgroup_skb/egress
-      cgroup/skb cgroup/sock cgroup/post_bind4 cgroup/post_bind6 cgroup/dev sockops
-      sk_skb/stream_parser sk_skb/stream_verdict sk_skb sk_msg lirc_mode2 flow_dissector
-      cgroup/bind4 cgroup/bind6 cgroup/connect4 cgroup/connect6 cgroup/sendmsg4 cgroup/sendmsg6
-      cgroup/recvmsg4 cgroup/recvmsg6 cgroup/sysctl cgroup/getsockopt cgroup/setsockopt
-
+      libbpf: failed to load program '.text'
+    combined: |-
+      libbpf: failed to guess program type based on ELF section name '.text'
+      libbpf: supported section(type) names are: socket kprobe/ uprobe/ kretprobe/ uretprobe/ classifier action tracepoint/ tp/ raw_tracepoint/ raw_tp/ tp_btf/ xdp perf_event lwt_in lwt_out lwt_xmit lwt_seg6local cgroup_skb/ingress cgroup_skb/egress cgroup/skb cgroup/sock cgroup/post_bind4 cgroup/post_bind6 cgroup/dev sockops sk_skb/stream_parser sk_skb/stream_verdict sk_skb sk_msg lirc_mode2 flow_dissector cgroup/bind4 cgroup/bind6 cgroup/connect4 cgroup/connect6 cgroup/sendmsg4 cgroup/sendmsg6 cgroup/recvmsg4 cgroup/recvmsg6 cgroup/sysctl cgroup/getsockopt cgroup/setsockopt
       libbpf: load bpf program failed: Invalid argument
-
       libbpf: -- BEGIN DUMP LOG ---
-
       libbpf:
-
-      number of funcs in func_info doesn''t match number of subprogs
-
-      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-      0 mark_read 0
-
+      number of funcs in func_info doesn't match number of subprogs
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
       libbpf: -- END LOG --
-
-      libbpf: failed to load program ''.text'''
+      libbpf: failed to load program '.text'
   source_snippets: []
-  question_body_text: 'I''m developing an XDP program and I''m facing this error when
-    trying to mount it in NIC driver:
-
-    libbpf: failed to guess program type based on ELF section name ''.text''
-
-    libbpf: supported section(type) names are: socket kprobe/ uprobe/ kretprobe/ uretprobe/
-    classifier action tracepoint/ tp/ raw_tracepoint/ raw_tp/ tp_btf/ xdp perf_event
-    lwt_in lwt_out lwt_xmit lwt_seg6local cgroup_skb/ingress cgroup_skb/egress cgroup/skb
-    cgroup/sock cgroup/post_bind4 cgroup/post_bind6 cgroup/dev sockops sk_skb/stream_parser
-    sk_skb/stream_verdict sk_skb sk_msg lirc_mode2 flow_dissector cgroup/bind4 cgroup/bind6
-    cgroup/connect4 cgroup/connect6 cgroup/sendmsg4 cgroup/sendmsg6 cgroup/recvmsg4
-    cgroup/recvmsg6 cgroup/sysctl cgroup/getsockopt cgroup/setsockopt
-
+  question_body_text: |-
+    I'm developing an XDP program and I'm facing this error when trying to mount it in NIC driver:
+    libbpf: failed to guess program type based on ELF section name '.text'
+    libbpf: supported section(type) names are: socket kprobe/ uprobe/ kretprobe/ uretprobe/ classifier action tracepoint/ tp/ raw_tracepoint/ raw_tp/ tp_btf/ xdp perf_event lwt_in lwt_out lwt_xmit lwt_seg6local cgroup_skb/ingress cgroup_skb/egress cgroup/skb cgroup/sock cgroup/post_bind4 cgroup/post_bind6 cgroup/dev sockops sk_skb/stream_parser sk_skb/stream_verdict sk_skb sk_msg lirc_mode2 flow_dissector cgroup/bind4 cgroup/bind6 cgroup/connect4 cgroup/connect6 cgroup/sendmsg4 cgroup/sendmsg6 cgroup/recvmsg4 cgroup/recvmsg6 cgroup/sysctl cgroup/getsockopt cgroup/setsockopt
     libbpf: load bpf program failed: Invalid argument
-
     libbpf: -- BEGIN DUMP LOG ---
-
     libbpf:
-
-    number of funcs in func_info doesn''t match number of subprogs
-
-    processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-    0 mark_read 0
-
+    number of funcs in func_info doesn't match number of subprogs
+    processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
     libbpf: -- END LOG --
-
-    libbpf: failed to load program ''.text''
-
-    I searched and found the error is raising when eBPF verifier trying to compare
-    attr->func_info_cnt and env->subprog_cnt but I don''t understand how these two
-    values are set before processed by the verifier. I have one XDP program with one
-    section and 6 functions as helpers, I''m not sure if this info can help but I
-    can provide more about the structure of the program if needed.'
+    libbpf: failed to load program '.text'
+    I searched and found the error is raising when eBPF verifier trying to compare attr->func_info_cnt and env->subprog_cnt but I don't understand how these two values are set before processed by the verifier. I have one XDP program with one section and 6 functions as helpers, I'm not sure if this info can help but I can provide more about the structure of the program if needed.
   selected_answer:
     answer_id: 69194713
     url: https://stackoverflow.com/questions/69192685/whats-func-info-in-ebpf-verifier#69194713
@@ -153,4 +104,3 @@ raw:
       with bpf_program__set_type()), then libbpf is unable to pick the relevant type
       for your program. This could lead to some of your programs to fail to load.
       From the error message above, it looks like you use function calls in...
-

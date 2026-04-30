@@ -40,38 +40,27 @@ raw:
     is_answered: true
   verifier_log:
     blocks:
-    - '221: (85) call bpf_l4_csum_replace#11
-
-      unknown func bpf_l4_csum_replace#11'
-    combined: '221: (85) call bpf_l4_csum_replace#11
-
-      unknown func bpf_l4_csum_replace#11'
+    - |-
+      221: (85) call bpf_l4_csum_replace#11
+      unknown func bpf_l4_csum_replace#11
+    combined: |-
+      221: (85) call bpf_l4_csum_replace#11
+      unknown func bpf_l4_csum_replace#11
   source_snippets: []
-  question_body_text: 'I am testing a nat program using ebpf. But the ebpf prog loader
-    throws a error message:
-
+  question_body_text: |-
+    I am testing a nat program using ebpf. But the ebpf prog loader throws a error message:
     221: (85) call bpf_l4_csum_replace#11
-
     unknown func bpf_l4_csum_replace#11
-
     What does it mean ? How to solve it ?
-
-    Thanks.'
+    Thanks.
   selected_answer:
     answer_id: 62173263
     url: https://stackoverflow.com/questions/62171477/ebpf-program-loading-error-unknown-func-bpf-l4-csum-replace11#62173263
     is_accepted: true
     score: 7
-    body_text: 'A similar message could mean that your kernel does not know the BPF
-      helper you are trying to use, because e.g. your kernel is too old or the helper
-      has been compiled out based on the kernel configuration options. But in those
-      cases, you would not see the name of the function in the verifier logs.
-
-      What is probably happening here is that your kernel does support the BPF helper,
-      but the type of the BPF program you are trying to load is not compatible with
-      that helper. For example, if your program is of type socket_filter, you cannot
-      use this helper (see function sk_filter_func_proto() used for the check). If
-      your program was a TC classifier instead, you would be able to use it.'
+    body_text: |-
+      A similar message could mean that your kernel does not know the BPF helper you are trying to use, because e.g. your kernel is too old or the helper has been compiled out based on the kernel configuration options. But in those cases, you would not see the name of the function in the verifier logs.
+      What is probably happening here is that your kernel does support the BPF helper, but the type of the BPF program you are trying to load is not compatible with that helper. For example, if your program is of type socket_filter, you cannot use this helper (see function sk_filter_func_proto() used for the check). If your program was a TC classifier instead, you would be able to use it.
     fix_description: A similar message could mean that your kernel does not know the
       BPF helper you are trying to use, because e.g. your kernel is too old or the
       helper has been compiled out based on the kernel configuration options. But
@@ -80,4 +69,3 @@ raw:
       but the type of the BPF program you are trying to load is not compatible with
       that helper. For example, if your program is of type socket_filter, you cannot
       use this helper (see function sk_filter_func_proto() used for...
-

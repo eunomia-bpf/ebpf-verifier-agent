@@ -44,48 +44,94 @@ raw:
     is_answered: true
   verifier_log:
     blocks:
-    - "# ./a.out\nlibbpf: load bpf program failed: Permission denied\nlibbpf: -- BEGIN\
-      \ DUMP LOG ---\nlibbpf:\nR1 type=ctx expected=fp\n; int trace_read_exit(struct\
-      \ read_exit_ctx *ctx)\n0: (bf) r6 = r1\n1: (b7) r1 = 0\n; int zero = 0;\n2:\
-      \ (63) *(u32 *)(r10 -132) = r1\nlast_idx 2 first_idx 0\nregs=2 stack=0 before\
-      \ 1: (b7) r1 = 0\n3: (bf) r2 = r10\n;\n4: (07) r2 += -132\n; void **ubuf = bpf_map_lookup_elem(&saved_read_ctx,\
-      \ &zero);\n5: (18) r1 = 0xffff920183aa8e00\n7: (85) call bpf_map_lookup_elem#1\n\
-      ; if (!ubuf) {\n8: (15) if r0 == 0x0 goto pc+8\n R0_w=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R6_w=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????\n; if (ctx->ret <= 0) {\n\
-      9: (79) r2 = *(u64 *)(r6 +16)\n10: (b7) r1 = 1\n; if (ctx->ret <= 0) {\n11:\
-      \ (6d) if r1 s> r2 goto pc+5\n R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv1\
-      \ R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff))\
-      \ R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????\n; bpf_probe_read(tmp_buffer,\
-      \ ret & KEY_SIZE, *ubuf);\n12: (79) r3 = *(u64 *)(r0 +0)\n R0=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R1=inv1 R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0;\
-      \ 0x7fffffffffffffff)) R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????\n; bpf_probe_read(tmp_buffer,\
-      \ ret & KEY_SIZE, *ubuf);\n13: (57) r2 &= 127\n14: (bf) r1 = r10\n;\n15: (07)\
-      \ r1 += -128\n; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);\n16: (85)\
-      \ call bpf_probe_read#4\ninvalid indirect read from stack R1 off -128+0 size\
-      \ 127\nprocessed 16 insns (limit 1000000) max_states_per_insn 0 total_states\
-      \ 1 peak_states 1 mark_read 1\n\nlibbpf: -- END LOG --\nlibbpf: failed to load\
-      \ program 'trace_read_exit'\nlibbpf: failed to load object './EXE'"
-    combined: "# ./a.out\nlibbpf: load bpf program failed: Permission denied\nlibbpf:\
-      \ -- BEGIN DUMP LOG ---\nlibbpf:\nR1 type=ctx expected=fp\n; int trace_read_exit(struct\
-      \ read_exit_ctx *ctx)\n0: (bf) r6 = r1\n1: (b7) r1 = 0\n; int zero = 0;\n2:\
-      \ (63) *(u32 *)(r10 -132) = r1\nlast_idx 2 first_idx 0\nregs=2 stack=0 before\
-      \ 1: (b7) r1 = 0\n3: (bf) r2 = r10\n;\n4: (07) r2 += -132\n; void **ubuf = bpf_map_lookup_elem(&saved_read_ctx,\
-      \ &zero);\n5: (18) r1 = 0xffff920183aa8e00\n7: (85) call bpf_map_lookup_elem#1\n\
-      ; if (!ubuf) {\n8: (15) if r0 == 0x0 goto pc+8\n R0_w=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R6_w=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????\n; if (ctx->ret <= 0) {\n\
-      9: (79) r2 = *(u64 *)(r6 +16)\n10: (b7) r1 = 1\n; if (ctx->ret <= 0) {\n11:\
-      \ (6d) if r1 s> r2 goto pc+5\n R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv1\
-      \ R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff))\
-      \ R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????\n; bpf_probe_read(tmp_buffer,\
-      \ ret & KEY_SIZE, *ubuf);\n12: (79) r3 = *(u64 *)(r0 +0)\n R0=map_value(id=0,off=0,ks=4,vs=8,imm=0)\
-      \ R1=inv1 R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0;\
-      \ 0x7fffffffffffffff)) R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????\n; bpf_probe_read(tmp_buffer,\
-      \ ret & KEY_SIZE, *ubuf);\n13: (57) r2 &= 127\n14: (bf) r1 = r10\n;\n15: (07)\
-      \ r1 += -128\n; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);\n16: (85)\
-      \ call bpf_probe_read#4\ninvalid indirect read from stack R1 off -128+0 size\
-      \ 127\nprocessed 16 insns (limit 1000000) max_states_per_insn 0 total_states\
-      \ 1 peak_states 1 mark_read 1\n\nlibbpf: -- END LOG --\nlibbpf: failed to load\
-      \ program 'trace_read_exit'\nlibbpf: failed to load object './EXE'"
+    - |-
+      # ./a.out
+      libbpf: load bpf program failed: Permission denied
+      libbpf: -- BEGIN DUMP LOG ---
+      libbpf:
+      R1 type=ctx expected=fp
+      ; int trace_read_exit(struct read_exit_ctx *ctx)
+      0: (bf) r6 = r1
+      1: (b7) r1 = 0
+      ; int zero = 0;
+      2: (63) *(u32 *)(r10 -132) = r1
+      last_idx 2 first_idx 0
+      regs=2 stack=0 before 1: (b7) r1 = 0
+      3: (bf) r2 = r10
+      ;
+      4: (07) r2 += -132
+      ; void **ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero);
+      5: (18) r1 = 0xffff920183aa8e00
+      7: (85) call bpf_map_lookup_elem#1
+      ; if (!ubuf) {
+      8: (15) if r0 == 0x0 goto pc+8
+       R0_w=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6_w=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????
+      ; if (ctx->ret <= 0) {
+      9: (79) r2 = *(u64 *)(r6 +16)
+      10: (b7) r1 = 1
+      ; if (ctx->ret <= 0) {
+      11: (6d) if r1 s> r2 goto pc+5
+       R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv1 R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????
+      ; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
+      12: (79) r3 = *(u64 *)(r0 +0)
+       R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv1 R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????
+      ; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
+      13: (57) r2 &= 127
+      14: (bf) r1 = r10
+      ;
+      15: (07) r1 += -128
+      ; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
+      16: (85) call bpf_probe_read#4
+      invalid indirect read from stack R1 off -128+0 size 127
+      processed 16 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+
+      libbpf: -- END LOG --
+      libbpf: failed to load program 'trace_read_exit'
+      libbpf: failed to load object './EXE'
+    combined: |-
+      # ./a.out
+      libbpf: load bpf program failed: Permission denied
+      libbpf: -- BEGIN DUMP LOG ---
+      libbpf:
+      R1 type=ctx expected=fp
+      ; int trace_read_exit(struct read_exit_ctx *ctx)
+      0: (bf) r6 = r1
+      1: (b7) r1 = 0
+      ; int zero = 0;
+      2: (63) *(u32 *)(r10 -132) = r1
+      last_idx 2 first_idx 0
+      regs=2 stack=0 before 1: (b7) r1 = 0
+      3: (bf) r2 = r10
+      ;
+      4: (07) r2 += -132
+      ; void **ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero);
+      5: (18) r1 = 0xffff920183aa8e00
+      7: (85) call bpf_map_lookup_elem#1
+      ; if (!ubuf) {
+      8: (15) if r0 == 0x0 goto pc+8
+       R0_w=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6_w=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????
+      ; if (ctx->ret <= 0) {
+      9: (79) r2 = *(u64 *)(r6 +16)
+      10: (b7) r1 = 1
+      ; if (ctx->ret <= 0) {
+      11: (6d) if r1 s> r2 goto pc+5
+       R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv1 R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????
+      ; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
+      12: (79) r3 = *(u64 *)(r0 +0)
+       R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv1 R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????
+      ; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
+      13: (57) r2 &= 127
+      14: (bf) r1 = r10
+      ;
+      15: (07) r1 += -128
+      ; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
+      16: (85) call bpf_probe_read#4
+      invalid indirect read from stack R1 off -128+0 size 127
+      processed 16 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+
+      libbpf: -- END LOG --
+      libbpf: failed to load program 'trace_read_exit'
+      libbpf: failed to load object './EXE'
     generated:
       log: "-- BEGIN PROG LOAD LOG --\nfunc#0 @0\nLive regs before insn:\n  0: .1........\
         \ (b7) r2 = 0\n  1: .12....... (63) *(u32 *)(r10 -4) = r2\n  2: .1........\
@@ -118,245 +164,171 @@ raw:
       old_log_len: 1663
       new_log_len: 1825
   source_snippets:
-  - "#include <linux/bpf.h>\n#include <bpf/bpf_helpers.h>\n#include <stddef.h>\n\n\
-    struct read_exit_ctx {\n    unsigned long long unused;\n    int __syscall_nr;\n\
-    \    long ret;\n};\n\nstruct read_enter_ctx {\n    unsigned long long unused;\n\
-    \    int __syscall_nr;\n    unsigned int padding;\n    unsigned long fd;\n   \
-    \ char* buf;\n    size_t count;\n};\n\nstruct {\n    __uint(type, BPF_MAP_TYPE_ARRAY);\n\
-    \    __uint(max_entries, 1);\n    __type(key, int);\n    __type(value, void*);\n\
-    } saved_read_ctx SEC(\".maps\");\n\nSEC(\"tracepoint/syscalls/sys_enter_read\"\
-    )\nint trace_read_enter(struct read_enter_ctx *ctx)\n{\n    int zero = 0;\n  \
-    \  void *p = ctx->buf;\n    bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY);\n\
-    \    return 0;\n}\n\nSEC(\"tracepoint/syscalls/sys_exit_read\")\nint trace_read_exit(struct\
-    \ read_exit_ctx *ctx)\n{\n    char tmp_buffer[128];\n    #define KEY_SIZE (sizeof(tmp_buffer)\
-    \ - 1)\n\n    int zero = 0;\n    void **ubuf = bpf_map_lookup_elem(&saved_read_ctx,\
-    \ &zero);\n    if (!ubuf) {\n        return 0;\n    }\n\n    if (ctx->ret <= 0)\
-    \ {\n        return 0;\n    }\n\n    unsigned int ret = ctx->ret;\n\n    // for\
-    \ the time being, copy to a stack buffer instead of perf buffer\n    bpf_probe_read(tmp_buffer,\
-    \ ret & KEY_SIZE, *ubuf);\n    return 0;\n}\n\nchar _license[] SEC(\"license\"\
-    ) = \"GPL\";"
-  question_body_text: 'I am trying to dump the contents of the user space buffer in
-    read() system call by running ebpf programs on tracepoint/syscalls/sys_enter_read
-    and tracepoint/syscalls/sys_exit_read. The idea is to save the user buffer address
-    during sys_enter_read tracepoint, and, when the read() returns, inside sys_exit_read,
-    copy the contents of the user buffer into a perf buffer. So I am using bpf_probe_read()
-    to copy the contents from the userspace buffer. However, the verifier complains
-    while loading. As I understand, the verifier wants to ensure a bound on the size
-    argument and that prevents the load. So how do I get copying variable-length data
-    working?
-
-    I am trying this on 5.13 kernel
-
+  - |-
     #include <linux/bpf.h>
-
     #include <bpf/bpf_helpers.h>
-
     #include <stddef.h>
 
     struct read_exit_ctx {
-
-    unsigned long long unused;
-
-    int __syscall_nr;
-
-    long ret;
-
+        unsigned long long unused;
+        int __syscall_nr;
+        long ret;
     };
 
     struct read_enter_ctx {
-
-    unsigned long long unused;
-
-    int __syscall_nr;
-
-    unsigned int padding;
-
-    unsigned long fd;
-
-    char* buf;
-
-    size_t count;
-
+        unsigned long long unused;
+        int __syscall_nr;
+        unsigned int padding;
+        unsigned long fd;
+        char* buf;
+        size_t count;
     };
 
     struct {
-
-    __uint(type, BPF_MAP_TYPE_ARRAY);
-
-    __uint(max_entries, 1);
-
-    __type(key, int);
-
-    __type(value, void*);
-
+        __uint(type, BPF_MAP_TYPE_ARRAY);
+        __uint(max_entries, 1);
+        __type(key, int);
+        __type(value, void*);
     } saved_read_ctx SEC(".maps");
 
     SEC("tracepoint/syscalls/sys_enter_read")
-
     int trace_read_enter(struct read_enter_ctx *ctx)
-
     {
-
-    int zero = 0;
-
-    void *p = ctx->buf;
-
-    bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY);
-
-    return 0;
-
+        int zero = 0;
+        void *p = ctx->buf;
+        bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY);
+        return 0;
     }
 
     SEC("tracepoint/syscalls/sys_exit_read")
-
     int trace_read_exit(struct read_exit_ctx *ctx)
-
     {
+        char tmp_buffer[128];
+        #define KEY_SIZE (sizeof(tmp_buffer) - 1)
 
-    char tmp_buffer[128];
+        int zero = 0;
+        void **ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero);
+        if (!ubuf) {
+            return 0;
+        }
 
-    #define KEY_SIZE (sizeof(tmp_buffer) - 1)
+        if (ctx->ret <= 0) {
+            return 0;
+        }
 
-    int zero = 0;
+        unsigned int ret = ctx->ret;
 
-    void **ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero);
-
-    if (!ubuf) {
-
-    return 0;
-
-    }
-
-    if (ctx->ret <= 0) {
-
-    return 0;
-
-    }
-
-    unsigned int ret = ctx->ret;
-
-    // for the time being, copy to a stack buffer instead of perf buffer
-
-    bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
-
-    return 0;
-
+        // for the time being, copy to a stack buffer instead of perf buffer
+        bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
+        return 0;
     }
 
     char _license[] SEC("license") = "GPL";
-
+  question_body_text: |-
+    I am trying to dump the contents of the user space buffer in read() system call by running ebpf programs on tracepoint/syscalls/sys_enter_read and tracepoint/syscalls/sys_exit_read. The idea is to save the user buffer address during sys_enter_read tracepoint, and, when the read() returns, inside sys_exit_read, copy the contents of the user buffer into a perf buffer. So I am using bpf_probe_read() to copy the contents from the userspace buffer. However, the verifier complains while loading. As I understand, the verifier wants to ensure a bound on the size argument and that prevents the load. So how do I get copying variable-length data working?
+    I am trying this on 5.13 kernel
+    #include <linux/bpf.h>
+    #include <bpf/bpf_helpers.h>
+    #include <stddef.h>
+    struct read_exit_ctx {
+    unsigned long long unused;
+    int __syscall_nr;
+    long ret;
+    };
+    struct read_enter_ctx {
+    unsigned long long unused;
+    int __syscall_nr;
+    unsigned int padding;
+    unsigned long fd;
+    char* buf;
+    size_t count;
+    };
+    struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY);
+    __uint(max_entries, 1);
+    __type(key, int);
+    __type(value, void*);
+    } saved_read_ctx SEC(".maps");
+    SEC("tracepoint/syscalls/sys_enter_read")
+    int trace_read_enter(struct read_enter_ctx *ctx)
+    {
+    int zero = 0;
+    void *p = ctx->buf;
+    bpf_map_update_elem(&saved_read_ctx, &zero, &p, BPF_ANY);
+    return 0;
+    }
+    SEC("tracepoint/syscalls/sys_exit_read")
+    int trace_read_exit(struct read_exit_ctx *ctx)
+    {
+    char tmp_buffer[128];
+    #define KEY_SIZE (sizeof(tmp_buffer) - 1)
+    int zero = 0;
+    void **ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero);
+    if (!ubuf) {
+    return 0;
+    }
+    if (ctx->ret <= 0) {
+    return 0;
+    }
+    unsigned int ret = ctx->ret;
+    // for the time being, copy to a stack buffer instead of perf buffer
+    bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
+    return 0;
+    }
+    char _license[] SEC("license") = "GPL";
     # ./a.out
-
     libbpf: load bpf program failed: Permission denied
-
     libbpf: -- BEGIN DUMP LOG ---
-
     libbpf:
-
     R1 type=ctx expected=fp
-
     ; int trace_read_exit(struct read_exit_ctx *ctx)
-
     0: (bf) r6 = r1
-
     1: (b7) r1 = 0
-
     ; int zero = 0;
-
     2: (63) *(u32 *)(r10 -132) = r1
-
     last_idx 2 first_idx 0
-
     regs=2 stack=0 before 1: (b7) r1 = 0
-
     3: (bf) r2 = r10
-
     ;
-
     4: (07) r2 += -132
-
     ; void **ubuf = bpf_map_lookup_elem(&saved_read_ctx, &zero);
-
     5: (18) r1 = 0xffff920183aa8e00
-
     7: (85) call bpf_map_lookup_elem#1
-
     ; if (!ubuf) {
-
     8: (15) if r0 == 0x0 goto pc+8
-
-    R0_w=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6_w=ctx(id=0,off=0,imm=0) R10=fp0
-    fp-136=mmmm????
-
+    R0_w=map_value(id=0,off=0,ks=4,vs=8,imm=0) R6_w=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????
     ; if (ctx->ret <= 0) {
-
     9: (79) r2 = *(u64 *)(r6 +16)
-
     10: (b7) r1 = 1
-
     ; if (ctx->ret <= 0) {
-
     11: (6d) if r1 s> r2 goto pc+5
-
-    R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv1 R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0;
-    0x7fffffffffffffff)) R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????
-
+    R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv1 R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????
     ; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
-
     12: (79) r3 = *(u64 *)(r0 +0)
-
-    R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv1 R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0;
-    0x7fffffffffffffff)) R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????
-
+    R0=map_value(id=0,off=0,ks=4,vs=8,imm=0) R1=inv1 R2=inv(id=0,umin_value=1,umax_value=9223372036854775807,var_off=(0x0; 0x7fffffffffffffff)) R6=ctx(id=0,off=0,imm=0) R10=fp0 fp-136=mmmm????
     ; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
-
     13: (57) r2 &= 127
-
     14: (bf) r1 = r10
-
     ;
-
     15: (07) r1 += -128
-
     ; bpf_probe_read(tmp_buffer, ret & KEY_SIZE, *ubuf);
-
     16: (85) call bpf_probe_read#4
-
     invalid indirect read from stack R1 off -128+0 size 127
-
-    processed 16 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states
-    1 mark_read 1
-
+    processed 16 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
     libbpf: -- END LOG --
-
-    libbpf: failed to load program ''trace_read_exit''
-
-    libbpf: failed to load object ''./EXE''
-
-    Edit: I initialized the tmp_buffer[128] array as mentioned in the comments and
-    the bpf program loading was successful.'
+    libbpf: failed to load program 'trace_read_exit'
+    libbpf: failed to load object './EXE'
+    Edit: I initialized the tmp_buffer[128] array as mentioned in the comments and the bpf program loading was successful.
   selected_answer:
     answer_id: 69854317
     url: https://stackoverflow.com/questions/69767533/how-do-i-copy-variable-length-data-using-bpf-probe-read-in-ebpf-programs#69854317
     is_accepted: true
     score: 1
-    body_text: 'You need to initialise your tmp_buffer array before passing it to
-      the helper, something like:
-
+    body_text: |-
+      You need to initialise your tmp_buffer array before passing it to the helper, something like:
       char tmp_buffer[128] = {0};
-
-      This is because the kernel verifier sees that you pass this array to a kernel
-      helper. The verifier does not know what the helper does with the buffer: for
-      all it knows, it could be a helper that sends data to user space (for instance,
-      if you were calling bpf_trace_printk() instead). In such a case, sending uninitialised
-      data to user space would present a security risk, because the uninitialised
-      data in the buffer might be sensitive and exploitable.
-
-      For that reason, the verifier prevents you to pass the buffer, allocated on
-      the eBPF stack, to the helper, if you have not previously initialised the data.
-      This is what it means by invalid indirect read from stack R1: R1 is the first
-      argument passed to the helper (i.e. tmp_buffer), and the read is incorrect because
-      the memory has not been initialised yet.'
+      This is because the kernel verifier sees that you pass this array to a kernel helper. The verifier does not know what the helper does with the buffer: for all it knows, it could be a helper that sends data to user space (for instance, if you were calling bpf_trace_printk() instead). In such a case, sending uninitialised data to user space would present a security risk, because the uninitialised data in the buffer might be sensitive and exploitable.
+      For that reason, the verifier prevents you to pass the buffer, allocated on the eBPF stack, to the helper, if you have not previously initialised the data. This is what it means by invalid indirect read from stack R1: R1 is the first argument passed to the helper (i.e. tmp_buffer), and the read is incorrect because the memory has not been initialised yet.
     fix_description: 'You need to initialise your tmp_buffer array before passing
       it to the helper, something like: This is because the kernel verifier sees that
       you pass this array to a kernel helper. The verifier does not know what the
@@ -365,4 +337,3 @@ raw:
       In such a case, sending uninitialised data to user space would present a security
       risk, because the uninitialised data in the buffer might be sensitive and exploitable.
       For that reason, the verifier prevents you to pass...'
-

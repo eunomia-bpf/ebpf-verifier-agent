@@ -42,143 +42,103 @@ raw:
     is_answered: false
   verifier_log:
     blocks:
-    - 'libbpf: load bpf program failed: Invalid argument
-
+    - |-
+      libbpf: load bpf program failed: Invalid argument
       libbpf: -- BEGIN DUMP LOG ---
-
       libbpf:
-
       back-edge from insn 271 to 69
 
-
       libbpf: -- END LOG --
-
-      libbpf: failed to load program ''xdp_prog'''
-    combined: 'libbpf: load bpf program failed: Invalid argument
-
+      libbpf: failed to load program 'xdp_prog'
+    combined: |-
+      libbpf: load bpf program failed: Invalid argument
       libbpf: -- BEGIN DUMP LOG ---
-
       libbpf:
-
       back-edge from insn 271 to 69
 
-
       libbpf: -- END LOG --
-
-      libbpf: failed to load program ''xdp_prog'''
+      libbpf: failed to load program 'xdp_prog'
   source_snippets:
-  - "#pragma unroll\nfor (i = 0; i < 8; i++)\n{\n    int k = idx + i;\n    mask =\
-    \ bpf_map_lookup_elem(&a_map, &k);\n    if (!mask || (mask->an_idx == 0))\n  \
-    \      return -1;\n\n    *m_key = *key;\n    foo(m_key, mask);  // an __alwais_inline\
-    \ func\n\n    id = bpf_map_lookup_elem(&b_map, m_key);\n    if (id)\n    {\n \
-    \       *out_id = *id;\n        return 0;\n    }\n}"
-  - "#pragma unroll\nfor (i = 0; i < 8; i++)\n{\n    int k = i;\n    mask = bpf_map_lookup_elem(&a_map,\
-    \ &k);\n}"
-  question_body_text: 'So, as per title I''m trying to load an XDP program, when surprisingly
-    the bpf verifier kicks in spitting in my face with the famous back-edge error:
+  - |-
+    #pragma unroll
+    for (i = 0; i < 8; i++)
+    {
+        int k = idx + i;
+        mask = bpf_map_lookup_elem(&a_map, &k);
+        if (!mask || (mask->an_idx == 0))
+            return -1;
 
+        *m_key = *key;
+        foo(m_key, mask);  // an __alwais_inline func
+
+        id = bpf_map_lookup_elem(&b_map, m_key);
+        if (id)
+        {
+            *out_id = *id;
+            return 0;
+        }
+    }
+  - |-
+    #pragma unroll
+    for (i = 0; i < 8; i++)
+    {
+        int k = i;
+        mask = bpf_map_lookup_elem(&a_map, &k);
+    }
+  question_body_text: |-
+    So, as per title I'm trying to load an XDP program, when surprisingly the bpf verifier kicks in spitting in my face with the famous back-edge error:
     libbpf: load bpf program failed: Invalid argument
-
     libbpf: -- BEGIN DUMP LOG ---
-
     libbpf:
-
     back-edge from insn 271 to 69
-
     libbpf: -- END LOG --
-
-    libbpf: failed to load program ''xdp_prog''
-
-    Even though the only for-loop - with the number of iterations known at compile
-    time - in my restricted ebpf C code is guarded by pragma unroll. Here''s a code
-    snippet showing the affected for-loop as defined inside an __always_inlined function:
-
+    libbpf: failed to load program 'xdp_prog'
+    Even though the only for-loop - with the number of iterations known at compile time - in my restricted ebpf C code is guarded by pragma unroll. Here's a code snippet showing the affected for-loop as defined inside an __always_inlined function:
     #pragma unroll
-
     for (i = 0; i < 8; i++)
-
     {
-
     int k = idx + i;
-
     mask = bpf_map_lookup_elem(&a_map, &k);
-
     if (!mask || (mask->an_idx == 0))
-
     return -1;
-
     *m_key = *key;
-
     foo(m_key, mask); // an __alwais_inline func
-
     id = bpf_map_lookup_elem(&b_map, m_key);
-
     if (id)
-
     {
-
     *out_id = *id;
-
     return 0;
-
     }
-
     }
-
-    Maybe the problem is with clang failing to unroll the loop? If that''s right,
-    why does it fail, is there any workaround? It''s unacceptable to manually unroll
-    the loop as it results in a horrendous, unmaintainable, and unreadable code.
-
-    Oh, I''m working with:
-
+    Maybe the problem is with clang failing to unroll the loop? If that's right, why does it fail, is there any workaround? It's unacceptable to manually unroll the loop as it results in a horrendous, unmaintainable, and unreadable code.
+    Oh, I'm working with:
     kernel 4.19.3
-
     llvm-clang 8
-
     Any thoughts?
-
     UPDATE
-
-    Just noticed that even the following dummy for-loop seems not to be unrolled,
-    with the bpf verifier complaining about back-edge:
-
+    Just noticed that even the following dummy for-loop seems not to be unrolled, with the bpf verifier complaining about back-edge:
     #pragma unroll
-
     for (i = 0; i < 8; i++)
-
     {
-
     int k = i;
-
     mask = bpf_map_lookup_elem(&a_map, &k);
-
     }
-
-    Is it just me for this doesn''t make any sense?'
+    Is it just me for this doesn't make any sense?
   selected_answer:
     answer_id: 57248953
     url: https://stackoverflow.com/questions/56872436/bpf-verifier-rejecting-xdp-program-due-to-back-edge-even-though-pragma-unroll-is#57248953
     is_accepted: false
     score: -2
-    body_text: 'I write the following code, and it works.
-
+    body_text: |-
+      I write the following code, and it works.
       #pragma clang loop unroll(full)
-
       for (int i = 0; i < 128; i++)
-
       {
-
       if (bpf_map_lookup_elem(&conntrack_hash_tab, &reply_key) == NULL)
-
       {
-
       break;
-
       }
-
       reply_key.dport = reply_key.dport+1;
-
-      }'
+      }
     fix_description: 'I write the following code, and it works. #pragma clang loop
       unroll(full) for (int i = 0; i < 128; i++)'
-

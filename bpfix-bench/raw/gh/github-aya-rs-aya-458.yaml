@@ -43,20 +43,16 @@ raw:
     author: brevilo
   verifier_log:
     blocks:
-    - '291: (85) call bpf_map_lookup_elem#1          ; R0_w=map_value_or_null(id=2,off=0,ks=4,vs=1440,imm=0)
-
+    - |-
+      291: (85) call bpf_map_lookup_elem#1          ; R0_w=map_value_or_null(id=2,off=0,ks=4,vs=1440,imm=0)
       292: (b7) r1 = 42                     ; R1_w=42
-
       293: (73) *(u8 *)(r0 +0) = r1
-
-      R0 invalid mem access ''map_value_or_null'''
-    combined: '291: (85) call bpf_map_lookup_elem#1          ; R0_w=map_value_or_null(id=2,off=0,ks=4,vs=1440,imm=0)
-
+      R0 invalid mem access 'map_value_or_null'
+    combined: |-
+      291: (85) call bpf_map_lookup_elem#1          ; R0_w=map_value_or_null(id=2,off=0,ks=4,vs=1440,imm=0)
       292: (b7) r1 = 42                     ; R1_w=42
-
       293: (73) *(u8 *)(r0 +0) = r1
-
-      R0 invalid mem access ''map_value_or_null'''
+      R0 invalid mem access 'map_value_or_null'
   source_snippets: []
   issue_body_text: "Hi there,\nFirst: thanks for this great project! It's highly appreciated\
     \ to finally see end-to-end Rust support to write eBPF programs \U0001F680\nNow,\
@@ -79,7 +75,6 @@ raw:
       url: https://github.com/aya-rs/aya/issues/458#issuecomment-1367123535
       author: alessandrod
       author_association: COLLABORATOR
-      body_text: 'Hey! Sorry for the late reply - holiday season and all.
-
-        Here''s an example of how to use PerCpuArrayhttps://github.com/alessandrod/aya-echo-tracepoint/blob/main/echo-ebpf/src/main.rst'
-
+      body_text: |-
+        Hey! Sorry for the late reply - holiday season and all.
+        Here's an example of how to use PerCpuArrayhttps://github.com/alessandrod/aya-echo-tracepoint/blob/main/echo-ebpf/src/main.rst

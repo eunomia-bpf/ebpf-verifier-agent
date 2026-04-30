@@ -40,107 +40,22 @@ raw:
     is_answered: true
   verifier_log:
     blocks:
-    - 'invalid relo for insn[6].code 0x85
-
+    - |-
+      invalid relo for insn[6].code 0x85
       bpf_load_program() err=22
-
       last insn is not an exit or jmp
-
-      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-      0 mark_read 0
-
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
       last insn is not an exit or jmp
-
-      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-      0 mark_read 0'
-    combined: 'invalid relo for insn[6].code 0x85
-
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+    combined: |-
+      invalid relo for insn[6].code 0x85
       bpf_load_program() err=22
-
       last insn is not an exit or jmp
-
-      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-      0 mark_read 0
-
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
       last insn is not an exit or jmp
-
-      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-      0 mark_read 0'
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
   source_snippets:
-  - "CLANG = clang\n\nEXECABLE = monitor-exec\n\nBPFCODE = one\n\nBPFTOOLS = /kernel-src/samples/bpf\n\
-    BPFLOADER = $(BPFTOOLS)/bpf_load.c\n\nINCLUDE += -I/kernel-src/samples/bpf\nINCLUDE\
-    \ += -I/kernel-src/tools/lib\n\nCCINCLUDE += -I/kernel-src/tools/testing/selftests/bpf\n\
-    CCINCLUDE += -I/kernel-src/tools/lib/bpf\nCCINCLUDE += ${INCLUDE}\n\nLOADINCLUDE\
-    \ += -I/kernel-src/tools/include\nLOADINCLUDE += -I/kernel-src/tools/perf\nLOADINCLUDE\
-    \ += ${INCLUDE}\nLIBRARY_PATH = -L/usr/local/lib64\nBPFSO = -lbpf\n\n.PHONY: clean\
-    \ bpfload build\n\nclean:\n    rm -f *.o *.so $(EXECABLE)\n\nbuild: ${BPFCODE.c}\
-    \ ${BPFLOADER}\n    $(CLANG) -O2 -DHAVE_ATTR_TEST=0 -target bpf -c $(BPFCODE:=.c)\
-    \ $(CCINCLUDE) -o ${BPFCODE:=.o}\n\nbpfload: build\n    clang -o $(EXECABLE) -DHAVE_ATTR_TEST=0\
-    \  -lelf $(LOADINCLUDE) $(LIBRARY_PATH) $(BPFSO) \\\n        $(BPFLOADER) loader.c\n\
-    \n$(EXECABLE): bpfload\n\n.DEFAULT_GOAL := $(EXECABLE)"
-  question_body_text: 'I wrote a simple program to attach to execve system call with
-    a kprobe, but I am unable to see the relevant output.
-
-    Here is my one.c (BPF program):
-
-    #include <errno.h>
-
-    #include <bpf/bpf.h>
-
-    #include <stdio.h>
-
-    #include <string.h>
-
-    #include "bpf_load.h"
-
-    #include "bpf_util.h"
-
-    #include "libbpf.h"
-
-    #define SEC(NAME) __attribute__((section(NAME), used))
-
-    SEC("kprobe/execve")
-
-    int bpf_prog1(struct pt_regs *ctx)
-
-    {
-
-    char m[]="hello world";
-
-    bpf_trace_printk(m,sizeof(m));
-
-    return 0;
-
-    }
-
-    char _license[] SEC("license") = "GPL";
-
-    bpf_load.c (user space loader):
-
-    #include "bpf_load.h"
-
-    #include <stdio.h>
-
-    #include <linux/bpf.h>
-
-    #include <sys/resource.h>
-
-    int main(int argc, char **argv) {
-
-    if (load_bpf_file("one.o")) {
-
-    printf("%s", bpf_log_buf);
-
-    return 1;
-
-    }
-
-    return 0;
-
-    }
-
-    And the Makefile:
-
+  - |-
     CLANG = clang
 
     EXECABLE = monitor-exec
@@ -148,138 +63,134 @@ raw:
     BPFCODE = one
 
     BPFTOOLS = /kernel-src/samples/bpf
-
     BPFLOADER = $(BPFTOOLS)/bpf_load.c
 
     INCLUDE += -I/kernel-src/samples/bpf
-
     INCLUDE += -I/kernel-src/tools/lib
 
     CCINCLUDE += -I/kernel-src/tools/testing/selftests/bpf
-
     CCINCLUDE += -I/kernel-src/tools/lib/bpf
-
     CCINCLUDE += ${INCLUDE}
 
     LOADINCLUDE += -I/kernel-src/tools/include
-
     LOADINCLUDE += -I/kernel-src/tools/perf
-
     LOADINCLUDE += ${INCLUDE}
-
     LIBRARY_PATH = -L/usr/local/lib64
-
     BPFSO = -lbpf
 
     .PHONY: clean bpfload build
 
     clean:
-
-    rm -f *.o *.so $(EXECABLE)
+        rm -f *.o *.so $(EXECABLE)
 
     build: ${BPFCODE.c} ${BPFLOADER}
-
-    $(CLANG) -O2 -DHAVE_ATTR_TEST=0 -target bpf -c $(BPFCODE:=.c) $(CCINCLUDE) -o
-    ${BPFCODE:=.o}
+        $(CLANG) -O2 -DHAVE_ATTR_TEST=0 -target bpf -c $(BPFCODE:=.c) $(CCINCLUDE) -o ${BPFCODE:=.o}
 
     bpfload: build
-
-    clang -o $(EXECABLE) -DHAVE_ATTR_TEST=0 -lelf $(LOADINCLUDE) $(LIBRARY_PATH) $(BPFSO)
-    \
-
-    $(BPFLOADER) loader.c
+        clang -o $(EXECABLE) -DHAVE_ATTR_TEST=0  -lelf $(LOADINCLUDE) $(LIBRARY_PATH) $(BPFSO) \
+            $(BPFLOADER) loader.c
 
     $(EXECABLE): bpfload
 
     .DEFAULT_GOAL := $(EXECABLE)
-
-    As of now I don''t get any errors from the Makefile.
-
+  question_body_text: |-
+    I wrote a simple program to attach to execve system call with a kprobe, but I am unable to see the relevant output.
+    Here is my one.c (BPF program):
+    #include <errno.h>
+    #include <bpf/bpf.h>
+    #include <stdio.h>
+    #include <string.h>
+    #include "bpf_load.h"
+    #include "bpf_util.h"
+    #include "libbpf.h"
+    #define SEC(NAME) __attribute__((section(NAME), used))
+    SEC("kprobe/execve")
+    int bpf_prog1(struct pt_regs *ctx)
+    {
+    char m[]="hello world";
+    bpf_trace_printk(m,sizeof(m));
+    return 0;
+    }
+    char _license[] SEC("license") = "GPL";
+    bpf_load.c (user space loader):
+    #include "bpf_load.h"
+    #include <stdio.h>
+    #include <linux/bpf.h>
+    #include <sys/resource.h>
+    int main(int argc, char **argv) {
+    if (load_bpf_file("one.o")) {
+    printf("%s", bpf_log_buf);
+    return 1;
+    }
+    return 0;
+    }
+    And the Makefile:
+    CLANG = clang
+    EXECABLE = monitor-exec
+    BPFCODE = one
+    BPFTOOLS = /kernel-src/samples/bpf
+    BPFLOADER = $(BPFTOOLS)/bpf_load.c
+    INCLUDE += -I/kernel-src/samples/bpf
+    INCLUDE += -I/kernel-src/tools/lib
+    CCINCLUDE += -I/kernel-src/tools/testing/selftests/bpf
+    CCINCLUDE += -I/kernel-src/tools/lib/bpf
+    CCINCLUDE += ${INCLUDE}
+    LOADINCLUDE += -I/kernel-src/tools/include
+    LOADINCLUDE += -I/kernel-src/tools/perf
+    LOADINCLUDE += ${INCLUDE}
+    LIBRARY_PATH = -L/usr/local/lib64
+    BPFSO = -lbpf
+    .PHONY: clean bpfload build
+    clean:
+    rm -f *.o *.so $(EXECABLE)
+    build: ${BPFCODE.c} ${BPFLOADER}
+    $(CLANG) -O2 -DHAVE_ATTR_TEST=0 -target bpf -c $(BPFCODE:=.c) $(CCINCLUDE) -o ${BPFCODE:=.o}
+    bpfload: build
+    clang -o $(EXECABLE) -DHAVE_ATTR_TEST=0 -lelf $(LOADINCLUDE) $(LIBRARY_PATH) $(BPFSO) \
+    $(BPFLOADER) loader.c
+    $(EXECABLE): bpfload
+    .DEFAULT_GOAL := $(EXECABLE)
+    As of now I don't get any errors from the Makefile.
     I am getting the following output when I execute ./monitor-exec
-
     invalid relo for insn[6].code 0x85
-
     bpf_load_program() err=22
-
     last insn is not an exit or jmp
-
-    processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-    0 mark_read 0
-
+    processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
     last insn is not an exit or jmp
-
-    processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states
-    0 mark_read 0
-
-    I am unable to understand what I am doing wrong. I am just attaching a kprobe
-    and that should print hello world when that system call occurs.'
+    processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+    I am unable to understand what I am doing wrong. I am just attaching a kprobe and that should print hello world when that system call occurs.
   selected_answer:
     answer_id: 62936074
     url: https://stackoverflow.com/questions/62936008/attaching-ebpf-to-kprobe#62936074
     is_accepted: true
     score: 4
-    body_text: 'In your eBPF program:
-
+    body_text: |-
+      In your eBPF program:
       #include <errno.h>
-
       #include <bpf/bpf.h>
-
       #include <stdio.h>
-
       #include <string.h>
-
       #include "bpf_load.h"
-
       #include "bpf_util.h"
-
       #include "libbpf.h"
-
       #define SEC(NAME) __attribute__((section(NAME), used))
-
       SEC("kprobe/execve")
-
       int bpf_prog1(struct pt_regs *ctx)
-
       {
-
       char m[]="hello world";
-
       bpf_trace_printk(m,sizeof(m));
-
       return 0;
-
       }
-
-      You use bpf_trace_printk() correctly (although you might want to add a \n at
-      the end of your message or your output will be messy), but it turns out none
-      of the files you include contains the definition for this helper.
-
-      bpf_trace_printk() is compiled as part of the kernel and won''t ever be compiled
-      into your BPF object file. When trying to load your program, the function load_bpf_file()
-      does a relocation step where it places the number associated to bpf_trace_printk()
-      (in user API) in the relevant instruction of the eBPF bytecode.
-
-      But it needs to find this number somewhere. It is defined in header linux/bpf.h
-      (pulled from several of your includes) as FN(trace_printk) (some macro magic
-      going on), resulting de facto in a #define BPF_FUNC_trace_prink 6. But you need
-      to tell your loading function that it corresponds to the bpf_trace_prink() you''re
-      calling!
-
+      You use bpf_trace_printk() correctly (although you might want to add a \n at the end of your message or your output will be messy), but it turns out none of the files you include contains the definition for this helper.
+      bpf_trace_printk() is compiled as part of the kernel and won't ever be compiled into your BPF object file. When trying to load your program, the function load_bpf_file() does a relocation step where it places the number associated to bpf_trace_printk() (in user API) in the relevant instruction of the eBPF bytecode.
+      But it needs to find this number somewhere. It is defined in header linux/bpf.h (pulled from several of your includes) as FN(trace_printk) (some macro magic going on), resulting de facto in a #define BPF_FUNC_trace_prink 6. But you need to tell your loading function that it corresponds to the bpf_trace_prink() you're calling!
       Two solutions:
-
       Manually declare it:
-
       static int (*bpf_trace_printk)(const char *fmt, int fmt_size, ...) =
-
       (void *) BPF_FUNC_trace_printk;
-
-      Or add a header that contains it, e.g. tools/lib/bpf/bpf_helpers.h in kernel
-      repo. In your case:
-
+      Or add a header that contains it, e.g. tools/lib/bpf/bpf_helpers.h in kernel repo. In your case:
       #include <bpf/bpf_helpers.h>
-
-      (Note that this header is generated when compiling libbpf, it is not present
-      in the repository by default.)'
+      (Note that this header is generated when compiling libbpf, it is not present in the repository by default.)
     fix_description: 'You use bpf_trace_printk() correctly (although you might want
       to add a \n at the end of your message or your output will be messy), but it
       turns out none of the files you include contains the definition for this helper.
@@ -288,4 +199,3 @@ raw:
       going on), resulting de facto in a #define BPF_FUNC_trace_prink 6. But you need
       to tell your loading function that it corresponds to the bpf_trace_prink() you''re
       calling! Two solutions:'
-

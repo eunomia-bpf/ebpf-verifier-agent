@@ -43,123 +43,97 @@ raw:
     blocks: []
     combined: ''
     generated:
-      log: 'libbpf: loading object from /tmp/bpfix_oracle_m68q9cpv/prog_wrap-vmlinux.o
-
+      log: |-
+        libbpf: loading object from /tmp/bpfix_oracle_m68q9cpv/prog_wrap-vmlinux.o
         libbpf: elf: section(3) license, size 4, link 0, flags 3, type=1
-
         libbpf: license of /tmp/bpfix_oracle_m68q9cpv/prog_wrap-vmlinux.o is GPL
-
         libbpf: elf: section(12) .BTF, size 163, link 0, flags 0, type=1
-
         libbpf: elf: section(18) .symtab, size 216, link 1, flags 0, type=2
-
         libbpf: looking for externs among 9 symbols...
-
         libbpf: collected 0 externs total
-
-        libbpf: object ''prog_wrap-vmlin'': failed (-95) to create BPF token from
-        ''/sys/fs/bpf'', skipping optional step...
-
-        Error: object file doesn''t contain any bpf program'
+        libbpf: object 'prog_wrap-vmlin': failed (-95) to create BPF token from '/sys/fs/bpf', skipping optional step...
+        Error: object file doesn't contain any bpf program
       verifier_pass: false
       template_used: wrap-vmlinux
       generated_at: '2026-03-13T21:13:50.155984+00:00'
       old_log_len: 0
       new_log_len: 592
   source_snippets:
-  - "static __always_inline long int encrypt_decrypt(struct ipv6_destopt_pdmv2_unencrypted\
-    \ *pdm)\n{\n    // xor all fields after flip bit with a key of size 2 bytes\n\
-    \    __u16 key = 0x1234;\n    __u32 key1 = key << 16 | key;\n    // get first\
-    \ 8 bits of key\n    __u8 key2 = key >> 8;\n    __u8 key3 = key & 0xFF;\n    example_struct->a\
-    \ = example_struct->a ^ key2;\n    example_struct->b = example_struct->b ^ key3;\n\
-    \    example_struct->c = example_struct->c ^ key1;\n    example_struct->d = example_struct->d\
-    \ ^ key;\n    example_struct->e = example_struct->e ^ key;\n    example_struct->f\
-    \ = example_struct->f ^ key;\n    example_struct->g = example_struct->g ^ key;\n\
-    \    return 0;\n}"
-  - "struct example_struct\n{\n    __u8 u;\n    __u8 v;\n    __u16 x;\n    __u16 y;\n\
-    \    // following fields are encrypted\n    __u8 a;\n    __u8 b;\n    __u32 c;\n\
-    \    __u16 d;\n    __u16 e;\n    __u16 f;\n    __u16 g;\n    __uint128_t more_stuff_1;\n\
-    \n    __u8 more_stuff_2;\n    __u8 more_stuff_3;\n};"
-  question_body_text: 'I am trying to define a struct and trying to perform XOR encryption
-    on it using a key of 2 bytes.
-
-    static __always_inline long int encrypt_decrypt(struct ipv6_destopt_pdmv2_unencrypted
-    *pdm)
-
+  - |-
+    static __always_inline long int encrypt_decrypt(struct ipv6_destopt_pdmv2_unencrypted *pdm)
     {
-
-    // xor all fields after flip bit with a key of size 2 bytes
-
-    __u16 key = 0x1234;
-
-    __u32 key1 = key << 16 | key;
-
-    // get first 8 bits of key
-
-    __u8 key2 = key >> 8;
-
-    __u8 key3 = key & 0xFF;
-
-    example_struct->a = example_struct->a ^ key2;
-
-    example_struct->b = example_struct->b ^ key3;
-
-    example_struct->c = example_struct->c ^ key1;
-
-    example_struct->d = example_struct->d ^ key;
-
-    example_struct->e = example_struct->e ^ key;
-
-    example_struct->f = example_struct->f ^ key;
-
-    example_struct->g = example_struct->g ^ key;
-
-    return 0;
-
+        // xor all fields after flip bit with a key of size 2 bytes
+        __u16 key = 0x1234;
+        __u32 key1 = key << 16 | key;
+        // get first 8 bits of key
+        __u8 key2 = key >> 8;
+        __u8 key3 = key & 0xFF;
+        example_struct->a = example_struct->a ^ key2;
+        example_struct->b = example_struct->b ^ key3;
+        example_struct->c = example_struct->c ^ key1;
+        example_struct->d = example_struct->d ^ key;
+        example_struct->e = example_struct->e ^ key;
+        example_struct->f = example_struct->f ^ key;
+        example_struct->g = example_struct->g ^ key;
+        return 0;
     }
-
-    The struct example_struct is given by,
-
+  - |-
     struct example_struct
-
     {
+        __u8 u;
+        __u8 v;
+        __u16 x;
+        __u16 y;
+        // following fields are encrypted
+        __u8 a;
+        __u8 b;
+        __u32 c;
+        __u16 d;
+        __u16 e;
+        __u16 f;
+        __u16 g;
+        __uint128_t more_stuff_1;
 
-    __u8 u;
-
-    __u8 v;
-
-    __u16 x;
-
-    __u16 y;
-
-    // following fields are encrypted
-
-    __u8 a;
-
-    __u8 b;
-
-    __u32 c;
-
-    __u16 d;
-
-    __u16 e;
-
-    __u16 f;
-
-    __u16 g;
-
-    __uint128_t more_stuff_1;
-
-    __u8 more_stuff_2;
-
-    __u8 more_stuff_3;
-
+        __u8 more_stuff_2;
+        __u8 more_stuff_3;
     };
-
-    When I comment out the line example_struct->a = example_struct->a ^ key2;, the
-    verifier does not throw any error, but when I include this one line, the verifier
-    throws the error processed 1000001 instructions, bpf program too large. The number
-    of instructions it shows when it throws this error in the bpf program itself is
-    534. Why is this happening?'
+  question_body_text: |-
+    I am trying to define a struct and trying to perform XOR encryption on it using a key of 2 bytes.
+    static __always_inline long int encrypt_decrypt(struct ipv6_destopt_pdmv2_unencrypted *pdm)
+    {
+    // xor all fields after flip bit with a key of size 2 bytes
+    __u16 key = 0x1234;
+    __u32 key1 = key << 16 | key;
+    // get first 8 bits of key
+    __u8 key2 = key >> 8;
+    __u8 key3 = key & 0xFF;
+    example_struct->a = example_struct->a ^ key2;
+    example_struct->b = example_struct->b ^ key3;
+    example_struct->c = example_struct->c ^ key1;
+    example_struct->d = example_struct->d ^ key;
+    example_struct->e = example_struct->e ^ key;
+    example_struct->f = example_struct->f ^ key;
+    example_struct->g = example_struct->g ^ key;
+    return 0;
+    }
+    The struct example_struct is given by,
+    struct example_struct
+    {
+    __u8 u;
+    __u8 v;
+    __u16 x;
+    __u16 y;
+    // following fields are encrypted
+    __u8 a;
+    __u8 b;
+    __u32 c;
+    __u16 d;
+    __u16 e;
+    __u16 f;
+    __u16 g;
+    __uint128_t more_stuff_1;
+    __u8 more_stuff_2;
+    __u8 more_stuff_3;
+    };
+    When I comment out the line example_struct->a = example_struct->a ^ key2;, the verifier does not throw any error, but when I include this one line, the verifier throws the error processed 1000001 instructions, bpf program too large. The number of instructions it shows when it throws this error in the bpf program itself is 534. Why is this happening?
   selected_answer: {}
-

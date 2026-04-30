@@ -43,33 +43,39 @@ raw:
     author: esemeniuc
   verifier_log:
     blocks:
-    - "Compiling xdp-hello-common v0.1.0 (/myapp/examples/xdp-hello/xdp-hello-common)\n\
-      \   Compiling xdp-hello v0.1.0 (/myapp/examples/xdp-hello/xdp-hello)\n    Finished\
-      \ `dev` profile [unoptimized + debuginfo] target(s) in 6.26s\nError: the BPF_PROG_LOAD\
-      \ syscall failed. Verifier output: last insn is not an exit or jmp\nverification\
-      \ time 9 usec\nstack depth 0+0+0\nprocessed 0 insns (limit 1000000) max_states_per_insn\
-      \ 0 total_states 0 peak_states 0 mark_read 0\n\nCaused by:\n    Invalid argument\
-      \ (os error 22)"
-    combined: "Compiling xdp-hello-common v0.1.0 (/myapp/examples/xdp-hello/xdp-hello-common)\n\
-      \   Compiling xdp-hello v0.1.0 (/myapp/examples/xdp-hello/xdp-hello)\n    Finished\
-      \ `dev` profile [unoptimized + debuginfo] target(s) in 6.26s\nError: the BPF_PROG_LOAD\
-      \ syscall failed. Verifier output: last insn is not an exit or jmp\nverification\
-      \ time 9 usec\nstack depth 0+0+0\nprocessed 0 insns (limit 1000000) max_states_per_insn\
-      \ 0 total_states 0 peak_states 0 mark_read 0\n\nCaused by:\n    Invalid argument\
-      \ (os error 22)"
+    - |-
+      Compiling xdp-hello-common v0.1.0 (/myapp/examples/xdp-hello/xdp-hello-common)
+         Compiling xdp-hello v0.1.0 (/myapp/examples/xdp-hello/xdp-hello)
+          Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.26s
+      Error: the BPF_PROG_LOAD syscall failed. Verifier output: last insn is not an exit or jmp
+      verification time 9 usec
+      stack depth 0+0+0
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+
+      Caused by:
+          Invalid argument (os error 22)
+    combined: |-
+      Compiling xdp-hello-common v0.1.0 (/myapp/examples/xdp-hello/xdp-hello-common)
+         Compiling xdp-hello v0.1.0 (/myapp/examples/xdp-hello/xdp-hello)
+          Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.26s
+      Error: the BPF_PROG_LOAD syscall failed. Verifier output: last insn is not an exit or jmp
+      verification time 9 usec
+      stack depth 0+0+0
+      processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+
+      Caused by:
+          Invalid argument (os error 22)
   source_snippets:
-  - "unsafe {\n    aya_ebpf::bpf_printk!(b\"packet  received!\");\n}"
-  issue_body_text: 'Running the xdp_hello example with the following commands fails
-    in:
-
-    docker run -it --privileged --network host --rm -v ~/dev/aya-book:/myapp -w /myapp
-    rust bash
-
+  - |-
+    unsafe {
+        aya_ebpf::bpf_printk!(b"packet  received!");
+    }
+  issue_body_text: |-
+    Running the xdp_hello example with the following commands fails in:
+    docker run -it --privileged --network host --rm -v ~/dev/aya-book:/myapp -w /myapp rust bash
     Inside the container, I ran:
-
     Output
-
-    Host OS: arch running 6.6.52-1-lts'
+    Host OS: arch running 6.6.52-1-lts
   fix:
     summary: The template and book have been updated to only build ebpf in release
       mode. Please file an issue against those if you continue to be able to reproduce.
@@ -80,4 +86,3 @@ raw:
       author_association: MEMBER
       body_text: The template and book have been updated to only build ebpf in release
         mode. Please file an issue against those if you continue to be able to reproduce.
-

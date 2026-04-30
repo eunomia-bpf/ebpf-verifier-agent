@@ -18,9 +18,10 @@ dist/
 
 # Local outputs and artifacts
 out/
-.cache/qemu/
+.cache/
 *.log
 *.jsonl
+docs/tmp/benchmark-eval-results.json
 
 # Compiled artifacts
 *.o

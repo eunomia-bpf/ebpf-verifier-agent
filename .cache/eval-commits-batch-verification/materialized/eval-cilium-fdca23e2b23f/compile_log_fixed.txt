@@ -1,5 +1,0 @@
-In file included from /home/yunwei37/workspace/ebpf-verifier-agent/.cache/eval-commits-batch-verification/materialized/eval-cilium-fdca23e2b23f/fixed.c:18:
-/usr/include/linux/if_packet.h:5:10: fatal error: 'asm/byteorder.h' file not found
-    5 | #include <asm/byteorder.h>
-      |          ^~~~~~~~~~~~~~~~~
-1 error generated.

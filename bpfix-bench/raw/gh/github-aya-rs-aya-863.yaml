@@ -40,50 +40,96 @@ raw:
     author: driftli
   verifier_log:
     blocks:
-    - "Error: the BPF_PROG_LOAD syscall failed. Verifier output: 0: (bf) r6 = r1\n\
-      \n......(skiped)\n\n302: (85) call bpf_perf_event_output#25\nR5 min value is\
-      \ negative, either use unsigned or 'var &= const'\nverification time 1899 usec\n\
-      stack depth 24+0+0+0\nprocessed 351 insns (limit 1000000) max_states_per_insn\
-      \ 1 total_states 14 peak_states 14 mark_read 13\n\nCaused by:\n    Permission\
-      \ denied (os error 13)\nFailed to run `sudo -E target/debug/test`"
-    combined: "Error: the BPF_PROG_LOAD syscall failed. Verifier output: 0: (bf) r6\
-      \ = r1\n\n......(skiped)\n\n302: (85) call bpf_perf_event_output#25\nR5 min\
-      \ value is negative, either use unsigned or 'var &= const'\nverification time\
-      \ 1899 usec\nstack depth 24+0+0+0\nprocessed 351 insns (limit 1000000) max_states_per_insn\
-      \ 1 total_states 14 peak_states 14 mark_read 13\n\nCaused by:\n    Permission\
-      \ denied (os error 13)\nFailed to run `sudo -E target/debug/test`"
+    - |-
+      Error: the BPF_PROG_LOAD syscall failed. Verifier output: 0: (bf) r6 = r1
+
+      ......(skiped)
+
+      302: (85) call bpf_perf_event_output#25
+      R5 min value is negative, either use unsigned or 'var &= const'
+      verification time 1899 usec
+      stack depth 24+0+0+0
+      processed 351 insns (limit 1000000) max_states_per_insn 1 total_states 14 peak_states 14 mark_read 13
+
+      Caused by:
+          Permission denied (os error 13)
+      Failed to run `sudo -E target/debug/test`
+    combined: |-
+      Error: the BPF_PROG_LOAD syscall failed. Verifier output: 0: (bf) r6 = r1
+
+      ......(skiped)
+
+      302: (85) call bpf_perf_event_output#25
+      R5 min value is negative, either use unsigned or 'var &= const'
+      verification time 1899 usec
+      stack depth 24+0+0+0
+      processed 351 insns (limit 1000000) max_states_per_insn 1 total_states 14 peak_states 14 mark_read 13
+
+      Caused by:
+          Permission denied (os error 13)
+      Failed to run `sudo -E target/debug/test`
   source_snippets:
-  - "fn try_test(ctx: ProbeContext) -> Result<c_long, c_long> {\n    info!(&ctx, \"\
-    running into monitor function\");\n    let pid = ctx.pid();\n    let ret_ptr:\
-    \ *const u8 = ctx.ret().unwrap();\n\n    let mut limit_buf = [0u8; 16];\n    let\
-    \ cmd = unsafe {\n        bpf_probe_read_user_buf(ret_ptr, &mut limit_buf)?;\n\
-    \        core::str::from_utf8_unchecked(&limit_buf)\n    };\n\n    info!(&ctx,\
-    \ \"/usr/bin/bash pid: {}, cmd: {}\", pid, cmd);\n    Ok(0)\n}"
-  - "#[repr(C)]\npub struct Buf {\n    pub buf: [u8; 64],\n}\n\n#[map]\npub static\
-    \ mut BUF: PerCpuArray<Buf> = PerCpuArray::with_max_entries(1, 0);\n\nfn try_test(ctx:\
-    \ ProbeContext) -> Result<c_long, c_long> {\n    info!(&ctx, \"running into monitor\
-    \ function\");\n    let pid = ctx.pid();\n    let ret_ptr: *const u8 = ctx.ret().unwrap();\n\
-    \n    let buf = unsafe {\n        let ptr = BUF.get_ptr_mut(0).ok_or(0)?;\n  \
-    \      &mut *ptr\n    };\n    let cmd = unsafe {\n        core::str::from_utf8_unchecked(bpf_probe_read_user_str_bytes(ret_ptr,\
-    \ &mut buf.buf)?)\n    };\n\n    info!(&ctx, \"/usr/bin/bash pid: {}, cmd: {}\"\
-    , pid, cmd);\n    Ok(0)\n}"
-  - "let mut limit_buf = [0u8; 16];\nlet cmd = unsafe {\n    bpf_probe_read_user_buf(ret_ptr,\
-    \ &mut limit_buf)?;\n    core::str::from_utf8_unchecked(&limit_buf)\n};"
-  - 'info!(&ctx, "/usr/bin/bash pid: {}, cmd: {}", pid, cmd);
+  - |-
+    fn try_test(ctx: ProbeContext) -> Result<c_long, c_long> {
+        info!(&ctx, "running into monitor function");
+        let pid = ctx.pid();
+        let ret_ptr: *const u8 = ctx.ret().unwrap();
 
-    Ok(0)'
-  - "let buf = unsafe {\n    let ptr = BUF.get_ptr_mut(0).ok_or(0)?;\n    &mut *ptr\n\
-    };\nlet cmd = unsafe {\n    core::str::from_utf8_unchecked(bpf_probe_read_user_str_bytes(ret_ptr,\
-    \ &mut buf.buf)?)\n};"
-  issue_body_text: 'I want to hook readline function for /usr/bin/bash with uretprobe.
+        let mut limit_buf = [0u8; 16];
+        let cmd = unsafe {
+            bpf_probe_read_user_buf(ret_ptr, &mut limit_buf)?;
+            core::str::from_utf8_unchecked(&limit_buf)
+        };
 
+        info!(&ctx, "/usr/bin/bash pid: {}, cmd: {}", pid, cmd);
+        Ok(0)
+    }
+  - |-
+    #[repr(C)]
+    pub struct Buf {
+        pub buf: [u8; 64],
+    }
+
+    #[map]
+    pub static mut BUF: PerCpuArray<Buf> = PerCpuArray::with_max_entries(1, 0);
+
+    fn try_test(ctx: ProbeContext) -> Result<c_long, c_long> {
+        info!(&ctx, "running into monitor function");
+        let pid = ctx.pid();
+        let ret_ptr: *const u8 = ctx.ret().unwrap();
+
+        let buf = unsafe {
+            let ptr = BUF.get_ptr_mut(0).ok_or(0)?;
+            &mut *ptr
+        };
+        let cmd = unsafe {
+            core::str::from_utf8_unchecked(bpf_probe_read_user_str_bytes(ret_ptr, &mut buf.buf)?)
+        };
+
+        info!(&ctx, "/usr/bin/bash pid: {}, cmd: {}", pid, cmd);
+        Ok(0)
+    }
+  - |-
+    let mut limit_buf = [0u8; 16];
+    let cmd = unsafe {
+        bpf_probe_read_user_buf(ret_ptr, &mut limit_buf)?;
+        core::str::from_utf8_unchecked(&limit_buf)
+    };
+  - |-
+    info!(&ctx, "/usr/bin/bash pid: {}, cmd: {}", pid, cmd);
+    Ok(0)
+  - |-
+    let buf = unsafe {
+        let ptr = BUF.get_ptr_mut(0).ok_or(0)?;
+        &mut *ptr
+    };
+    let cmd = unsafe {
+        core::str::from_utf8_unchecked(bpf_probe_read_user_str_bytes(ret_ptr, &mut buf.buf)?)
+    };
+  issue_body_text: |-
+    I want to hook readline function for /usr/bin/bash with uretprobe.
     There are two copies of the code. The first one ran normally, here is:
-
-    The next one failed to start, which took me a long time to figure out and still
-    failed.
-
+    The next one failed to start, which took me a long time to figure out and still failed.
     And here is the error message:
-
-    Can someone help point out my mistake?'
+    Can someone help point out my mistake?
   fix: {}
-
