@@ -18,11 +18,12 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Adds relax_verifier() to reduce full XDP load-balancer complexity. The rejection
+    depends on the historical generated XDP program, not an isolated snippet.
 raw:
   case_id: github-commit-cilium-1119f7856f0c
   source: github_commits

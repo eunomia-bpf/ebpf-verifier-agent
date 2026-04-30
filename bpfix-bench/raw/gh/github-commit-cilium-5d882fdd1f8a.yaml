@@ -18,11 +18,14 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: missing_verifier_log
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: The title names a debug-mode verifier error fixed by forcing a volatile
+    skb->tc_index load, but the raw record contains no terminal verifier log or rejected
+    instruction. A generic repro would not be faithful to the LLVM/Cilium debug-mode
+    failure.
 raw:
   case_id: github-commit-cilium-5d882fdd1f8a
   source: github_commits

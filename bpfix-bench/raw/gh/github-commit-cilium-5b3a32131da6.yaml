@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Adds verifier relaxation and conntrack inline changes for kernels older
+    than 5.3. The rejection is tied to old-kernel full-Cilium complexity and no standalone
+    rejected instruction is available.
 raw:
   case_id: github-commit-cilium-5b3a32131da6
   source: github_commits

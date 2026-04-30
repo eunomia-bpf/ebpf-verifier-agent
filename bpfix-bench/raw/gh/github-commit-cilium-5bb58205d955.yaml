@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Uses caller-provided output interface information for old FIB behavior in
+    compat mode. Reproducing verifier-visible behavior requires the historical kernel
+    FIB helper behavior and broad NodePort/LXC datapath context.
 raw:
   case_id: github-commit-cilium-5bb58205d955
   source: github_commits

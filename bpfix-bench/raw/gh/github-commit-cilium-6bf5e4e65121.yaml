@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Addresses 4.9-kernel complexity around conntrack/LB pruning and map-value
+    adjustment. Faithful replay requires the old kernel verifier and full Cilium program
+    shape.
 raw:
   case_id: github-commit-cilium-6bf5e4e65121
   source: github_commits

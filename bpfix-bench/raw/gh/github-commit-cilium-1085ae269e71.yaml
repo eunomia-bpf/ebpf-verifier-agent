@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Splits the full bpf_host.c IPv6 path after conntrack lookup. Faithful reproduction
+    depends on generated Cilium host datapath, maps, tail calls, and configuration;
+    no terminal verifier log is present.
 raw:
   case_id: github-commit-cilium-1085ae269e71
   source: github_commits

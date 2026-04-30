@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Fixes an implicit cast in TPROXY debug-message context (dbg_ctx). The raw
+    record contains no verifier rejection and the change is not a standalone verifier-reject
+    pattern.
 raw:
   case_id: github-commit-cilium-108aa4212f8e
   source: github_commits

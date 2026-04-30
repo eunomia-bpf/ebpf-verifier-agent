@@ -18,11 +18,13 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: needs_manual_reconstruction
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
+  reason: Optimizes classifier computation by observation point to control full-datapath
+    complexity. Replaying any verifier benefit requires generated trace/drop/classifier
+    programs and Cilium feature configuration.
 raw:
   case_id: github-commit-cilium-66b60bcad811
   source: github_commits
