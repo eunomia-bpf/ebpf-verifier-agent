@@ -18,11 +18,11 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: not_attempted
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: disassembly_verifier_analysis_present_but_no_complete_c_source_harness
 raw:
   case_id: stackoverflow-78695342
   source: stackoverflow

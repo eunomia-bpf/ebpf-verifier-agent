@@ -18,11 +18,11 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: not_attempted
+  status: needs_manual_reconstruction
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: reject_evidence_present_but_source_context_contains_ellipses
 raw:
   case_id: stackoverflow-60383861
   source: stackoverflow

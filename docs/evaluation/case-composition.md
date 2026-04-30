@@ -178,12 +178,12 @@ GitHub issue, and GitHub commit records. It contains 736 records.
 
 Reproduction status by external source:
 
-| source_kind | replay_valid | replay_reject_no_rejected_insn | attempted_accepted | attempted_unknown | not_attempted | total |
-|---|---:|---:|---:|---:|---:|---:|
-| github_commit | 0 | 0 | 0 | 30 | 561 | 591 |
-| github_issue | 18 | 3 | 0 | 4 | 6 | 31 |
-| stackoverflow | 83 | 0 | 4 | 1 | 26 | 114 |
-| **total** | **101** | **3** | **4** | **35** | **593** | **736** |
+| source_kind | replay_valid | replay_reject_no_rejected_insn | attempted_accepted | attempted_unknown | candidate_for_replay | needs_manual_reconstruction | missing_source | missing_verifier_log | environment_required | out_of_scope_non_verifier | total |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| github_commit | 0 | 0 | 0 | 30 | 0 | 561 | 0 | 0 | 0 | 0 | 591 |
+| github_issue | 18 | 3 | 0 | 4 | 1 | 0 | 1 | 0 | 4 | 0 | 31 |
+| stackoverflow | 83 | 0 | 4 | 1 | 7 | 5 | 4 | 4 | 4 | 2 | 114 |
+| **total** | **101** | **3** | **4** | **35** | **8** | **566** | **5** | **4** | **8** | **2** | **736** |
 
 For this table, `replay_valid` is reproduced and admitted to
 `bpfix-bench/cases/`. The other statuses are not admitted as strict replayable
@@ -209,9 +209,16 @@ are not independent user reports. They also skew toward selftest families visibl
 in case IDs, especially `dynptr` with 37 admitted cases and `irq` with 14.
 
 External raw collection is much larger than the admitted external subset. Only
-101 of 736 external raw records are `replay_valid`; 593 are `not_attempted`.
-Most of that backlog is GitHub commit-derived material: 561 of 591
-`github_commit` records are `not_attempted`, and none are `replay_valid`.
+101 of 736 external raw records are `replay_valid`. The largest backlog is
+`needs_manual_reconstruction`: 566 records, including 561 GitHub commit-derived
+diffs. These records are not failed benchmark cases; they are raw candidates
+that still need a standalone local replay harness.
+
+The highest-priority replay backlog is `candidate_for_replay`: 8 records with
+both verifier-reject evidence and enough source/context to plausibly construct a
+local harness. The remaining non-admitted records are either attempted-but-not-
+admitted, missing source or verifier logs, environment-bound, or out of scope
+for verifier-reject benchmarking.
 
 Stack Overflow contributes 83 replayable cases, but its admitted taxonomy is
 concentrated: 25 Stack Overflow cases are `BPFIX-E005`, and 33 are

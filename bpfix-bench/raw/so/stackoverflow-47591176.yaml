@@ -18,11 +18,11 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: not_attempted
+  status: out_of_scope_non_verifier
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: log_shows_successful_load_issue_is_tc_direct_action_runtime_semantics
 raw:
   case_id: stackoverflow-47591176
   source: stackoverflow

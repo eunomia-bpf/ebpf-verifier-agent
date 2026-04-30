@@ -19,11 +19,11 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: not_attempted
+  status: candidate_for_replay
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: bpf_user_code_disassembly_and_btf_load_failure_context_present
 raw:
   case_id: stackoverflow-70392721
   source: stackoverflow

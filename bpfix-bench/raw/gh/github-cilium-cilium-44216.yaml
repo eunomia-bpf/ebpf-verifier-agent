@@ -18,11 +18,11 @@ content:
   has_fixed_code: true
   has_fix_description: true
 reproduction:
-  status: not_attempted
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: requires_talos_cilium_cluster_and_specific_kernel_conditions
 raw:
   case_id: github-cilium-cilium-44216
   source: github_issues

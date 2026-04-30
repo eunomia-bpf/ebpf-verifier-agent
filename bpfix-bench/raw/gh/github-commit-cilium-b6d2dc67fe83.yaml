@@ -18,11 +18,11 @@ content:
   has_fixed_code: true
   has_fix_description: false
 reproduction:
-  status: not_attempted
+  status: needs_manual_reconstruction
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: commit_diff_requires_manual_standalone_reproducer_and_local_replay
 raw:
   case_id: github-commit-cilium-b6d2dc67fe83
   source: github_commits

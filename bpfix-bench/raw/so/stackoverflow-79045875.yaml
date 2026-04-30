@@ -19,11 +19,11 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: not_attempted
+  status: environment_required
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: requires_custom_kernel_module_kfunc_registration_and_kernel_support
 raw:
   case_id: stackoverflow-79045875
   source: stackoverflow

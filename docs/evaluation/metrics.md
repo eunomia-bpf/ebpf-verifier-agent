@@ -71,6 +71,9 @@ the corresponding metrics.
   introduced or lost
 - `root_cause_source_span`: canonical source file, start line/column, and end
   line/column for the root cause
+- `localization_target_kind`: expected target granularity, such as
+  `instruction`, `source_span`, `declaration_or_metadata`, `environment`,
+  `verifier_scope`, `not_applicable`, or `insufficient_context`
 - `reject_source_span`: source span corresponding to the rejected instruction,
   when different from the root cause
 - `acceptable_source_spans`: alternate spans that should receive full or

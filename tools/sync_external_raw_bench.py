@@ -170,7 +170,7 @@ def build_record(
 ) -> dict[str, Any]:
     source = source_summary(raw_id, source_kind, raw)
     content = content_summary(raw)
-    reproduction = reproduction_summary(raw_id, raw, benchmark_cases, verified)
+    reproduction = reproduction_summary(raw_id, source_kind, raw, benchmark_cases, verified)
     original_path = relpath(raw_path)
     payload = normalized_raw_payload(raw_id, source_kind, raw)
     if raw.get("schema_version") == "bpfix.raw_external/v1":
@@ -251,6 +251,7 @@ def content_summary(raw: dict[str, Any]) -> dict[str, Any]:
 
 def reproduction_summary(
     raw_id: str,
+    source_kind: str,
     raw: dict[str, Any],
     benchmark_cases: dict[str, dict[str, Any]],
     verified: dict[str, dict[str, Any]],
@@ -268,6 +269,8 @@ def reproduction_summary(
     if raw.get("schema_version") == "bpfix.raw_external/v1":
         existing = raw.get("reproduction")
         if isinstance(existing, dict) and existing.get("status"):
+            if existing.get("status") == "not_attempted":
+                return triage_unreconstructed_raw(raw_id, source_kind, raw)
             preserved = dict(existing)
             preserved["artifact_path"] = None
             return preserved
@@ -302,13 +305,65 @@ def reproduction_summary(
             "captured_error": status.get("captured_error"),
             "verifier_error_match": status.get("verifier_error_match"),
         }
+    return triage_unreconstructed_raw(raw_id, source_kind, raw)
+
+
+def triage_unreconstructed_raw(raw_id: str, source_kind: str, raw: dict[str, Any]) -> dict[str, Any]:
+    content = content_summary(raw)
+    verifier_log = raw_verifier_log_text(raw)
+    parsed = parse_verifier_log(verifier_log) if verifier_log else None
+    has_source = bool(content.get("source_snippet_count") or content.get("has_buggy_code"))
+    has_log = bool(content.get("has_verifier_log"))
+    has_parseable_reject = bool(parsed and parsed.terminal_error)
+
+    if source_kind == "github_commit":
+        return unreconstructed_summary(
+            "needs_manual_reconstruction",
+            "commit_diff_requires_manual_standalone_reproducer_and_local_replay",
+        )
+    if not has_log:
+        status = "missing_verifier_log" if has_source else "missing_source"
+        reason = "source_present_but_no_verifier_log" if has_source else "no_source_or_verifier_log_available"
+        return unreconstructed_summary(status, reason)
+    if not has_parseable_reject:
+        return unreconstructed_summary(
+            "out_of_scope_non_verifier",
+            "external_log_does_not_contain_a_parseable_verifier_reject",
+        )
+    if not has_source:
+        return unreconstructed_summary("missing_source", "verifier_reject_present_but_no_reproducer_source")
+    return unreconstructed_summary(
+        "candidate_for_replay",
+        "verifier_reject_and_source_context_present_but_no_local_harness_yet",
+    )
+
+
+def unreconstructed_summary(status: str, reason: str) -> dict[str, Any]:
     return {
-        "status": "not_attempted",
+        "status": status,
         "case_id": None,
         "case_path": None,
         "artifact_path": None,
-        "reason": "raw_record_collected_without_local_reconstruction",
+        "reason": reason,
     }
+
+
+def raw_verifier_log_text(raw: dict[str, Any]) -> str:
+    payload = raw_payload(raw)
+    verifier_log = payload.get("verifier_log") or payload.get("original_verifier_log")
+    if isinstance(verifier_log, dict):
+        combined = verifier_log.get("combined")
+        if isinstance(combined, str):
+            return combined
+        blocks = verifier_log.get("blocks")
+        if isinstance(blocks, list):
+            return "\n".join(str(block) for block in blocks)
+        return str(verifier_log)
+    if isinstance(verifier_log, list):
+        return "\n".join(str(block) for block in verifier_log)
+    if isinstance(verifier_log, str):
+        return verifier_log
+    return ""
 
 
 def build_index(records: list[dict[str, Any]]) -> dict[str, Any]:

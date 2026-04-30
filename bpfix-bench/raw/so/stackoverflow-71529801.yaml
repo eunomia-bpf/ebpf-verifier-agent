@@ -19,11 +19,11 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: not_attempted
+  status: needs_manual_reconstruction
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: verifier_error_and_struct_fragments_present_but_packet_parser_harness_omitted
 raw:
   case_id: stackoverflow-71529801
   source: stackoverflow

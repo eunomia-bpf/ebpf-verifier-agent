@@ -18,11 +18,11 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: not_attempted
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: verifier_error_present_but_no_xdp_program_source
 raw:
   case_id: stackoverflow-69192685
   source: stackoverflow

@@ -18,11 +18,11 @@ content:
   has_fixed_code: true
   has_fix_description: true
 reproduction:
-  status: not_attempted
+  status: candidate_for_replay
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: verifier_reject_and_embedded_aya_source_context_present
 raw:
   case_id: github-aya-rs-aya-864
   source: github_issues

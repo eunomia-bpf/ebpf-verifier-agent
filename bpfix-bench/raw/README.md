@@ -44,7 +44,18 @@ raw:
   the pinned environment.
 - `attempted_failed` / `attempted_unknown`: reconstruction was tried but did not
   produce a strict replayable verifier-reject case.
-- `not_attempted`: collected raw material with no local reconstruction attempt.
+- `candidate_for_replay`: raw record has verifier-reject evidence and enough
+  source/context to plausibly build the next replay harness.
+- `needs_manual_reconstruction`: raw record is useful, but requires manual
+  extraction or synthesis of a standalone `make` + `bpftool` reproducer.
+- `missing_verifier_log`: source/context exists, but no concrete verifier log is
+  available.
+- `missing_source`: verifier-like evidence exists, but source or harness context
+  is missing.
+- `environment_required`: reproducing depends on a larger framework, cluster,
+  kernel feature, architecture, or toolchain environment not captured locally.
+- `out_of_scope_non_verifier`: collected record is not a verifier-reject
+  benchmark candidate.
 
 Policy:
 

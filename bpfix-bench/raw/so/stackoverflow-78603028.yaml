@@ -18,11 +18,11 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: not_attempted
+  status: missing_verifier_log
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: loop_fragment_and_prose_only_no_raw_verifier_log
 raw:
   case_id: stackoverflow-78603028
   source: stackoverflow

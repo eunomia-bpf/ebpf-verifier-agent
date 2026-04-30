@@ -18,11 +18,11 @@ content:
   has_fixed_code: true
   has_fix_description: true
 reproduction:
-  status: not_attempted
+  status: missing_source
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: btf_load_error_present_but_no_embedded_reproducer_source
 raw:
   case_id: github-aya-rs-aya-1490
   source: github_issues

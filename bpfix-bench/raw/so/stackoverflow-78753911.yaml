@@ -18,11 +18,11 @@ content:
   has_fixed_code: false
   has_fix_description: false
 reproduction:
-  status: not_attempted
+  status: needs_manual_reconstruction
   case_id: null
   case_path: null
   artifact_path: null
-  reason: raw_record_collected_without_local_reconstruction
+  reason: complexity_log_and_loop_snippet_present_but_map_program_context_missing
 raw:
   case_id: stackoverflow-78753911
   source: stackoverflow
