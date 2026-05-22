@@ -84,5 +84,6 @@ fn text_output_is_rust_style_multispan() {
     assert!(text.contains("267 | if (udph + sizeof(struct udphdr) > data_end)"));
     assert!(text.contains("270 | dst_port = __constant_ntohs(((struct udphdr *)udph)->dest);"));
     assert!(text.contains("proof can be lost when branch-specific pointers are merged"));
+    assert!(text.contains("proof established by a verifier-visible bounds check"));
     assert!(text.contains("help: Keep the IPv4 and IPv6 UDP-pointer derivations"));
 }

@@ -10,7 +10,13 @@ pub mod insn;
 pub mod pass;
 pub mod passes;
 
+mod proof;
 mod verifier_log;
+
+pub use proof::{
+    analyze_verifier_log, ProofEvent, ProofEventRole, ProofObligation, SourceLocation,
+    VerifierLogAnalysis,
+};
 
 #[cfg(test)]
 pub(crate) mod test_helpers;

@@ -76,7 +76,7 @@ error[BPFIX-E006]: pointer type proof is missing
 263 | if (ipv4_hdr)
     | ------------- proof can be lost when branch-specific pointers are merged
 267 | if (udph + sizeof(struct udphdr) > data_end)
-    | -------------------------------------------- proof established for the UDP-header bounds check
+    | -------------------------------------------- proof established by a verifier-visible bounds check
 270 | dst_port = __constant_ntohs(((struct udphdr *)udph)->dest);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ rejected here: verifier sees a scalar where a pointer is required
    |
@@ -174,6 +174,13 @@ It is not the active development surface.
 The `bpfanalysis` crate imports analysis code from the `bpfopt` project and
 uses `libbpf-sys` for BPF instruction and program-type constants. The libbpf
 source is tracked as a submodule in `vendor/libbpf`.
+
+The current user-facing pipeline is log-first: `bpfix` calls
+`bpfanalysis::analyze_verifier_log`, which parses verifier state snapshots,
+infers the missing proof obligation, extracts proof lifecycle events, and maps
+them back to source comments when the log contains BTF/source annotations. Full
+object-file CFG and BTF correlation are the next analysis layer, not a runtime
+requirement for the basic CLI.
 
 ## What BPFix Handles
 

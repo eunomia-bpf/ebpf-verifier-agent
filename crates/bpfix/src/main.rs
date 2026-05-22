@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
+use bpfanalysis::ProofEventRole;
 use clap::{Parser, ValueEnum};
 use serde::Serialize;
 use serde_yaml::Value as YamlValue;
@@ -210,10 +211,11 @@ fn build_diagnostic(
         .and_then(|metadata| metadata.taxonomy_class.as_deref())
         .unwrap_or(class.failure_class)
         .to_string();
-    let (trace_state_count, analysis_error) = match bpfanalysis::summarize_verifier_log(log) {
-        Ok(summary) => (summary.state_count, None),
-        Err(err) => (0, Some(err.to_string())),
-    };
+    let (trace_state_count, analysis_error, proof_events) =
+        match bpfanalysis::analyze_verifier_log(log, terminal.pc, &terminal.message) {
+            Ok(analysis) => (analysis.state_count, None, analysis.events),
+            Err(err) => (0, Some(err.to_string()), Vec::new()),
+        };
 
     let mut evidence = Vec::new();
     evidence.push(Evidence {
@@ -248,16 +250,21 @@ fn build_diagnostic(
         });
     }
 
-    let source_span = SourceSpan {
-        path: terminal
-            .source_path
-            .clone()
-            .unwrap_or_else(|| "<verifier-log>".to_string()),
-        line_start: terminal.source_line.or(Some(terminal.line)),
-        line_end: terminal.source_line.or(Some(terminal.line)),
-        instruction_pc: terminal.pc,
-        source_text: terminal.source_text.clone(),
-    };
+    let source_span = proof_events
+        .iter()
+        .find(|event| event.role == ProofEventRole::Rejected)
+        .and_then(source_span_from_proof_event)
+        .unwrap_or_else(|| SourceSpan {
+            path: terminal
+                .source_path
+                .clone()
+                .unwrap_or_else(|| "<verifier-log>".to_string()),
+            line_start: terminal.source_line.or(Some(terminal.line)),
+            line_end: terminal.source_line.or(Some(terminal.line)),
+            instruction_pc: terminal.pc,
+            source_text: terminal.source_text.clone(),
+        });
+    let related_spans = related_spans_from_proof_events(&proof_events);
 
     let mut candidate_repairs = class
         .repairs
@@ -280,7 +287,7 @@ fn build_diagnostic(
         failure_class,
         message: format!("{}: {}", class.summary, terminal.message),
         missing_obligation: class.obligation.to_string(),
-        related_spans: related_spans(log, &terminal, &error_id, case_metadata),
+        related_spans,
         source_span,
         evidence,
         candidate_repairs,
@@ -410,112 +417,36 @@ fn parse_source_comment(line: &str) -> Option<(String, usize, String)> {
     Some((path.to_string(), line_no, source))
 }
 
-#[derive(Clone, Debug)]
-struct SourceEvent {
-    path: String,
-    line: usize,
-    text: String,
-    pc: Option<usize>,
+fn source_span_from_proof_event(event: &bpfanalysis::ProofEvent) -> Option<SourceSpan> {
+    let source = event.source.as_ref()?;
+    Some(SourceSpan {
+        path: source.path.clone(),
+        line_start: Some(source.line),
+        line_end: Some(source.line),
+        instruction_pc: event.pc,
+        source_text: Some(source.text.clone()),
+    })
 }
 
-fn collect_source_events(log: &str) -> Vec<SourceEvent> {
-    let lines = log.lines().collect::<Vec<_>>();
-    let mut events = Vec::new();
-    for (idx, line) in lines.iter().enumerate() {
-        let Some((path, source_line, text)) = parse_source_comment(line) else {
-            continue;
-        };
-        let pc = lines
-            .iter()
-            .skip(idx + 1)
-            .take(4)
-            .find_map(|next| parse_instruction_pc(next));
-        events.push(SourceEvent {
-            path,
-            line: source_line,
-            text,
-            pc,
-        });
-    }
-    events
-}
-
-fn related_spans(
-    log: &str,
-    terminal: &TerminalError,
-    error_id: &str,
-    case_metadata: Option<&CaseMetadata>,
-) -> Vec<RelatedSpan> {
-    if error_id != "BPFIX-E006" || !terminal.message.contains("invalid mem access 'scalar'") {
-        return Vec::new();
-    }
-
-    let is_branch_provenance_case = case_metadata
-        .and_then(|metadata| metadata.case_id.as_deref())
-        .map(|case_id| case_id == "stackoverflow-53136145")
-        .unwrap_or(false)
-        || terminal
-            .source_text
-            .as_deref()
-            .map(|text| text.contains("udph"))
-            .unwrap_or(false);
-    if !is_branch_provenance_case {
-        return Vec::new();
-    }
-
-    let terminal_line = terminal.source_line.unwrap_or(usize::MAX);
-    let terminal_path = terminal.source_path.as_deref();
-    let mut spans = Vec::new();
-    let events = collect_source_events(log);
-
-    if let Some(event) = latest_event_before(&events, terminal_path, terminal_line, |text| {
-        text.contains("if (ipv4_hdr)")
-    }) {
-        spans.push(related_span(
-            event,
-            "proof can be lost when branch-specific pointers are merged",
-        ));
-    }
-    if let Some(event) = latest_event_before(&events, terminal_path, terminal_line, |text| {
-        text.contains("udph") && text.contains("data_end")
-    }) {
-        spans.push(related_span(
-            event,
-            "proof established for the UDP-header bounds check",
-        ));
-    }
-
+fn related_spans_from_proof_events(events: &[bpfanalysis::ProofEvent]) -> Vec<RelatedSpan> {
+    let mut spans = events
+        .iter()
+        .filter(|event| event.role != ProofEventRole::Rejected)
+        .filter_map(|event| {
+            let source = event.source.as_ref()?;
+            Some(RelatedSpan {
+                path: source.path.clone(),
+                line_start: Some(source.line),
+                line_end: Some(source.line),
+                instruction_pc: event.pc,
+                source_text: Some(source.text.clone()),
+                label: event.detail.clone(),
+            })
+        })
+        .collect::<Vec<_>>();
     spans.sort_by_key(|span| span.line_start.unwrap_or(usize::MAX));
     spans.dedup_by(|left, right| left.path == right.path && left.line_start == right.line_start);
     spans
-}
-
-fn latest_event_before<'a>(
-    events: &'a [SourceEvent],
-    path: Option<&str>,
-    terminal_line: usize,
-    predicate: impl Fn(&str) -> bool,
-) -> Option<&'a SourceEvent> {
-    events
-        .iter()
-        .filter(|event| match path {
-            Some(path) => event.path == path,
-            None => true,
-        })
-        .filter(|event| event.line < terminal_line)
-        .filter(|event| predicate(&event.text))
-        .max_by_key(|event| event.line)
-}
-
-fn related_span(event: &SourceEvent, label: &str) -> RelatedSpan {
-    RelatedSpan {
-        path: event.path.clone(),
-        line_start: Some(event.line),
-        line_end: Some(event.line),
-        instruction_pc: event.pc,
-        source_text: Some(event.text.clone()),
-        label: label.to_string(),
-    }
 }
 
 fn classify(message: &str) -> Classification {
