@@ -5,6 +5,10 @@ as historical reference material while the active project entry point is the
 Rust workspace at the repository root. It is not part of the maintained test or
 release surface.
 
+Generated Python artifacts are intentionally not kept here. Do not commit
+`__pycache__/`, `.pytest_cache/`, `*.pyc`, coverage files, or other local
+interpreter/test-run output.
+
 Contents:
 
 - `bpfix/`: archived Python package

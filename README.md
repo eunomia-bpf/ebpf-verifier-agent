@@ -255,6 +255,6 @@ bpfix-bench/       replayable verifier-failure corpus and raw examples
 crates/bpfanalysis Rust analysis library
 crates/bpfix       user-facing CLI
 docs/evaluation/   benchmark and metric notes
-docs/bpfix-py/     archived Python prototype
+docs/bpfix-py/     archived Python prototype, without generated Python caches
 vendor/libbpf/     libbpf submodule
 ```
