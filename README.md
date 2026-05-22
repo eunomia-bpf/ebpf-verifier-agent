@@ -60,17 +60,19 @@ missing proof: the verifier needs a bounded, non-negative scalar at the packet
 pointer addition. BPFix turns that into a Rust-style diagnostic:
 
 ```text
-BPFIX-E005 [lowering_artifact]
-message: scalar range proof is missing: value -2147483648 makes pkt pointer be out of bounds
-missing obligation: bound the scalar value tightly enough for the verifier to prove the memory access range
-span: prog.c:280 pc=33
-evidence:
-  - terminal_verifier_error at log line 121: value -2147483648 makes pkt pointer be out of bounds
-  - instruction_pc at log line 121: nearest verifier instruction pc 33
-  - verifier_trace: parsed 30 per-instruction verifier state snapshots
-candidate repairs:
-  - Clamp the index or length with explicit upper and lower bounds.
-  - Keep the bounded scalar in the same SSA value used for pointer arithmetic or helper length.
+error[BPFIX-E005]: scalar range proof is missing
+  = class: lowering_artifact
+  --> prog.c:280
+   |
+280 | data += ext_len;
+    | ^^^^^^^^^^^^^^^^ scalar range is not proven safe for this memory operation
+   |
+   = verifier[121]: value -2147483648 makes pkt pointer be out of bounds
+   = note: nearest BPF instruction pc 33
+   = note: parsed 30 verifier state snapshots
+   = obligation: bound the scalar value tightly enough for the verifier to prove the memory access range
+help: Clamp the index or length with explicit upper and lower bounds.
+help: Keep the bounded scalar in the same SSA value used for pointer arithmetic or helper length.
 ```
 
 This is the kind of failure that motivates the project: the program is not

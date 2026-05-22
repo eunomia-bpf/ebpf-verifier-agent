@@ -39,6 +39,7 @@ struct TerminalError {
     pc: Option<usize>,
     source_path: Option<String>,
     source_line: Option<usize>,
+    source_text: Option<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -69,6 +70,7 @@ struct SourceSpan {
     line_start: Option<usize>,
     line_end: Option<usize>,
     instruction_pc: Option<usize>,
+    source_text: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -151,6 +153,7 @@ fn build_diagnostic(log: &str, case_id: Option<String>, input_kind: &'static str
         pc: None,
         source_path: None,
         source_line: None,
+        source_text: None,
     });
     let class = classify(&terminal.message);
     let (trace_state_count, analysis_error) = match bpfanalysis::summarize_verifier_log(log) {
@@ -192,6 +195,7 @@ fn build_diagnostic(log: &str, case_id: Option<String>, input_kind: &'static str
             line_start: terminal.source_line.or(Some(terminal.line)),
             line_end: terminal.source_line.or(Some(terminal.line)),
             instruction_pc: terminal.pc,
+            source_text: terminal.source_text,
         },
         evidence,
         candidate_repairs: class
@@ -226,13 +230,14 @@ fn find_terminal_error(log: &str) -> Option<TerminalError> {
             }
         }
         let pc = nearest_instruction_pc(&lines, idx);
-        let (source_path, source_line) = nearest_source_span(&lines, idx);
+        let (source_path, source_line, source_text) = nearest_source_span(&lines, idx);
         return Some(TerminalError {
             line: idx + 1,
             message,
             pc,
             source_path,
             source_line,
+            source_text,
         });
     }
     None
@@ -300,24 +305,28 @@ fn parse_instruction_pc(line: &str) -> Option<usize> {
     trimmed[..digits_len].parse().ok()
 }
 
-fn nearest_source_span(lines: &[&str], mut idx: usize) -> (Option<String>, Option<usize>) {
+fn nearest_source_span(
+    lines: &[&str],
+    mut idx: usize,
+) -> (Option<String>, Option<usize>, Option<String>) {
     loop {
-        if let Some((path, line)) = parse_source_comment(lines[idx]) {
-            return (Some(path), Some(line));
+        if let Some((path, line, source_text)) = parse_source_comment(lines[idx]) {
+            return (Some(path), Some(line), Some(source_text));
         }
         if idx == 0 {
-            return (None, None);
+            return (None, None, None);
         }
         idx -= 1;
     }
 }
 
-fn parse_source_comment(line: &str) -> Option<(String, usize)> {
-    let (_, tail) = line.rsplit_once(" @ ")?;
+fn parse_source_comment(line: &str) -> Option<(String, usize, String)> {
+    let (source, tail) = line.rsplit_once(" @ ")?;
     let tail = tail.trim();
     let (path, line_no) = tail.rsplit_once(':')?;
     let line_no = line_no.parse().ok()?;
-    Some((path.to_string(), line_no))
+    let source = source.trim().trim_start_matches(';').trim().to_string();
+    Some((path.to_string(), line_no, source))
 }
 
 fn classify(message: &str) -> Classification {
@@ -466,41 +475,80 @@ fn classify(message: &str) -> Classification {
 
 fn render_text(diagnostic: &Diagnostic) -> String {
     let mut out = String::new();
-    out.push_str(&format!(
-        "{} [{}]\n",
-        diagnostic.error_id, diagnostic.failure_class
-    ));
-    out.push_str(&format!("message: {}\n", diagnostic.message));
-    out.push_str(&format!(
-        "missing obligation: {}\n",
-        diagnostic.missing_obligation
-    ));
-    out.push_str(&format!("span: {}", diagnostic.source_span.path));
-    if let Some(line) = diagnostic.source_span.line_start {
-        out.push_str(&format!(":{line}"));
+    let title = diagnostic
+        .message
+        .split_once(':')
+        .map(|(title, _)| title)
+        .unwrap_or(&diagnostic.message);
+    out.push_str(&format!("error[{}]: {title}\n", diagnostic.error_id));
+    out.push_str(&format!("  = class: {}\n", diagnostic.failure_class));
+
+    let line = diagnostic.source_span.line_start.unwrap_or(1);
+    out.push_str(&format!("  --> {}:{line}\n", diagnostic.source_span.path));
+    out.push_str("   |\n");
+    if let Some(source_text) = diagnostic
+        .source_span
+        .source_text
+        .as_deref()
+        .filter(|text| !text.is_empty())
+    {
+        let width = line.to_string().len();
+        let underline_len = source_text.chars().count().clamp(1, 80);
+        out.push_str(&format!("{line:>width$} | {source_text}\n"));
+        out.push_str(&format!(
+            "{} | {} {}\n",
+            " ".repeat(width),
+            "^".repeat(underline_len),
+            source_label(&diagnostic.error_id)
+        ));
     }
-    if let Some(pc) = diagnostic.source_span.instruction_pc {
-        out.push_str(&format!(" pc={pc}"));
-    }
-    out.push('\n');
-    out.push_str("evidence:\n");
-    for evidence in &diagnostic.evidence {
-        match evidence.line {
-            Some(line) => out.push_str(&format!(
-                "  - {} at log line {}: {}\n",
-                evidence.kind, line, evidence.detail
-            )),
-            None => out.push_str(&format!("  - {}: {}\n", evidence.kind, evidence.detail)),
+    out.push_str("   |\n");
+
+    if let Some(error) = diagnostic
+        .evidence
+        .iter()
+        .find(|evidence| evidence.kind == "terminal_verifier_error")
+    {
+        match error.line {
+            Some(line) => out.push_str(&format!("   = verifier[{line}]: {}\n", error.detail)),
+            None => out.push_str(&format!("   = verifier: {}\n", error.detail)),
         }
     }
-    out.push_str("candidate repairs:\n");
-    for repair in &diagnostic.candidate_repairs {
-        out.push_str(&format!("  - {repair}\n"));
+    if let Some(pc) = diagnostic.source_span.instruction_pc {
+        out.push_str(&format!("   = note: nearest BPF instruction pc {pc}\n"));
     }
+    if diagnostic.metadata.trace_state_count > 0 {
+        out.push_str(&format!(
+            "   = note: parsed {} verifier state snapshots\n",
+            diagnostic.metadata.trace_state_count
+        ));
+    }
+    out.push_str(&format!(
+        "   = obligation: {}\n",
+        diagnostic.missing_obligation
+    ));
     if let Some(err) = &diagnostic.metadata.analysis_error {
-        out.push_str(&format!("analysis warning: {err}\n"));
+        out.push_str(&format!("   = warning: {err}\n"));
+    }
+    for repair in &diagnostic.candidate_repairs {
+        out.push_str(&format!("help: {repair}\n"));
     }
     out
+}
+
+fn source_label(error_id: &str) -> &'static str {
+    match error_id {
+        "BPFIX-E001" => "packet access is not proven to stay before data_end",
+        "BPFIX-E002" => "nullable pointer is used without a visible non-null proof",
+        "BPFIX-E003" => "stack bytes are not proven initialized here",
+        "BPFIX-E004" => "reference is not proven released on all paths",
+        "BPFIX-E005" => "scalar range is not proven safe for this memory operation",
+        "BPFIX-E006" => "verifier-tracked pointer type was lost before this operation",
+        "BPFIX-E009" => "kernel or program type does not expose this capability",
+        "BPFIX-E012" => "dynptr lifetime or bounds proof is missing here",
+        "BPFIX-E018" => "verifier analysis budget or loop proof is exhausted here",
+        _ => "verifier proof obligation is missing here",
+    }
 }
 
 fn extract_case_id(yaml: &YamlValue) -> Option<String> {
