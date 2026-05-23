@@ -164,17 +164,14 @@ python3 docs/bpfix-py/tools/validate_benchmark.py --replay bpfix-bench --timeout
 python3 docs/bpfix-py/tools/evaluate_benchmark.py --benchmark bpfix-bench --timeout-sec 60
 ```
 
-Latest local result before the Rust migration:
+Current Rust evaluation TODO:
 
-```text
-passed: 150
-failed: 85
-total_cases: 235
-```
-
-All failures were `kernel_selftest` cases whose build failed because the host
-linker could not find `-lbpf`. Stack Overflow, GitHub issue, and GitHub commit
-cases replayed successfully locally.
+- run `bpfix` over every admitted benchmark log in log-only mode
+- rerun cases with available objects using `--object`
+- report required-proof coverage by verifier proof family
+- report source/bytecode localization coverage
+- report object-CFG attachment success and non-fatal object-analysis failures
+- report latency on the same machine and command configuration
 
 ## Near-Term Roadmap
 
