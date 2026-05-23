@@ -22,7 +22,7 @@ that evidence into:
 
 - a stable error ID
 - a primary failure class
-- the missing verifier proof obligation
+- the required verifier proof
 - source or bytecode spans suitable for Rust-style diagnostics
 - JSON output for downstream tooling
 

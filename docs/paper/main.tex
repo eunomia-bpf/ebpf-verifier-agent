@@ -133,7 +133,7 @@ a safety property never established indicates a source bug; one established
 then lost indicates a compiler-induced lowering artifact.
 
 Evaluating \sys on 302 real-world verifier rejections from kernel selftests
-and production systems, we achieve 94\% obligation coverage, pinpoint the
+and production systems, we achieve 94\% required-proof coverage, pinpoint the
 exact root cause in 67\% of previously undiagnosable compilation-induced
 failures, and boost automated code-repair accuracy by 30 percentage points.
 \sys operates entirely in userspace, incurs just 25.3\,ms median latency per
@@ -184,7 +184,7 @@ Our key insight is that the verifier's execution trace is a complete record of
 a proof attempt---a sequence of per-instruction abstract states---and that
 analyzing \emph{abstract state transitions} across this trace reveals where
 and why the safety proof broke.  The error message identifies which safety
-condition was checked (we call this the ``proof obligation,'' used as a focus
+condition was checked (we call this the required proof, used as a focus
 mechanism), but the core analysis is detecting the instruction whose abstract
 state transition---bounds collapse, type downgrade, provenance loss---caused
 the violation.  We call this the ``proof-loss point.''  Crucially, the
@@ -280,7 +280,7 @@ diagnostic engine that detects safety-relevant abstract state transitions
 across verifier traces, traces their causal chains back to the root-cause
 instruction, and provides concise, Rust-inspired diagnostics pinpointing
 exactly where and why the safety proof broke. On 302
-diverse real-world verifier failures, \sys achieves 94\% obligation coverage,
+diverse real-world verifier failures, \sys achieves 94\% required-proof coverage,
 correctly identifies previously undiagnosable proof-loss points in 67\% of
 lowering-artifact cases, and improves the accuracy of automated
 language-model-based code repairs by 30 percentage points. Moreover, \sys
@@ -293,7 +293,7 @@ In summary, this paper makes three main contributions:
   \item Identifies a structured, generalizable framework (abstract state
         transition analysis) that precisely pinpoints verifier root-cause
         failures and systematically classifies failure types
-        (\S\ref{sec:obligation-inference}--\S\ref{sec:formal-foundation}).
+        (\S\ref{sec:required-proof-reconstruction}--\S\ref{sec:formal-foundation}).
 
   \item Designs and implements \sys, a fast userspace diagnostic tool
         leveraging this framework to deliver concise, actionable verifier
@@ -431,30 +431,30 @@ these into a \texttt{BacktrackChain} structure: a sequence of
 root-cause chain, expressed as debug text; \sys is the first tool to
 extract and structure it.
 
-\subsection{Proof Obligation Inference}
-\label{sec:obligation-inference}
+\subsection{Required-Proof Reconstruction}
+\label{sec:required-proof-reconstruction}
 
 The verifier trace contains thousands of abstract state transitions per
-execution path; analyzing all of them would produce noise.  The proof
-obligation serves as a \emph{focus mechanism}: given the error message and
+execution path; analyzing all of them would produce noise.  The required proof
+serves as a \emph{focus mechanism}: given the error message and
 the register state at the rejection point, \sys infers which safety
-condition the verifier needed---the \emph{proof obligation}---expressed
+condition the verifier needed---the \emph{required proof}---expressed
 as a formal predicate over register state.  This predicate then directs
 the state-transition analysis in Section~3.4 to the relevant registers
 and state dimensions.
 
-\sys supports nineteen obligation families, shown in Table~\ref{tab:obligations}.
-The error message identifies the obligation \emph{family}.  The register state
+\sys supports nineteen verifier proof families, shown in Table~\ref{tab:proof-families}.
+The error message identifies the proof \emph{family}.  The register state
 at the rejection point provides concrete parameters.  \sys instantiates the
 predicate template with these parameters.
 
 \begin{table}[t]
   \centering
   \footnotesize
-  \caption{Proof obligation families supported by \sys (covering
+  \caption{Verifier proof families supported by \sys (covering
     94.3\% of the 262-case evaluation corpus; representative families shown,
     nineteen supported in total).}
-  \label{tab:obligations}
+  \label{tab:proof-families}
   \resizebox{\columnwidth}{!}{%
   \begin{tabular}{llp{2.6cm}}
     \toprule
@@ -485,7 +485,7 @@ register fields at the rejection point.
 
 \textbf{Inference algorithm.}  For each error ID, \sys defines:
 (1) which register(s) contain the failing object (extracted from the rejection
-line), (2) which predicate template applies (from the obligation family), and
+line), (2) which predicate template applies (from the proof family), and
 (3) how to extract concrete parameters from the register state dump.  The
 resulting predicate is a boolean function over register state that can be
 evaluated at any point in the trace.
@@ -494,7 +494,7 @@ evaluated at any point in the trace.
 
 The core of \sys is detecting \emph{safety-relevant abstract state transitions}
 across the verifier's execution trace.  Given the instantiated predicate $P$
-from Section~\ref{sec:obligation-inference} as a focus mechanism, \sys
+from Section~\ref{sec:required-proof-reconstruction} as a focus mechanism, \sys
 evaluates $P$ against the abstract state at every instruction, producing a
 status sequence:
 \[
@@ -536,7 +536,7 @@ verifier's abstract domain, not in ad hoc pattern detection.
 names are reused across the trace.  A value computed in R0 may be copied to R3
 before the access.  \sys tracks value identity across register moves and
 copies.  If R3 is defined as a copy of R0 (\texttt{r3 = r0}), and the
-obligation predicate references the packet range of R0, \sys continues
+proof predicate references the packet range of R0, \sys continues
 tracking the range on R3 for subsequent instructions.  This register value
 lineage is essential for correctly identifying proof-established and proof-lost
 events across LLVM's register allocation.
@@ -592,7 +592,7 @@ verifier trace.
 \label{def:transfer}
 Let $P : D_1 \to \{\mathit{true}, \mathit{false}, \mathit{unknown}\}$ be the
 safety predicate instantiated from the rejection point
-(\S\ref{sec:obligation-inference}).
+(\S\ref{sec:required-proof-reconstruction}).
 For each traced instruction~$i$ with verifier state $s_i \in D_1$,
 the transfer function $\tau_i : \mathcal{L} \to \mathcal{L}$ maps the
 previous proof status to the status after observing the abstract state
@@ -620,30 +620,40 @@ If no such $w$ exists and $\ell_n = \mathit{violated}$, the proof was
 \emph{never established}.
 \end{definition}
 
-\begin{proposition}[Soundness of lifecycle labels]
-\label{prop:soundness}
-If \sys labels instruction~$i$ with
-$\ell_i = \mathit{satisfied}$, then for all concrete states
-$c \in \gamma(s_i)$ (where $\gamma$ is the concretization function of the
-verifier's abstract domain), the safety property encoded by~$P$ holds.
-\end{proposition}
+\begin{theorem}[Required-proof lifecycle soundness]
+\label{thm:required-proof-soundness}
+Assume the terminal rejection is mapped to the correct required proof~$P$, and
+the monitor for~$P$ is sound with respect to the verifier check it represents:
+when the monitor reports \textit{satisfied} at abstract state~$s_i$, every
+concrete state $c \in \gamma(s_i)$ satisfies the checked safety condition, and
+when it reports \textit{violated}, the verifier lacks the abstract evidence
+needed to discharge that check at~$i$.  Then every lifecycle label emitted by
+\sys corresponds to a real change in the verifier's abstract evidence for~$P$:
+\textit{proof\_established} marks a transition from missing to established
+evidence, \textit{proof\_lost} marks a transition from established to missing or
+insufficient evidence, and \textit{rejected} marks a final state that does not
+discharge~$P$.
+\end{theorem}
 \begin{proof}[Proof sketch]
-The verifier is a sound abstract interpreter: $s_i$ over-approximates all
-concrete states reachable at instruction~$i$~\cite{gershuni2019simple}.
-The obligation predicate $P$ is monotone with respect to the verifier's
-partial order on~$D_1$ (tighter bounds imply satisfaction if looser bounds
-already satisfy).  Therefore $P(s_i) = \mathit{true}$ implies
-$P(c) = \mathit{true}$ for all $c \in \gamma(s_i)$.
+The verifier is a sound abstract interpreter: each $s_i$ over-approximates all
+concrete states reachable at instruction~$i$~\cite{gershuni2019simple}.  The
+required-proof monitor maps each $s_i$ to the proof-status lattice by the
+per-family predicate for~$P$.  By the monitor-soundness assumption, each
+per-state status is a sound statement about the verifier's available evidence
+for the corresponding check.  The lifecycle labels are emitted exactly at the
+status transitions computed by the transfer function~$\tau_i$.  Therefore the
+labels identify real changes in verifier abstract evidence for~$P$, though they
+do not by themselves prove semantic root cause or repair correctness.
 \end{proof}
 
-\textbf{Backward obligation slice.}
-Given the transition witness $w$, the \emph{backward obligation slice} is
+\textbf{Proof-relevant backward slice.}
+Given the transition witness $w$, the \emph{proof-relevant backward slice} is
 \[
   S = \{ i < w \mid \exists\, r \in \mathit{regs}(P) .\;
     \text{instruction } i \text{ writes to } r \}
 \]
 i.e., all instructions before $w$ that write to registers appearing in the
-obligation predicate~$P$.  When \texttt{mark\_precise} backtracking
+proof predicate~$P$.  When \texttt{mark\_precise} backtracking
 information is available in the trace, $S$ is refined to include only
 instructions on the backtracking chain, yielding a tighter slice.
 
@@ -696,7 +706,7 @@ readable in a terminal, an IDE, or a CI log without any tool support.
 \textbf{Structured JSON.}  A machine-readable format containing
 \texttt{error\_id}, \texttt{taxonomy\_class}, \texttt{proof\_status}, an array
 of \texttt{spans} (each with role, source location, instruction index, and
-state change), the instantiated obligation predicate, and \texttt{note}/\texttt{help}
+state change), the instantiated proof predicate, and \texttt{note}/\texttt{help}
 text.  This format is designed for consumption by LLM agents (replacing raw
 log text in prompts), CI systems (structured failure annotations), and IDE
 plugins.
@@ -706,9 +716,9 @@ plugins.
 \sys is implemented in Python ($\sim$14,613 lines across five modules:
 \texttt{log\_parser}, \texttt{trace\_parser}, \texttt{proof\_engine},
 \texttt{source\_correlator}, and \texttt{rust\_diagnostic}), with 268 unit
-tests covering obligation inference, predicate evaluation, backward slicing,
+tests covering required-proof reconstruction, predicate evaluation, backward slicing,
 and transition witness detection on hand-crafted and real-corpus traces.
-It defines 23 error IDs (\sys{}-E001 through E023) and nineteen obligation
+It defines 23 error IDs (\sys{}-E001 through E023) and nineteen verifier proof
 families.
 
 \textbf{Source-code independence.}  \sys requires only the verifier log
@@ -724,7 +734,7 @@ at the BPF bytecode level, it is agnostic to the source language.
 Table~\ref{tab:per-language} breaks down diagnostic performance by source
 language across all 302 cases (including ineligible ones).
 Diagnostic success is uniformly high: 85.8\% for C, 95.2\% for Rust (Aya),
-and 100\% for Go (Cilium).  The lower obligation inference rate for Rust
+and 100\% for Go (Cilium).  The lower required-proof reconstruction rate for Rust
 (40.0\% vs.\ 93.2\% for C) and the near-zero BTF coverage for non-C cases
 reflect the log richness available in the corpus (Rust and Go cases are
 primarily from GitHub issues with truncated logs), not a language-specific
@@ -737,7 +747,7 @@ limitation in the parser.
 \label{tab:per-language}
 \begin{tabular}{lrrrr}
 \toprule
-\textbf{Lang.} & \textbf{Cases} & \textbf{Diag Success} & \textbf{Obligation} & \textbf{BTF} \\
+\textbf{Lang.} & \textbf{Cases} & \textbf{Diag Success} & \textbf{Required Proof} & \textbf{BTF} \\
 \midrule
 C    & 274 & 235 (85.8\%) & 219/235 (93.2\%) & 170 (62.0\%) \\
 Rust &  21 &  20 (95.2\%) &   8/20  (40.0\%) &   1 (4.8\%)  \\
@@ -753,7 +763,7 @@ Go   &   7 &   7 (100\%)  &   5/7   (71.4\%) &   1 (14.3\%) \\
 We evaluate \sys against six questions:
 \begin{itemize}
   \item[\textbf{Q1}] Does \sys generate diagnostics reliably at scale?
-  \item[\textbf{Q2}] What fraction of cases get full proof obligation coverage?
+  \item[\textbf{Q2}] What fraction of cases get full required-proof coverage?
   \item[\textbf{Q3}] Do {\sys}'s source spans cover actual fix locations?
   \item[\textbf{Q4}] Do \sys diagnostics improve LLM-assisted repair?
   \item[\textbf{Q5}] How does \sys compare to Pretty Verifier?
@@ -799,7 +809,7 @@ The taxonomy distribution across the 262-case evaluation corpus:
 source\_bug 48.5\%, env\_mismatch 31.3\%, lowering\_artifact 12.6\%,
 verifier\_limit 7.6\%.
 
-\subsection{Batch Reliability and Obligation Coverage (Q1, Q2)}
+\subsection{Batch Reliability and Required-Proof Coverage (Q1, Q2)}
 \label{sec:batch}
 
 We ran \sys on all 262 eligible cases.  Table~\ref{tab:batch} reports the
@@ -815,7 +825,7 @@ results.
     \textbf{Metric} & \textbf{Result} \\
     \midrule
     Diagnostic generation success   & 262/262 (100\%) \\
-    Proof obligation inferred       & 247/262 (94.3\%) \\
+    Required proof reconstructed    & 247/262 (94.3\%) \\
     BTF source correlation          & 172/262 (65.6\%) \\
     \midrule
     Proof-established span          & 115/262 (43.9\%) \\
@@ -828,11 +838,11 @@ results.
 \end{table}
 
 \sys generates a structured diagnostic for every case with zero crashes.
-Proof obligation coverage of 94.3\% (247/262) means that for nineteen in twenty
+Required-proof coverage of 94.3\% (247/262) means that for nineteen in twenty
 cases, \sys can state the exact predicate the verifier needed and evaluate
 it at every instruction.  The remaining 6\% involve environment errors
 (Permission denied, build failures) rather than true verifier rejections, and
-fall outside the nineteen currently supported obligation families.  We
+fall outside the nineteen currently supported verifier proof families.  We
 explicitly characterize this scope limitation in Section~\ref{sec:discussion}.
 
 The proof status distribution reflects the failure mix: 49.2\% are
@@ -979,13 +989,13 @@ and negligible compared to a single LLM API call (1--10\,s).
 
 \subsection{Scope and Honest Limitations}
 
-\textbf{94\% obligation coverage.}  Nineteen obligation families cover 94.3\% of
+\textbf{94\% required-proof coverage.}  Nineteen verifier proof families cover 94.3\% of
 cases.  The remaining 6\% involve environment errors (Permission denied, build
 failures) rather than true verifier rejections; these fall outside the scope of
 proof-trace analysis.  The predicate framework is extensible, and adding a new
 family requires defining the predicate template and the parameter extraction
 rules.  We provide an explicit enumeration of the nineteen supported families
-(Table~\ref{tab:obligations}) so readers can assess scope.
+(Table~\ref{tab:proof-families}) so readers can assess scope.
 
 \textbf{BTF coverage.}  34.4\% of cases lack BTF annotations (primarily Stack
 Overflow fragments).  Without BTF, \sys produces bytecode-level spans
@@ -1016,7 +1026,7 @@ important axis for future work.
 
 {\sys}'s output could become part of the kernel's own diagnostic
 infrastructure.  The structured JSON format and 23 error IDs are designed
-to be stable and extensible.  The proof obligation catalog could inform
+to be stable and extensible.  The required-proof catalog could inform
 improvements to verifier error messages.  The Rust-style rendering could
 be integrated into \texttt{bpftool} or the \texttt{libbpf} loader, so
 developers receive structured diagnostics directly from the load path.
